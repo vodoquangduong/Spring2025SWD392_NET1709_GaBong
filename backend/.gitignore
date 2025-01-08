@@ -1,0 +1,29 @@
+# Thư mục và file build
+bin/
+obj/
+
+# Cấu hình của IDE
+.vs/
+*.csproj.user
+
+# File của NuGet
+project.assets.json
+project.nuget.cache
+*.nuget.g.props
+*.nuget.g.targets
+
+# Tệp log và debug
+*.log
+
+# Cấu hình runtime
+appsettings.Development.json
+
+# Thông tin hệ điều hành
+*.DS_Store
+Thumbs.db
+
+# File tạm khác
+*.tmp
+*.bak
+*.swp
+
