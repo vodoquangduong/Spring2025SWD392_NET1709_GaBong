@@ -1,0 +1,226 @@
+/* html {
+  cursor: url("http://localhost:3000/cursor.png") 0 -8, auto !important;
+}
+
+:hover {
+  cursor: url("http://localhost:3000/cursor.png"), auto !important;
+}
+
+:active {
+  cursor: url("http://localhost:3000/cursor-active.png"), auto !important;
+}
+
+:focus {
+  cursor: url("http://localhost:3000/cursor-active.png"), auto !important;
+} */
+
+.shake:hover {
+  animation: shake 0.4s;
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0px);
+  }
+  25% {
+    transform: translateX(-20px);
+  }
+  50% {
+    transform: translateX(20px);
+  }
+  75% {
+    transform: translateX(-20px);
+  }
+  100% {
+    transform: translateX(0px);
+  }
+}
+
+.rtl {
+  animation: RightToLeft 24s infinite linear;
+}
+
+.ltr {
+  animation: LeftToRight 24s infinite linear;
+}
+
+@keyframes RightToLeft {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes LeftToRight {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+/* --------------------------------------------------------------------------- */
+
+.background-effect .circles {
+  position: absolute;
+  inset: 0px;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+.background-effect .circles li {
+  position: absolute;
+  bottom: -150px;
+  display: block;
+  background-color: rgb(79 70 229 / 0.3);
+  -webkit-animation: 25s linear infinite animate;
+  animation: 25s linear infinite animate;
+}
+.background-effect .circles li.brand-img:first-child,
+.background-effect .circles li.brand-img:nth-child(10),
+.background-effect .circles li.brand-img:nth-child(2),
+.background-effect .circles li.brand-img:nth-child(3),
+.background-effect .circles li.brand-img:nth-child(4),
+.background-effect .circles li.brand-img:nth-child(5),
+.background-effect .circles li.brand-img:nth-child(6),
+.background-effect .circles li.brand-img:nth-child(7),
+.background-effect .circles li.brand-img:nth-child(8),
+.background-effect .circles li.brand-img:nth-child(9) {
+  background-color: transparent;
+}
+.background-effect .circles li:first-child,
+.background-effect .circles li:nth-child(10),
+.background-effect .circles li:nth-child(2),
+.background-effect .circles li:nth-child(3),
+.background-effect .circles li:nth-child(4),
+.background-effect .circles li:nth-child(5),
+.background-effect .circles li:nth-child(6),
+.background-effect .circles li:nth-child(7),
+.background-effect .circles li:nth-child(8),
+.background-effect .circles li:nth-child(9) {
+  width: 3rem;
+  height: 3rem;
+}
+.background-effect .circles li:first-child {
+  inset-inline-start: 25%;
+  -webkit-animation-delay: 0s;
+  animation-delay: 0s;
+}
+.background-effect .circles li:nth-child(2) {
+  inset-inline-start: 10%;
+  -webkit-animation-delay: 2s;
+  animation-delay: 2s;
+  -webkit-animation-duration: 12s;
+  animation-duration: 12s;
+}
+.background-effect .circles li:nth-child(3) {
+  inset-inline-start: 70%;
+  -webkit-animation-delay: 4s;
+  animation-delay: 4s;
+}
+.background-effect .circles li:nth-child(4) {
+  inset-inline-start: 40%;
+  -webkit-animation-delay: 0s;
+  animation-delay: 0s;
+  -webkit-animation-duration: 18s;
+  animation-duration: 18s;
+}
+.background-effect .circles li:nth-child(5) {
+  inset-inline-start: 65%;
+  -webkit-animation-delay: 0s;
+  animation-delay: 0s;
+}
+.background-effect .circles li:nth-child(6) {
+  inset-inline-start: 75%;
+  -webkit-animation-delay: 3s;
+  animation-delay: 3s;
+}
+.background-effect .circles li:nth-child(7) {
+  inset-inline-start: 35%;
+  -webkit-animation-delay: 7s;
+  animation-delay: 7s;
+}
+.background-effect .circles li:nth-child(8) {
+  inset-inline-start: 50%;
+  -webkit-animation-delay: 15s;
+  animation-delay: 15s;
+  -webkit-animation-duration: 45s;
+  animation-duration: 45s;
+}
+.background-effect .circles li:nth-child(9) {
+  inset-inline-start: 20%;
+  -webkit-animation-delay: 2s;
+  animation-delay: 2s;
+  -webkit-animation-duration: 35s;
+  animation-duration: 35s;
+}
+.background-effect .circles li:nth-child(10) {
+  inset-inline-start: 85%;
+  -webkit-animation-delay: 0s;
+  animation-delay: 0s;
+  -webkit-animation-duration: 11s;
+  animation-duration: 11s;
+}
+@-webkit-keyframes animate {
+  0% {
+    -webkit-transform: translateY(0) rotate(0);
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+    border-radius: 10px;
+  }
+  100% {
+    -webkit-transform: translateY(-1000px) rotate(720deg);
+    transform: translateY(-1000px) rotate(720deg);
+    opacity: 0;
+  }
+}
+@keyframes animate {
+  0% {
+    -webkit-transform: translateY(0) rotate(0);
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+    border-radius: 10px;
+  }
+  100% {
+    -webkit-transform: translateY(-1000px) rotate(720deg);
+    transform: translateY(-1000px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.view {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@keyframes Appear {
+  from {
+    opacity: 0;
+    clip-path: inset(100% 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.appear-block {
+  height: 200px;
+  width: 300px;
+  margin: 50px;
+  border: 0.5mm solid black;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+    rgba(0, 0, 0, 0.3) 0px 30px 60px -30px,
+    rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+}
+
+.appear-block {
+  animation: Appear linear;
+  animation-timeline: view();
+  animation-range: entry 0% cover 40%;
+}

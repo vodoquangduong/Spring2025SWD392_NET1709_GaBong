@@ -1,3 +1,4 @@
+import React from "react";
 import { FaSearch } from "react-icons/fa";
 const SearchBox = ({
   placeholder = "Search",
@@ -5,7 +6,14 @@ const SearchBox = ({
   className = "py-2 !text-sm",
   name = "name",
   value = "",
-  onChange = () => {},
+  onChange,
+}: {
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  widthClass?: string;
+  className?: string;
+  name?: string;
+  value?: string;
 }) => {
   return (
     <div className={`relative ${widthClass}`}>
@@ -18,7 +26,7 @@ const SearchBox = ({
         id="default-search"
         className={`!ps-10 bg-white dark:text-zinc-500 input-style ${className}`}
         placeholder={placeholder}
-        onChange={onChange}
+        onChange={(event) => onChange && onChange(event)}
         required
         value={value}
       />

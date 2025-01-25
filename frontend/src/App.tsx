@@ -2,7 +2,6 @@ import { App as AntApp, ConfigProvider, theme } from "antd";
 import { BrowserRouter } from "react-router-dom";
 import MainRoutes from "./routes/MainRoutes";
 import useConfigStore from "./stores/configStore";
-import { useEffect } from "react";
 
 export default function App() {
   const { isDarkMode } = useConfigStore();

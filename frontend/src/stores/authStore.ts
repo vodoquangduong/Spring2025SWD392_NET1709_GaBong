@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { Role } from "../types";
+import { LoginRequest, Role } from "../types";
 import { setCookie } from "../libs/cookie";
 
 const useAuthStore = create<{
@@ -9,7 +9,7 @@ const useAuthStore = create<{
   name: string;
   avatar: string;
   role: Role;
-  login: (user: any) => void;
+  login: (loginRequest: LoginRequest) => void;
   logout: () => void;
 }>()(
   persist(
@@ -19,13 +19,13 @@ const useAuthStore = create<{
       name: "",
       avatar: "",
       role: Role.GUEST,
-      login: (userInfo: any) => {
+      login: (loginRequest: any) => {
         set({
           isAuthenticated: true,
-          email: userInfo.email,
-          name: userInfo.email,
-          avatar: userInfo.email,
-          role: userInfo.role,
+          // email: userInfo.email,
+          // name: userInfo.email,
+          // avatar: userInfo.email,
+          // role: userInfo.role,
         });
       },
       logout: () => {

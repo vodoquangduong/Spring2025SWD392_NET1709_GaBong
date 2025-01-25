@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import useAuthStore from "../../../stores/authStore";
 
 const RegisterForm = () => {
+  const { login } = useAuthStore();
+
   return (
     <div className="w-1/2 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
@@ -157,6 +160,10 @@ const RegisterForm = () => {
                 <button
                   type="button"
                   className="inline-block w-full px-6 py-3 font-semibold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-sm ease-in tracking-tight-soft shadow-md hover:shadow-xs"
+                  onClick={() => {
+                    login({ email: "12345", password: "12345" });
+                    window.location.href = "/";
+                  }}
                 >
                   Create Account
                 </button>

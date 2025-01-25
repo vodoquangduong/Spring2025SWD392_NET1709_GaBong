@@ -23,6 +23,11 @@ export type User = {
   degree?: string;
 };
 
+export type LoginRequest = {
+  email: string;
+  password: string;
+};
+
 export type FormCallback = {
   (setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>): ReactNode;
 };

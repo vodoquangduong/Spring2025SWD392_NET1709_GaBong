@@ -7,6 +7,8 @@ import CreateModal from "../../../../components/CreateModal";
 import userDataJson from "../../../../mocks/users.json";
 import { GET } from "../../../../libs/request";
 import { User } from "../../../../types";
+import { motion } from "motion/react";
+import { PAGE_ANIMATION } from "../../../../libs/constants";
 
 export default function UserList() {
   const [listData, setListData] = useState<User[]>([]);
@@ -18,7 +20,7 @@ export default function UserList() {
     })();
   }, []);
   return (
-    <>
+    <motion.div {...PAGE_ANIMATION}>
       <div className="flex justify-between mb-4 items-center">
         <SearchBox />
         <CreateModal
@@ -34,6 +36,6 @@ export default function UserList() {
         dataSource={listData}
         rowKey={(record: any) => record?.id}
       />
-    </>
+    </motion.div>
   );
 }

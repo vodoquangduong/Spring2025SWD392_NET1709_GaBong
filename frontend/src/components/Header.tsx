@@ -2,6 +2,8 @@ import { Link, useLocation } from "react-router-dom";
 import Logo from "./Logo";
 import React from "react";
 import ProfileDropdown from "./ProfileDropdown";
+import useAuthStore from "../stores/authStore";
+import { Button } from "antd";
 
 const HeaderLinkItem = ({
   href,
@@ -33,13 +35,36 @@ const HeaderLinkItem = ({
 };
 
 export default function Header() {
+  const { isAuthenticated } = useAuthStore();
+
   return (
-    <nav className="py-3 shadow-md dark:bg-zinc-900 bg-white fixed top-0 left-0 w-full">
-      <div className="container flex flex-wrap items-center justify-between mx-auto">
-        <div className="flex flex-wrap justify-between items-center w-full">
+    <nav className="py-3 shadow-md dark:bg-zinc-900 bg-white fixed top-0 left-0 w-full z-30">
+      <div className="flex flex-wrap items-center justify-between grow mx-72">
+        <div className="flex flex-wrap justify-between items-center w-full h-12 container">
           <Logo />
           <div className="flex items-center lg:order-2 gap-4">
-            <ProfileDropdown />
+            {isAuthenticated ? (
+              <ProfileDropdown />
+            ) : (
+              <>
+                <Link to={"/login"} className="font-bold hover:text-blue-500">
+                  Login
+                </Link>
+                <Link
+                  to={"/register"}
+                  className="font-bold hover:text-blue-500 mx-4"
+                >
+                  Register
+                </Link>
+                <Button
+                  type="primary"
+                  onClick={() => (window.location.href = "/register")}
+                  className="font-bold py-4"
+                >
+                  Post a project
+                </Button>
+              </>
+            )}
             <button
               data-collapse-toggle="mobile-menu-2"
               type="button"
@@ -55,8 +80,7 @@ export default function Header() {
             id="mobile-menu-2"
           >
             <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-              <HeaderLinkItem href={"/"}>Home</HeaderLinkItem>
-              <HeaderLinkItem href={"/jobs"}>Jobs</HeaderLinkItem>
+              <HeaderLinkItem href={"/projects"}>Projects</HeaderLinkItem>
               <HeaderLinkItem href={"/services"}>Services</HeaderLinkItem>
               <HeaderLinkItem href={"/news"}>News</HeaderLinkItem>
               <HeaderLinkItem href={"/about"}>About</HeaderLinkItem>

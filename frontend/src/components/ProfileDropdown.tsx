@@ -6,8 +6,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Dropdown } from "antd";
 import { defaultAvatar } from "../libs/default";
 import { setCookie } from "../libs/cookie";
+import useAuthStore from "../stores/authStore";
 
 const ProfileDropdown = () => {
+  const { logout } = useAuthStore();
   const navigate = useNavigate();
   const items = [
     {
@@ -56,6 +58,7 @@ const ProfileDropdown = () => {
       key: "4",
       onClick: () => {
         setCookie("accessToken", "", 0);
+        logout();
         navigate("/");
       },
       label: (

@@ -5,6 +5,7 @@ import { FaBox } from "react-icons/fa";
 import { Role } from "../types";
 import { useState } from "react";
 import DashboardHeader from "../components/DashboardHeader";
+import { AnimatePresence, motion } from "motion/react";
 
 export const DashboardLayout = () => {
   const location = useLocation();
@@ -72,6 +73,7 @@ export const DashboardLayout = () => {
             <Outlet />
             {/* </div> */}
           </div>
+
           {/* <AdminFooter /> */}
         </Layout>
       </Layout>

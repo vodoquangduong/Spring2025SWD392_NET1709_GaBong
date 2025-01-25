@@ -7,6 +7,7 @@ import UserDetail from "../pages/DashboardTemplate/UserManager/UserDetail/UserDe
 import UserList from "../pages/DashboardTemplate/UserManager/UserList/UserList";
 import Home from "../pages/Home";
 import Register from "../pages/Register/Register";
+import { AnimatePresence } from "motion/react";
 
 export default function MainRoutes() {
   return (
@@ -40,7 +41,9 @@ export default function MainRoutes() {
                   //   redirectUrl="/admin"
                   //   children={<Outlet />}
                   // />
-                  <Outlet />
+                  <AnimatePresence>
+                    <Outlet />
+                  </AnimatePresence>
                 }
               >
                 <Route path="" element={<UserList />} />
