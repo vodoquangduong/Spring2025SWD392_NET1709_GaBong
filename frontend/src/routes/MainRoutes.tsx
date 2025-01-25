@@ -1,13 +1,12 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
-import Home from "../pages/Home";
-import NormalLayout from "../layouts/NormalLayout";
 import PageNotFound from "../components/PageNotFound";
-import PrivateRoute from "../components/PrivateRoute";
 import { DashboardLayout } from "../layouts/DashboardLayout";
-import { Role } from "../types";
-import UserList from "../pages/DashboardTemplate/UserManager/UserList/UserList";
-import UserDetail from "../pages/DashboardTemplate/UserManager/UserDetail/UserDetail";
 import GlobalLayout from "../layouts/GlobalLayout";
+import NormalLayout from "../layouts/NormalLayout";
+import UserDetail from "../pages/DashboardTemplate/UserManager/UserDetail/UserDetail";
+import UserList from "../pages/DashboardTemplate/UserManager/UserList/UserList";
+import Home from "../pages/Home";
+import Register from "../pages/Register/Register";
 
 export default function MainRoutes() {
   return (
@@ -16,6 +15,9 @@ export default function MainRoutes() {
         <Route path="/" element={<GlobalLayout />}>
           <Route path="/" element={<NormalLayout />}>
             <Route path="/" element={<Home />} />
+          </Route>
+          <Route path="/register" element={<GlobalLayout />}>
+            <Route path="/register" element={<Register />} />
           </Route>
           <Route path="worker">
             <Route

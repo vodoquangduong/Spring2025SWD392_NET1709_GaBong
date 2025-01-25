@@ -1,0 +1,4 @@
+/* Custom styles if needed */
+.custom-input {
+  @apply w-full px-3 py-2 border rounded-lg outline-none transition-all duration-200;
+}
