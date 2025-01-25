@@ -18,7 +18,7 @@ const useAuthStore = create<{
       email: "",
       name: "",
       avatar: "",
-      role: Role.Guest,
+      role: Role.GUEST,
       login: (userInfo: any) => {
         set({
           isAuthenticated: true,
@@ -35,7 +35,7 @@ const useAuthStore = create<{
           email: "",
           name: "",
           avatar: "",
-          role: Role.Guest,
+          role: Role.GUEST,
         });
       },
     }),

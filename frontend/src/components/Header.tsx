@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import Logo from "./Logo";
 import React from "react";
+import ProfileDropdown from "./ProfileDropdown";
 
 const HeaderLinkItem = ({
   href,
@@ -33,11 +34,12 @@ const HeaderLinkItem = ({
 
 export default function Header() {
   return (
-    <nav className="py-3 shadow-md dark:bg-zinc-900 fixed top-0 left-0 w-full">
+    <nav className="py-3 shadow-md dark:bg-zinc-900 bg-white fixed top-0 left-0 w-full">
       <div className="container flex flex-wrap items-center justify-between mx-auto">
         <div className="flex flex-wrap justify-between items-center w-full">
           <Logo />
           <div className="flex items-center lg:order-2 gap-4">
+            <ProfileDropdown />
             <button
               data-collapse-toggle="mobile-menu-2"
               type="button"

@@ -1,0 +1,80 @@
+[
+  {
+    "id": 1,
+    "email": "davidcopbophieu@gmail.com",
+    "password": "qweQq120382nc98rc",
+    "name": "David Cóp bơ phiu",
+    "dob": "11/04/18",
+    "description": "# David Cóp bơ phiu\n\n**Email:** davidcopbophieu@gmail.com\n**Phone:** 0904568234\n**Address:** Nhà vườn nho nhỏ có con thỏ xinh xinh\n**Date of Birth:** 11/04/18\n\n## Mô tả\nYêu màu hồng, ghét sự giả dối.\n\n## Học vấn\n- **Trường:**  Polytechnic\n- **Chuyên ngành:** Graphic Design\n- **Bằng cấp:** 9/12\n\n## Kỹ năng\n- Thiết kế đồ họa\n- Sử dụng Adobe Creative Suite\n- Sáng tạo và tư duy nghệ thuật",
+    "address": "Nhà vườn nho nhỏ có con thỏ xinh xinh",
+    "phone": "0904568234",
+    "school": "Polytechnic",
+    "major": "Graphic Design",
+    "degree": "Bachelor"
+  },
+  {
+    "id": 2,
+    "email": "davidcopbophieu@gmail.com",
+    "password": "qweQq120382nc98rc",
+    "name": "David Bóp cơ phiu",
+    "dob": "11/04/18",
+    "description": "Yêu màu hồng, ghét sự giả dối",
+    "address": "Nhà vườn nho nhỏ có con thỏ xinh xinh",
+    "phone": "0904568234",
+    "school": "University",
+    "major": "Information Technology",
+    "degree": "Bachelor"
+  },
+  {
+    "id": 3,
+    "email": "davidcopbophieu@gmail.com",
+    "password": "qweQq120382nc98rc",
+    "name": "Đóp vơ Ca vít phiu",
+    "dob": "11/04/18",
+    "description": "Yêu màu hồng, ghét sự giả dối",
+    "address": "Nhà vườn nho nhỏ có con thỏ xinh xinh",
+    "phone": "0904568234",
+    "school": "RMIT",
+    "major": "Information Technology",
+    "degree": "Bachelor"
+  },
+  {
+    "id": 4,
+    "email": "davidcopbophieu@gmail.com",
+    "password": "qweQq120382nc98rc",
+    "name": "Đáp vơ Cóp bi phiu",
+    "dob": "11/04/18",
+    "description": "Yêu màu hồng, ghét sự giả dối",
+    "address": "Nhà vườn nho nhỏ có con thỏ xinh xinh",
+    "phone": "0904568234",
+    "school": "THPT Đoàn Thị Điểm",
+    "major": "Logistics",
+    "degree": "12/12"
+  },
+  {
+    "id": 5,
+    "email": "davidbopcophieu@gmail.com",
+    "password": "qweQq120382nc98rc",
+    "name": "David Cóp bơ phiu",
+    "dob": "11/04/18",
+    "description": "Yêu màu hồng, ghét sự giả dối",
+    "address": "Nhà vườn nho nhỏ có con thỏ xinh xinh",
+    "phone": "0904568234",
+    "school": "UEH",
+    "major": "Information Technology",
+    "degree": "Bachelor"
+  },
+  {
+    "id": 6,
+    "email": "davidbopcophieu@gmail.com",
+    "password": "qweQq120382nc98rc",
+    "name": "David Bóp cổ phiếu",
+    "dob": "11/04/18",
+    "description": "Yêu màu hồng, ghét sự giả dối",
+    "address": "Nhà vườn nho nhỏ có con thỏ xinh xinh",
+    "phone": "0904568234",
+    "school": "USSH",
+    "major": "Information Technology",
+    "degree": "Bachelor"
+  }
+]
