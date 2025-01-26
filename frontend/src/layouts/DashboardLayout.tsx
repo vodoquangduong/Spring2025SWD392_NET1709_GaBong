@@ -5,9 +5,8 @@ import { FaBox } from "react-icons/fa";
 import { Role } from "../types";
 import { useState } from "react";
 import DashboardHeader from "../components/DashboardHeader";
-import { AnimatePresence, motion } from "motion/react";
 
-export const DashboardLayout = () => {
+export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
@@ -17,28 +16,32 @@ export const DashboardLayout = () => {
       label: "Test label 1",
       key: "/worker/dashboard",
       icon: <FaBox />,
-      className: "w-full flex font-semibold !text-zinc-200",
+      className:
+        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
       allowedRoles: [Role.GUEST],
     },
     {
       label: "Test label 2",
       key: "/worker/campaigns",
       icon: <FaBox />,
-      className: "w-full flex font-semibold !text-zinc-200",
+      className:
+        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
       allowedRoles: [Role.GUEST],
     },
     {
       label: "Test label 3",
       key: "/worker/posts",
       icon: <FaBox />,
-      className: "w-full flex font-semibold !text-zinc-200",
+      className:
+        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
       allowedRoles: [Role.GUEST],
     },
     {
       label: "Test label 4",
       key: "/worker/accounts",
       icon: <FaBox />,
-      className: "w-full flex font-semibold !text-zinc-200",
+      className:
+        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
       allowedRoles: [Role.GUEST],
     },
   ];
@@ -54,7 +57,7 @@ export const DashboardLayout = () => {
           className="!bg-zinc-800"
           width={250}
         >
-          <Logo size="small" />
+          <Logo />
           <Menu
             className="px-2 bg-zinc-800"
             theme={"dark"}
@@ -79,4 +82,4 @@ export const DashboardLayout = () => {
       </Layout>
     </>
   );
-};
+}

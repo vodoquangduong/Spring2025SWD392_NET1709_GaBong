@@ -53,7 +53,7 @@ const items = [
 
 export default function Category() {
   return (
-    <div className="mx-60 flex gap-10 py-24">
+    <div className="mx-container flex gap-10 py-24">
       <Line />
       <div className="grow grid grid-cols-3 gap-6">
         <div className="">

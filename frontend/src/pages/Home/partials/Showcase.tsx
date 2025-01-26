@@ -26,7 +26,7 @@ export default function Showcase({
   swap?: boolean;
 }) {
   return (
-    <div className="mx-60 gap-4 my-24 grid grid-cols-2 grid-rows-2 h-[400px]">
+    <div className="mx-container gap-4 my-24 grid grid-cols-2 grid-rows-2 h-[400px]">
       <div
         className={`relative w-full h-[416px] bg-cover bg-no-repeat rounded-lg bg-center group transition-all duration-300 hover:scale-[115%] hover:border hover:z-10 ${
           swap ? "order-last" : "order-first"

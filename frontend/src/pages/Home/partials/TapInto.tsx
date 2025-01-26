@@ -31,7 +31,7 @@ const Item = ({ item }: any) => {
 
 export default function TapInto() {
   return (
-    <div className="mx-60 flex gap-10 py-24">
+    <div className="mx-container flex gap-10 py-24">
       <Line />
       <div className="grow grid grid-cols-12 gap-8">
         <div className="col-span-6">

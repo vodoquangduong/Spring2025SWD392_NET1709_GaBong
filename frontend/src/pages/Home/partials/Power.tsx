@@ -26,7 +26,7 @@ const Item = ({ item }: any) => {
 
 export default function Power() {
   return (
-    <div className="mx-60 flex gap-10 py-24">
+    <div className="mx-container flex gap-10 py-24">
       <Line />
       <div className="grow grid grid-cols-12 gap-16">
         <div className="col-span-6">

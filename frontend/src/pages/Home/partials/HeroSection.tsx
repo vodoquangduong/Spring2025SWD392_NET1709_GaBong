@@ -47,7 +47,7 @@ const Temp = () => {
           <div className="relative flex justify-end z-20">
             <img
               src="https://shreethemes.in/jobstack/layouts/assets/images/about/ab01.jpg"
-              className="parallax w-[400px] rounded-xl shadow dark:shadow-gray-700 -translate-x-0"
+              className="parallax w-[400px] rounded-xl shadow dark:shadow-gray-700 -translate-x-10"
               alt=""
             />
             <div className="parallax p-5 absolute lg:bottom-20 -bottom-24 xl:-end-20 lg:-end-10 end-2 rounded-lg shadow-md bg-white z-10">
@@ -111,7 +111,7 @@ const HeroSection = () => {
         className="pt-24 justify-center items-center flex relative overflow-hidden pb-32 background-effect"
         id="home"
       >
-        <div className="relative mx-72">
+        <div className="relative mx-container">
           <div className="grid md:grid-cols-12 grid-cols-1 items-center gap-[30px]">
             <div className="lg:col-span-7 md:col-span-6 mt-14 md:mt-0">
               <div className="lg:me-12 text-primary/80">
@@ -257,8 +257,8 @@ const positions = [
 
 export const ScrollHorizontal = () => {
   return (
-    <>
-      <div className="pl-4 pb-8 w-[99vw] overflow-x-hidden font-semibold">
+    <div className="flex justify-center">
+      <div className="w-full pl-4 pb-8 overflow-x-hidden font-semibold">
         <div className="inline-block w-max dark:text-primary-foreground">
           <div className="inline-block rtl">
             {companies.map((company) => (
@@ -332,7 +332,7 @@ export const ScrollHorizontal = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

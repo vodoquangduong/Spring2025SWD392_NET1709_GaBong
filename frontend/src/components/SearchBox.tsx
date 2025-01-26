@@ -18,7 +18,7 @@ const SearchBox = ({
   return (
     <div className={`relative ${widthClass}`}>
       <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-        <FaSearch size={18} className="dark:text-zinc-500" />
+        <FaSearch size={18} className="text-zinc-500" />
       </div>
       <input
         name={name}
