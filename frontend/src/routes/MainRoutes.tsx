@@ -1,3 +1,4 @@
+import { AnimatePresence } from "motion/react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import PageNotFound from "../components/PageNotFound";
 import { DashboardLayout } from "../layouts/DashboardLayout";
@@ -6,8 +7,8 @@ import NormalLayout from "../layouts/NormalLayout";
 import UserDetail from "../pages/DashboardTemplate/UserManager/UserDetail/UserDetail";
 import UserList from "../pages/DashboardTemplate/UserManager/UserList/UserList";
 import Home from "../pages/Home";
+import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
-import { AnimatePresence } from "motion/react";
 
 export default function MainRoutes() {
   return (
@@ -19,6 +20,9 @@ export default function MainRoutes() {
           </Route>
           <Route path="/register" element={<GlobalLayout />}>
             <Route path="/register" element={<Register />} />
+          </Route>
+          <Route path="/login" element={<GlobalLayout />}>
+            <Route path="/login" element={<Login />} />
           </Route>
           <Route path="worker">
             <Route
