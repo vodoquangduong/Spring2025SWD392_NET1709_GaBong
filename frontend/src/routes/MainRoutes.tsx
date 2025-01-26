@@ -6,6 +6,7 @@ import GlobalLayout from "../layouts/GlobalLayout";
 import NormalLayout from "../layouts/NormalLayout";
 import UserDetail from "../pages/DashboardTemplate/UserManager/UserDetail/UserDetail";
 import UserList from "../pages/DashboardTemplate/UserManager/UserList/UserList";
+import ForgotPassword from "../pages/ForgotPassword";
 import Home from "../pages/Home";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
@@ -23,6 +24,9 @@ export default function MainRoutes() {
           </Route>
           <Route path="/login" element={<GlobalLayout />}>
             <Route path="/login" element={<Login />} />
+          </Route>
+          <Route path="/forgot-password" element={<GlobalLayout />}>
+            <Route path="/forgot-password" element={<ForgotPassword />} />
           </Route>
           <Route path="worker">
             <Route
