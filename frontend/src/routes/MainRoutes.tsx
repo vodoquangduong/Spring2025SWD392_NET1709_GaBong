@@ -1,14 +1,15 @@
 import { AnimatePresence } from "motion/react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import PageNotFound from "../components/PageNotFound";
+import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
+import { UserDetail, UserList } from "../pages/DashboardTemplate/UserManager";
+import ForgotPassword from "../pages/ForgotPassword";
 import Home from "../pages/Home";
 import Login from "../pages/Login/Login";
-import Register from "../pages/Register/Register";
 import { Project, ProjectDetail, ProjectProposal } from "../pages/Project";
-import { UserDetail, UserList } from "../pages/DashboardTemplate/UserManager";
-import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
+import Register from "../pages/Register/Register";
 import { Search, SearchFreelancer, SearchProject } from "../pages/Search";
-import ForgotPassword from "../pages/ForgotPassword";
+import UserProfile from "../pages/UserProfile/UserProfile";
 
 export default function MainRoutes() {
   return (
@@ -28,6 +29,9 @@ export default function MainRoutes() {
                 <Route path="proposals" element={<ProjectProposal />} />
               </Route>
             </Route>
+          </Route>
+          <Route path="/user-profile" element={<NormalLayout />}>
+            <Route path="/user-profile" element={<UserProfile />} />
           </Route>
           <Route path="/register" element={<GlobalLayout />}>
             <Route path="/register" element={<Register />} />
