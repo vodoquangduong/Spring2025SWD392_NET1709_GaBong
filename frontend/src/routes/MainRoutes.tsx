@@ -1,6 +1,9 @@
 import { AnimatePresence } from "motion/react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import PageNotFound from "../components/PageNotFound";
+import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
+import { UserDetail, UserList } from "../pages/DashboardTemplate/UserManager";
+import ForgotPassword from "../pages/ForgotPassword";
 import Home from "../pages/Home";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
@@ -10,10 +13,6 @@ import {
   ProjectProposal,
   ProjectPayment,
 } from "../pages/Project";
-import { UserDetail, UserList } from "../pages/DashboardTemplate/UserManager";
-import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
-import { Search, SearchFreelancer, SearchProject } from "../pages/Search";
-import ForgotPassword from "../pages/ForgotPassword";
 import { Freelancer } from "../pages/Freelancer";
 import {
   Bookmark,
@@ -22,6 +21,8 @@ import {
   Notification,
   Dashboard as UserDashboard,
 } from "../pages/Manage";
+import { Search, SearchFreelancer, SearchProject } from "../pages/Search";
+import UserProfile from "../pages/UserProfile/UserProfile";
 
 export default function MainRoutes() {
   return (
@@ -53,6 +54,9 @@ export default function MainRoutes() {
               <Route path="bookmarks" element={<Bookmark />} />
               <Route path="notifications" element={<Notification />} />
             </Route>
+          </Route>
+          <Route path="/user-profile" element={<NormalLayout />}>
+            <Route path="/user-profile" element={<UserProfile />} />
           </Route>
           <Route path="/register" element={<GlobalLayout />}>
             <Route path="/register" element={<Register />} />
