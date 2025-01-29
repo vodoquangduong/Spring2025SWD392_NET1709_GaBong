@@ -2,7 +2,8 @@ import { Button } from "antd";
 
 export default function PlaceBid() {
   return (
-    <div className="rounded-md mt-6 mb-10">
+    <div className="rounded-md dark:bg-white/5 p-6 w-full mb-6 shadow-md">
+      {/* <div className="rounded-md mt-6 mb-10"> */}
       <div className="w-full flex justify-between items-center dark:border-gray-500">
         <span className="font-semibold text-2xl mb-3">
           Place a bid on this project

@@ -17,6 +17,10 @@ const tabItems = [
     name: "Proposals",
     path: "/projects/1/proposals",
   },
+  {
+    name: "Payments",
+    path: "/projects/1/payments",
+  },
 ];
 
 export default function Project() {
@@ -86,7 +90,7 @@ export default function Project() {
         <div className="col-span-9">
           <Outlet />
         </div>
-        <div className="col-span-3 border-l dark:border-gray-500">
+        <div className="col-span-3 dark:bg-white/5 rounded-md">
           <Sidebar />
         </div>
       </div>

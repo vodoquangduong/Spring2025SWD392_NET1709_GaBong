@@ -22,6 +22,15 @@ const ProfileDropdown = () => {
       ),
     },
     {
+      key: "-1",
+      label: (
+        <Link to="/worker" className="flex font-semibold gap-2 items-center">
+          <IoPieChart />
+          Projects
+        </Link>
+      ),
+    },
+    {
       key: "1",
       label: (
         <Link to={`/profile`} className="flex font-semibold gap-2 items-center">

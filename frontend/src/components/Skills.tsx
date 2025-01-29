@@ -1,7 +1,7 @@
 import { getRandomInt } from "../libs/random";
 import { Tag } from "antd";
 
-export default function SkillRequire() {
+export default function Skills() {
   const items = [
     "PHP",
     "HTML",

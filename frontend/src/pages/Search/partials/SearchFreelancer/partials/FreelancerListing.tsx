@@ -4,15 +4,19 @@ import { getRandomInt } from "../../../../../libs/random";
 import { FaRegHeart, FaStar } from "react-icons/fa6";
 import { HiCheckCircle } from "react-icons/hi2";
 import { MdPlace } from "react-icons/md";
-import SkillRequire from "../../../../../components/SkillRequire";
+import Skills from "../../../../../components/Skills";
 
 const FreelancerItem = () => {
+  const navigate = useNavigate();
   return (
-    <div className="py-6 px-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950 cursor-pointer">
+    <div
+      className="py-6 px-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950 cursor-pointer"
+      onClick={() => navigate("/freelancers/1")}
+    >
       <div className="flex justify-between">
         <div className="flex gap-4">
           <div
-            className="h-16 aspect-square rounded-full bg-center bg-no-repeat bg-cover"
+            className="h-20 aspect-square rounded-full bg-center bg-no-repeat bg-cover"
             style={{
               backgroundImage: "url(https://picsum.photos/id/10/400/200)",
             }}
@@ -22,11 +26,11 @@ const FreelancerItem = () => {
               <div className="text-lg leading-none">Raja Ahmad Ayaz N.</div>
               <HiCheckCircle color="green" size={20} />
             </div>
-            <div className="font-normal text-[15px] mb-1">
+            <div className="font-normal text-[15px] my-1">
               Full Stack Developer | 10+ Years of Experience
             </div>
             <div className="flex gap-2 items-center">
-              <MdPlace size={18} color="blue" />
+              <MdPlace size={18} />
               <div className="">England</div>
             </div>
           </div>
@@ -41,7 +45,7 @@ const FreelancerItem = () => {
       <div className="my-4">{description}</div>
       <div className="mb-1 flex justify-between">
         <div>
-          <SkillRequire />
+          <Skills />
         </div>
         <span className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-600 rounded-full cursor-pointer">
           <FaRegHeart size={20} strokeWidth={1} />

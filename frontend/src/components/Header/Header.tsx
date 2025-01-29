@@ -1,10 +1,12 @@
-import { Link, useLocation } from "react-router-dom";
-import Logo from "./Logo";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Logo from "../Logo";
 import React, { useState } from "react";
-import ProfileDropdown from "./ProfileDropdown";
-import useAuthStore from "../stores/authStore";
+import ProfileDropdown from "../ProfileDropdown";
+import useAuthStore from "../../stores/authStore";
 import { Button } from "antd";
 import { FaChevronDown } from "react-icons/fa";
+import CreateModal from "../CreateModal";
+import CreateProjectForm from "./forms/CreateProjectForm";
 
 const HeaderLinkItem = ({
   href,
@@ -50,6 +52,7 @@ const HeaderLinkItem = ({
 
 export default function Header() {
   const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
 
   return (
     <nav className="py-3 shadow-md bg-black fixed top-0 left-0 w-full z-30">
@@ -67,14 +70,28 @@ export default function Header() {
               <HeaderLinkItem href={"/search/projects"} subMenu>
                 Find works
               </HeaderLinkItem>
-              <HeaderLinkItem href={"/news"}>News</HeaderLinkItem>
-              <HeaderLinkItem href={"/about"}>About</HeaderLinkItem>
+              {/* <HeaderLinkItem href={"/news"}>News</HeaderLinkItem> */}
+              {/* <HeaderLinkItem href={"/about"}>About</HeaderLinkItem> */}
+              {isAuthenticated && (
+                <HeaderLinkItem href={"/manage"}>Manage</HeaderLinkItem>
+              )}
             </ul>
           </div>
           <div className="grow order-2"></div>
           <div className="flex items-center lg:order-3 gap-4">
             {isAuthenticated ? (
-              <ProfileDropdown />
+              <>
+                <CreateModal
+                  children="Post a project"
+                  modalTitle={"Post a new project"}
+                  form={(
+                    setIsModalOpen: React.Dispatch<
+                      React.SetStateAction<boolean>
+                    >
+                  ) => <CreateProjectForm setIsModalOpen={setIsModalOpen} />}
+                />
+                <ProfileDropdown />
+              </>
             ) : (
               <>
                 <Link
@@ -91,7 +108,7 @@ export default function Header() {
                 </Link>
                 <Button
                   type="primary"
-                  onClick={() => (window.location.href = "/register")}
+                  onClick={() => navigate("/login")}
                   className="font-bold py-4"
                 >
                   Post a project

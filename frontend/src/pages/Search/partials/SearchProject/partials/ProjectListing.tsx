@@ -3,7 +3,7 @@ import { CiBookmark } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { getRandomInt } from "../../../../../libs/random";
 import { FaStar } from "react-icons/fa6";
-import SkillRequire from "../../../../../components/SkillRequire";
+import Skills from "../../../../../components/Skills";
 
 const items = [
   "PHP",
@@ -50,7 +50,7 @@ const ListingItem = () => {
         lunch is complimentary.
       </div>
       <div className="mt-4">
-        <SkillRequire />
+        <Skills />
       </div>
       <div className="mt-4 flex justify-between items-center">
         <Rate disabled defaultValue={getRandomInt(1, 5)} />

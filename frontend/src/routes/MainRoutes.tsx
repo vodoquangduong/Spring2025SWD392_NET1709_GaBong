@@ -4,11 +4,24 @@ import PageNotFound from "../components/PageNotFound";
 import Home from "../pages/Home";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
-import { Project, ProjectDetail, ProjectProposal } from "../pages/Project";
+import {
+  Project,
+  ProjectDetail,
+  ProjectProposal,
+  ProjectPayment,
+} from "../pages/Project";
 import { UserDetail, UserList } from "../pages/DashboardTemplate/UserManager";
 import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
 import { Search, SearchFreelancer, SearchProject } from "../pages/Search";
 import ForgotPassword from "../pages/ForgotPassword";
+import { Freelancer } from "../pages/Freelancer";
+import {
+  Bookmark,
+  Manage,
+  MyProject,
+  Notification,
+  Dashboard as UserDashboard,
+} from "../pages/Manage";
 
 export default function MainRoutes() {
   return (
@@ -26,7 +39,19 @@ export default function MainRoutes() {
               <Route path=":id" element={<Project />}>
                 <Route path="details" element={<ProjectDetail />} />
                 <Route path="proposals" element={<ProjectProposal />} />
+                <Route path="payments" element={<ProjectPayment />} />
               </Route>
+            </Route>
+            <Route path="freelancers">
+              <Route path="" element={<Navigate to="/search/freelancers" />} />
+              <Route path=":id" element={<Freelancer />} />
+            </Route>
+            <Route path="manage" element={<Manage />}>
+              <Route path="" element={<Navigate to="/manage/dashboard" />} />
+              <Route path="dashboard" element={<UserDashboard />} />
+              <Route path="projects" element={<MyProject />} />
+              <Route path="bookmarks" element={<Bookmark />} />
+              <Route path="notifications" element={<Notification />} />
             </Route>
           </Route>
           <Route path="/register" element={<GlobalLayout />}>
@@ -54,9 +79,8 @@ export default function MainRoutes() {
               </Route>
             </Route>
           </Route>
+          <Route path="*" element={<PageNotFound />} />
         </Route>
-
-        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
   );

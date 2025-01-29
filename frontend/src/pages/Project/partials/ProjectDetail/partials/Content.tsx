@@ -1,13 +1,15 @@
 import { FaClock, FaFlag } from "react-icons/fa6";
 import { getRandomInt } from "../../../../../libs/random";
-import SkillRequire from "../../../../../components/SkillRequire";
+import Skills from "../../../../../components/Skills";
 import { Divider } from "antd";
+import CreateModal from "../../../../../components/CreateModal";
+import CreateReportForm from "../forms/CreateReportForm";
 
 export default function Content() {
   return (
-    <div className="rounded-md">
+    <div className="rounded-md dark:bg-white/5 p-6 w-full mb-6 shadow-md">
       <div className="flex justify-between items-center">
-        <span className="font-bold text-xl mr-3">Project Details</span>
+        <span className="font-bold text-2xl mr-3">Project Details</span>
         <span className="font-bold mr-3">
           ${getRandomInt(100, 10000).toLocaleString()} USD –{" "}
           {getRandomInt(100, 10000).toLocaleString()} USD
@@ -31,16 +33,22 @@ export default function Content() {
       <div>
         <span className="font-semibold text-lg mr-3">Skills Required</span>
         <div className="mt-4">
-          <SkillRequire />
+          <Skills />
         </div>
       </div>
 
       <div className="flex justify-between items-center mb-4 mt-6 text-sm">
         <div className="">Project ID: 39030966</div>
-        <div className="flex gap-2 items-center">
-          <FaFlag />
-          Report Project
-        </div>
+        {/* ReportButton */}
+        <CreateModal
+          icon={<FaFlag />}
+          children="Report Project"
+          type="text"
+          modalTitle={"Report this project"}
+          form={(
+            setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+          ) => <CreateReportForm setIsModalOpen={setIsModalOpen} />}
+        />
       </div>
       <Divider />
     </div>
