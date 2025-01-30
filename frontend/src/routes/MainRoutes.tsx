@@ -14,6 +14,7 @@ import {
   Notification,
   Dashboard as UserDashboard,
 } from "../pages/Manage";
+import { Policy } from "../pages/Policy";
 import { EditProfile, UserProfile } from "../pages/Profile";
 import {
   Project,
@@ -58,6 +59,7 @@ export default function MainRoutes() {
               <Route index element={<UserProfile />} />
               <Route path="edit" element={<EditProfile />} />
             </Route>
+            <Route path="policy" element={<Policy />} />
           </Route>
           <Route path="/register" element={<GlobalLayout />}>
             <Route path="/register" element={<Register />} />
