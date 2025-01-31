@@ -1,8 +1,92 @@
-import { FaEdit, FaMapMarkerAlt, FaStar } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaEdit,
+  FaMapMarkerAlt,
+  FaPlus,
+  FaStar,
+  FaUser,
+} from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { HeroSectionProps } from "../models/types";
 
 const HeroSection = ({ profile }: HeroSectionProps) => {
+  const renderRoleSpecificActions = () => {
+    switch (profile.role) {
+      case "freelancer":
+        return (
+          <Link
+            to="/portfolio"
+            className="flex items-center gap-2 px-4 py-2 border border-emerald-600 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+          >
+            <FaUser className="w-4 h-4" />
+            <span>View Portfolio</span>
+          </Link>
+        );
+      case "client":
+        return (
+          <Link
+            to="/projects/create"
+            className="flex items-center gap-2 px-4 py-2 border border-emerald-600 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+          >
+            <FaPlus className="w-4 h-4" />
+            <span>Post a Project</span>
+          </Link>
+        );
+      case "staff":
+        return (
+          <Link
+            to="/manage/verifications"
+            className="flex items-center gap-2 px-4 py-2 border border-emerald-600 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+          >
+            <FaCheckCircle className="w-4 h-4" />
+            <span>Manage Verifications</span>
+          </Link>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderRoleSpecificStats = () => {
+    switch (profile.role) {
+      case "freelancer":
+        return (
+          <>
+            <div>
+              <div className="text-gray-600 dark:text-gray-400">Rating</div>
+              <div className="text-gray-900 dark:text-white font-medium">
+                5.0
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-600 dark:text-gray-400">Reviews</div>
+              <div className="text-gray-900 dark:text-white font-medium">0</div>
+            </div>
+          </>
+        );
+      case "client":
+        return (
+          <div>
+            <div className="text-gray-600 dark:text-gray-400">
+              Posted Projects
+            </div>
+            <div className="text-gray-900 dark:text-white font-medium">0</div>
+          </div>
+        );
+      case "staff":
+        return (
+          <div>
+            <div className="text-gray-600 dark:text-gray-400">
+              Verifications Done
+            </div>
+            <div className="text-gray-900 dark:text-white font-medium">0</div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="mb-12">
       <div className="flex items-start gap-8 bg-white shadow-lg dark:bg-white/5 backdrop-blur-lg rounded-2xl border border-gray-200 dark:border-white/10 p-8">
@@ -18,15 +102,17 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
             </div>
           </div>
 
-          {/* Rating */}
-          <div className="flex items-center gap-2">
-            <div className="flex">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <FaStar key={star} className="w-4 h-4 text-emerald-400" />
-              ))}
+          {/* Rating - Only show for freelancers */}
+          {profile.role === "freelancer" && (
+            <div className="flex items-center gap-2">
+              <div className="flex">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <FaStar key={star} className="w-4 h-4 text-emerald-400" />
+                ))}
+              </div>
+              <span className="text-gray-400">5.0</span>
             </div>
-            <span className="text-gray-400">5.0</span>
-          </div>
+          )}
         </div>
 
         {/* Right: Name & Details */}
@@ -44,36 +130,30 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
                 <span>{profile.location}</span>
               </div>
             </div>
-            <Link
-              to="/profile/edit"
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
-            >
-              <FaEdit className="w-4 h-4" />
-              <span>Edit Profile</span>
-            </Link>
+            <div className="flex gap-2">
+              <Link
+                to="/profile/edit"
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white hover:bg-emerald-600 hover:text-white rounded-lg transition-colors"
+              >
+                <FaEdit className="w-4 h-4" />
+                <span>Edit Profile</span>
+              </Link>
+              {renderRoleSpecificActions()}
+            </div>
           </div>
 
           {/* Bio */}
-          <p className="mt-4 text-gray-700 dark:text-gray-300">{profile.bio}</p>
+          <p className="mt-4 text-gray-700 dark:text-gray-300 text-sm">
+            {profile.bio}
+          </p>
 
           {/* Stats */}
-          <div className="mt-4 flex gap-6">
-            <div>
-              <div className="text-gray-600 dark:text-gray-400">Projects</div>
-              <div className="text-gray-900 dark:text-white font-medium">
-                15
-              </div>
-            </div>
-            <div>
-              <div className="text-gray-600 dark:text-gray-400">Reviews</div>
-              <div className="text-gray-900 dark:text-white font-medium">
-                28
-              </div>
-            </div>
+          <div className="mt-4 flex gap-6 text-sm">
+            {renderRoleSpecificStats()}
             <div>
               <div className="text-gray-600 dark:text-gray-400">Joined</div>
               <div className="text-gray-900 dark:text-white font-medium">
-                January 2024
+                January 8, 2025
               </div>
             </div>
           </div>

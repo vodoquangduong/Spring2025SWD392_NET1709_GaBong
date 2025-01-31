@@ -12,23 +12,23 @@ const About = ({ profile }: AboutProps) => {
         {/* Basic Info */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Họ
+            First Name
           </label>
           <input
             type="text"
             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white"
-            placeholder="Nhập họ của bạn"
+            placeholder="Enter your first name"
             defaultValue={profile.firstName}
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Tên
+            Last Name
           </label>
           <input
             type="text"
             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white"
-            placeholder="Nhập tên của bạn"
+            placeholder="Enter your last name"
             defaultValue={profile.lastName}
           />
         </div>
@@ -49,7 +49,7 @@ const About = ({ profile }: AboutProps) => {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Số điện thoại
+            Phone Number
           </label>
           <input
             type="tel"
@@ -64,23 +64,23 @@ const About = ({ profile }: AboutProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Nghề nghiệp
+            Profession
           </label>
           <input
             type="text"
             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white"
-            placeholder="Ví dụ: Senior Full Stack Developer"
+            placeholder="Example: Senior Full Stack Developer"
             defaultValue={profile.profession}
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Địa điểm
+            Location
           </label>
           <input
             type="text"
             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white"
-            placeholder="Thành phố, Quốc gia"
+            placeholder="City, Country"
             defaultValue={profile.location}
           />
         </div>
@@ -89,12 +89,12 @@ const About = ({ profile }: AboutProps) => {
       {/* Bio */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Giới thiệu
+          Bio
         </label>
         <textarea
           className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white"
           rows={4}
-          placeholder="Viết một vài dòng về bản thân..."
+          placeholder="Write a few lines about yourself..."
           defaultValue={profile.bio}
         />
       </div>
@@ -102,7 +102,7 @@ const About = ({ profile }: AboutProps) => {
       {/* Social Links */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-          Liên kết mạng xã hội
+          Social Links
         </h3>
         <div className="grid grid-cols-1 gap-4">
           <div className="flex items-center gap-2">

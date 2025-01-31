@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { UserProfileData } from "./models/types";
+import AssignedTasks from "./partials/AssignedTasks";
 import Certifications from "./partials/Certifications";
+import ContactInfo from "./partials/ContactInfo";
 import Education from "./partials/Education";
 import Experience from "./partials/Experience";
 import HeroSection from "./partials/HeroSection";
 import Languages from "./partials/Languages";
+import PaymentHistory from "./partials/PaymentHistory";
+import ProjectHistory from "./partials/ProjectHistory";
+import ReviewHistory from "./partials/ReviewHistory";
 import Skills from "./partials/Skills";
+import SocialLinks from "./partials/SocialLinks";
 
 const UserProfile = () => {
   const [profile] = useState<UserProfileData>({
@@ -71,7 +77,10 @@ const UserProfile = () => {
       { name: "English", level: "Native" },
       { name: "Spanish", level: "Conversational" },
     ],
+    role: "freelancer",
   });
+
+  const hasPortfolio = false; // This should be replaced with actual logic to check if the user has a portfolio
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -79,14 +88,38 @@ const UserProfile = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
         <div className="md:col-span-8 space-y-8">
-          <Experience experience={profile.experience} />
-          <Education education={profile.education} />
-          <Certifications certifications={profile.certifications} />
+          {profile.role === "freelancer" && !hasPortfolio && (
+            <>
+              <Experience experience={profile.experience} />
+              <Education education={profile.education} />
+              <Certifications certifications={profile.certifications} />
+            </>
+          )}
+
+          {profile.role === "client" && (
+            <>
+              <ProjectHistory />
+              <PaymentHistory />
+            </>
+          )}
+
+          {profile.role === "staff" && (
+            <>
+              <AssignedTasks />
+              <ReviewHistory />
+            </>
+          )}
         </div>
 
         <div className="md:col-span-4 space-y-8">
-          <Skills skills={profile.skills} />
-          <Languages languages={profile.languages} />
+          {profile.role === "freelancer" && !hasPortfolio && (
+            <>
+              <Skills skills={profile.skills} />
+              <Languages languages={profile.languages} />
+            </>
+          )}
+          <ContactInfo profile={profile} />
+          <SocialLinks profile={profile} />
         </div>
       </div>
     </div>

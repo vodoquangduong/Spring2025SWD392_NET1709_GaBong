@@ -4,7 +4,7 @@ const Skills = ({ skills }: SkillsProps) => {
   return (
     <section className="bg-white shadow-lg dark:bg-white/5 backdrop-blur-lg rounded-xl border border-gray-200 dark:border-white/10 p-6">
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-        Kỹ năng
+        Skills
       </h2>
 
       <div className="flex flex-wrap gap-2">
@@ -21,7 +21,7 @@ const Skills = ({ skills }: SkillsProps) => {
       {(!skills || skills.length === 0) && (
         <div className="text-center py-4">
           <p className="text-gray-500 dark:text-gray-400">
-            Chưa có kỹ năng nào.
+            No skills added yet.
           </p>
         </div>
       )}

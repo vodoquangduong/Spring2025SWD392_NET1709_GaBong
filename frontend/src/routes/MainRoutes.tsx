@@ -15,6 +15,7 @@ import {
   Dashboard as UserDashboard,
 } from "../pages/Manage";
 import { Policy } from "../pages/Policy";
+import { Portfolio } from "../pages/Portfolio";
 import { EditProfile, UserProfile } from "../pages/Profile";
 import {
   Project,
@@ -32,6 +33,7 @@ export default function MainRoutes() {
         <Route path="/" element={<GlobalLayout />}>
           <Route path="/" element={<NormalLayout />}>
             <Route path="/" element={<Home />} />
+            <Route path="portfolio" element={<Portfolio />} />
             <Route path="search" element={<Search />}>
               <Route path="projects" element={<SearchProject />} />
               <Route path="freelancers" element={<SearchFreelancer />} />

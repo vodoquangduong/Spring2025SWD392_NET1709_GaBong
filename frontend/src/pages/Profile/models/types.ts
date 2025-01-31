@@ -34,6 +34,7 @@ export interface UserProfileData {
     name: string;
     level: string;
   }[];
+  role: "admin" | "staff" | "client" | "freelancer" | "user";
 }
 
 export interface HeroSectionProps {
