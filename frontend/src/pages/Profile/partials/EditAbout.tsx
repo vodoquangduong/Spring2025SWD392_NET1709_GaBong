@@ -3,9 +3,10 @@ import { UserProfileData } from "../models/types";
 
 interface EditAboutProps {
   profile: UserProfileData;
+  onUpdate?: (data: Partial<UserProfileData>) => void;
 }
 
-const EditAbout = ({ profile }: EditAboutProps) => {
+const EditAbout: React.FC<EditAboutProps> = ({ profile, onUpdate }) => {
   return (
     <div className="space-y-6">
       {/* Avatar Edit */}

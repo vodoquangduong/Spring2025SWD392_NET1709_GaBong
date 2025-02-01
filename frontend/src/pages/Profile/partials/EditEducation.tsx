@@ -1,7 +1,15 @@
 import { FaPlus, FaTrash } from "react-icons/fa";
-import { EducationProps } from "../models/types";
+import { UserProfileData } from "../models/types";
 
-const EditEducation = ({ education }: EducationProps) => {
+interface EditEducationProps {
+  education: UserProfileData["education"];
+  onUpdate?: (education: UserProfileData["education"]) => void;
+}
+
+const EditEducation: React.FC<EditEducationProps> = ({
+  education,
+  onUpdate,
+}) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">

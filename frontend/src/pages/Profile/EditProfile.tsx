@@ -7,7 +7,11 @@ import EditEducation from "./partials/EditEducation";
 import EditLanguages from "./partials/EditLanguages";
 import EditSkills from "./partials/EditSkills";
 
-const EditProfile = () => {
+interface EditProfileProps {
+  initialData?: UserProfileData;
+}
+
+const EditProfile: React.FC<EditProfileProps> = ({ initialData }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>("about");
   const [profile, setProfile] = useState<UserProfileData>({
@@ -25,7 +29,16 @@ const EditProfile = () => {
       github: "github.com/johndoe",
       linkedin: "linkedin.com/in/johndoe",
       twitter: "twitter.com/johndoe",
+      facebook: "facebook.com/johndoe",
     },
+    role: "freelancer",
+    username: "johndoe",
+    dateOfBirth: "1990-01-01",
+    gender: "male",
+    address: "123 Tech Street",
+    accountStatus: "active",
+    registrationDate: "2023-01-01",
+    lastLogin: "2024-03-20",
     skills: [
       "React",
       "Node.js",
@@ -83,9 +96,20 @@ const EditProfile = () => {
     { id: "languages", label: "Languages" },
   ];
 
-  const handleSave = () => {
-    // Implement save logic
-    navigate("/profile");
+  const handleSave = async () => {
+    try {
+      // Implement save logic here
+      navigate("/profile");
+    } catch (error) {
+      console.error("Failed to save profile:", error);
+    }
+  };
+
+  const handleUpdate = (field: keyof UserProfileData) => (value: any) => {
+    setProfile((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   return (
@@ -93,7 +117,7 @@ const EditProfile = () => {
       <div className="overflow-hidden">
         <div className="border-b border-gray-200 dark:border-gray-700">
           <div className="p-4 flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-5xl font-semibold text-gray-900 dark:text-white">
               Edit Profile
             </h2>
             <div className="flex gap-4">
@@ -132,9 +156,14 @@ const EditProfile = () => {
 
         <div className="p-6">
           {/* Tab Content */}
-          {activeTab === "about" && <EditAbout profile={profile} />}
+          {activeTab === "about" && (
+            <EditAbout profile={profile} onUpdate={handleUpdate("about")} />
+          )}
           {activeTab === "education" && (
-            <EditEducation education={profile.education} />
+            <EditEducation
+              education={profile.education}
+              onUpdate={handleUpdate("education")}
+            />
           )}
           {activeTab === "certification" && (
             <EditCertifications certifications={profile.certifications} />

@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { FaPlus, FaTimes } from "react-icons/fa";
-import { SkillsProps } from "../models/types";
 
-const EditSkills = ({ skills }: SkillsProps) => {
+interface EditSkillsProps {
+  skills: string[];
+  onUpdate?: (skills: string[]) => void;
+}
+
+const EditSkills: React.FC<EditSkillsProps> = ({ skills, onUpdate }) => {
   const [newSkill, setNewSkill] = useState("");
 
   return (

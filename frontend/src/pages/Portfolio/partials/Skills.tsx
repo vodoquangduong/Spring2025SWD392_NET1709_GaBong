@@ -8,9 +8,20 @@ import {
   FaStar,
   FaTrophy,
 } from "react-icons/fa";
-import { SkillCategory } from "../../models/types";
+import { SkillCategory } from "../models/types";
 
-const SkillsSection = () => {
+interface Skill {
+  name: string;
+  level: number;
+  years: number;
+  certified?: boolean;
+}
+
+interface SkillsProps {
+  isEditing?: boolean;
+}
+
+const Skills: React.FC<SkillsProps> = ({ isEditing = false }) => {
   const [categories] = useState<SkillCategory[]>([
     {
       name: "Frontend Development",
@@ -73,14 +84,14 @@ const SkillsSection = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             Skills & Expertise
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
             Highlight your technical skills and proficiency levels
           </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white rounded-lg transition-all">
+        <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white rounded-lg transition-all">
           <FaPlus className="w-4 h-4" />
           <span>Add Skill</span>
         </button>
@@ -91,11 +102,13 @@ const SkillsSection = () => {
         {categories.map((category) => (
           <div
             key={category.name}
-            className="p-6 bg-white dark:bg-gray-800/50 backdrop-blur-xl rounded-xl border border-gray-100 dark:border-gray-700/50"
+            className="p-6 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800/50"
           >
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-2xl text-emerald-500">{category.icon}</span>
-              <h3 className="text-xl font-semibold bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="text-2xl text-emerald-500 dark:text-emerald-400">
+                {category.icon}
+              </span>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                 {category.name}
               </h3>
             </div>
@@ -105,14 +118,14 @@ const SkillsSection = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                        <span className="font-medium text-gray-900 dark:text-white">
                           {skill.name}
                         </span>
                         {skill.certified && (
-                          <FaStar className="w-4 h-4 text-yellow-400" />
+                          <FaStar className="w-4 h-4 text-yellow-400 dark:text-yellow-300" />
                         )}
                       </div>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                      <span className="text-sm text-gray-600 dark:text-gray-300">
                         {skill.years} {skill.years === 1 ? "year" : "years"} of
                         experience
                       </span>
@@ -121,9 +134,9 @@ const SkillsSection = () => {
                       {skill.level}/5
                     </span>
                   </div>
-                  <div className="h-2 bg-gray-100 dark:bg-gray-700/50 rounded-full overflow-hidden">
+                  <div className="h-2 bg-gray-100 dark:bg-gray-700/30 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-full transition-all duration-500 ease-out"
+                      className="h-full bg-emerald-600 dark:bg-emerald-400 rounded-full transition-all duration-500 ease-out"
                       style={{ width: `${(skill.level / 5) * 100}%` }}
                     />
                   </div>
@@ -134,7 +147,7 @@ const SkillsSection = () => {
         ))}
       </div>
 
-      {/* Certifications Preview */}
+      {/* Certifications */}
       <div className="mt-12">
         <div className="flex items-center gap-3 mb-6">
           <FaCertificate className="w-6 h-6 text-emerald-500" />
@@ -172,4 +185,4 @@ const SkillsSection = () => {
   );
 };
 
-export default SkillsSection;
+export default Skills;

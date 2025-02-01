@@ -1,7 +1,15 @@
 import { FaPlus, FaTrash } from "react-icons/fa";
-import { LanguagesProps } from "../models/types";
+import { UserProfileData } from "../models/types";
 
-const EditLanguages = ({ languages }: LanguagesProps) => {
+interface EditLanguagesProps {
+  languages: UserProfileData["languages"];
+  onUpdate?: (languages: UserProfileData["languages"]) => void;
+}
+
+const EditLanguages: React.FC<EditLanguagesProps> = ({
+  languages,
+  onUpdate,
+}) => {
   const proficiencyLevels = [
     "Beginner",
     "Elementary",

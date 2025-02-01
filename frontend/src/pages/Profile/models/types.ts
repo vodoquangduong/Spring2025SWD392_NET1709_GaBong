@@ -5,13 +5,14 @@ export interface UserProfileData {
   phone: string;
   profession: string;
   location: string;
-  website?: string;
+  website: string;
   bio: string;
   profileImage: string;
   socials: {
-    github?: string;
-    linkedin?: string;
-    twitter?: string;
+    github: string;
+    linkedin: string;
+    twitter: string;
+    facebook: string;
   };
   skills: string[];
   certifications: {
@@ -34,7 +35,14 @@ export interface UserProfileData {
     name: string;
     level: string;
   }[];
-  role: "admin" | "staff" | "client" | "freelancer" | "user";
+  role: "freelancer" | "client" | "staff";
+  username: string;
+  dateOfBirth: string;
+  gender: "male" | "female" | "other";
+  address: string;
+  accountStatus: "active" | "inactive" | "suspended";
+  registrationDate: string;
+  lastLogin: string;
 }
 
 export interface HeroSectionProps {

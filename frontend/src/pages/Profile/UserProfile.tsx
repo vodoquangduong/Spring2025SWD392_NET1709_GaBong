@@ -22,13 +22,14 @@ const UserProfile = () => {
     profession: "Senior Full Stack Developer",
     location: "San Francisco, CA",
     website: "www.johndoe.dev",
-    bio: "Passionate full-stack developer with 8+ years of experience building scalable web applications. Specialized in React, Node.js, and cloud technologies.",
+    bio: "Passionate full-stack developer with 8+ years of experience building scalable web applications.",
     profileImage:
       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
     socials: {
       github: "github.com/johndoe",
       linkedin: "linkedin.com/in/johndoe",
       twitter: "twitter.com/johndoe",
+      facebook: "facebook.com/johndoe",
     },
     skills: [
       "React",
@@ -78,17 +79,24 @@ const UserProfile = () => {
       { name: "Spanish", level: "Conversational" },
     ],
     role: "freelancer",
+    username: "johndoe",
+    dateOfBirth: "1990-01-01",
+    gender: "male",
+    address: "123 Tech Street",
+    accountStatus: "active",
+    registrationDate: "2023-01-01",
+    lastLogin: "2024-03-20",
   });
-
-  const hasPortfolio = false; // This should be replaced with actual logic to check if the user has a portfolio
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-end mb-6"></div>
+
       <HeroSection profile={profile} />
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
         <div className="md:col-span-8 space-y-8">
-          {profile.role === "freelancer" && !hasPortfolio && (
+          {profile.role === "freelancer" && (
             <>
               <Experience experience={profile.experience} />
               <Education education={profile.education} />
@@ -112,7 +120,7 @@ const UserProfile = () => {
         </div>
 
         <div className="md:col-span-4 space-y-8">
-          {profile.role === "freelancer" && !hasPortfolio && (
+          {profile.role === "freelancer" && (
             <>
               <Skills skills={profile.skills} />
               <Languages languages={profile.languages} />
