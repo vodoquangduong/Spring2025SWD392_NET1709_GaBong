@@ -7,6 +7,7 @@ import { Button } from "antd";
 import { FaChevronDown } from "react-icons/fa";
 import CreateModal from "../CreateModal";
 import CreateProjectForm from "./forms/CreateProjectForm";
+import NotificationDropdown from "../NotificationDropdown/NotificationDropdown";
 
 const HeaderLinkItem = ({
   href,
@@ -81,6 +82,7 @@ export default function Header() {
           <div className="flex items-center lg:order-3 gap-4">
             {isAuthenticated ? (
               <>
+                <NotificationDropdown />
                 <CreateModal
                   children="Post a project"
                   modalTitle={"Post a new project"}
@@ -96,13 +98,13 @@ export default function Header() {
               <>
                 <Link
                   to={"/login"}
-                  className="font-bold hover:text-blue-500 text-white"
+                  className="font-bold hover:text-emerald-500 text-white"
                 >
                   Login
                 </Link>
                 <Link
                   to={"/register"}
-                  className="font-bold hover:text-blue-500 text-white mx-4"
+                  className="font-bold hover:text-emerald-500 text-white mx-4"
                 >
                   Register
                 </Link>

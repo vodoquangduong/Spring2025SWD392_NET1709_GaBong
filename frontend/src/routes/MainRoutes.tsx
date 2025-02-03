@@ -1,4 +1,3 @@
-import { AnimatePresence } from "motion/react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import PageNotFound from "../components/PageNotFound";
 import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
@@ -70,14 +69,7 @@ export default function MainRoutes() {
           <Route path="worker">
             <Route path="" element={<DashboardLayout />}>
               <Route path="" element={<Navigate to="users" />} />
-              <Route
-                path="users"
-                element={
-                  <AnimatePresence>
-                    <Outlet />
-                  </AnimatePresence>
-                }
-              >
+              <Route path="users" element={<Outlet />}>
                 <Route path="" element={<UserList />} />
                 <Route path=":id" element={<UserDetail />} />
               </Route>
