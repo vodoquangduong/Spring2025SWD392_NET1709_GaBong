@@ -3,16 +3,9 @@ import PageNotFound from "../components/PageNotFound";
 import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
 import { UserDetail, UserList } from "../pages/DashboardTemplate/UserManager";
 import ForgotPassword from "../pages/ForgotPassword";
-import Home from "../pages/Home";
-import Login from "../pages/Login/Login";
-import Register from "../pages/Register/Register";
-import {
-  Project,
-  ProjectDetail,
-  ProjectProposal,
-  ProjectPayment,
-} from "../pages/Project";
 import { Freelancer } from "../pages/Freelancer";
+import Home from "../pages/Home";
+import Login from "../pages/Login";
 import {
   Bookmark,
   Manage,
@@ -20,8 +13,17 @@ import {
   Notification,
   Dashboard as UserDashboard,
 } from "../pages/Manage";
+import { Policy } from "../pages/Policy";
+import { Portfolio } from "../pages/Portfolio";
+import { EditProfile, UserProfile } from "../pages/Profile";
+import {
+  Project,
+  ProjectDetail,
+  ProjectPayment,
+  ProjectProposal,
+} from "../pages/Project";
+import Register from "../pages/Register";
 import { Search, SearchFreelancer, SearchProject } from "../pages/Search";
-import UserProfile from "../pages/UserProfile/UserProfile";
 
 export default function MainRoutes() {
   return (
@@ -30,6 +32,7 @@ export default function MainRoutes() {
         <Route path="/" element={<GlobalLayout />}>
           <Route path="/" element={<NormalLayout />}>
             <Route path="/" element={<Home />} />
+            <Route path="portfolio" element={<Portfolio />} />
             <Route path="search" element={<Search />}>
               <Route path="projects" element={<SearchProject />} />
               <Route path="freelancers" element={<SearchFreelancer />} />
@@ -53,9 +56,11 @@ export default function MainRoutes() {
               <Route path="bookmarks" element={<Bookmark />} />
               <Route path="notifications" element={<Notification />} />
             </Route>
-          </Route>
-          <Route path="/user-profile" element={<NormalLayout />}>
-            <Route path="/user-profile" element={<UserProfile />} />
+            <Route path="profile">
+              <Route index element={<UserProfile />} />
+              <Route path="edit" element={<EditProfile />} />
+            </Route>
+            <Route path="policy" element={<Policy />} />
           </Route>
           <Route path="/register" element={<GlobalLayout />}>
             <Route path="/register" element={<Register />} />
