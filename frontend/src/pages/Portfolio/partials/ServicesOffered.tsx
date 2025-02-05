@@ -177,84 +177,95 @@ const ServicesOffered: React.FC<ServicesOfferedProps> = ({
               {service.status === "completed" ? (
                 <>
                   <div className="mb-4">
-                    <div className="flex items-center gap-1 mb-2">
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        Client Satisfaction:
-                      </span>
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <FaStar
-                            key={i}
-                            className={`w-4 h-4 ${
-                              i < service.clientSatisfaction
-                                ? "text-yellow-400"
-                                : "text-gray-300 dark:text-gray-600"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <blockquote className="text-sm italic text-gray-600 dark:text-gray-300">
-                      "{service.testimonial}"
-                    </blockquote>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-                      Key Achievements:
-                    </h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      {service.keyAchievements.map((achievement, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"
-                        >
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          {achievement}
+                    {service.clientSatisfaction && (
+                      <div className="flex items-center gap-1 mb-2">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          Client Satisfaction:
+                        </span>
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <FaStar
+                              key={i}
+                              className={`w-4 h-4 ${
+                                i < service.clientSatisfaction!
+                                  ? "text-yellow-400"
+                                  : "text-gray-300 dark:text-gray-600"
+                              }`}
+                            />
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
+                    {service.testimonial && (
+                      <blockquote className="text-sm italic text-gray-600 dark:text-gray-300">
+                        "{service.testimonial}"
+                      </blockquote>
+                    )}
                   </div>
+                  {service.keyAchievements &&
+                    service.keyAchievements.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                          Key Achievements:
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          {service.keyAchievements.map((achievement, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"
+                            >
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              {achievement}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                 </>
               ) : (
                 <>
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        Project Progress
-                      </span>
-                      <span className="text-emerald-600 dark:text-emerald-400">
-                        {service.progress}%
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-100 dark:bg-gray-700/30 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-600 dark:bg-emerald-400 rounded-full transition-all duration-500"
-                        style={{ width: `${service.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-                      Milestones:
-                    </h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      {service.milestones.map((milestone, index) => (
+                  {service.progress !== undefined && (
+                    <div className="mb-4">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          Project Progress
+                        </span>
+                        <span className="text-emerald-600 dark:text-emerald-400">
+                          {service.progress}%
+                        </span>
+                      </div>
+                      <div className="h-2 bg-gray-100 dark:bg-gray-700/30 rounded-full overflow-hidden">
                         <div
-                          key={index}
-                          className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"
-                        >
-                          <FaCheckCircle
-                            className={
-                              milestone.completed
-                                ? "text-emerald-500"
-                                : "text-gray-400"
-                            }
-                          />
-                          {milestone.title}
-                        </div>
-                      ))}
+                          className="h-full bg-emerald-600 dark:bg-emerald-400 rounded-full transition-all duration-500"
+                          style={{ width: `${service.progress}%` }}
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
+                  {service.milestones && service.milestones.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                        Milestones:
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {service.milestones.map((milestone, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"
+                          >
+                            <FaCheckCircle
+                              className={
+                                milestone.completed
+                                  ? "text-emerald-500"
+                                  : "text-gray-400"
+                              }
+                            />
+                            {milestone.title}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </div>

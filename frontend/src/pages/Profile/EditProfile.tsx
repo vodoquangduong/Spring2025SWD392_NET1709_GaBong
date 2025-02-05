@@ -156,9 +156,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ initialData }) => {
 
         <div className="p-6">
           {/* Tab Content */}
-          {activeTab === "about" && (
-            <EditAbout profile={profile} onUpdate={handleUpdate("about")} />
-          )}
+          {activeTab === "about" && <EditAbout profile={profile} />}
           {activeTab === "education" && (
             <EditEducation
               education={profile.education}
