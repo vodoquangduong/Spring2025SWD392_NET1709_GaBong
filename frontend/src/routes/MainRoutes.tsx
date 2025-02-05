@@ -1,6 +1,12 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import PageNotFound from "../components/PageNotFound";
 import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
+import { AccountManagement } from "../pages/DashboardTemplate/EmployeeDashboard/AccountManagement";
+import { FreelancerManagement } from "../pages/DashboardTemplate/EmployeeDashboard/FreelancerManagement";
+import { ProjectManagement } from "../pages/DashboardTemplate/EmployeeDashboard/ProjectManagement";
+import PendingServiceList from "../pages/DashboardTemplate/EmployeeDashboard/ProjectManagement/partials/PendingServiceList";
+import { ReportManagement } from "../pages/DashboardTemplate/EmployeeDashboard/ReportManagement";
+import { ServiceManagement } from "../pages/DashboardTemplate/EmployeeDashboard/ServiceManagement";
 import { UserDetail, UserList } from "../pages/DashboardTemplate/UserManager";
 import ForgotPassword from "../pages/ForgotPassword";
 import { Freelancer } from "../pages/Freelancer";
@@ -79,6 +85,15 @@ export default function MainRoutes() {
                 <Route path=":id" element={<UserDetail />} />
               </Route>
             </Route>
+          </Route>
+          <Route path="employee" element={<DashboardLayout />}>
+            <Route path="" element={<Navigate to="accounts" />} />
+            <Route path="accounts/*" element={<AccountManagement />} />
+            <Route path="services/*" element={<ServiceManagement />} />
+            <Route path="reports/*" element={<ReportManagement />} />
+            <Route path="freelancers/*" element={<FreelancerManagement />} />
+            <Route path="projects/*" element={<ProjectManagement />} />
+            <Route path="pending-services" element={<PendingServiceList />} />
           </Route>
           <Route path="*" element={<PageNotFound />} />
         </Route>
