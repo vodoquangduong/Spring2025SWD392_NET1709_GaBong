@@ -1,0 +1,10 @@
+1. Install dotnet ef tool
+	dotnet tool install --global dotnet-ef --version 9.*
+
+2. Move to backend\DAOs folder.
+3. Open Terminal
+4. Update database
+	dotnet ef database update
+
+
+*Note: remember to read appsetting.json to setup Postgre's info

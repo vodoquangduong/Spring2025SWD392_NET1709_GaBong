@@ -1,6 +1,10 @@
 
 using DAOs;
 using Microsoft.EntityFrameworkCore;
+using Repositories.Implements;
+using Repositories.Interfaces;
+using Services.Implements;
+using Services.Interfaces;
 
 namespace API
 {
@@ -17,10 +21,23 @@ namespace API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            //Start DbContext
             builder.Services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationDbContext>(option =>
             {
                 option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+            //End DbContext
+
+
+            //Start DI Repository
+            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+
+            //End DI Repository
+
+            //Start DI Service
+            builder.Services.AddScoped<IAccountService, AccountService>();
+
+            //End DI Service
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

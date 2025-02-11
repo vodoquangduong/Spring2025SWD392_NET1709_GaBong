@@ -15,21 +15,23 @@ namespace DAOs
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            base.OnConfiguring(optionsBuilder);
             if (!optionsBuilder.IsConfigured)
             {
                 IConfiguration config = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", true, true)
+                    .AddJsonFile("dbsettings.json", true, true)
                     .Build();
 
-                var connectionString = config.GetConnectionString("DefaultConnection");
+              Console.WriteLine(config.ToString()); 
+                //var connectionString = config.GetConnectionString("DefaultConnection");
+                var connectionString = config["ConnectionStrings:DefaultConnection"];
 
+                Console.WriteLine($"Current directory: {Directory.GetCurrentDirectory()}");
                 Console.WriteLine("Connection string: " + connectionString);
 
                 optionsBuilder.UseNpgsql(
-                    connectionString,
-                    options => options.CommandTimeout(300)
+                    connectionString
+                    //, options => options.CommandTimeout(300)
                 );
             }
         }
