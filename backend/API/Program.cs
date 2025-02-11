@@ -1,4 +1,7 @@
 
+using DAOs;
+using Microsoft.EntityFrameworkCore;
+
 namespace API
 {
     public class Program
@@ -14,6 +17,10 @@ namespace API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationDbContext>(option =>
+            {
+                option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
