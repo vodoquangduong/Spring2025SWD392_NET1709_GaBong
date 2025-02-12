@@ -84,6 +84,7 @@ const RegisterForm = () => {
                     bg-zinc-50 dark:bg-zinc-800
                     hover:bg-zinc-100 dark:hover:bg-zinc-700
                     hover:border-emerald-500 dark:hover:border-emerald-500 
+                    [&:has(input:checked)]:border-emerald-500 [&:has(input:checked)]:border-2
                     transition-all duration-200"
                   >
                     <input
@@ -108,6 +109,7 @@ const RegisterForm = () => {
                     bg-zinc-50 dark:bg-zinc-800
                     hover:bg-zinc-100 dark:hover:bg-zinc-700
                     hover:border-emerald-500 dark:hover:border-emerald-500 
+                    [&:has(input:checked)]:border-emerald-500 [&:has(input:checked)]:border-2
                     transition-all duration-200"
                   >
                     <input
