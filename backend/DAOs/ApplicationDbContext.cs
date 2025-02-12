@@ -6,7 +6,9 @@ namespace DAOs
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
+            this.Database.SetCommandTimeout(300);
+        }
 
         public ApplicationDbContext() { }
         
@@ -23,7 +25,6 @@ namespace DAOs
                     .Build();
 
               Console.WriteLine(config.ToString()); 
-                //var connectionString = config.GetConnectionString("DefaultConnection");
                 var connectionString = config["ConnectionStrings:DefaultConnection"];
 
                 Console.WriteLine($"Current directory: {Directory.GetCurrentDirectory()}");
@@ -31,7 +32,7 @@ namespace DAOs
 
                 optionsBuilder.UseNpgsql(
                     connectionString
-                    //, options => options.CommandTimeout(300)
+                    , options => options.CommandTimeout(300)
                 );
             }
         }

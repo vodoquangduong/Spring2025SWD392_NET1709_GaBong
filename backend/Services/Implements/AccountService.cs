@@ -14,8 +14,8 @@ public class AccountService : IAccountService
         _accountRepository = accountRepository;
     }
 
-    public Task<IEnumerable<Account>> GetAllAccount()
+    public async Task<IEnumerable<Account>> GetAllAccountAsync()
     {
-        return _accountRepository.GetAccountsAsync();
+        return await _accountRepository.GetAccountsAsync();
     }
 }

@@ -5,5 +5,5 @@ namespace Services.Interfaces;
 
 public interface IAccountService
 {
-    Task<IEnumerable<Account>> GetAllAccount();
+    Task<IEnumerable<Account>> GetAllAccountAsync();
 }
