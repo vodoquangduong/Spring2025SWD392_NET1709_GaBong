@@ -73,6 +73,21 @@ const RegisterForm = () => {
                 />
               </div>
 
+              <div className="mb-4">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-zinc-900 dark:text-white mb-1"
+                >
+                  Confirm Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
+                />
+              </div>
+
               <div className="mb-6">
                 <label className="block text-sm font-medium text-zinc-900 dark:text-white mb-3">
                   I want to be a

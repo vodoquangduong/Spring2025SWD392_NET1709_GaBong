@@ -1,9 +1,35 @@
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../../../stores/authStore";
+import { useState } from "react";
+import { POST } from "../../../modules/request";
 
 const LoginForm = () => {
   const { login } = useAuthStore();
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(""); // Reset lỗi trước khi gửi request
+
+    try {
+      const response = await POST("/api/Authentication/login", {
+        email,
+        password,
+      });
+
+      const token = response; // Lấy token từ phản hồi của API
+      console.log("Token:", token);
+      login(token); // Lưu token bằng authStore hoặc localStorage tùy bạn
+      navigate("/"); // Chuyển hướng về trang chủ
+    } catch (err) {
+      console.error("Login failed:", err);
+      setError("Login failed. Please check your email and password.");
+    }
+  };
+
   return (
     <div className="w-1/2 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
@@ -15,7 +41,7 @@ const LoginForm = () => {
           </div>
 
           <div className="flex-auto p-6">
-            <form className="text-left">
+            <form className="text-left" onSubmit={handleLogin}>
               {/* Email Field */}
               <div className="mb-4">
                 <label
@@ -28,6 +54,7 @@ const LoginForm = () => {
                   id="email"
                   type="email"
                   placeholder="example@email.com"
+                  onChange={(e) => setEmail(e.target.value)}
                   className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
                 />
               </div>
@@ -44,6 +71,7 @@ const LoginForm = () => {
                   id="password"
                   type="password"
                   placeholder="••••••••"
+                  onChange={(e) => setPassword(e.target.value)}
                   className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
                 />
               </div>
@@ -67,14 +95,19 @@ const LoginForm = () => {
                 </Link>
               </div>
 
+              {/* Error message */}
+              {error && (
+                <p className="text-red-500 text-sm mb-4">{error}</p>
+              )}
               {/* Login Button */}
               <button
                 type="button"
                 className="inline-block w-full px-6 py-3 font-semibold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-sm ease-in tracking-tight-soft shadow-md hover:shadow-xs mb-4"
-                onClick={() => {
-                  login({ email: "12345", password: "12345" });
-                  navigate("/");
-                }}
+                // onClick={() => {
+                //   login({ email: "12345", password: "12345" });
+                //   navigate("/");
+                // }}
+                onClick={handleLogin}
               >
                 Sign In
               </button>
