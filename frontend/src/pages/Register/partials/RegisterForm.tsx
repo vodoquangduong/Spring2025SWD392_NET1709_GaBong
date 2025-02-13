@@ -1,6 +1,74 @@
-import { Link } from "react-router-dom";
-
+import { App } from "antd";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { registerUseCase } from "../usecases/registerUseCase";
+//overflow rieng
 const RegisterForm = () => {
+  const navigate = useNavigate();
+  const { message } = App.useApp();
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    address: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    birthday: "",
+    gender: 0,
+    role: 3, // Mặc định là client
+  });
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "gender" || name === "role" ? parseInt(value) : value,
+    }));
+  };
+
+  const handleRoleChange = (role: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      role: role,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    // Kiểm tra password match
+    if (formData.password !== formData.confirmPassword) {
+      setError("Mật khẩu không khớp");
+      return;
+    }
+
+    try {
+      // Loại bỏ confirmPassword và format dữ liệu
+      const { confirmPassword, ...rest } = formData;
+
+      // Format birthday thành ISO string
+      const registerData = {
+        ...rest,
+        birthday: new Date(rest.birthday).toISOString(),
+      };
+
+      console.log("register data:", registerData);
+      const response = await registerUseCase.register(registerData);
+      console.log("Register success!!!!:", response);
+      message.success("Register successfully");
+      // Nếu đăng ký thành công, chuyển đến trang login
+      navigate("/login");
+    } catch (err: any) {
+      console.error("Registration failed!!!!:", err);
+      // Hiển thị thông báo lỗi từ server hoặc thông báo mặc định
+      setError(err.message || "Đăng ký thất bại. Vui lòng thử lại.");
+    }
+  };
+
   return (
     <div className="w-1/2 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
@@ -12,19 +80,26 @@ const RegisterForm = () => {
           </div>
 
           <div className="flex-auto p-6">
-            <form className="text-left">
+            <form className="text-left" onSubmit={handleSubmit}>
+              {error && (
+                <div className="mb-4 text-red-500 text-sm">{error}</div>
+              )}
               <div className="mb-4">
                 <label
-                  htmlFor="fullName"
+                  htmlFor="name"
                   className="block text-sm font-medium text-zinc-900 dark:text-white mb-1"
                 >
                   Full Name
                 </label>
                 <input
-                  id="fullName"
+                  id="name"
+                  name="name"
                   type="text"
+                  value={formData.name}
+                  onChange={handleInputChange}
                   placeholder="John Doe"
                   className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
+                  required
                 />
               </div>
 
@@ -37,9 +112,32 @@ const RegisterForm = () => {
                 </label>
                 <input
                   id="phone"
+                  name="phone"
                   type="tel"
+                  value={formData.phone}
+                  onChange={handleInputChange}
                   placeholder="+84 123456789"
                   className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="address"
+                  className="block text-sm font-medium text-zinc-900 dark:text-white mb-1"
+                >
+                  Address
+                </label>
+                <input
+                  id="address"
+                  name="address"
+                  type="text"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  placeholder="Your address"
+                  className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
+                  required
                 />
               </div>
 
@@ -52,10 +150,53 @@ const RegisterForm = () => {
                 </label>
                 <input
                   id="email"
+                  name="email"
                   type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   placeholder="example@email.com"
                   className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
+                  required
                 />
+              </div>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="birthday"
+                  className="block text-sm font-medium text-zinc-900 dark:text-white mb-1"
+                >
+                  Birthday
+                </label>
+                <input
+                  id="birthday"
+                  name="birthday"
+                  type="date"
+                  value={formData.birthday}
+                  onChange={handleInputChange}
+                  className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="gender"
+                  className="block text-sm font-medium text-zinc-900 dark:text-white mb-1"
+                >
+                  Gender
+                </label>
+                <select
+                  id="gender"
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
+                  required
+                >
+                  <option value={0}>Male</option>
+                  <option value={1}>Female</option>
+                  <option value={2}>Other</option>
+                </select>
               </div>
 
               <div className="mb-4">
@@ -67,24 +208,32 @@ const RegisterForm = () => {
                 </label>
                 <input
                   id="password"
+                  name="password"
                   type="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
                   placeholder="••••••••"
                   className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
+                  required
                 />
               </div>
 
               <div className="mb-4">
                 <label
-                  htmlFor="password"
+                  htmlFor="confirmPassword"
                   className="block text-sm font-medium text-zinc-900 dark:text-white mb-1"
                 >
                   Confirm Password
                 </label>
                 <input
-                  id="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
                   type="password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
                   placeholder="••••••••"
                   className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
+                  required
                 />
               </div>
 
@@ -105,7 +254,8 @@ const RegisterForm = () => {
                     <input
                       type="radio"
                       name="role"
-                      value="client"
+                      checked={formData.role === 3}
+                      onChange={() => handleRoleChange(3)}
                       className="hidden"
                     />
                     <div className="text-center">
@@ -130,7 +280,8 @@ const RegisterForm = () => {
                     <input
                       type="radio"
                       name="role"
-                      value="freelancer"
+                      checked={formData.role === 2}
+                      onChange={() => handleRoleChange(2)}
                       className="hidden"
                     />
                     <div className="text-center">
@@ -149,6 +300,7 @@ const RegisterForm = () => {
                 <label className="flex items-center">
                   <input
                     type="checkbox"
+                    required
                     className="w-5 h-5 rounded-md cursor-pointer border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 mr-2"
                   />
                   <span className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -172,7 +324,7 @@ const RegisterForm = () => {
 
               <div className="text-center mt-6">
                 <button
-                  type="button"
+                  type="submit"
                   className="inline-block w-full px-6 py-3 font-semibold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-sm ease-in tracking-tight-soft shadow-md hover:shadow-xs"
                 >
                   Create Account
