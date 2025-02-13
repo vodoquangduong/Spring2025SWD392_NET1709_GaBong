@@ -20,7 +20,7 @@ const LoginForm = () => {
         password,
       });
 
-      const token = response; // Lấy token từ phản hồi của API
+      const token = response.token; // Lấy token từ phản hồi của API
       console.log("Token:", token);
       login(token); // Lưu token bằng authStore hoặc localStorage tùy bạn
       navigate("/"); // Chuyển hướng về trang chủ

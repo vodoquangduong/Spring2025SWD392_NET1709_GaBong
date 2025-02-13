@@ -10,6 +10,8 @@ import useAuthStore from "../stores/authStore";
 
 const ProfileDropdown = () => {
   const { logout } = useAuthStore();
+  const userInfor = localStorage.getItem("auth");
+  const userInforString = userInfor ? JSON.parse(userInfor) : null;
   const navigate = useNavigate();
   const items = [
     {
@@ -96,8 +98,8 @@ const ProfileDropdown = () => {
           className="h-10 aspect-square bg-cover bg-center rounded-full bg-white border border-emerald-500"
         />
         <div className="text-xs text-emerald-500">
-          <div className="">Staff Name</div>
-          <div className="">staff@gmail.com</div>
+          <div className="">{userInforString?.state?.email}</div>
+          <div className="">{userInforString?.state?.email}</div>
         </div>
       </span>
     </Dropdown>

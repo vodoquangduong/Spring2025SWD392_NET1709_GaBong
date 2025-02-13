@@ -1,7 +1,17 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { LoginRequest, Role } from "../types";
+import { Role } from "../types";
 import { setCookie } from "../libs/cookie";
+
+import { decodeJWT } from "../libs/jwtUtil";
+const jwt_decode  = decodeJWT;
+
+interface User {
+  email: string;
+  name: string;
+  avatar?: string;
+  role: Role;
+}
 
 const useAuthStore = create<{
   isAuthenticated: boolean;
@@ -9,7 +19,7 @@ const useAuthStore = create<{
   name: string;
   avatar: string;
   role: Role;
-  login: (loginRequest: LoginRequest) => void;
+  login: (token: string) => void;
   logout: () => void;
 }>()(
   persist(
@@ -19,15 +29,46 @@ const useAuthStore = create<{
       name: "",
       avatar: "",
       role: Role.GUEST,
-      login: (loginRequest: any) => {
-        set({
-          isAuthenticated: true,
-          // email: userInfo.email,
-          // name: userInfo.email,
-          // avatar: userInfo.email,
-          // role: userInfo.role,
-        });
+      login: (token: string) => {
+        // set({
+        //   isAuthenticated: true,
+        //   // email: userInfo.email,
+        //   // name: userInfo.email,
+        //   // avatar: userInfo.email,
+        //   // role: userInfo.role,
+        // });
+        if (typeof token !== "string") {
+          console.error("Invalid token:", token);
+          return;
+        }
+
+        try {
+          // Giải mã token để lấy thông tin người dùng
+          const decoded: any = jwt_decode(token);
+          if (decoded?.email) {
+            console.log("Email:", decoded.email);
+          } else {
+            console.error("Email not found in token payload");
+          }
+          //const userInfo: User = decoded.user;
+
+          // Lưu token vào cookie
+          setCookie("accessToken", token, 7); // Token sẽ hết hạn sau 7 ngày
+          // Cập nhật trạng thái trong store
+          set({
+            isAuthenticated: true,
+            email: decoded.email,
+            name: decoded.name || decoded.email,
+            avatar: decoded.avatar || "",
+            role: decoded.role || "GUEST",
+          });
+          console.log("Login successfully");
+          console.log("User info:", decoded);
+        } catch (error) {
+          console.error("Failed to decode token:", error);
+        }
       },
+
       logout: () => {
         setCookie("accessToken", "", 0);
         set({
