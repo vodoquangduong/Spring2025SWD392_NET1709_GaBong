@@ -48,6 +48,10 @@ public class AccountNew
     public virtual ICollection<SkillPerform> SkillPerforms { get; set; } = new List<SkillPerform>();
     public virtual Portfolio? Portfolio { get; set; }
     public virtual ICollection<Bid> Bids { get; set; } = new List<Bid>();
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+    public virtual ICollection<Chat> SenderChats { get; set; } = new List<Chat>();
+    public virtual ICollection<Chat> ReceiverChats { get; set; } = new List<Chat>();
 
 
     
