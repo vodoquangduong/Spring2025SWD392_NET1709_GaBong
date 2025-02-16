@@ -3,12 +3,12 @@ import Logo from "./Logo";
 
 export default function Footer() {
   return (
-    <footer className="bg-zinc-900 px-4 lg:px-6 py-2.5 text-secondary dark:text-primary border-t border-zinc-800">
-      <div className="container flex flex-wrap items-center justify-between mx-auto">
-        <div className="w-full p-4 py-6 lg:py-8">
+    <footer className="bg-zinc-900 text-secondary dark:text-primary border-t border-zinc-800">
+      <div className="mx-container flex flex-wrap items-center justify-between">
+        <div className="w-full py-6 lg:py-8">
           <div className="md:flex md:justify-between">
             <div className="mb-6 md:mb-0">
-              <div className="flex items-start mb-4">
+              <div className="flex items-start mb-4 ml-3">
                 <Logo />
               </div>
               <div className="flex gap-2 flex-col">
@@ -84,7 +84,7 @@ export default function Footer() {
           <div className="sm:flex sm:items-center sm:justify-between">
             <span className="text-sm sm:text-center">
               <Link to={"/landing"}>
-                Freelancer Platform .Inc © {new Date().getFullYear()}
+                Freelancer Platform © {new Date().getFullYear()}
               </Link>
             </span>
             <div className="flex mt-4 sm:justify-center sm:mt-0">

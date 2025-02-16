@@ -82,6 +82,10 @@
     @apply no-ring w-full rounded-md border border-zinc-400 dark:border-zinc-700 text-base hover:!border-emerald-400 focus-visible:border-emerald-400 bg-white dark:bg-[#141414] dark:text-zinc-200 px-3;
   }
 
+  .input-style input {
+    @apply dark:bg-[#141414];
+  }
+
   .input-style::-webkit-calendar-picker-indicator {
     @apply dark:[color-scheme:dark];
   }
@@ -100,6 +104,9 @@
 
   a {
     @apply hover:text-green-700;
+  }
+  .mx-container {
+    @apply mx-auto container;
   }
 }
 

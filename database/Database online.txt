@@ -1,0 +1,8 @@
+PostgreSQL endpoint: 
+postgresql://e04q69:xau_FXXqLruXfMgEFEKZWAUmIqKRd3pNVv011@us-east-1.sql.xata.sh/PostgreGaBong:main?sslmode=require
+
+HTTP endpoint:
+https://Long-nh-s-workspace-e04q69.us-east-1.xata.sh/db/PostgreGaBong:main
+
+API key:
+xau_FXXqLruXfMgEFEKZWAUmIqKRd3pNVv011

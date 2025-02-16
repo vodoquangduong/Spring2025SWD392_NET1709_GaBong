@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 export default function PageNotFound() {
   const navigate = useNavigate();
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex items-center justify-center h-screen dark:bg-black">
       <Result
         status="404"
         title="404"
