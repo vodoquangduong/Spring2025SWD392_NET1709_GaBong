@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250216175040_TablesAndRelations")]
-    partial class TablesAndRelations
+    [Migration("20250217073918_Inti1")]
+    partial class Inti1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -211,6 +211,10 @@ namespace DAOs.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("FeedbackId"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
                     b.Property<string>("FeedbackComment")
                         .IsRequired()
                         .HasColumnType("text")
@@ -401,7 +405,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("VerifyStaffId");
 
-                    b.ToTable("Project");
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Report", b =>
