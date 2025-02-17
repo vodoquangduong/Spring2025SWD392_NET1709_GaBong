@@ -37,11 +37,11 @@ namespace DAOs
             }
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Account>().Property(d => d.Role).HasConversion<string>();
-            modelBuilder.Entity<Account>().Property(d => d.Gender).HasConversion<string>();
-        }
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    base.OnModelCreating(modelBuilder);
+        //    modelBuilder.Entity<Account>().Property(d => d.Role).HasConversion<string>();
+        //    modelBuilder.Entity<Account>().Property(d => d.Gender).HasConversion<string>();
+        //}
     }
 }

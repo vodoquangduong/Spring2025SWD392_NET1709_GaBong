@@ -49,9 +49,8 @@ namespace DAOs.Migrations
                         .HasColumnType("text")
                         .HasColumnName("email");
 
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int>("Gender")
+                        .HasColumnType("integer")
                         .HasColumnName("gender");
 
                     b.Property<string>("Name")
@@ -73,9 +72,8 @@ namespace DAOs.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("reputation_point");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int>("Role")
+                        .HasColumnType("integer")
                         .HasColumnName("role");
 
                     b.Property<int>("Status")
