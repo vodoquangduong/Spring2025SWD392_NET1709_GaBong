@@ -23,7 +23,7 @@ namespace BusinessObjects.Models
         public TransactionType Type { get; set; }
         //navigation property
         [ForeignKey("AccountId")]
-        public virtual Account Account { get; set; } = null!;
+        public virtual AccountNew? Account { get; set; }
         
     }
 }

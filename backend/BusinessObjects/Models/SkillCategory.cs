@@ -18,7 +18,7 @@ namespace BusinessObjects.Models
         public string SkillName { get; set; } = string.Empty;
 
         // Navigation Property
-        public virtual ICollection<SkillRequired> SkillRequired { get; set; } = new List<SkillRequired>();
+        public virtual ICollection<SkillRequired> SkillRequireds { get; set; } = new List<SkillRequired>();
         public virtual ICollection<SkillPerform> SkillPerforms { get; set; } = new List<SkillPerform>();
     }
 }

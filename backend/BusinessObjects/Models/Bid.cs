@@ -28,9 +28,9 @@ namespace BusinessObjects.Models
         
         // Navigation properties
         [ForeignKey("BidOwnerId")]
-        public Account BidOwner { get; set; } = null!;
+        public Account? BidOwner { get; set; }
         [ForeignKey("ProjectId")]
-        public Project Project { get; set; } = null!;
+        public Project? Project { get; set; }
         
         
         

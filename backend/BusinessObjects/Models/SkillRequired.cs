@@ -13,6 +13,7 @@ namespace BusinessObjects.Models
         [Column("project_id")]
         public long ProjectId { get; set; }
 
+        [Key]
         [Column("skill_id")]
         public long SkillId { get; set; }
 

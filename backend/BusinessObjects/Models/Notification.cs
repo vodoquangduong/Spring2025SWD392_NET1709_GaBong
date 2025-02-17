@@ -26,7 +26,7 @@ namespace BusinessObjects.Models
         public string Content { get; set; } = string.Empty;
         // Navigation Property
         [ForeignKey("AccountId")]
-        public virtual Account Account { get; set; } = null!;
+        public virtual AccountNew? Account { get; set; }
      
         
     }

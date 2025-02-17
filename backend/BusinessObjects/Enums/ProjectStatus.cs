@@ -4,8 +4,9 @@ namespace BusinessObjects.Enums
     {
         Pending,
         Verified,
-        OnGoing,
+        Rejected,
+        InProgress,
         Completed,
-        Closed
+        Expired
     }
 }

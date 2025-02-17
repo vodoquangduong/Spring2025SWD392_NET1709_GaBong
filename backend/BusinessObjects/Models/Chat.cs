@@ -23,9 +23,9 @@ namespace BusinessObjects.Models
         public DateTime CreatedAt { get; set; }
         //navigation property
         [ForeignKey("SenderId")]
-        public virtual Account Sender { get; set; } = null!;
+        public virtual AccountNew? Sender { get; set; }
         [ForeignKey("ReceiverId")]
-        public virtual Account Receiver {get; set;} = null!;
+        public virtual AccountNew? Receiver {get; set;}
         
     }
 }

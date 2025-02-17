@@ -22,7 +22,7 @@ namespace BusinessObjects.Models
         public DateTime StartDate { get; set; }
         // Navigation properties
         [ForeignKey("ProjectId")]
-        public Project Project { get; set; } = null!;
+        public Project? Project { get; set; }
         
         
 
