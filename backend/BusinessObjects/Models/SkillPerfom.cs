@@ -14,10 +14,10 @@ namespace BusinessObjects.Models
         public long SkillId { get; set; }
 
         // Navigation Properties
-        [ForeignKey("account_id")]
+        [ForeignKey("AccountId")]
         public virtual AccountNew Account { get; set; } = null!;
 
-        [ForeignKey("skill_id")]
+        [ForeignKey("SkillId")]
         public virtual SkillCategory SkillCategory { get; set; } = null!;
     }
 }

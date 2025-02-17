@@ -10,7 +10,7 @@ namespace BusinessObjects.Models
 {
     public class Report
     {
-
+        
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("report_id")]
@@ -35,11 +35,11 @@ namespace BusinessObjects.Models
         public ReportStatus Status { get; set; }
 
         // Navigation properties
-        [ForeignKey("sender_id")]
-        public virtual Account? Sender { get; set; } = null!;
-        [ForeignKey("project_id")]
-        public virtual Project? Project { get; set; } = null!;
-        [ForeignKey("verify_staff_id")]
-        public virtual Account? VerifyStaff { get; set; } = null!;
+        [ForeignKey("SenderId")]
+        public Account? Sender { get; set; }
+        [ForeignKey("ProjectId")]
+        public Project? Project { get; set; }
+        [ForeignKey("VerifyStaffId")]
+        public Account? VerifyStaff { get; set; }
     }
 }

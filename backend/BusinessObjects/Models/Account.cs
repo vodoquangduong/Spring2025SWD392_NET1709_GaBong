@@ -29,30 +29,8 @@ public class Account
     public Gender Gender { get; set; } = Gender.Other;
     [Column("reputation_point")]
     public int ReputationPoint { get; set; } = 0;
-    [Column("total_credit")]
-    public long TotalCredit { get; set; } = 0;
-    [Column("lock_credit")]
-    public long LockCredit { get; set; } = 0;
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.MinValue;
     [Column("status")]
     public AccountStatus Status { get; set; } = AccountStatus.Active;
-
-
-    //Navigation Property
-    public virtual ICollection<Bid> Bids { get; set; } = new List<Bid>();
-    public virtual ICollection<Project> ClientProjects { get; set; } = new List<Project>();
-    public virtual ICollection<Project> FreelancerProjects { get; set; } = new List<Project>();
-    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
-    public virtual Portfolio Portfolio { get; set; } = null!;
-    public virtual ICollection<Chat> SenderChats { get; set; } = new List<Chat>();
-    public virtual ICollection<Report> SentReports { get; set; } = new List<Report>();
-    public virtual ICollection<SkillPerform> SkillPerforms { get; set; } = new List<SkillPerform>();
-    public virtual ICollection<Chat> ReceiverChats { get; set; } = new List<Chat>();
-    public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
-    public virtual ICollection<Project> VerifiedStaffIdProjects { get; set; } = new List<Project>();
-    public virtual ICollection<Report> VerifiedReports { get; set; } = new List<Report>();
-
-
-
 }

@@ -21,8 +21,8 @@ namespace BusinessObjects.Models
         [Column("start_date")]
         public DateTime StartDate { get; set; }
         // Navigation properties
-        [ForeignKey("project_id")]
-        public virtual Project Project { get; set; } = null!;
+        [ForeignKey("ProjectId")]
+        public Project? Project { get; set; }
         
         
 

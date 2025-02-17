@@ -13,12 +13,15 @@ namespace BusinessObjects.Models
         [Column("project_id")]
         public long ProjectId { get; set; }
 
+        [ForeignKey("Client")]
         [Column("client_id")]
         public long ClientId { get; set; }
 
+        [ForeignKey("Freelancer")]
         [Column("freelancer_id")]
         public long? FreelancerId { get; set; }
 
+        [ForeignKey("Verifier")]
         [Column("verify_staff_id")]
         public long? VerifyStaffId { get; set; }
 
@@ -36,11 +39,8 @@ namespace BusinessObjects.Models
 
 
         // Navigation Properties
-        [ForeignKey("client_id")]
-        public virtual Account Client { get; set; } = null!;
-        [ForeignKey("freelancer_id")]
+        public virtual Account? Client { get; set; }
         public virtual Account? Freelancer { get; set; }
-        [ForeignKey("verify_staff_id")]
         public virtual Account? Verifier { get; set; }
         public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
         public virtual ICollection<SkillRequired> SkillRequireds { get; set; } = new List<SkillRequired>();
