@@ -25,12 +25,12 @@ namespace BusinessObjects.Models
         public DateTime CreatedAt { get; set; }
         [Column("bid_description")]
         public string BidDescription { get; set; } = string.Empty;
-        
+
         // Navigation properties
-        [ForeignKey("BidOwnerId")]
-        public Account? BidOwner { get; set; }
-        [ForeignKey("ProjectId")]
-        public Project? Project { get; set; }
+        [ForeignKey("bid_owner_id")]
+        public virtual Account BidOwner { get; set; } = null!;
+        [ForeignKey("project_id")]
+        public virtual Project Project { get; set; } = null!;
         
         
         

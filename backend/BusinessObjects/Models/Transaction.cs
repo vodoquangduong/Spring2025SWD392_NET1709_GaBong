@@ -21,9 +21,10 @@ namespace BusinessObjects.Models
         public Enums.TransactionStatus Status { get; set; }
         [Column("type")]
         public TransactionType Type { get; set; }
+
         //navigation property
-        [ForeignKey("AccountId")]
-        public virtual AccountNew? Account { get; set; }
+        [ForeignKey("account_id")]
+        public virtual Account Account { get; set; } = null!;
         
     }
 }

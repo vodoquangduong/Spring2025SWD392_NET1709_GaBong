@@ -24,9 +24,10 @@ namespace BusinessObjects.Models
         public NotificationStatus Status { get; set; }
         [Column("content")]
         public string Content { get; set; } = string.Empty;
+
         // Navigation Property
-        [ForeignKey("AccountId")]
-        public virtual AccountNew? Account { get; set; }
+        [ForeignKey("account_id")]
+        public virtual Account Account { get; set; } = null!;
      
         
     }

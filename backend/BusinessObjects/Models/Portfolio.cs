@@ -30,7 +30,7 @@ namespace BusinessObjects.Models
         public PortfolioStatus Status { get; set; }
 
         // Navigation property for the related Account
-        [ForeignKey("FreelancerId")]
-        public virtual Account? Account { get; set; }
+        [ForeignKey("freelancer_id")]
+        public virtual Account? Account { get; set; } = null!;
     }
 }

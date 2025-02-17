@@ -21,11 +21,12 @@ namespace BusinessObjects.Models
         public string MessageContent { get; set; } = string.Empty;
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
+
         //navigation property
-        [ForeignKey("SenderId")]
-        public virtual AccountNew? Sender { get; set; }
-        [ForeignKey("ReceiverId")]
-        public virtual AccountNew? Receiver {get; set;}
+        [ForeignKey("sender_id")]
+        public virtual Account Sender { get; set; } = null!;
+        [ForeignKey("receiver_id")]
+        public virtual Account Receiver { get; set; } = null!;
         
     }
 }
