@@ -24,6 +24,9 @@ namespace BusinessObjects.Models
         public string MilestoneDescription { get; set; } = string.Empty;
         [Column("pay_amount")]
         public long PayAmount { get; set; }
+        // Navigation property
+        [ForeignKey("ProjectId")]
+        public virtual Project Project { get; set; } = null!;
         
         
         

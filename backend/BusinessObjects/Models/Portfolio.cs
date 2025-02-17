@@ -31,6 +31,6 @@ namespace BusinessObjects.Models
 
         // Navigation property for the related Account
         [ForeignKey("FreelancerId")]
-        public virtual Account? Account { get; set; }
+        public virtual Account? Account { get; set; } = null!;
     }
 }
