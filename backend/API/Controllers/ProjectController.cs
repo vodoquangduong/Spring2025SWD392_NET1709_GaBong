@@ -31,7 +31,7 @@ public IActionResult TestCurrentUser()
 {
     try
     {
-        var userId = _currentUserService.UserId;
+        var userId = _currentUserService.AccountId;
         var role = _currentUserService.Role;
         
         return Ok(new { UserId = userId, Role = role });

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -16,26 +12,26 @@ namespace Services.Implements
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public long UserId
+        public long AccountId
         {
             get
             {
                 var userIdClaim = _httpContextAccessor.HttpContext?.User.Claims
-                    .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                    .FirstOrDefault(c => c.Type == "accountId");
                     
                 if (userIdClaim == null)
-                    throw new UnauthorizedAccessException("User ID not found in token");
+                    throw new UnauthorizedAccessException("Account Id not found in token");
 
                 return long.Parse(userIdClaim.Value);
             }
         }
 
-        public string UserName
+        public string Email
         {
             get
             {
                 return _httpContextAccessor.HttpContext?.User.Claims
-                    .FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value 
+                    .FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value 
                     ?? throw new UnauthorizedAccessException("Username not found in token");
             }
         }
