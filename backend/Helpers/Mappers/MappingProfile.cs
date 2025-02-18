@@ -1,4 +1,5 @@
 using AutoMapper;
+using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Account;
 using Helpers.DTOs.Project;
@@ -13,9 +14,14 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.ClientId, opt => opt.Ignore())
             .ForMember(dest => dest.PostDate, opt => opt.Ignore());
 
-        CreateMap<Project, ProjectDTO>()
-            .ForMember(dest => dest.Status, 
-                opt => opt.MapFrom(src => src.Status.ToString()));
+         CreateMap<Project, ProjectDTO>()
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => 
+                src.Status == ProjectStatus.Pending ? "Pending" :
+                src.Status == ProjectStatus.Verified ? "Verified" :
+                src.Status == ProjectStatus.OnGoing ? "OnGoing" :
+                src.Status == ProjectStatus.Completed ? "Completed" :
+                src.Status == ProjectStatus.Closed ? "Closed" : "Unknown"
+            ));
             // .ForMember(dest => dest.ClientName, 
             //     opt => opt.MapFrom(src => src.Client.Name))
             // .ForMember(dest => dest.FreelancerName, 

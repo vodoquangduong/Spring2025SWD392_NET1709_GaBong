@@ -9,7 +9,7 @@ public class ProjectDTO
     public DateTime PostDate { get; set; }
     public DateTime EndBiddingDate { get; set; }
     public string ProjectDescription { get; set; } = string.Empty;
-    public ProjectStatus Status { get; set; }
+    public string Status { get; set; } = string.Empty;
     
     // include additional derived/computed properties
     // public string ClientName { get; set; }

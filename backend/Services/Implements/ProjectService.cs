@@ -56,7 +56,7 @@ namespace Services.Implements
 
         public async Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync()
         {
-            var projects = await _unitOfWork.ProjectRepository.GetAllProjectsAsync();
+            var projects = await _unitOfWork.ProjectRepository.GetAllAsync();
             return _mapper.Map<IEnumerable<ProjectDTO>>(projects);
         }
 

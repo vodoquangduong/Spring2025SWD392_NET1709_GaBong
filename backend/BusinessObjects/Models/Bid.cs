@@ -31,8 +31,5 @@ namespace BusinessObjects.Models
         public Account BidOwner { get; set; } = null!;
         [ForeignKey("ProjectId")]
         public Project Project { get; set; } = null!;
-        
-        
-        
     }
 }

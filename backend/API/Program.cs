@@ -113,6 +113,8 @@ namespace API
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             builder.Services.AddScoped<IProjectService, ProjectService>();
+            builder.Services.AddScoped<IBidService, BidService>();
+
             #endregion
 
             var app = builder.Build();
