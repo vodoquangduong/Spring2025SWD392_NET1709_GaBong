@@ -1,4 +1,3 @@
-
 using DAOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +7,7 @@ using Repositories.Implements;
 using Repositories.Interfaces;
 using Services.Implements;
 using Services.Interfaces;
+using AutoMapper;
 
 namespace API
 {
@@ -95,8 +95,10 @@ namespace API
                 option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
             #endregion
-
-
+             // Register AutoMapper
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
+            // Register UnitOfWork
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             //DI Repository
             #region
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
@@ -108,6 +110,8 @@ namespace API
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             #endregion
 
             var app = builder.Build();
