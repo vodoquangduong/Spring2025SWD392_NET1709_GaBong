@@ -9,15 +9,11 @@ using Repositories.Interfaces;
 
 namespace Repositories.Implements;
 
-public class AccountRepository : IAccountRepository
+public class AccountRepository : GenericRepository<Account>, IAccountRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    public AccountRepository(ApplicationDbContext context)
+    public AccountRepository(ApplicationDbContext context) : base(context)
     {
-        _context = context;
     }
-
     public async Task<Account> CreateAccountAsync(RegisterDTO registerDto)
     {
         var account = new Account()

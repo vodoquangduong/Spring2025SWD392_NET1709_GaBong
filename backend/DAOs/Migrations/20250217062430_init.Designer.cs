@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250211090333_Init")]
-    partial class Init
+    [Migration("20250217062430_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,9 +52,8 @@ namespace DAOs.Migrations
                         .HasColumnType("text")
                         .HasColumnName("email");
 
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int>("Gender")
+                        .HasColumnType("integer")
                         .HasColumnName("gender");
 
                     b.Property<string>("Name")
@@ -76,9 +75,8 @@ namespace DAOs.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("reputation_point");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int>("Role")
+                        .HasColumnType("integer")
                         .HasColumnName("role");
 
                     b.Property<int>("Status")

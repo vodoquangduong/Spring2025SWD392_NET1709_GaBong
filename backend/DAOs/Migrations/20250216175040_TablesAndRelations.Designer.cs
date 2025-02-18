@@ -3,6 +3,7 @@ using System;
 using DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250216175040_TablesAndRelations")]
+    partial class TablesAndRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,8 +52,9 @@ namespace DAOs.Migrations
                         .HasColumnType("text")
                         .HasColumnName("email");
 
-                    b.Property<int>("Gender")
-                        .HasColumnType("integer")
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("gender");
 
                     b.Property<long>("LockCredit")
@@ -76,8 +80,9 @@ namespace DAOs.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("reputation_point");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer")
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("role");
 
                     b.Property<string>("Status")

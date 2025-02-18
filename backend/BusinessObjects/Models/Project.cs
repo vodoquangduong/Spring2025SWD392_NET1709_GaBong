@@ -39,11 +39,11 @@ namespace BusinessObjects.Models
 
 
         // Navigation Properties
-        public virtual Account? Client { get; set; }
+        public virtual Account Client { get; set; } = null!;
         public virtual Account? Freelancer { get; set; }
         public virtual Account? Verifier { get; set; }
         public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
-        public virtual ICollection<SkillRequired> SkillRequireds { get; set; } = new List<SkillRequired>();
+        public virtual ICollection<SkillRequired> SkillRequired { get; set; } = new List<SkillRequired>();
         public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
         public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();
         public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();

@@ -23,7 +23,7 @@ namespace BusinessObjects.Models
         public long ProjectId { get; set; }
 
         [Column("verify_staff_id")]
-        public string VerifyStaffId { get; set; } = string.Empty;
+        public long VerifyStaffId { get; set; }
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
@@ -36,10 +36,10 @@ namespace BusinessObjects.Models
 
         // Navigation properties
         [ForeignKey("SenderId")]
-        public Account? Sender { get; set; }
+        public Account Sender { get; set; } = null!;
         [ForeignKey("ProjectId")]
-        public Project? Project { get; set; }
+        public Project Project { get; set; } = null!;
         [ForeignKey("VerifyStaffId")]
-        public Account? VerifyStaff { get; set; }
+        public Account? VerifyStaff { get; set; } = null!;
     }
 }
