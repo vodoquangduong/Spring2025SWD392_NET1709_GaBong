@@ -53,9 +53,7 @@ namespace Services.Implements
 
         public async Task<AuthenticationResponse?> Register(RegisterDTO registerDto)
         {
-            var existingAccount = await _accountService.GetAccountByEmailAsync(
-                registerDto.Email
-            );
+            var existingAccount = await _accountService.GetAccountByEmailAsync(registerDto.Email);
             if (existingAccount != null)
             {
                 return null;

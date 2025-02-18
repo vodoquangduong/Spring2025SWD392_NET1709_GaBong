@@ -63,7 +63,10 @@ public class AccountService : IAccountService
             Email = registerDto.Email,
             Password = PasswordHasher.HashPassword(registerDto.Password),
             Role = registerDto.Role,
+            CreatedAt = DateTime.UtcNow,
         };
-        return await _unitOfWork.GetRepo<Account>().CreateAsync(account);
+        var createdAccoun =  await _unitOfWork.GetRepo<Account>().CreateAsync(account);
+        await _unitOfWork.SaveChangesAsync();
+        return createdAccoun;
     }
 }
