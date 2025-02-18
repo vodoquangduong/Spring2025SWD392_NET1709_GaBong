@@ -9,7 +9,7 @@ namespace Services.Interfaces
 {
     public interface IProjectService
     {
-        Task<IEnumerable<Project>> GetAllProjectsAsync();
+        Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync();
         // Task<ProjectDTO> GetProjectByIdAsync(long id);
         Task<ProjectDTO> CreateProjectAsync(CreateProjectDTO projectDto, long userId);
         // Task<Project> UpdateProjectAsync(Project project);

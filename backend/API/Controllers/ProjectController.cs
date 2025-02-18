@@ -20,26 +20,32 @@ namespace API.Controllers
             _projectService = projectService;
             _currentUserService = currentUserService;
         }
-        // [HttpPost]
-        // public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO project)
-        // {
-        //     var createdProject = await _projectService.CreateProjectAsync(project, userId);
-        //     return Ok(createdProject);
-        // }
+        [HttpPost]
+        public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO project)
+        {
+            var createdProject = await _projectService.CreateProjectAsync(project, _currentUserService.AccountId);
+            return Ok(createdProject);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAllProjects()
+        {
+            var projects = await _projectService.GetAllProjectsAsync();
+            return Ok(projects);
+        }
         [HttpGet("test-current-user")]
-public IActionResult TestCurrentUser()
-{
-    try
-    {
-        var userId = _currentUserService.AccountId;
-        var role = _currentUserService.Role;
-        
-        return Ok(new { UserId = userId, Role = role });
-    }
-    catch (UnauthorizedAccessException ex)
-    {
-        return Unauthorized(ex.Message);
-    }
-}
+        public IActionResult TestCurrentUser()
+        {
+            try
+            {
+                var userId = _currentUserService.AccountId;
+                var role = _currentUserService.Role;
+                var email = _currentUserService.Email;
+                return Ok(new { UserId = userId, Role = role, Email = email });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+        }
     }
 }

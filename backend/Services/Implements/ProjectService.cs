@@ -27,12 +27,12 @@ namespace Services.Implements
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-
+                //map the create project dto to project
                 var project = _mapper.Map<Project>(projectDto);
                 project.ClientId = userId;
                 project.Status = ProjectStatus.Pending;
                 project.PostDate = DateTime.UtcNow;
-
+                //add the project to the database
                 await _unitOfWork.ProjectRepository.AddAsync(project);
                 await _unitOfWork.SaveChangesAsync();
                 // If  need the client name in the response load the related data
@@ -54,9 +54,10 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<Project>> GetAllProjectsAsync()
+        public async Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync()
         {
-            throw new NotImplementedException();
+            var projects = await _unitOfWork.ProjectRepository.GetAllProjectsAsync();
+            return _mapper.Map<IEnumerable<ProjectDTO>>(projects);
         }
 
         public Task<Project> GetProjectByIdAsync(int id)

@@ -26,9 +26,9 @@ namespace Repositories.Implements
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<Project>> GetAllProjectsAsync()
+        public async Task<IEnumerable<Project>> GetAllProjectsAsync()
         {
-            throw new NotImplementedException();
+            return await GetAllAsync();
         }
 
         public Task<Project> GetProjectByIdAsync(int id)
