@@ -31,11 +31,19 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
     public void Update(T entity)
     {
-        _dbSet.Update(entity);
+        if (_context.Entry(entity).State == EntityState.Detached)
+        {
+            _dbSet.Attach(entity);
+        }
+        _context.Entry(entity).State = EntityState.Modified;
     }
 
     public void Delete(T entity)
     {
+        if (_context.Entry(entity).State == EntityState.Detached)
+        {
+            _dbSet.Attach(entity);
+        }
         _dbSet.Remove(entity);
     }
 
