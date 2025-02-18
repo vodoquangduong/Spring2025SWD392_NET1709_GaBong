@@ -28,7 +28,8 @@ namespace Repositories.Implements
 
         public async Task<IEnumerable<Project>> GetAllProjectsAsync()
         {
-            return await GetAllAsync();
+            //return await GetAllAsync();
+            return null;
         }
 
         public Task<Project> GetProjectByIdAsync(int id)

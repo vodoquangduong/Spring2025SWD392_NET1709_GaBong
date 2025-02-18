@@ -22,5 +22,17 @@ namespace API.Controllers
         var accountDTOs = accounts.Select(account => account.ToAccountDTO());
         return Ok(accountDTOs);
        }
+
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAccountById(long id)
+        {
+            var account = await _accountService.GetAccountByIdAsync(id);
+            if (account == null)
+            {
+                return NotFound("Account not found");
+            }
+            return Ok(account);
+        }
     }
 }

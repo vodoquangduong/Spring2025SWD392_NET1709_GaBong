@@ -62,6 +62,7 @@ namespace Services.Implements
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Email, account.Email),
+                new Claim("name", account.Name),
                 new Claim(ClaimTypes.Role, account.Role.ToString()),
                 new Claim("accountId", account.AccountId.ToString())
             };
@@ -91,10 +92,7 @@ namespace Services.Implements
                 new Claim(JwtRegisteredClaimNames.Email, registerDto.Email),
                 new Claim("name", registerDto.Name),
                 new Claim("password", registerDto.Password),
-                new Claim("birthday", registerDto.Birthday.ToString()),
-                new Claim("phoneNumber", registerDto.Phone),
-                new Claim("address", registerDto.Address),
-                new Claim("gender", registerDto.Gender.ToString()),
+                new Claim("role", registerDto.Role.ToString())
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
@@ -119,29 +117,16 @@ namespace Services.Implements
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwt = tokenHandler.ReadJwtToken(verifyGmailToken);
-
             string name = jwt.Claims.FirstOrDefault(c => c.Type == "name")?.Value ?? "";
             string password = jwt.Claims.FirstOrDefault(c => c.Type == "password")?.Value ?? "";
-            string phoneNumber =
-                jwt.Claims.FirstOrDefault(c => c.Type == "phoneNumber")?.Value ?? "";
-            string address = jwt.Claims.FirstOrDefault(c => c.Type == "address")?.Value ?? "";
             string email = jwt.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "";
-            DateTime birthday = DateTime.Parse(
-                jwt.Claims.FirstOrDefault(c => c.Type == "birthday")?.Value ?? ""
-            );
-            Gender gender = Enum.Parse<Gender>(
-                jwt.Claims.FirstOrDefault(c => c.Type == "gender")?.Value ?? ""
-            );
 
             var registerDto = new RegisterDTO()
             {
                 Name = name,
                 Password = password,
-                Phone = phoneNumber,
-                Address = address,
                 Email = email,
-                Birthday = birthday,
-                Gender = gender,
+
             };
 
             return registerDto;

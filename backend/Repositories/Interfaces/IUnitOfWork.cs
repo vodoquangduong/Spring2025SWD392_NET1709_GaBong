@@ -4,12 +4,10 @@ using Repositories.Interfaces;
 
 public interface IUnitOfWork : IDisposable
 {
-    IProjectRepository ProjectRepository { get; }
-    IAccountRepository AccountRepository { get; }
-    // Add other repositories
-
-    Task<int> SaveChangesAsync();
+    IGenericRepository<T> GetRepo<T>() where T : class;
+    Task SaveChangesAsync();
     Task BeginTransactionAsync();
-    Task CommitAsync();
-    Task RollbackAsync();
+    Task CommitTransactionAsync();
+    Task RollBackAsync();
+    Task<bool> SaveAsync();
 } 

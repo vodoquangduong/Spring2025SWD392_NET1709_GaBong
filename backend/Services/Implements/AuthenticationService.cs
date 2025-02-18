@@ -16,10 +16,10 @@ namespace Services.Implements
     public class AuthenticationService : IAuthenticationService
     {
         private readonly ITokenService _tokenService;
-        private readonly IAccountRepository _accountRepository;
-        public AuthenticationService(ITokenService tokenService, IAccountRepository accountRepository)
+        private readonly IAccountService _accountService;
+        public AuthenticationService(ITokenService tokenService, IAccountService accountService)
         {
-            _accountRepository = accountRepository;
+            _accountService = accountService;
             _tokenService = tokenService;
         }
         public Task<AuthenticationResponse?> GetResetToken(ResetPasswordDTO resetPasswordDto)
@@ -29,7 +29,7 @@ namespace Services.Implements
 
         public async Task<AuthenticationResponse?> Login(LoginDTO loginDto)
         {
-            var account = await _accountRepository.GetAccountByEmailAsync(loginDto.Email);
+            var account = await _accountService.GetAccountByEmailAsync(loginDto.Email);
 
             if (account == null)
                 return null;
@@ -45,6 +45,7 @@ namespace Services.Implements
             return new AuthenticationResponse { Token = _tokenService.CreateToken(account) };
         }
 
+        //TODO
         public Task<AuthenticationResponse?> LoginGoogle(LoginGoogleDTO loginGoogleDto)
         {
             throw new NotImplementedException();
@@ -52,14 +53,14 @@ namespace Services.Implements
 
         public async Task<AuthenticationResponse?> Register(RegisterDTO registerDto)
         {
-            var existingAccount = await _accountRepository.GetAccountByEmailAsync(
+            var existingAccount = await _accountService.GetAccountByEmailAsync(
                 registerDto.Email
             );
             if (existingAccount != null)
             {
                 return null;
             }
-            var account = await _accountRepository.CreateAccountAsync(registerDto);
+            var account = await _accountService.CreateAccount(registerDto);
             return new AuthenticationResponse()
             {
                 Token = _tokenService.CreateToken(account)
@@ -73,11 +74,13 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
+        //TODO
         public Task<AuthenticationResponse?> ResetPassword(string email, UpdatePasswordDTO updatePasswordDto)
         {
             throw new NotImplementedException();
         }
 
+        //TODO
         public Task<AuthenticationResponse?> VerifyGmail(string token)
         {
             throw new NotImplementedException();
