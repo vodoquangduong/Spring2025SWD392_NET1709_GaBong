@@ -4,7 +4,7 @@ using Helpers.DTOs.Authentication;
 
 namespace Repositories.Interfaces;
 
-public interface IAccountRepository
+public interface IAccountRepository : IGenericRepository<Account>
 {
     Task<IEnumerable<Account>> GetAccountsAsync();
 
