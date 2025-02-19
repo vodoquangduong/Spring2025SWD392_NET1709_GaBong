@@ -30,9 +30,9 @@ public class Account
     [Column("reputation_point")]
     public int ReputationPoint { get; set; } = 0;
     [Column("total_credit")]
-    public long TotalCredit { get; set; } = 0;
+    public double TotalCredit { get; set; } = 0;
     [Column("lock_credit")]
-    public long LockCredit { get; set; } = 0;
+    public double LockCredit { get; set; } = 0;
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.MinValue;
     [Column("status")]

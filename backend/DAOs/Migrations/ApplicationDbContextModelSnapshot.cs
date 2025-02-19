@@ -49,8 +49,9 @@ namespace DAOs.Migrations
                         .HasColumnType("text")
                         .HasColumnName("email");
 
-                    b.Property<int>("Gender")
-                        .HasColumnType("integer")
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("gender");
 
                     b.Property<long>("LockCredit")
@@ -76,8 +77,9 @@ namespace DAOs.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("reputation_point");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer")
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("role");
 
                     b.Property<string>("Status")
@@ -205,6 +207,10 @@ namespace DAOs.Migrations
                         .HasColumnName("feedback_id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("FeedbackId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
 
                     b.Property<string>("FeedbackComment")
                         .IsRequired()
@@ -396,7 +402,7 @@ namespace DAOs.Migrations
 
                     b.HasIndex("VerifyStaffId");
 
-                    b.ToTable("Project");
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Report", b =>

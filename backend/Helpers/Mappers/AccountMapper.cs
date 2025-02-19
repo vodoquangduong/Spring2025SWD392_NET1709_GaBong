@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using Helpers.DTOs.Account;
 using System;
 using System.Collections.Generic;
@@ -12,24 +13,48 @@ namespace Helpers.Mappers
     {
         public static AccountDTO ToAccountDTO(this Account account)
         {
+            if (account == null) return null;
+
             return new AccountDTO
             {
                 AccountId = account.AccountId,
-                Role = account.Role.ToString(),
+                Role = account.Role,
                 Name = account.Name,
                 Email = account.Email,
-                Password = account.Password,
+                Password = "********",
                 Phone = account.Phone,
                 Address = account.Address,
                 Birthday = account.Birthday,
-                Gender = account.Gender.ToString(),
+                Gender = account.Gender,
                 ReputationPoint = account.ReputationPoint,
+                TotalCredit = account.TotalCredit,
+                LockCredit = account.LockCredit,
                 CreatedAt = account.CreatedAt,
-                Status = account.Status.ToString(),
-
+                Status = account.Status,
             };
-
         }
 
+        public static Account ToAccount(AccountDTO accountDto)
+        {
+            if (accountDto == null) return null;
+
+            return new Account
+            {
+                AccountId = accountDto.AccountId,
+                Role = Enum.Parse<AccountRole>(accountDto.Role.ToString()),
+                Name = accountDto.Name,
+                Email = accountDto.Email,
+                Password = accountDto.Password,
+                Phone = accountDto.Phone,
+                Address = accountDto.Address,
+                Birthday = accountDto.Birthday,
+                Gender = Enum.Parse<Gender>(accountDto.Gender.ToString()),
+                ReputationPoint = accountDto.ReputationPoint,
+                TotalCredit = accountDto.TotalCredit,
+                LockCredit = accountDto.LockCredit,
+                CreatedAt = accountDto.CreatedAt,
+                Status = Enum.Parse<AccountStatus>(accountDto.Status.ToString()),
+            };
+        }
     }
 }

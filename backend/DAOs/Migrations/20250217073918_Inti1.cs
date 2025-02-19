@@ -7,32 +7,48 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAOs.Migrations
 {
     /// <inheritdoc />
-    public partial class TablesAndRelations : Migration
+    public partial class Inti1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "status",
-                table: "Accounts",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "integer");
+            migrationBuilder.CreateTable(
+                name: "Accounts",
+                columns: table => new
+                {
+                    account_id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    role = table.Column<string>(type: "text", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    email = table.Column<string>(type: "text", nullable: false),
+                    password = table.Column<string>(type: "text", nullable: false),
+                    phone = table.Column<string>(type: "text", nullable: false),
+                    address = table.Column<string>(type: "text", nullable: false),
+                    birthday = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    gender = table.Column<string>(type: "text", nullable: false),
+                    reputation_point = table.Column<int>(type: "integer", nullable: false),
+                    total_credit = table.Column<long>(type: "bigint", nullable: false),
+                    lock_credit = table.Column<long>(type: "bigint", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    status = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Accounts", x => x.account_id);
+                });
 
-            migrationBuilder.AddColumn<long>(
-                name: "lock_credit",
-                table: "Accounts",
-                type: "bigint",
-                nullable: false,
-                defaultValue: 0L);
-
-            migrationBuilder.AddColumn<long>(
-                name: "total_credit",
-                table: "Accounts",
-                type: "bigint",
-                nullable: false,
-                defaultValue: 0L);
+            migrationBuilder.CreateTable(
+                name: "SkillCategory",
+                columns: table => new
+                {
+                    skill_id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    skill_name = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SkillCategory", x => x.skill_id);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Chat",
@@ -110,7 +126,7 @@ namespace DAOs.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Project",
+                name: "Projects",
                 columns: table => new
                 {
                     project_id = table.Column<long>(type: "bigint", nullable: false)
@@ -125,38 +141,25 @@ namespace DAOs.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Project", x => x.project_id);
+                    table.PrimaryKey("PK_Projects", x => x.project_id);
                     table.ForeignKey(
-                        name: "FK_Project_Accounts_client_id",
+                        name: "FK_Projects_Accounts_client_id",
                         column: x => x.client_id,
                         principalTable: "Accounts",
                         principalColumn: "account_id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Project_Accounts_freelancer_id",
+                        name: "FK_Projects_Accounts_freelancer_id",
                         column: x => x.freelancer_id,
                         principalTable: "Accounts",
                         principalColumn: "account_id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Project_Accounts_verify_staff_id",
+                        name: "FK_Projects_Accounts_verify_staff_id",
                         column: x => x.verify_staff_id,
                         principalTable: "Accounts",
                         principalColumn: "account_id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SkillCategory",
-                columns: table => new
-                {
-                    skill_id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    skill_name = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SkillCategory", x => x.skill_id);
                 });
 
             migrationBuilder.CreateTable(
@@ -183,6 +186,30 @@ namespace DAOs.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SkillPerform",
+                columns: table => new
+                {
+                    account_id = table.Column<long>(type: "bigint", nullable: false),
+                    skill_id = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SkillPerform", x => x.account_id);
+                    table.ForeignKey(
+                        name: "FK_SkillPerform_Accounts_account_id",
+                        column: x => x.account_id,
+                        principalTable: "Accounts",
+                        principalColumn: "account_id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SkillPerform_SkillCategory_skill_id",
+                        column: x => x.skill_id,
+                        principalTable: "SkillCategory",
+                        principalColumn: "skill_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Bid",
                 columns: table => new
                 {
@@ -204,9 +231,9 @@ namespace DAOs.Migrations
                         principalColumn: "account_id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Bid_Project_project_id",
+                        name: "FK_Bid_Projects_project_id",
                         column: x => x.project_id,
-                        principalTable: "Project",
+                        principalTable: "Projects",
                         principalColumn: "project_id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -225,9 +252,9 @@ namespace DAOs.Migrations
                 {
                     table.PrimaryKey("PK_Contract", x => x.contract_id);
                     table.ForeignKey(
-                        name: "FK_Contract_Project_project_id",
+                        name: "FK_Contract_Projects_project_id",
                         column: x => x.project_id,
-                        principalTable: "Project",
+                        principalTable: "Projects",
                         principalColumn: "project_id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -240,15 +267,16 @@ namespace DAOs.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     project_id = table.Column<long>(type: "bigint", nullable: false),
                     rating = table.Column<int>(type: "integer", nullable: false),
-                    feedback_comment = table.Column<string>(type: "text", nullable: false)
+                    feedback_comment = table.Column<string>(type: "text", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Feedback", x => x.feedback_id);
                     table.ForeignKey(
-                        name: "FK_Feedback_Project_project_id",
+                        name: "FK_Feedback_Projects_project_id",
                         column: x => x.project_id,
-                        principalTable: "Project",
+                        principalTable: "Projects",
                         principalColumn: "project_id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -269,9 +297,9 @@ namespace DAOs.Migrations
                 {
                     table.PrimaryKey("PK_Milestone", x => x.milestone_id);
                     table.ForeignKey(
-                        name: "FK_Milestone_Project_project_id",
+                        name: "FK_Milestone_Projects_project_id",
                         column: x => x.project_id,
-                        principalTable: "Project",
+                        principalTable: "Projects",
                         principalColumn: "project_id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -305,34 +333,10 @@ namespace DAOs.Migrations
                         principalColumn: "account_id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Report_Project_project_id",
+                        name: "FK_Report_Projects_project_id",
                         column: x => x.project_id,
-                        principalTable: "Project",
+                        principalTable: "Projects",
                         principalColumn: "project_id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SkillPerform",
-                columns: table => new
-                {
-                    account_id = table.Column<long>(type: "bigint", nullable: false),
-                    skill_id = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SkillPerform", x => x.account_id);
-                    table.ForeignKey(
-                        name: "FK_SkillPerform_Accounts_account_id",
-                        column: x => x.account_id,
-                        principalTable: "Accounts",
-                        principalColumn: "account_id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SkillPerform_SkillCategory_skill_id",
-                        column: x => x.skill_id,
-                        principalTable: "SkillCategory",
-                        principalColumn: "skill_id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -347,9 +351,9 @@ namespace DAOs.Migrations
                 {
                     table.PrimaryKey("PK_SkillRequired", x => x.project_id);
                     table.ForeignKey(
-                        name: "FK_SkillRequired_Project_project_id",
+                        name: "FK_SkillRequired_Projects_project_id",
                         column: x => x.project_id,
-                        principalTable: "Project",
+                        principalTable: "Projects",
                         principalColumn: "project_id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -407,18 +411,18 @@ namespace DAOs.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Project_client_id",
-                table: "Project",
+                name: "IX_Projects_client_id",
+                table: "Projects",
                 column: "client_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Project_freelancer_id",
-                table: "Project",
+                name: "IX_Projects_freelancer_id",
+                table: "Projects",
                 column: "freelancer_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Project_verify_staff_id",
-                table: "Project",
+                name: "IX_Projects_verify_staff_id",
+                table: "Projects",
                 column: "verify_staff_id");
 
             migrationBuilder.CreateIndex(
@@ -489,26 +493,13 @@ namespace DAOs.Migrations
                 name: "Transaction");
 
             migrationBuilder.DropTable(
-                name: "Project");
+                name: "Projects");
 
             migrationBuilder.DropTable(
                 name: "SkillCategory");
 
-            migrationBuilder.DropColumn(
-                name: "lock_credit",
-                table: "Accounts");
-
-            migrationBuilder.DropColumn(
-                name: "total_credit",
-                table: "Accounts");
-
-            migrationBuilder.AlterColumn<int>(
-                name: "status",
-                table: "Accounts",
-                type: "integer",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
+            migrationBuilder.DropTable(
+                name: "Accounts");
         }
     }
 }
