@@ -23,7 +23,10 @@ public class MappingProfile : Profile
                 src.Status == ProjectStatus.OnGoing ? "OnGoing" :
                 src.Status == ProjectStatus.Completed ? "Completed" :
                 src.Status == ProjectStatus.Closed ? "Closed" : "Unknown"
-            ));
+            ))
+            .ForMember(dest => dest.PostDate, opt => opt.MapFrom(src => src.PostDate.ToString("dd-MM-yyyy")))
+            .ForMember(dest => dest.EndBiddingDate, opt => opt.MapFrom(src => 
+                src.EndBiddingDate != default ? src.EndBiddingDate.ToString("dd-MM-yyyy") : null));
             // .ForMember(dest => dest.ClientName, 
             //     opt => opt.MapFrom(src => src.Client.Name))
             // .ForMember(dest => dest.FreelancerName, 

@@ -7,6 +7,7 @@ using BusinessObjects.Models;
 using Helpers.DTOs.Bid;
 using Repositories.Queries;
 using Services.Interfaces;
+using Helpers.HelperClasses;
 
 namespace Services.Implements
 {
@@ -23,7 +24,7 @@ namespace Services.Implements
             _currentUserService = currentUserService;
         }
 
-        public async Task<BidDTO> CreateBidAsync(CreateBidDTO createBidDTO)
+        public async Task<Result<BidDTO>> CreateBidAsync(CreateBidDTO createBidDTO)
         {
             try 
             {
@@ -33,25 +34,36 @@ namespace Services.Implements
                 });
                 if (!project)
                 {
-                    throw new Exception($"Project with id {createBidDTO.ProjectId} not found");
+                    return Result.Failure<BidDTO>(new Error("Project.NotFound", $"Project with id {createBidDTO.ProjectId} not found"));
+                }
+                if(createBidDTO.Amount <= 0)
+                {
+                    return Result.Failure<BidDTO>(new Error("Bid.InvalidAmount", "Amount must be greater than 0"));
                 }
                 var bid = _mapper.Map<Bid>(createBidDTO);
                 bid.BidOwnerId = _currentUserService.AccountId;
                 bid.CreatedAt = DateTime.UtcNow;
                 await _unitOfWork.GetRepo<Bid>().CreateAsync(bid);
                 await _unitOfWork.SaveChangesAsync();
-                return _mapper.Map<BidDTO>(bid);
+                return Result.Success(_mapper.Map<BidDTO>(bid));
             }
-            catch (KeyNotFoundException)
+            catch (Exception ex)
             {
-                throw new Exception($"Project with id {createBidDTO.ProjectId} not found");
+                return Result.Failure<BidDTO>(new Error("Bid.CreationFailed", ex.Message));
             }
         }
 
-        public async Task<IEnumerable<BidDTO>> GetAllBidsAsync()
+        public async Task<Result<IEnumerable<BidDTO>>> GetAllBidsAsync()
         {
-            var bids = await _unitOfWork.GetRepo<Bid>().GetAllAsync(new QueryOptions<Bid>());
-            return _mapper.Map<IEnumerable<BidDTO>>(bids);
+            try
+            {
+                var bids = await _unitOfWork.GetRepo<Bid>().GetAllAsync(new QueryOptions<Bid>());
+                return Result.Success(_mapper.Map<IEnumerable<BidDTO>>(bids));
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure<IEnumerable<BidDTO>>(new Error("Bid.RetrievalFailed", ex.Message));
+            }
         }
     }
 }

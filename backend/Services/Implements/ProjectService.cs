@@ -6,6 +6,7 @@ using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Project;
+using Helpers.HelperClasses;
 using Repositories.Interfaces;
 using Repositories.Queries;
 using Services.Interfaces;
@@ -16,17 +17,20 @@ namespace Services.Implements
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public ProjectService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ProjectService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
-        public async Task<ProjectDTO> CreateProjectAsync(CreateProjectDTO projectDto, long userId)
+        public async Task<Result<ProjectDTO>> CreateProjectAsync(CreateProjectDTO projectDto)
         {
                  try
                  {
+                     var userId = _currentUserService.AccountId;
                      await _unitOfWork.BeginTransactionAsync();
                      //map the create project dto to project
                      var project = _mapper.Map<Project>(projectDto);
@@ -39,12 +43,12 @@ namespace Services.Implements
                      // If  need the client name in the response load the related data
                      // project = await _unitOfWork.ProjectRepository.GetByIdWithDetailsAsync(project.ProjectId);
                      await _unitOfWork.CommitTransactionAsync();
-                     return _mapper.Map<ProjectDTO>(project);
+                     return Result.Success(_mapper.Map<ProjectDTO>(project));
                  }
-                 catch
+                 catch(Exception ex)
                  {
                      await _unitOfWork.RollBackAsync();
-                     throw;
+                     return Result.Failure<ProjectDTO>(new Error("Project.CreationFailed", ex.Message));
                  }
             
             
@@ -57,13 +61,17 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync()
-        {
-            /*    var projects = await _unitOfWork.ProjectRepository.GetAllProjectsAsync();
-                return _mapper.Map<IEnumerable<ProjectDTO>>(projects);
-            */
-            var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(new QueryOptions<Project>());
-            return _mapper.Map<IEnumerable<ProjectDTO>>(projects);
+        public async Task<Result<IEnumerable<ProjectDTO>>> GetAllProjectsAsync()
+        {   
+            try
+            {
+                var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(new QueryOptions<Project>());
+                return Result.Success(_mapper.Map<IEnumerable<ProjectDTO>>(projects));
+            }
+            catch(Exception ex)
+            {
+                return Result.Failure<IEnumerable<ProjectDTO>>(new Error("Project.GetAllFailed", ex.Message));
+            }
         }
 
         public Task<Project> GetProjectByIdAsync(int id)

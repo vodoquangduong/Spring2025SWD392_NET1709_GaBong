@@ -22,8 +22,12 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateBid(CreateBidDTO bidDto)
         {
-            var bid = await _bidService.CreateBidAsync(bidDto);
-            return Ok(bid);
+            var result = await _bidService.CreateBidAsync(bidDto);
+            if(result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return BadRequest(result.Error);
         }
         [HttpGet]
         public async Task<IActionResult> GetAllBids()
