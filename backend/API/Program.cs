@@ -81,6 +81,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IBidService, BidService>();
+builder.Services.AddScoped<IContractService, ContractService>();
 
 var app = builder.Build();
 
