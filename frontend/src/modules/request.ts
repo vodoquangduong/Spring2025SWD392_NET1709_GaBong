@@ -12,6 +12,7 @@ const SendRequest = async (
 ) => {
   let header = {
     Accept: "application/json, text/plain",
+    "Content-Type": "application/json",
     Authorization: `Bearer ${getCookie("accessToken")}`,
   };
 
@@ -20,7 +21,6 @@ const SendRequest = async (
     headers: header,
     body: isFile ? body : method === "GET" ? null : JSON.stringify(body),
   });
-  const json = await data.json();
 
   if (
     privateEndpoint &&
@@ -29,19 +29,7 @@ const SendRequest = async (
     alert("Session expired, please login again");
     useAuthStore().logout();
   }
-
-  // returned array json
-  if (json instanceof Array) {
-    return {
-      data: [...json],
-      status: data.status,
-    };
-  }
-  // returned message json
-  return {
-    data: json,
-    status: data.status,
-  };
+  return await data.json();
 };
 
 export const GET = async (url: string, privateEndpoint = true) =>

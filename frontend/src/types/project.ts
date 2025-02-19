@@ -14,7 +14,7 @@ export interface Project {
     unit: "days" | "weeks" | "months";
   };
   skills: string[];
-  status: "open" | "in_progress" | "completed" | "cancelled";
+  status: ProjectStatus;
   createdAt: string;
   updatedAt: string;
   client: {
@@ -106,4 +106,11 @@ export interface ProjectDetail extends Project {
     };
     createdAt: string;
   }[];
+}
+
+export enum ProjectStatus {
+  PENDING = 0,
+  OPEN = 1,
+  COMPLETED = 2,
+  CANCELLED = 3,
 }

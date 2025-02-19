@@ -55,7 +55,7 @@ export default function NotificationDropdown() {
       className="mr-2"
     >
       <Space>
-        <Badge count={5} size="default">
+        <Badge size="default">
           <FaRegBell size={20} className="text-white cursor-pointer" />
         </Badge>
       </Space>

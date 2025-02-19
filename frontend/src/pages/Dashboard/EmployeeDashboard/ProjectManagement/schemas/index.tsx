@@ -1,10 +1,23 @@
-import { Button, Calendar, ConfigProvider, Modal, Popover, Tag } from "antd";
+import {
+  App,
+  Button,
+  Calendar,
+  ConfigProvider,
+  Modal,
+  Popconfirm,
+  Popover,
+  Tag,
+} from "antd";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { z } from "zod";
 import { Project } from "../models/types";
-import { ProjectStatus } from "@/types";
+import { ProjectDetail, ProjectStatus } from "@/types/project";
+import { approveService, rejectService } from "../services/verifyService";
+import { mapProjectStatusToTag } from "@/modules/mapUiStatus";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { PUT } from "@/modules/request";
 
 // export const formSchema = () => {
 //   return z.object({
@@ -14,6 +27,22 @@ import { ProjectStatus } from "@/types";
 // };
 
 export const projectColumns = () => {
+  const { message } = App.useApp();
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationKey: ["projects"],
+    mutationFn: async (projectId: string) =>
+      await PUT(`/api/Project/verify/${projectId}`, {}),
+    onError: () => {
+      message.destroy();
+      message.error("Project approval failed");
+    },
+    onSuccess: () => {
+      message.destroy();
+      message.success("Project approved successfully");
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    },
+  });
   return [
     {
       title: "Id",
@@ -21,7 +50,7 @@ export const projectColumns = () => {
       key: "id",
       render: (text: string) => (
         <Link
-          to={`/worker/users/${text}`}
+          to={`/employee/projects/${text}`}
           className="text-xs"
         >{`#${text}`}</Link>
       ),
@@ -32,7 +61,7 @@ export const projectColumns = () => {
       key: "clientId",
       render: (text: string) => (
         <Link
-          to={`/worker/users/${text}`}
+          to={`/employee/users/${text}`}
           className="text-xs"
         >{`#${text}`}</Link>
       ),
@@ -47,31 +76,54 @@ export const projectColumns = () => {
       title: "Project Description",
       dataIndex: "projectDescription",
       key: "projectDescription",
-      render: (text: string) => <div className="line-clamp-3">{text}</div>,
+      render: (text: string) => <div className="line-clamp-4">{text}</div>,
     },
 
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (text: ProjectStatus) => text,
+      render: (text: ProjectStatus) => mapProjectStatusToTag(text),
     },
-    // {
-    //   title: "Verify",
-    //   dataIndex: "verify",
-    //   key: "verify",
-    //   render: (_text: string, record: User) => (
-    //     <div className="flex gap-2">
-    //       <div className="flex gap-4">
-    //         <UpdateModal
-    //           record={record}
-    //           form={form(record)}
-    //           min={true}
-    //           title={`Update user ${record?.name}`}
-    //         />
-    //       </div>
-    //     </div>
-    //   ),
-    // },
+    {
+      title: "Verify",
+      dataIndex: "verify",
+      key: "verify",
+      render: (_text: string, record: ProjectDetail) => (
+        <div className="flex gap-2">
+          <div className="flex gap-4">
+            {record.status == ProjectStatus.PENDING && (
+              <>
+                <Popconfirm
+                  title="Approve the project"
+                  description="Are you sure to approve this project?"
+                  onConfirm={() => {
+                    message.open({
+                      type: "loading",
+                      content: "Approving project ...",
+                      duration: 0,
+                    });
+                    approveService(record.projectId, mutation);
+                  }}
+                >
+                  <Button type="primary" className="font-bold">
+                    Approve
+                  </Button>
+                </Popconfirm>
+                <Popconfirm
+                  title="Reject the project"
+                  description="Are you sure to reject this project?"
+                  onConfirm={() => rejectService(record.projectId, message)}
+                >
+                  <Button type="primary" danger className="font-bold">
+                    Reject
+                  </Button>
+                </Popconfirm>
+              </>
+            )}
+          </div>
+        </div>
+      ),
+    },
   ];
 };

@@ -10,7 +10,7 @@ import {
 import PendingServiceList from "../pages/Dashboard/EmployeeDashboard/ProjectManagement/partials/PendingServiceList";
 import { ReportManagement } from "../pages/Dashboard/EmployeeDashboard/ReportManagement";
 import { ServiceManagement } from "../pages/Dashboard/EmployeeDashboard/ServiceManagement";
-import { UserDetail, UserList } from "../pages/Dashboard/UserManager";
+// import { UserDetail, UserList } from "../pages/Dashboard/UserManager";
 import ForgotPassword from "../pages/ForgotPassword";
 import { Freelancer } from "../pages/Freelancer";
 import Home from "../pages/Home";
@@ -71,9 +71,9 @@ export default function MainRoutes() {
             </Route>
             <Route path="policy" element={<Policy />} />
           </Route>
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="register" element={<Register />} />
+          <Route path="login" element={<Login />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="/" element={<DashboardLayout />}>
             <Route path="employee">
               <Route path="" element={<Navigate to="accounts" />} />

@@ -67,7 +67,9 @@ export default function Category() {
         </div>
         <div className="col-span-2 grid grid-cols-4 pl-8 gap-y-6 text-lg font-semibold">
           {items.map((item) => (
-            <a href="#">{item}</a>
+            <a href="#" key={item}>
+              {item}
+            </a>
           ))}
           <div className="text-emerald-600 flex gap-4 items-center">
             View more <FaArrowRightLong />

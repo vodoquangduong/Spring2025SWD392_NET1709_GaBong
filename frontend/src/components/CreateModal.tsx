@@ -39,7 +39,7 @@ const CreateModal = ({
         width={840}
         footer={(_) => <></>}
       >
-        <div className="mt-4 overflow-y-scroll ml-2 pr-2 max-h-[500px]">
+        <div className="mt-4 overflow-y-scroll ml-2 pr-2">
           {form(setIsModalOpen)}
           <div></div>
         </div>

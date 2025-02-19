@@ -31,10 +31,3 @@ export type LoginRequest = {
 export type FormCallback = {
   (setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>): ReactNode;
 };
-
-export enum ProjectStatus {
-  IN_PROGRESS = "0",
-  OPEN = "1",
-  COMPLETED = "2",
-  CANCELLED = "3",
-}

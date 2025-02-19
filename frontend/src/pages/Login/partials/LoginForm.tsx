@@ -35,13 +35,18 @@ const LoginForm = () => {
 
     try {
       console.log("Login data:", formData);
-      message.loading("Logging in...");
+      message.open({
+        type: "loading",
+        content: "Logging in...",
+        duration: 0,
+      });
       const response = await loginUseCase.login(formData);
       console.log("Login success:", response);
-
+      message.destroy();
       message.success("Login successful!");
       navigate("/"); // Chuyển đến trang chủ sau khi đăng nhập
     } catch (err: any) {
+      message.destroy();
       console.error("Login failed:", err);
       // Ưu tiên hiển thị message từ server
       if (err.message && err.message !== "Failed to fetch") {
