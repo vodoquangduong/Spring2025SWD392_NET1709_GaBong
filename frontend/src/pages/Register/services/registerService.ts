@@ -34,7 +34,7 @@ export const registerService = {
     } catch (error: any) {
       if (error.message === "Failed to fetch") {
         throw new Error(
-          "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng."
+          "Cannot connect to server. Please check your connection."
         );
       }
       throw error;

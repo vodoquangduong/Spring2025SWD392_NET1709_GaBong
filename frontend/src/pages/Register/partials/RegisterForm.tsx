@@ -2,20 +2,16 @@ import { App } from "antd";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUseCase } from "../usecases/registerUseCase";
-//overflow rieng
+
 const RegisterForm = () => {
   const navigate = useNavigate();
   const { message } = App.useApp();
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
-    phone: "",
-    address: "",
     email: "",
     password: "",
     confirmPassword: "",
-    birthday: "",
-    gender: 0,
     role: 3, // Mặc định là client
   });
 
@@ -25,47 +21,60 @@ const RegisterForm = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "gender" || name === "role" ? parseInt(value) : value,
+      [name]: value,
     }));
   };
 
-  const handleRoleChange = (role: number) => {
+  const handleRoleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
     setFormData((prev) => ({
       ...prev,
-      role: role,
+      role: value,
     }));
+    console.log("Role changed to:", value); // Debug log
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // Kiểm tra password match
+    // Validate
+    if (
+      !formData.name ||
+      formData.name.length < 2 ||
+      formData.name.length > 50
+    ) {
+      setError("Full name must be between 2 and 50 characters");
+      return;
+    }
+
+    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError("Invalid email address");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
-      setError("Mật khẩu không khớp");
+      setError("Passwords do not match");
       return;
     }
 
     try {
-      // Loại bỏ confirmPassword và format dữ liệu
-      const { confirmPassword, ...rest } = formData;
+      // Loại bỏ confirmPassword
+      const { confirmPassword, ...registerData } = formData;
 
-      // Format birthday thành ISO string
-      const registerData = {
-        ...rest,
-        birthday: new Date(rest.birthday).toISOString(),
-      };
-
-      console.log("register data:", registerData);
+      console.log("Register data:", registerData); // Debug log
       const response = await registerUseCase.register(registerData);
-      console.log("Register success!!!!:", response);
-      message.success("Register successfully");
-      // Nếu đăng ký thành công, chuyển đến trang login
+      console.log("Register success:", response);
+
+      message.success("Registration successful!");
       navigate("/login");
     } catch (err: any) {
-      console.error("Registration failed!!!!:", err);
-      // Hiển thị thông báo lỗi từ server hoặc thông báo mặc định
-      setError(err.message || "Đăng ký thất bại. Vui lòng thử lại.");
+      console.error("Registration failed:", err);
+      if (err.message && err.message !== "Failed to fetch") {
+        setError(err.message);
+      } else {
+        setError("Registration failed. Please try again.");
+      }
     }
   };
 
@@ -84,6 +93,7 @@ const RegisterForm = () => {
               {error && (
                 <div className="mb-4 text-red-500 text-sm">{error}</div>
               )}
+
               <div className="mb-4">
                 <label
                   htmlFor="name"
@@ -98,44 +108,6 @@ const RegisterForm = () => {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="John Doe"
-                  className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
-                  required
-                />
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium text-zinc-900 dark:text-white mb-1"
-                >
-                  Phone Number
-                </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="+84 123456789"
-                  className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
-                  required
-                />
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="address"
-                  className="block text-sm font-medium text-zinc-900 dark:text-white mb-1"
-                >
-                  Address
-                </label>
-                <input
-                  id="address"
-                  name="address"
-                  type="text"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="Your address"
                   className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
                   required
                 />
@@ -158,45 +130,6 @@ const RegisterForm = () => {
                   className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
                   required
                 />
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="birthday"
-                  className="block text-sm font-medium text-zinc-900 dark:text-white mb-1"
-                >
-                  Birthday
-                </label>
-                <input
-                  id="birthday"
-                  name="birthday"
-                  type="date"
-                  value={formData.birthday}
-                  onChange={handleInputChange}
-                  className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
-                  required
-                />
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="gender"
-                  className="block text-sm font-medium text-zinc-900 dark:text-white mb-1"
-                >
-                  Gender
-                </label>
-                <select
-                  id="gender"
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleInputChange}
-                  className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
-                  required
-                >
-                  <option value={0}>Male</option>
-                  <option value={1}>Female</option>
-                  <option value={2}>Other</option>
-                </select>
               </div>
 
               <div className="mb-4">
@@ -254,8 +187,9 @@ const RegisterForm = () => {
                     <input
                       type="radio"
                       name="role"
+                      value="3"
                       checked={formData.role === 3}
-                      onChange={() => handleRoleChange(3)}
+                      onChange={handleRoleChange}
                       className="hidden"
                     />
                     <div className="text-center">
@@ -280,8 +214,9 @@ const RegisterForm = () => {
                     <input
                       type="radio"
                       name="role"
+                      value="2"
                       checked={formData.role === 2}
-                      onChange={() => handleRoleChange(2)}
+                      onChange={handleRoleChange}
                       className="hidden"
                     />
                     <div className="text-center">
