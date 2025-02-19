@@ -7,6 +7,7 @@ using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Project;
 using Repositories.Interfaces;
+using Repositories.Queries;
 using Services.Interfaces;
 
 namespace Services.Implements
@@ -24,7 +25,7 @@ namespace Services.Implements
 
         public async Task<ProjectDTO> CreateProjectAsync(CreateProjectDTO projectDto, long userId)
         {
-            /*     try
+                 try
                  {
                      await _unitOfWork.BeginTransactionAsync();
                      //map the create project dto to project
@@ -33,20 +34,20 @@ namespace Services.Implements
                      project.Status = ProjectStatus.Pending;
                      project.PostDate = DateTime.UtcNow;
                      //add the project to the database
-                     await _unitOfWork.ProjectRepository.AddAsync(project);
+                     await _unitOfWork.GetRepo<Project>().CreateAsync(project);
                      await _unitOfWork.SaveChangesAsync();
                      // If  need the client name in the response load the related data
                      // project = await _unitOfWork.ProjectRepository.GetByIdWithDetailsAsync(project.ProjectId);
-                     await _unitOfWork.CommitAsync();
+                     await _unitOfWork.CommitTransactionAsync();
                      return _mapper.Map<ProjectDTO>(project);
                  }
                  catch
                  {
-                     await _unitOfWork.RollbackAsync();
+                     await _unitOfWork.RollBackAsync();
                      throw;
                  }
-            */
-            return null;
+            
+            
         }
 
 
@@ -61,7 +62,8 @@ namespace Services.Implements
             /*    var projects = await _unitOfWork.ProjectRepository.GetAllProjectsAsync();
                 return _mapper.Map<IEnumerable<ProjectDTO>>(projects);
             */
-            return null ;
+            var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(new QueryOptions<Project>());
+            return _mapper.Map<IEnumerable<ProjectDTO>>(projects);
         }
 
         public Task<Project> GetProjectByIdAsync(int id)

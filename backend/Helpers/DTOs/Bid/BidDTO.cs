@@ -10,9 +10,9 @@ namespace Helpers.DTOs.Bid
         public long BidId { get; set; }
         public long BidOwnerId { get; set; }
         public long ProjectId { get; set; }
-        public long FreelancerId { get; set; }
-        public long VerifyStaffId { get; set; }
-        public DateTime PostDate { get; set; }
+        public string BidDescription { get; set; } = string.Empty;
+        public long Amount { get; set; }
+        public string CreatedAt { get; set; } = string.Empty;
         
     }
 }
