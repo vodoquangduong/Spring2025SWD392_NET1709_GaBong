@@ -1,1 +1,32 @@
-// Will implement API services later
+import { LoginRequest, LoginResponse } from "../models/types";
+
+const API_URL = import.meta.env.VITE_SERVER_URL;
+
+export const loginService = {
+  login: async (data: LoginRequest): Promise<LoginResponse> => {
+    try {
+      const response = await fetch(`${API_URL}/api/Authentication/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.message || "Login failed");
+      }
+
+      return responseData;
+    } catch (error: any) {
+      if (error.message === "Failed to fetch") {
+        throw new Error(
+          "Cannot connect to server. Please check your connection."
+        );
+      }
+      throw error;
+    }
+  },
+};
