@@ -14,6 +14,6 @@ namespace Services.Interfaces
         Task<Project> CreateProjectAsync(CreateProjectDTO projectDto, long userId);
         Task<Project> UpdateProjectAsync(Project project);
         Task<bool> DeleteProjectAsync(long id);
-        Task<Project> VerifyProjectAsync(long id);
+        Task<Project> VerifyProjectAsync(long projectId, long staffId);
     }
 }

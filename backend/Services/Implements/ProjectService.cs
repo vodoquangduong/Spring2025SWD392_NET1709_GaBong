@@ -64,9 +64,29 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public Task<Project> VerifyProjectAsync(long id)
+        public async Task<Project> VerifyProjectAsync(long projectId, long staffId)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Verifying project with ID: {projectId}");
+
+            var queryOptions = new QueryBuilder<Project>()
+            .WithTracking(true) 
+            .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
+            .Build();
+
+            var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
+            if (project == null)
+            {
+                throw new KeyNotFoundException("Project not found");
+            }
+
+            project.PostDate = DateTime.UtcNow;
+            project.Status = ProjectStatus.Verified;
+            project.VerifyStaffId = staffId;
+
+            await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
+            await _unitOfWork.SaveChangesAsync();
+
+            return project;
         }
     }
 }

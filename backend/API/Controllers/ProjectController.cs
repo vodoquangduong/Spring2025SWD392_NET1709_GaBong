@@ -22,7 +22,7 @@ namespace API.Controllers
             _currentUserService = currentUserService;
         }
 
-        [HttpGet]
+        [HttpGet("get-all-project")]
         public async Task<IActionResult> GetAllProject()
         {
             var projects = await _projectService.GetAllProjectsAsync();
@@ -30,12 +30,13 @@ namespace API.Controllers
             return Ok(projectDTOs);
         }
 
-        [HttpPost]
+        [HttpPost("post-project")]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO project)
         {
             var createdProject = await _projectService.CreateProjectAsync(project, _currentUserService.AccountId);
             return Ok(createdProject);
         }
+
         [HttpGet("test-current-user")]
         public IActionResult TestCurrentUser()
         {
@@ -50,6 +51,13 @@ namespace API.Controllers
             {
                 return Unauthorized(ex.Message);
             }
+        }
+
+        [HttpPut("verify/{projectId}")]
+        public async Task<IActionResult> VeridyProject([FromRoute] long projectId)
+        {
+            var updatedProject = await _projectService.VerifyProjectAsync(projectId, _currentUserService.AccountId);
+            return Ok("Project verified");
         }
     }
 }
