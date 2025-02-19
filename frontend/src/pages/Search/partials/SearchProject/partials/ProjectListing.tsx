@@ -1,9 +1,13 @@
-import { Pagination, Rate, Tag } from "antd";
+import { Pagination, Rate, Skeleton, Tag } from "antd";
 import { CiBookmark } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { getRandomInt } from "../../../../../modules/random";
 import { FaStar } from "react-icons/fa6";
 import Skills from "../../../../../components/Skills";
+import { useQuery } from "@tanstack/react-query";
+import { GET } from "@/modules/request";
+import { ProjectDetail } from "@/types/project";
+import { formatTimeAgo } from "@/modules/formatTimeAgo";
 
 const items = [
   "PHP",
@@ -20,7 +24,7 @@ const items = [
   "Java",
 ];
 
-const ListingItem = () => {
+const ListingItem = ({ project }: { project: ProjectDetail }) => {
   const navigate = useNavigate();
   return (
     <div
@@ -28,7 +32,10 @@ const ListingItem = () => {
       onClick={() => navigate(`/projects/1/details`)}
     >
       <div className="flex justify-between">
-        <div className="text-xl">Urgent: Expert PHP Developer in Dhaka</div>
+        <div className="text-xl text-red-600">
+          {project?.projectName +
+            "Project name trong db dang la empty string, fix le ae oi"}
+        </div>
         <div className="flex gap-6">
           <div>{getRandomInt(1, 40)} bids</div>
           <div className="font-semibold">
@@ -37,17 +44,18 @@ const ListingItem = () => {
           </div>
         </div>
       </div>
-      <div className="text-sm">
-        Budget {getRandomInt(100, 10000).toLocaleString()} USD –{" "}
-        {getRandomInt(100, 10000).toLocaleString()} USD
+      <div className="text-sm text-red-600">
+        Budget: {getRandomInt(100, 10000).toLocaleString()} USD (VKL budget lay
+        ra cung bi null luon)
       </div>
       <div className="mt-6">
-        I'm urgently seeking an expert raw PHP developer for a 2-months project.
+        {project?.projectDescription}
+        {/* I'm urgently seeking an expert raw PHP developer for a 2-months project.
         The developer is required to work on upgrades to our existing reporting
         panel at our Nikaton, Dhaka, Bangladesh office. Freelancer have to work
         in our physical office . It's not a remote job. MS-SQL database
         expertise is required. The office hours are from 9 A.M. to 6 P.M., and
-        lunch is complimentary.
+        lunch is complimentary. */}
       </div>
       <div className="mt-4">
         <Skills />
@@ -55,7 +63,7 @@ const ListingItem = () => {
       <div className="mt-4 flex justify-between items-center">
         <Rate disabled defaultValue={getRandomInt(1, 5)} />
         <div className="flex gap-4 items-center">
-          <div className="text-sm">{getRandomInt(2, 24)} hours ago</div>
+          <div className="text-sm">{formatTimeAgo(project?.postDate)}</div>
           <div className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-800 rounded-full cursor-pointer">
             <CiBookmark size={24} strokeWidth={1} />
           </div>
@@ -65,13 +73,35 @@ const ListingItem = () => {
   );
 };
 
+const ListingItemSkeletion = () => {
+  return (
+    <div className="p-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950 cursor-pointer">
+      <Skeleton.Input active style={{ width: "600px" }} />
+      <div className="text-sm text-red-600 pt-8">
+        <Skeleton active style={{ width: "100%" }} paragraph={{ rows: 3 }} />
+      </div>
+      <div className="pt-4 flex justify-between items-center">
+        <Skeleton.Input active />
+        {/* <Rate disabled defaultValue={getRandomInt(1, 5)} /> */}
+        <div className="flex gap-4 items-center">
+          <Skeleton.Input active />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function ProjectListing() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => await GET("/api/Project/get-all-project"),
+  });
   return (
     <div>
       <div className="border-b w-full p-4 flex justify-between items-center dark:border-gray-500 shadow-md">
         <div>
           <span className="font-semibold text-xl mr-3">Top result</span> 1-20 of
-          186 results
+          {data?.length} results
         </div>
         <div className="flex gap-1 items-center">
           <label htmlFor="" className="w-[100px]">
@@ -86,17 +116,19 @@ export default function ProjectListing() {
         </div>
       </div>
       <div>
-        <ListingItem />
-        <ListingItem />
-        <ListingItem />
-        <ListingItem />
-        <ListingItem />
+        {data?.map((project: ProjectDetail) => (
+          <ListingItem key={project.projectId} project={project} />
+        ))}
+        {isLoading &&
+          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => (
+            <ListingItemSkeletion key={index} />
+          ))}
       </div>
       <div className="p-4 flex justify-end">
         <Pagination
           showTotal={(total) => `Total ${total} items`}
           defaultCurrent={1}
-          total={50}
+          total={30}
         />
       </div>
     </div>

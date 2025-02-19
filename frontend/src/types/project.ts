@@ -1,7 +1,9 @@
 export interface Project {
   projectId: string;
+  projectName: string;
   clientId: string;
   title: string;
+  postDate: string;
   projectDescription: string;
   type: "fixed" | "hourly";
   budget: {
