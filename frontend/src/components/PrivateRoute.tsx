@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
-import { isTokenExpired } from "../libs/jwtUtil";
+import { isTokenExpired } from "../modules/jwtUtil";
 
 export default function PrivateRoute({
   children,

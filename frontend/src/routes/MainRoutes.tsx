@@ -1,13 +1,16 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import PageNotFound from "../components/PageNotFound";
 import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
-import { AccountManagement } from "../pages/DashboardTemplate/EmployeeDashboard/AccountManagement";
-import { FreelancerManagement } from "../pages/DashboardTemplate/EmployeeDashboard/FreelancerManagement";
-import { ProjectManagement } from "../pages/DashboardTemplate/EmployeeDashboard/ProjectManagement";
-import PendingServiceList from "../pages/DashboardTemplate/EmployeeDashboard/ProjectManagement/partials/PendingServiceList";
-import { ReportManagement } from "../pages/DashboardTemplate/EmployeeDashboard/ReportManagement";
-import { ServiceManagement } from "../pages/DashboardTemplate/EmployeeDashboard/ServiceManagement";
-import { UserDetail, UserList } from "../pages/DashboardTemplate/UserManager";
+import { AccountManagement } from "../pages/Dashboard/EmployeeDashboard/AccountManagement";
+import { FreelancerManagement } from "../pages/Dashboard/EmployeeDashboard/FreelancerManagement";
+import {
+  ProjectList,
+  ProjectDetail as DashboardProjectDetail,
+} from "../pages/Dashboard/EmployeeDashboard/ProjectManagement";
+import PendingServiceList from "../pages/Dashboard/EmployeeDashboard/ProjectManagement/partials/PendingServiceList";
+import { ReportManagement } from "../pages/Dashboard/EmployeeDashboard/ReportManagement";
+import { ServiceManagement } from "../pages/Dashboard/EmployeeDashboard/ServiceManagement";
+import { UserDetail, UserList } from "../pages/Dashboard/UserManager";
 import ForgotPassword from "../pages/ForgotPassword";
 import { Freelancer } from "../pages/Freelancer";
 import Home from "../pages/Home";
@@ -68,32 +71,22 @@ export default function MainRoutes() {
             </Route>
             <Route path="policy" element={<Policy />} />
           </Route>
-          <Route path="/register" element={<GlobalLayout />}>
-            <Route path="/register" element={<Register />} />
-          </Route>
-          <Route path="/login" element={<GlobalLayout />}>
-            <Route path="/login" element={<Login />} />
-          </Route>
-          <Route path="/forgot-password" element={<GlobalLayout />}>
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-          </Route>
-          <Route path="worker">
-            <Route path="" element={<DashboardLayout />}>
-              <Route path="" element={<Navigate to="users" />} />
-              <Route path="users" element={<Outlet />}>
-                <Route path="" element={<UserList />} />
-                <Route path=":id" element={<UserDetail />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/" element={<DashboardLayout />}>
+            <Route path="employee">
+              <Route path="" element={<Navigate to="accounts" />} />
+              <Route path="accounts/*" element={<AccountManagement />} />
+              <Route path="services/*" element={<ServiceManagement />} />
+              <Route path="reports/*" element={<ReportManagement />} />
+              <Route path="freelancers/*" element={<FreelancerManagement />} />
+              <Route path="projects">
+                <Route index element={<ProjectList />} />
+                <Route path=":id" element={<DashboardProjectDetail />} />
               </Route>
+              <Route path="pending-services" element={<PendingServiceList />} />
             </Route>
-          </Route>
-          <Route path="employee" element={<DashboardLayout />}>
-            <Route path="" element={<Navigate to="accounts" />} />
-            <Route path="accounts/*" element={<AccountManagement />} />
-            <Route path="services/*" element={<ServiceManagement />} />
-            <Route path="reports/*" element={<ReportManagement />} />
-            <Route path="freelancers/*" element={<FreelancerManagement />} />
-            <Route path="projects/*" element={<ProjectManagement />} />
-            <Route path="pending-services" element={<PendingServiceList />} />
           </Route>
           <Route path="*" element={<PageNotFound />} />
         </Route>

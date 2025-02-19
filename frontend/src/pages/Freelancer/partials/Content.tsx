@@ -1,7 +1,7 @@
 import { Pagination, Rate, Timeline } from "antd";
 import Skills from "../../../components/Skills";
 import { FaStar } from "react-icons/fa6";
-import { getRandomInt } from "../../../libs/random";
+import { getRandomInt } from "../../../modules/random";
 
 export default function Content() {
   return (

@@ -35,6 +35,7 @@ const LoginForm = () => {
 
     try {
       console.log("Login data:", formData);
+      message.loading("Logging in...");
       const response = await loginUseCase.login(formData);
       console.log("Login success:", response);
 

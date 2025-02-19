@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Role } from "../types";
-import { setCookie } from "../libs/cookie";
 
-import { decodeJWT } from "../libs/jwtUtil";
-const jwt_decode  = decodeJWT;
+import { decodeJWT } from "../modules/jwtUtil";
+import { setCookie } from "../modules/cookie";
+const jwt_decode = decodeJWT;
 
 interface User {
   email: string;
@@ -48,19 +48,21 @@ const useAuthStore = create<{
           if (decoded?.email) {
             console.log("Email:", decoded.email);
           } else {
-            console.error("Email not found in token payload");
+            console.error("Email1 not found in token payload");
           }
           //const userInfo: User = decoded.user;
 
           // Lưu token vào cookie
           setCookie("accessToken", token, 7); // Token sẽ hết hạn sau 7 ngày
           // Cập nhật trạng thái trong store
+          console.log("Token:", decoded);
+
           set({
             isAuthenticated: true,
             email: decoded.email,
             name: decoded.name || decoded.email,
             avatar: decoded.avatar || "",
-            role: decoded.role || "GUEST",
+            role: decoded.role || Role.GUEST,
           });
           console.log("Login successfully");
           console.log("User info:", decoded);

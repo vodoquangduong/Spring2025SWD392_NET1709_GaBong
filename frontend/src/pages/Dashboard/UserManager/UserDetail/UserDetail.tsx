@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import userDatas from "../../../../mocks/users.json";
 import { useParams } from "react-router-dom";
 import { motion } from "motion/react";
-import { PAGE_ANIMATION } from "../../../../libs/constants";
+import { PAGE_ANIMATION } from "../../../../modules/constants";
 
 export default function UserDetail() {
   const userData = userDatas[0];

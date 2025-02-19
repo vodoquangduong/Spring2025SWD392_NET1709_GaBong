@@ -5,7 +5,7 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import CreateUserForm from "../forms/CreateUserForm";
 import UpdateModal from "../../../../components/UpdateModal";
-import { defaultAvatar } from "../../../../libs/default";
+import { defaultAvatar } from "../../../../modules/default";
 import { z } from "zod";
 import { User } from "../../../../types";
 

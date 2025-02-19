@@ -1,7 +1,7 @@
 import { Layout, Menu } from "antd";
 import Logo from "../components/Logo";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { FaBox } from "react-icons/fa";
+import { FaBox, FaRegCalendarAlt } from "react-icons/fa";
 import { Role } from "../types";
 import { useState } from "react";
 import DashboardHeader from "../components/DashboardHeader";
@@ -13,17 +13,17 @@ export default function DashboardLayout() {
 
   const items = [
     {
-      label: "Test label 1",
-      key: "/worker/dashboard",
+      label: "Dashboard",
+      key: "/employee/dashboard",
       icon: <FaBox />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
       allowedRoles: [Role.GUEST],
     },
     {
-      label: "Test label 2",
-      key: "/worker/campaigns",
-      icon: <FaBox />,
+      label: "Projects",
+      key: "/employee/projects",
+      icon: <FaRegCalendarAlt />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
       allowedRoles: [Role.GUEST],

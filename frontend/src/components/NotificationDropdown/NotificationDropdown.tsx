@@ -1,6 +1,6 @@
 import { Badge, Dropdown, MenuProps, Space } from "antd";
 import { FaRegBell } from "react-icons/fa";
-import { getRandomInt } from "../../libs/random";
+import { getRandomInt } from "../../modules/random";
 import { Link } from "react-router-dom";
 
 const NotificationItem = () => {
@@ -51,7 +51,7 @@ export default function NotificationDropdown() {
     <Dropdown
       menu={{ items }}
       trigger={["click"]}
-      placement="bottomCenter"
+      placement="bottom"
       className="mr-2"
     >
       <Space>

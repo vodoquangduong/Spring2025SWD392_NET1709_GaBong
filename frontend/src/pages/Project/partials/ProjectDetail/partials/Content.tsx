@@ -1,5 +1,5 @@
 import { FaClock, FaFlag } from "react-icons/fa6";
-import { getRandomInt } from "../../../../../libs/random";
+import { getRandomInt } from "../../../../../modules/random";
 import Skills from "../../../../../components/Skills";
 import { Divider } from "antd";
 import CreateModal from "../../../../../components/CreateModal";

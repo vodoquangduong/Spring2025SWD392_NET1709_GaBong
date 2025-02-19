@@ -1,4 +1,4 @@
-import { getRandomInt } from "../libs/random";
+import { getRandomInt } from "../modules/random";
 import { Tag } from "antd";
 
 export default function Skills() {

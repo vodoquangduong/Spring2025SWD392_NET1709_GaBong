@@ -1,7 +1,7 @@
 import { HiCheckCircle } from "react-icons/hi2";
 import { MdPlace } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { getRandomInt } from "../../../../../libs/random";
+import { getRandomInt } from "../../../../../modules/random";
 import { Rate } from "antd";
 import { FaFlag, FaStar } from "react-icons/fa6";
 import CreateModal from "../../../../../components/CreateModal";

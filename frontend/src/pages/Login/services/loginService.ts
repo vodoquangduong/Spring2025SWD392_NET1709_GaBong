@@ -1,9 +1,8 @@
 import { LoginRequest, LoginResponse } from "../models/types";
 
-const API_URL = import.meta.env.VITE_SERVER_URL;
-
 export const loginService = {
   login: async (data: LoginRequest): Promise<LoginResponse> => {
+    const API_URL = import.meta.env.VITE_SERVER_URL;
     try {
       const response = await fetch(`${API_URL}/api/Authentication/login`, {
         method: "POST",

@@ -3,7 +3,7 @@ import { GoDotFill } from "react-icons/go";
 import { CiBookmark } from "react-icons/ci";
 import { IoShareSocial } from "react-icons/io5";
 import { useEffect } from "react";
-import { getRandomInt } from "../../libs/random";
+import { getRandomInt } from "../../modules/random";
 import { TabItem } from "../Search/Search";
 import { Link, Outlet } from "react-router-dom";
 import Sidebar from "./partials/ProjectDetail/partials/Sidebar";

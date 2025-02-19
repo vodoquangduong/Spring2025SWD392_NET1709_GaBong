@@ -1,7 +1,7 @@
 import { Pagination, Rate, Tag } from "antd";
 import { CiBookmark } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
-import { getRandomInt } from "../../../../../libs/random";
+import { getRandomInt } from "../../../../../modules/random";
 import { FaStar } from "react-icons/fa6";
 import Skills from "../../../../../components/Skills";
 

@@ -1,6 +1,6 @@
 import { Button, Pagination, Rate, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
-import { getRandomInt } from "../../../../../libs/random";
+import { getRandomInt } from "../../../../../modules/random";
 import { FaRegHeart, FaStar } from "react-icons/fa6";
 import { HiCheckCircle } from "react-icons/hi2";
 import { MdPlace } from "react-icons/md";

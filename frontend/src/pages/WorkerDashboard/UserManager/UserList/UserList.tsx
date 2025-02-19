@@ -8,7 +8,7 @@ import userDataJson from "../../../../mocks/users.json";
 import { GET } from "../../../../libs/request";
 import { User } from "../../../../types";
 import { motion } from "motion/react";
-import { PAGE_ANIMATION } from "../../../../libs/constants";
+import { PAGE_ANIMATION } from "../../../../modules/constants";
 
 export default function UserList() {
   const [listData, setListData] = useState<User[]>([]);
