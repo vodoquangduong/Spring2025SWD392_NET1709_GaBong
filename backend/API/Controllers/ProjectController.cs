@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Helpers.DTOs.Project;
 using Microsoft.AspNetCore.Mvc;
+using Services.Implements;
 using Services.Interfaces;
 
 namespace API.Controllers
@@ -20,17 +21,19 @@ namespace API.Controllers
             _projectService = projectService;
             _currentUserService = currentUserService;
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllProject()
+        {
+            var projects = await _projectService.GetAllProjectsAsync();
+            var projectDTOs = projects.Select(project => project.ToProjectDTO());
+            return Ok(projectDTOs);
+        }
         [HttpPost]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO project)
         {
             var createdProject = await _projectService.CreateProjectAsync(project, _currentUserService.AccountId);
             return Ok(createdProject);
-        }
-        [HttpGet]
-        public async Task<IActionResult> GetAllProjects()
-        {
-            var projects = await _projectService.GetAllProjectsAsync();
-            return Ok(projects);
         }
         [HttpGet("test-current-user")]
         public IActionResult TestCurrentUser()

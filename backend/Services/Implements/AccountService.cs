@@ -36,7 +36,7 @@ public class AccountService : IAccountService
             .WithPredicate(a => a.AccountId == id) // Filter by ID
             .Build();
         var account = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryOptions);
-        
+
         if (account == null) return null;
 
         return account.ToAccountDTO();
@@ -65,8 +65,8 @@ public class AccountService : IAccountService
             Role = registerDto.Role,
             CreatedAt = DateTime.UtcNow,
         };
-        var createdAccoun =  await _unitOfWork.GetRepo<Account>().CreateAsync(account);
+        var createdAccount = await _unitOfWork.GetRepo<Account>().CreateAsync(account);
         await _unitOfWork.SaveChangesAsync();
-        return createdAccoun;
+        return createdAccount;
     }
 }

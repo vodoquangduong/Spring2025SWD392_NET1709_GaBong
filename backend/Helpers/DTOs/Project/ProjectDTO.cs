@@ -1,4 +1,7 @@
 using BusinessObjects.Enums;
+using BusinessObjects.Models;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 public class ProjectDTO
 {
@@ -10,9 +13,4 @@ public class ProjectDTO
     public DateTime EndBiddingDate { get; set; }
     public string ProjectDescription { get; set; } = string.Empty;
     public ProjectStatus Status { get; set; }
-    
-    // include additional derived/computed properties
-    // public string ClientName { get; set; }
-    // public string FreelancerName { get; set; }
-    
 }
