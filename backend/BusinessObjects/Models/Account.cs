@@ -19,6 +19,8 @@ public class Account
     public string Email { get; set; } = string.Empty;
     [Column("password")]
     public string Password { get; set; } = string.Empty;
+    [Column("avatar_url")]
+    public string AvatarURL { get; set; } = string.Empty;
     [Column("phone")]
     public string Phone { get; set; } = string.Empty;
     [Column("address")]
@@ -30,9 +32,9 @@ public class Account
     [Column("reputation_point")]
     public int ReputationPoint { get; set; } = 0;
     [Column("total_credit")]
-    public double TotalCredit { get; set; } = 0;
+    public decimal TotalCredit { get; set; } = 0;
     [Column("lock_credit")]
-    public double LockCredit { get; set; } = 0;
+    public decimal LockCredit { get; set; } = 0;
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.MinValue;
     [Column("status")]

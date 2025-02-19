@@ -23,7 +23,7 @@ namespace BusinessObjects.Models
         [Column("milestone_description")]
         public string MilestoneDescription { get; set; } = string.Empty;
         [Column("pay_amount")]
-        public long PayAmount { get; set; }
+        public decimal PayAmount { get; set; }
         // Navigation property
         [ForeignKey("ProjectId")]
         public virtual Project Project { get; set; } = null!;

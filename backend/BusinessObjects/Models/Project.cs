@@ -28,11 +28,17 @@ namespace BusinessObjects.Models
         [Column("post_date")]
         public DateTime PostDate { get; set; } = DateTime.UtcNow;
 
-        [Column("end_bidding_date")]
-        public DateTime EndBiddingDate { get; set; }
+        [Column("available_time_range")]
+        public int AvailableTimeRange { get; set; }
+
+        [Column("project_name")]
+        public string ProjectName { get; set; } = string.Empty;
 
         [Column("project_description")]
         public string ProjectDescription { get; set; } = string.Empty;
+
+        [Column("estimate_budget")]
+        public decimal EstimateBudget { get; set; }
 
         [Column("status")]
         public ProjectStatus Status { get; set; }

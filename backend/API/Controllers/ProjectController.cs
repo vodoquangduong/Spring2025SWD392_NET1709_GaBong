@@ -29,6 +29,7 @@ namespace API.Controllers
             var projectDTOs = projects.Select(project => project.ToProjectDTO());
             return Ok(projectDTOs);
         }
+
         [HttpPost]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO project)
         {

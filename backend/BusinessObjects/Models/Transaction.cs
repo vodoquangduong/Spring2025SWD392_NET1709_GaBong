@@ -14,7 +14,7 @@ namespace BusinessObjects.Models
         [Column("account_id")]
         public long AccountId { get; set; }
         [Column("amount")]
-        public long Amount { get; set; }
+        public decimal Amount { get; set; }
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
         [Column("status")]

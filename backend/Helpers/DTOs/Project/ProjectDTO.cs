@@ -10,7 +10,11 @@ public class ProjectDTO
     public long? FreelancerId { get; set; }
     public long? VerifyStaffId { get; set; }
     public DateTime PostDate { get; set; }
-    public DateTime EndBiddingDate { get; set; }
+    public int AvailableTimeRange { get; set; }
+    public string ProjectName { get; set; } = string.Empty;
     public string ProjectDescription { get; set; } = string.Empty;
+    public string EstimateBudget { get; set; } 
+
+   // public List<SkillRequired> skillRequireds { get; set; }
     public ProjectStatus Status { get; set; }
 }

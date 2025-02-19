@@ -27,16 +27,16 @@ namespace Services.Implements
             var project = new Project()
             {
                 ClientId = userId,
+                ProjectName = projectDto.ProjectName,
                 ProjectDescription = projectDto.ProjectDescription,
+                AvailableTimeRange = projectDto.AvailableTimeRange,
+                EstimateBudget = projectDto.EstimateBudget,
+              //  SkillRequired = projectDto.SkillRequired,
+                Status = ProjectStatus.Pending,
             };
             var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
             await _unitOfWork.SaveChangesAsync();
             return createProject;
-        }
-
-        public Task<bool> DeleteProjectAsync(int id)
-        {
-            throw new NotImplementedException();
         }
 
         public Task<bool> DeleteProjectAsync(long id)
@@ -54,17 +54,17 @@ namespace Services.Implements
             return await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
         }
 
-        public Task<Project> GetProjectByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<ProjectDTO> GetProjectByIdAsync(long id)
         {
             throw new NotImplementedException();
         }
 
         public Task<Project> UpdateProjectAsync(Project project)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Project> VerifyProjectAsync(long id)
         {
             throw new NotImplementedException();
         }
