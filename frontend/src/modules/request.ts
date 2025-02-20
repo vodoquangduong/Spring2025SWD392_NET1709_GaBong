@@ -27,7 +27,8 @@ const SendRequest = async (
     (getCookie("accessToken") === "" || isTokenExpired())
   ) {
     alert("Session expired, please login again");
-    useAuthStore().logout();
+    setCookie("accessToken", "", 0);
+    location.href = "/login";
   }
   return await data.json();
 };

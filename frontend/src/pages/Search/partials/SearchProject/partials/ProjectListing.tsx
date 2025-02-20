@@ -83,7 +83,7 @@ const ListingItemSkeletion = () => {
 export default function ProjectListing() {
   const { data, isLoading } = useQuery({
     queryKey: ["projects"],
-    queryFn: async () => await GET("/api/Project/get-all-project"),
+    queryFn: async () => await GET("/api/Project/get-all-project", false),
   });
   return (
     <div>
