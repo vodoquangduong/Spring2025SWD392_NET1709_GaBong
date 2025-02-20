@@ -17,6 +17,8 @@ public static class ProjectMapper
             FreelancerId = project.FreelancerId,
             VerifyStaffId = project.VerifyStaffId,
             PostDate = project.PostDate,
+            ProjectName = project.ProjectName,
+            EstimateBudget = project.EstimateBudget,
             AvailableTimeRange = project.AvailableTimeRange,
             ProjectDescription = project.ProjectDescription,
             Status = project.Status,

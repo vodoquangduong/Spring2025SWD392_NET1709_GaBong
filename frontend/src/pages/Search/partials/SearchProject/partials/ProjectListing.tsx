@@ -32,10 +32,7 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
       onClick={() => navigate(`/projects/1/details`)}
     >
       <div className="flex justify-between">
-        <div className="text-xl text-red-600">
-          {project?.projectName +
-            "Project name trong db dang la empty string, fix le ae oi"}
-        </div>
+        <div className="text-xl">{project?.projectName}</div>
         <div className="flex gap-6">
           <div>{getRandomInt(1, 40)} bids</div>
           <div className="font-semibold">
@@ -44,24 +41,16 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
           </div>
         </div>
       </div>
-      <div className="text-sm text-red-600">
-        Budget: {getRandomInt(100, 10000).toLocaleString()} USD (VKL budget lay
-        ra cung bi null luon)
+      <div className="text-sm">
+        Budget: {getRandomInt(100, 10000).toLocaleString()} USD
       </div>
-      <div className="mt-6">
-        {project?.projectDescription}
-        {/* I'm urgently seeking an expert raw PHP developer for a 2-months project.
-        The developer is required to work on upgrades to our existing reporting
-        panel at our Nikaton, Dhaka, Bangladesh office. Freelancer have to work
-        in our physical office . It's not a remote job. MS-SQL database
-        expertise is required. The office hours are from 9 A.M. to 6 P.M., and
-        lunch is complimentary. */}
-      </div>
+      <div className="mt-6">{project?.projectDescription}</div>
       <div className="mt-4">
         <Skills />
       </div>
       <div className="mt-4 flex justify-between items-center">
-        <Rate disabled defaultValue={getRandomInt(1, 5)} />
+        <div></div>
+        {/* <Rate disabled defaultValue={getRandomInt(1, 5)} /> */}
         <div className="flex gap-4 items-center">
           <div className="text-sm">{formatTimeAgo(project?.postDate)}</div>
           <div className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-800 rounded-full cursor-pointer">
