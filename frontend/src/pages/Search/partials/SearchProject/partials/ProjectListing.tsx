@@ -6,7 +6,7 @@ import { FaStar } from "react-icons/fa6";
 import Skills from "../../../../../components/Skills";
 import { useQuery } from "@tanstack/react-query";
 import { GET } from "@/modules/request";
-import { ProjectDetail } from "@/types/project";
+import { ProjectDetail, ProjectStatus } from "@/types/project";
 import { formatTimeAgo } from "@/modules/formatTimeAgo";
 
 const items = [
@@ -29,7 +29,7 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
   return (
     <div
       className="p-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950 cursor-pointer"
-      onClick={() => navigate(`/projects/1/details`)}
+      onClick={() => navigate(`/projects/${project.projectId}/details`)}
     >
       <div className="flex justify-between">
         <div className="text-xl">{project?.projectName}</div>
@@ -82,7 +82,7 @@ const ListingItemSkeletion = () => {
 
 export default function ProjectListing() {
   const { data, isLoading } = useQuery({
-    queryKey: ["projects"],
+    queryKey: ["publicProjects"],
     queryFn: async () => await GET("/api/Project/get-all-project", false),
   });
   return (
@@ -105,9 +105,12 @@ export default function ProjectListing() {
         </div>
       </div>
       <div>
-        {data?.map((project: ProjectDetail) => (
-          <ListingItem key={project.projectId} project={project} />
-        ))}
+        {data?.map(
+          (project: ProjectDetail) =>
+            project.status == ProjectStatus.OPEN && (
+              <ListingItem key={project.projectId} project={project} />
+            )
+        )}
         {isLoading &&
           [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => (
             <ListingItemSkeletion key={index} />

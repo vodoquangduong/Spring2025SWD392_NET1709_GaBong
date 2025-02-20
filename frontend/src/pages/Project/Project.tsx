@@ -5,26 +5,11 @@ import { IoShareSocial } from "react-icons/io5";
 import { useEffect } from "react";
 import { getRandomInt } from "../../modules/random";
 import { TabItem } from "../Search/Search";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useParams } from "react-router-dom";
 import Sidebar from "./partials/ProjectDetail/partials/Sidebar";
 
-const tabItems = [
-  {
-    name: "Details",
-    path: "/projects/1/details",
-  },
-  {
-    name: "Proposals",
-    path: "/projects/1/proposals",
-  },
-  {
-    name: "Payments",
-    path: "/projects/1/payments",
-  },
-];
-
 export default function Project() {
-  const [id] = location.pathname.split("/").slice(2);
+  const { id } = useParams();
   const items = [
     {
       title: <Link to={`/search/projects`}>Projects</Link>,
@@ -36,6 +21,21 @@ export default function Project() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const tabItems = [
+    {
+      name: "Details",
+      path: `/projects/${id}/details`,
+    },
+    {
+      name: "Proposals",
+      path: `/projects/${id}/proposals`,
+    },
+    {
+      name: "Payments",
+      path: `/projects/${id}/payments`,
+    },
+  ];
 
   return (
     <div>

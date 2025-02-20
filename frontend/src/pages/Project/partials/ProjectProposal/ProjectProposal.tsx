@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 export default function ProjectProposal() {
   const { id } = useParams();
   const { data, isLoading } = useQuery({
-    queryKey: ["projects"],
+    queryKey: ["bids"],
     queryFn: async () => await GET(`/api/Bid/project/${id}`, false),
   });
   return (
