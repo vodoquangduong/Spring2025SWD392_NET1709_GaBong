@@ -1,11 +1,32 @@
 import { FaClock, FaFlag } from "react-icons/fa6";
 import { getRandomInt } from "../../../../../modules/random";
 import Skills from "../../../../../components/Skills";
-import { Divider } from "antd";
+import { App, Button, Divider, Popconfirm } from "antd";
 import CreateModal from "../../../../../components/CreateModal";
 import CreateReportForm from "../forms/CreateReportForm";
+import { useMutation } from "@tanstack/react-query";
+import { PUT } from "@/modules/request";
+import { useParams } from "react-router-dom";
 
 export default function Content() {
+  const { id: projectId } = useParams();
+  const { message } = App.useApp();
+  const mutation = useMutation({
+    mutationKey: ["projects"],
+    mutationFn: async (freelancerId: string) =>
+      await PUT(`/api/Project/${projectId}/chooseBid`, {
+        freelancerId,
+      }),
+    onError: () => {
+      message.destroy();
+      message.error("Choose freelancer failed");
+    },
+    onSuccess: () => {
+      message.destroy();
+      message.success("Choose freelancer successfully");
+    },
+  });
+
   return (
     <div className="rounded-md dark:bg-white/5 p-6 w-full mb-6 shadow-md">
       <div className="flex justify-between items-center">
@@ -39,7 +60,7 @@ export default function Content() {
 
       <div className="flex justify-between items-center mb-4 mt-6 text-sm">
         <div className="">Project ID: 39030966</div>
-        {/* ReportButton */}
+
         <CreateModal
           icon={<FaFlag />}
           children="Report Project"

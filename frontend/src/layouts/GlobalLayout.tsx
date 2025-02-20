@@ -6,9 +6,10 @@ import useConfigStore from "../stores/configStore";
 import { LuMessageCircleMore } from "react-icons/lu";
 import useAuthStore from "../stores/authStore";
 import ChatPopup from "../components/ChatPopup/ChatPopup";
+import useUiStore from "@/stores/uiStore";
 
 export default function GlobalLayout() {
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  const { isChatOpen, toogleChatPopup } = useUiStore();
   const { isDarkMode } = useConfigStore();
   const { isAuthenticated } = useAuthStore();
 
@@ -28,7 +29,7 @@ export default function GlobalLayout() {
         {isAuthenticated && (
           <FloatButton
             icon={<LuMessageCircleMore />}
-            onClick={() => setIsChatOpen((prev) => !prev)}
+            onClick={toogleChatPopup}
           />
         )}
         <FloatButton.BackTop visibilityHeight={0} />
@@ -38,7 +39,7 @@ export default function GlobalLayout() {
         <Outlet />
       </div>
       {/* <ChatPopup /> */}
-      {isChatOpen && <ChatPopup setIsChatOpen={setIsChatOpen} />}
+      {isChatOpen && <ChatPopup />}
     </>
   );
 }

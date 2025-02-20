@@ -54,9 +54,15 @@ namespace Services.Implements
             return await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
         }
 
-        public Task<ProjectDTO> GetProjectByIdAsync(long id)
+        public async Task<ProjectDTO> GetProjectByIdAsync(long projectId)
         {
-            throw new NotImplementedException();
+            var queryOptions = new QueryBuilder<Project>()
+            .WithTracking(false) // No tracking for efficient
+            .WithPredicate(project => project.ProjectId == projectId)
+            .Build();
+
+            var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
+            return project.ToProjectDTO();
         }
 
         public Task<Project> UpdateProjectAsync(Project project)
