@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BusinessObjects.Models
 {
@@ -18,9 +19,11 @@ namespace BusinessObjects.Models
 
         // Navigation Properties
         [ForeignKey("ProjectId")]
+        [JsonIgnore]
         public virtual Project Project { get; set; } = null!;
 
         [ForeignKey("SkillId")]
+        [JsonIgnore]
         public virtual SkillCategory SkillCategory { get; set; } = null!;
     }
 }
