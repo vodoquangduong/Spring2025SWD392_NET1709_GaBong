@@ -29,6 +29,8 @@ public class Account
     public DateTime Birthday { get; set; } = DateTime.MinValue;
     [Column("gender")]
     public Gender Gender { get; set; } = Gender.Other;
+    [Column("nationality")]
+    public string Nationality { get; set; } = string.Empty;
     [Column("reputation_point")]
     public int ReputationPoint { get; set; } = 0;
     [Column("total_credit")]
@@ -54,10 +56,4 @@ public class Account
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     public virtual ICollection<Chat> SenderChats { get; set; } = new List<Chat>();
     public virtual ICollection<Chat> ReceiverChats { get; set; } = new List<Chat>();
-
-
-    
-
-
-
 }

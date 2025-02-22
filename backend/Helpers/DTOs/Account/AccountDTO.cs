@@ -21,6 +21,7 @@ namespace Helpers.DTOs.Account
 
         public DateTime Birthday { get; set; } = DateTime.MinValue;
         public Gender Gender { get; set; }
+        public string Nationality { get; set; } = string.Empty;
         public int ReputationPoint { get; set; } = 0;
 
         public decimal TotalCredit { get; set; } = 0;
@@ -28,6 +29,5 @@ namespace Helpers.DTOs.Account
         public decimal LockCredit { get; set; } = 0;
         public DateTime CreatedAt { get; set; } = DateTime.MinValue;
         public AccountStatus Status { get; set; }
-
     }
 }

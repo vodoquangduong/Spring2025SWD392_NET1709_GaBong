@@ -31,8 +31,11 @@ namespace Services.Implements
                 ProjectDescription = projectDto.ProjectDescription,
                 AvailableTimeRange = projectDto.AvailableTimeRange,
                 EstimateBudget = projectDto.EstimateBudget,
-              //  SkillRequired = projectDto.SkillRequired,
                 Status = ProjectStatus.Pending,
+                SkillRequired = projectDto.SkillIds.Select(skillId => new SkillRequired
+                {
+                    SkillId = skillId
+                }).ToList()
             };
             var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
             await _unitOfWork.SaveChangesAsync();
@@ -49,10 +52,14 @@ namespace Services.Implements
 
             var queryOptions = new QueryBuilder<Project>()
             .WithTracking(false) // No tracking for efficient
+            .WithInclude(p => p.SkillRequired)
+            
             .Build();
 
             return await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
         }
+
+        
 
         public Task<ProjectDTO> GetProjectByIdAsync(long id)
         {

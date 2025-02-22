@@ -13,8 +13,9 @@ public class ProjectDTO
     public int AvailableTimeRange { get; set; }
     public string ProjectName { get; set; } = string.Empty;
     public string ProjectDescription { get; set; } = string.Empty;
-    public decimal EstimateBudget { get; set; } 
+    public decimal EstimateBudget { get; set; }
+    public string Location { get; set; } = string.Empty;
 
-   // public List<SkillRequired> skillRequireds { get; set; }
     public ProjectStatus Status { get; set; }
+    public List<long> SkillIds { get; set; } = new List<long>();
 }
