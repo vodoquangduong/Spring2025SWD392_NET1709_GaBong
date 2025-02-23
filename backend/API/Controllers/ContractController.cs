@@ -47,5 +47,15 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+        [HttpGet("project/{projectId}")]
+        public async Task<IActionResult> GetContractByProjectId([FromRoute] long projectId)
+        {
+            var result = await _contractService.GetContractByIdAsync(projectId);
+            if(!result.IsSuccess)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
+        }
     }
 }

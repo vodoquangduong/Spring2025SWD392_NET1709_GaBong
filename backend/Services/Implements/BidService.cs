@@ -3,6 +3,7 @@ using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Bid;
 using Helpers.DTOs.Project;
+using Helpers.HelperClasses;
 using Repositories.Queries;
 using Services.Interfaces;
 using System;
@@ -41,24 +42,32 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<Bid>> GetAllBidsByFreelancerIdAsync(long freelancerId)
+        public async Task<Result<IEnumerable<Bid>>> GetAllBidsByFreelancerIdAsync(long freelancerId)
         {
             var queryOptions = new QueryBuilder<Bid>()
           .WithTracking(false) // No tracking for efficient
           .WithPredicate(bid => bid.BidOwnerId == freelancerId)
           .Build();
-
-            return await _unitOfWork.GetRepo<Bid>().GetAllAsync(queryOptions);
+            var cotracts = await _unitOfWork.GetRepo<Bid>().GetAllAsync(queryOptions);
+            if (cotracts.Count() == 0)
+            {
+                return Result.Failure<IEnumerable<Bid>>(new Error("No bids found", "No bids found"));
+            }
+            return Result.Success(cotracts);
         }
 
-        public async Task<IEnumerable<Bid>> GetAllBidsByProjectIdAsync(long projectId)
+        public async Task<Result<IEnumerable<Bid>>> GetAllBidsByProjectIdAsync(long projectId)
         {
             var queryOptions = new QueryBuilder<Bid>()
            .WithTracking(false) // No tracking for efficient
            .WithPredicate(bid => bid.ProjectId == projectId)
            .Build();
-
-            return await _unitOfWork.GetRepo<Bid>().GetAllAsync(queryOptions);
+            var bids = await _unitOfWork.GetRepo<Bid>().GetAllAsync(queryOptions);
+            if (bids.Count() == 0)
+            {
+                return Result.Failure<IEnumerable<Bid>>(new Error("No bids found", "No bids found"));
+            }
+            return Result.Success(bids);
         }
 
         public Task<BidDTO> GetBidByIdAsync(long id)

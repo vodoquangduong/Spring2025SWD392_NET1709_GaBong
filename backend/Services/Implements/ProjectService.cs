@@ -17,17 +17,19 @@ namespace Services.Implements
     public class ProjectService : IProjectService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICurrentUserService _currentUserService;
 
         public ProjectService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
+            _currentUserService = currentUserService;
         }
 
-        public async Task<Project> CreateProjectAsync(CreateProjectDTO projectDto, long userId)
+        public async Task<Project> CreateProjectAsync(CreateProjectDTO projectDto)
         {
             var project = new Project()
             {
-                ClientId = userId,
+                ClientId = _currentUserService.AccountId,
                 ProjectName = projectDto.ProjectName,
                 ProjectDescription = projectDto.ProjectDescription,
                 AvailableTimeRange = projectDto.AvailableTimeRange,

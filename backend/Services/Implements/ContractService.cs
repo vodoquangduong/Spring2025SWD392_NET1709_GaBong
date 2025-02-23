@@ -10,6 +10,7 @@ using Helpers.DTOs.Contract;
 using Helpers.HelperClasses;
 using Repositories.Queries;
 using Services.Interfaces;
+using Helpers.Mappers;
 
 namespace Services.Implements
 {
@@ -36,12 +37,16 @@ namespace Services.Implements
                     return Result.Failure<ContractDTO>(new Error("Project.NotFound", $"Project with id {createContractDTO.ProjectId} not found"));
                 }
                 await _unitOfWork.BeginTransactionAsync();
-                var contract =_mapper.Map<Contract>(createContractDTO);
-                contract.StartDate = DateTime.UtcNow;
+                var contract = new Contract()
+                {
+                    ProjectId = createContractDTO.ProjectId,
+                    ContractPolicy = createContractDTO.ContractPolicy,
+                    StartDate = DateTime.UtcNow,
+                };
                 await _unitOfWork.GetRepo<Contract>().CreateAsync(contract);
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitTransactionAsync();
-                return Result.Success(_mapper.Map<ContractDTO>(contract));
+                return Result.Success(contract.ToContractDTO());
             }
             catch (Exception e)
             {
@@ -55,7 +60,7 @@ namespace Services.Implements
             try
             {
                 var contracts = await _unitOfWork.GetRepo<Contract>().GetAllAsync(new QueryOptions<Contract>());
-                return Result.Success(_mapper.Map<IEnumerable<ContractDTO>>(contracts));
+                return Result.Success(contracts.Select(contract => contract.ToContractDTO()));
             }
             catch(Exception e)
             {
@@ -71,12 +76,34 @@ namespace Services.Implements
                 {
                     Predicate = c => c.ContractId == contractId
                 });
-                return _mapper.Map<ContractDTO>(contract);
+                if (contract == null)
+                {
+                    return Result.Failure<ContractDTO>(new Error("Contract.NotFound", $"Contract with id {contractId} not found"));
+                }
+                return Result.Success(contract.ToContractDTO());
             }
             catch (Exception e)
             {
                 return Result.Failure<ContractDTO>(new Error("Contract.GetFailed", e.Message));
-
+            }
+        }
+        public async Task<Result<ContractDTO>> GetContractByProjectIdAsync(long projectId)
+        {
+            try
+            {
+                var contract = await _unitOfWork.GetRepo<Contract>().GetSingleAsync(new QueryOptions<Contract>
+                {
+                    Predicate = c => c.ProjectId == projectId
+                });
+                if (contract == null)
+                {
+                    return Result.Failure<ContractDTO>(new Error("Contract.NotFound", $"Contract with project id {projectId} not found"));
+                }
+                return Result.Success(contract.ToContractDTO());
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<ContractDTO>(new Error("Contract.GetFailed", e.Message));
             }
         }
     }

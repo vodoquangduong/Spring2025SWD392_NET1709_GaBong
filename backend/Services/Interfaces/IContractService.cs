@@ -13,5 +13,6 @@ namespace Services.Interfaces
         Task<Result<ContractDTO>> CreateContractAsync(CreateContractDTO createContractDTO);
         Task<Result<IEnumerable<ContractDTO>>> GetAllContractAsync(); 
         Task<Result<ContractDTO>> GetContractByIdAsync(long contractId);
+        Task<Result<ContractDTO>> GetContractByProjectIdAsync(long projectId);
     }
 }

@@ -12,7 +12,7 @@ namespace Services.Interfaces
     {
         Task<IEnumerable<Project>> GetAllProjectsAsync();
         Task<ProjectDTO> GetProjectByIdAsync(long id);
-        Task<Project> CreateProjectAsync(CreateProjectDTO projectDto, long userId);
+        Task<Project> CreateProjectAsync(CreateProjectDTO projectDto);
         Task<Project> UpdateProjectAsync(Project project);
         Task<bool> DeleteProjectAsync(long id);
         Task<Project> VerifyProjectAsync(long projectId, long staffId);
