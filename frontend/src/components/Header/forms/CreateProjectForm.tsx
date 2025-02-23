@@ -2,18 +2,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { App, Button, Select } from "antd";
 import dayjs from "dayjs";
 import { useForm } from "react-hook-form";
-import { schema } from "../schemas";
+import { formSchema } from "../schemas";
+import { POST } from "@/modules/request";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function CreateProjectForm({
   setIsModalOpen,
-  record,
 }: {
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  record?: any;
 }) {
   const { message } = App.useApp();
-  console.log(record);
-
   const {
     handleSubmit,
     setError,
@@ -25,40 +23,64 @@ export default function CreateProjectForm({
     getValues,
   } = useForm({
     defaultValues: {
-      name: record?.name,
-      email: record?.email,
+      projectName: "",
+      projectDescription: "",
+      estimateBudget: "",
+      availableTimeRange: "",
     },
-    resolver: zodResolver(schema()),
+    resolver: zodResolver(formSchema()),
   });
 
-  const onSubmit = async () => {
-    message.success(`${record ? "Update" : "Create"} Successfully`);
-    setIsModalOpen(false);
+  const mutation = useMutation({
+    mutationKey: ["projects"],
+    mutationFn: async (formData: any) =>
+      await POST("/api/Project/post-project", formData),
+    onError: () => {
+      message.destroy();
+      message.error("Create Failed");
+    },
+    onSuccess: () => {
+      message.destroy();
+      message.success("Created successfully, please wait for approval");
+      setIsModalOpen(false);
+      reset();
+    },
+  });
+
+  const onSubmit = async (formData: any) => {
+    message.open({
+      type: "loading",
+      content: "Creating project ...",
+      duration: 0,
+    });
+    mutation.mutate(formData);
   };
 
-  // const [logo, setLogo] = useState("");
   return (
-    <form
-      className="overflow-y-scroll small-scrollbar h-full"
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <div className="grid grid-cols-2 gap-4 mb-2">
+    <form className="overflow-y-scroll" onSubmit={handleSubmit(onSubmit)}>
+      <div className="grid grid-cols-2 gap-4 mb-2 max-h-[500px] overflow-y-scroll pr-4">
         <div className="col-span-2">
           <div className="font-semibold text-base pb-2">Name</div>
           <input
-            {...register("name")}
+            {...register("projectName")}
             placeholder="Your project name"
             className="input-style py-[9px] px-2 text-sm"
           />
+          {errors.projectName && (
+            <div className="error-msg">{errors.projectName.message}</div>
+          )}
         </div>
         <div className="col-span-2">
           <div className="font-semibold text-base pb-2">Description</div>
           <textarea
-            {...register("email")}
+            {...register("projectDescription")}
             rows={4}
             placeholder="Your project description"
             className="input-style py-[9px] px-2 text-sm"
           />
+          {errors.projectDescription && (
+            <div className="error-msg">{errors.projectDescription.message}</div>
+          )}
         </div>
         <div className="col-span-2">
           <div className="font-semibold text-base pb-2">Required Skills</div>
@@ -72,26 +94,38 @@ export default function CreateProjectForm({
           />
         </div>
         <div>
-          <div className="font-semibold text-base pb-2">Estimated Budget</div>
+          <div className="font-semibold text-base pb-2">Estimate Budget</div>
           <div className="input-style flex gap-2 py-[10px]">
             <div className="px-1">$</div>
             <input
-              {...register("name")}
-              className="no-ring grow"
+              {...register("estimateBudget")}
+              className="no-ring grow no-scrollbar"
               placeholder="Enter estimated budget"
               type="number"
             />
             <div className="px-2">USD</div>
           </div>
+          {errors.estimateBudget && (
+            <div className="error-msg">{errors.estimateBudget.message}</div>
+          )}
         </div>
         <div>
-          <div className="font-semibold text-base pb-2">Bidding Deadline</div>
-          <input
-            {...register("name")}
-            type="date"
-            placeholder="Enter bidding deadline"
-            className="input-style py-[9px] px-2 text-sm"
-          />
+          <div className="font-semibold text-base pb-2">
+            Available Time Range
+          </div>
+          <div className="input-style flex gap-2 py-[10px]">
+            <input
+              {...register("availableTimeRange")}
+              className="no-ring grow no-scrollbar"
+              placeholder="Enter estimated budget"
+              type="number"
+            />
+            <div className="px-2">days</div>
+          </div>
+
+          {errors.availableTimeRange && (
+            <div className="error-msg">{errors.availableTimeRange.message}</div>
+          )}
         </div>
       </div>
       <div className="flex justify-end pt-4">
@@ -101,7 +135,7 @@ export default function CreateProjectForm({
           className="font-bold"
           onClick={() => console.log(errors)}
         >
-          {record ? "Update" : "Create"}
+          Create
         </Button>
       </div>
     </form>

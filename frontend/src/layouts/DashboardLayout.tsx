@@ -1,7 +1,7 @@
 import { Layout, Menu } from "antd";
 import Logo from "../components/Logo";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { FaBox } from "react-icons/fa";
+import { FaBox, FaRegCalendarAlt } from "react-icons/fa";
 import { Role } from "../types";
 import { useState } from "react";
 import DashboardHeader from "../components/DashboardHeader";
@@ -13,20 +13,20 @@ export default function DashboardLayout() {
 
   const items = [
     {
-      label: "Test label 1",
-      key: "/worker/dashboard",
+      label: "Dashboard",
+      key: "/employee",
       icon: <FaBox />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedRoles: [Role.GUEST],
+      allowedroles: [Role.GUEST],
     },
     {
-      label: "Test label 2",
-      key: "/worker/campaigns",
-      icon: <FaBox />,
+      label: "Projects",
+      key: "/employee/projects",
+      icon: <FaRegCalendarAlt />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedRoles: [Role.GUEST],
+      allowedroles: [Role.GUEST],
     },
     {
       label: "Test label 3",
@@ -34,7 +34,7 @@ export default function DashboardLayout() {
       icon: <FaBox />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedRoles: [Role.GUEST],
+      allowedroles: [Role.GUEST],
     },
     {
       label: "Test label 4",
@@ -42,7 +42,7 @@ export default function DashboardLayout() {
       icon: <FaBox />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedRoles: [Role.GUEST],
+      allowedroles: [Role.GUEST],
     },
   ];
 
@@ -71,7 +71,7 @@ export default function DashboardLayout() {
           <Layout.Header className="p-4 bg-white flex justify-between items-center dark:bg-zinc-800 border-b border-zinc-300 dark:border-zinc-600">
             <DashboardHeader />
           </Layout.Header>
-          <div className="m-4 !mb-0">
+          <div className="m-16 !mb-0">
             {/* <div className="min-h-screen"> */}
             <Outlet />
             {/* </div> */}

@@ -19,10 +19,10 @@ namespace BusinessObjects.Models
         [Column("project_id")]
         public long ProjectId { get; set; }
 
-        [Column("amount")]
-        public long Amount { get; set; }
+        [Column("bid_offer")]
+        public decimal BidOffer { get; set; }
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         [Column("bid_description")]
         public string BidDescription { get; set; } = string.Empty;
         

@@ -100,14 +100,14 @@ namespace DAOs
                     .WithOne(e => e.Account)
                     .HasForeignKey(e => e.AccountId);
 
-                entity.HasMany(e => e.SenderChats)
+                entity.HasMany(e => e.Messages)
                     .WithOne(e => e.Sender)
                     .HasForeignKey("SenderId")
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasMany(e => e.ReceiverChats)
-                    .WithOne(e => e.Receiver)
-                    .HasForeignKey("ReceiverId")
+                entity.HasMany(e => e.RoomDetails)
+                    .WithOne(e => e.Account)
+                    .HasForeignKey("AccountId")
                     .OnDelete(DeleteBehavior.Restrict);
             });
             modelBuilder.Entity<Project>(entity =>

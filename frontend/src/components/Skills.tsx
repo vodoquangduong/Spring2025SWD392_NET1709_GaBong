@@ -1,4 +1,4 @@
-import { getRandomInt } from "../libs/random";
+import { getRandomInt } from "../modules/random";
 import { Tag } from "antd";
 
 export default function Skills() {
@@ -23,7 +23,7 @@ export default function Skills() {
         .slice(getRandomInt(0, 6), getRandomInt(7, items.length - 1))
         .slice(0, 4)
         .map((item) => (
-          <Tag color="default" className="rounded-full !px-3">
+          <Tag key={item} color="default" className="rounded-full !px-3">
             {item}
           </Tag>
         ))}

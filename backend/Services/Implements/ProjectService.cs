@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using Helpers.DTOs.Authentication;
 using Helpers.DTOs.Project;
 using Helpers.HelperClasses;
 using Repositories.Interfaces;
@@ -16,65 +17,52 @@ namespace Services.Implements
     public class ProjectService : IProjectService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly ICurrentUserService _currentUserService;
 
         public ProjectService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _currentUserService = currentUserService;
         }
 
-        public async Task<Result<ProjectDTO>> CreateProjectAsync(CreateProjectDTO projectDto)
+        public async Task<Project> CreateProjectAsync(CreateProjectDTO projectDto, long userId)
         {
-                 try
-                 {
-                     var userId = _currentUserService.AccountId;
-                     await _unitOfWork.BeginTransactionAsync();
-                     //map the create project dto to project
-                     var project = _mapper.Map<Project>(projectDto);
-                     project.ClientId = userId;
-                     project.Status = ProjectStatus.Pending;
-                     project.PostDate = DateTime.UtcNow;
-                     //add the project to the database
-                     await _unitOfWork.GetRepo<Project>().CreateAsync(project);
-                     await _unitOfWork.SaveChangesAsync();
-                     // If  need the client name in the response load the related data
-                     // project = await _unitOfWork.ProjectRepository.GetByIdWithDetailsAsync(project.ProjectId);
-                     await _unitOfWork.CommitTransactionAsync();
-                     return Result.Success(_mapper.Map<ProjectDTO>(project));
-                 }
-                 catch(Exception ex)
-                 {
-                     await _unitOfWork.RollBackAsync();
-                     return Result.Failure<ProjectDTO>(new Error("Project.CreationFailed", ex.Message));
-                 }
-            
-            
+            var project = new Project()
+            {
+                ClientId = userId,
+                ProjectName = projectDto.ProjectName,
+                ProjectDescription = projectDto.ProjectDescription,
+                AvailableTimeRange = projectDto.AvailableTimeRange,
+                EstimateBudget = projectDto.EstimateBudget,
+                Status = ProjectStatus.Pending,
+                SkillRequired = projectDto.SkillIds.Select(skillId => new SkillRequired
+                {
+                    SkillId = skillId
+                }).ToList()
+            };
+            var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
+            await _unitOfWork.SaveChangesAsync();
+            return createProject;
         }
 
-
-
-        public Task<bool> DeleteProjectAsync(int id)
+        public Task<bool> DeleteProjectAsync(long id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<Result<IEnumerable<ProjectDTO>>> GetAllProjectsAsync()
-        {   
-            try
-            {
-                var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(new QueryOptions<Project>());
-                return Result.Success(_mapper.Map<IEnumerable<ProjectDTO>>(projects));
-            }
-            catch(Exception ex)
-            {
-                return Result.Failure<IEnumerable<ProjectDTO>>(new Error("Project.GetAllFailed", ex.Message));
-            }
+        public async Task<IEnumerable<Project>> GetAllProjectsAsync()
+        {
+
+            var queryOptions = new QueryBuilder<Project>()
+            .WithTracking(false) // No tracking for efficient
+            .WithInclude(p => p.SkillRequired)
+            
+            .Build();
+
+            return await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
         }
 
-        public Task<Project> GetProjectByIdAsync(int id)
+        
+
+        public Task<ProjectDTO> GetProjectByIdAsync(long id)
         {
             throw new NotImplementedException();
         }
@@ -82,6 +70,31 @@ namespace Services.Implements
         public Task<Project> UpdateProjectAsync(Project project)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<Project> VerifyProjectAsync(long projectId, long staffId)
+        {
+            Console.WriteLine($"Verifying project with ID: {projectId}");
+
+            var queryOptions = new QueryBuilder<Project>()
+            .WithTracking(true) 
+            .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
+            .Build();
+
+            var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
+            if (project == null)
+            {
+                throw new KeyNotFoundException("Project not found");
+            }
+
+            project.PostDate = DateTime.UtcNow;
+            project.Status = ProjectStatus.Verified;
+            project.VerifyStaffId = staffId;
+
+            await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
+            await _unitOfWork.SaveChangesAsync();
+
+            return project;
         }
     }
 }

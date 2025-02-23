@@ -4,9 +4,9 @@ import { FaHeart, FaUserCircle } from "react-icons/fa";
 import { FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { Dropdown } from "antd";
-import { defaultAvatar } from "../libs/default";
-import { setCookie } from "../libs/cookie";
+import { defaultAvatar } from "../modules/default";
 import useAuthStore from "../stores/authStore";
+import { setCookie } from "../modules/cookie";
 
 const ProfileDropdown = () => {
   const { logout } = useAuthStore();
@@ -17,7 +17,7 @@ const ProfileDropdown = () => {
     {
       key: "0",
       label: (
-        <Link to="/worker" className="flex font-semibold gap-2 items-center">
+        <Link to="/employee" className="flex font-semibold gap-2 items-center">
           <IoPieChart />
           Dashboard
         </Link>
@@ -26,7 +26,10 @@ const ProfileDropdown = () => {
     {
       key: "-1",
       label: (
-        <Link to="/worker" className="flex font-semibold gap-2 items-center">
+        <Link
+          to="/manage/projects"
+          className="flex font-semibold gap-2 items-center"
+        >
           <IoPieChart />
           Projects
         </Link>

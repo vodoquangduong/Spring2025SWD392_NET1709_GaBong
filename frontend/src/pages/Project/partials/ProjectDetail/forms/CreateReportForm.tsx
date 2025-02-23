@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { App, Button, Select } from "antd";
 import dayjs from "dayjs";
 import { useForm } from "react-hook-form";
-import { schema } from "../schemas";
+import { reportFormSchema } from "../schemas";
 
 export default function CreateReportForm({
   setIsModalOpen,
@@ -28,7 +28,7 @@ export default function CreateReportForm({
       name: record?.name,
       email: record?.email,
     },
-    resolver: zodResolver(schema()),
+    resolver: zodResolver(reportFormSchema()),
   });
 
   const onSubmit = async () => {

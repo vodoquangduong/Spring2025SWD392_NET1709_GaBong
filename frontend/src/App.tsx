@@ -2,10 +2,12 @@ import { App as AntApp, ConfigProvider, theme } from "antd";
 import { BrowserRouter } from "react-router-dom";
 import MainRoutes from "./routes/MainRoutes";
 import useConfigStore from "./stores/configStore";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export default function App() {
   const { isDarkMode } = useConfigStore();
   const { defaultAlgorithm, darkAlgorithm } = theme;
+  const queryClient = new QueryClient();
 
   return (
     <BrowserRouter>
@@ -22,7 +24,9 @@ export default function App() {
             },
           }}
         >
-          <MainRoutes />
+          <QueryClientProvider client={queryClient}>
+            <MainRoutes />
+          </QueryClientProvider>
         </ConfigProvider>
       </AntApp>
     </BrowserRouter>

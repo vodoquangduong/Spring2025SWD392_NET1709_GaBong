@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using BusinessObjects.Enums;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace BusinessObjects.Models
 {
@@ -28,11 +29,20 @@ namespace BusinessObjects.Models
         [Column("post_date")]
         public DateTime PostDate { get; set; } = DateTime.UtcNow;
 
-        [Column("end_bidding_date")]
-        public DateTime EndBiddingDate { get; set; }
+        [Column("available_time_range")]
+        public int AvailableTimeRange { get; set; }
+
+        [Column("project_name")]
+        public string ProjectName { get; set; } = string.Empty;
 
         [Column("project_description")]
         public string ProjectDescription { get; set; } = string.Empty;
+
+        [Column("location")]
+        public string Location { get; set; } = string.Empty;
+
+        [Column("estimate_budget")]
+        public decimal EstimateBudget { get; set; }
 
         [Column("status")]
         public ProjectStatus Status { get; set; }
@@ -43,6 +53,7 @@ namespace BusinessObjects.Models
         public virtual Account? Freelancer { get; set; }
         public virtual Account? Verifier { get; set; }
         public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
+        [JsonIgnore]
         public virtual ICollection<SkillRequired> SkillRequired { get; set; } = new List<SkillRequired>();
         public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
         public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();

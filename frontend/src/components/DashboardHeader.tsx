@@ -6,10 +6,12 @@ export default function DashboardHeader() {
   const [path, id] = location.pathname.split("/").slice(2);
   const items = [
     {
-      title: <Link to={`/worker/${path}`}>{path}</Link>,
+      title: <Link to={`/employee/${path}`}>{path}</Link>,
     },
     // only return id breadcrumb if currently in the detail page
-    ...(id ? [{ title: <Link to={`/worker/${path}/${id}`}>{id}</Link> }] : []),
+    ...(id
+      ? [{ title: <Link to={`/employee/${path}/${id}`}>{id}</Link> }]
+      : []),
   ];
   return (
     <div className="flex flex-wrap justify-between items-center w-full">

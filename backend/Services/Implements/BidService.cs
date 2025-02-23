@@ -1,69 +1,74 @@
+﻿using AutoMapper;
+using BusinessObjects.Enums;
+using BusinessObjects.Models;
+using Helpers.DTOs.Bid;
+using Helpers.DTOs.Project;
+using Repositories.Queries;
+using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
-using BusinessObjects.Models;
-using Helpers.DTOs.Bid;
-using Repositories.Queries;
-using Services.Interfaces;
-using Helpers.HelperClasses;
 
 namespace Services.Implements
 {
     public class BidService : IBidService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly ICurrentUserService _currentUserService;
 
-        public BidService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
+        public BidService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _currentUserService = currentUserService;
         }
 
-        public async Task<Result<BidDTO>> CreateBidAsync(CreateBidDTO createBidDTO)
+        public async Task<Bid> CreateBidAsync(CreateBidDTO bidDto, long freelancerId)
         {
-            try 
+            var bid = new Bid()
             {
-                var project = await _unitOfWork.GetRepo<Project>().AnyAsync(new QueryOptions<Project>
-                {
-                    Predicate = p => p.ProjectId == createBidDTO.ProjectId
-                });
-                if (!project)
-                {
-                    return Result.Failure<BidDTO>(new Error("Project.NotFound", $"Project with id {createBidDTO.ProjectId} not found"));
-                }
-                if(createBidDTO.Amount <= 0)
-                {
-                    return Result.Failure<BidDTO>(new Error("Bid.InvalidAmount", "Amount must be greater than 0"));
-                }
-                var bid = _mapper.Map<Bid>(createBidDTO);
-                bid.BidOwnerId = _currentUserService.AccountId;
-                bid.CreatedAt = DateTime.UtcNow;
-                await _unitOfWork.GetRepo<Bid>().CreateAsync(bid);
-                await _unitOfWork.SaveChangesAsync();
-                return Result.Success(_mapper.Map<BidDTO>(bid));
-            }
-            catch (Exception ex)
-            {
-                return Result.Failure<BidDTO>(new Error("Bid.CreationFailed", ex.Message));
-            }
+                BidOwnerId = freelancerId,
+                BidDescription = bidDto.BidDescription,
+                ProjectId = bidDto.ProjectId,
+                BidOffer = bidDto.BidOffer,
+            };
+            var createdBid = await _unitOfWork.GetRepo<Bid>().CreateAsync(bid);
+            await _unitOfWork.SaveChangesAsync();
+            return createdBid;
         }
 
-        public async Task<Result<IEnumerable<BidDTO>>> GetAllBidsAsync()
+        public Task<bool> DeleteBidAsync(long id)
         {
-            try
-            {
-                var bids = await _unitOfWork.GetRepo<Bid>().GetAllAsync(new QueryOptions<Bid>());
-                return Result.Success(_mapper.Map<IEnumerable<BidDTO>>(bids));
-            }
-            catch (Exception ex)
-            {
-                return Result.Failure<IEnumerable<BidDTO>>(new Error("Bid.RetrievalFailed", ex.Message));
-            }
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<Bid>> GetAllBidsByFreelancerIdAsync(long freelancerId)
+        {
+            var queryOptions = new QueryBuilder<Bid>()
+          .WithTracking(false) // No tracking for efficient
+          .WithPredicate(bid => bid.BidOwnerId == freelancerId)
+          .Build();
+
+            return await _unitOfWork.GetRepo<Bid>().GetAllAsync(queryOptions);
+        }
+
+        public async Task<IEnumerable<Bid>> GetAllBidsByProjectIdAsync(long projectId)
+        {
+            var queryOptions = new QueryBuilder<Bid>()
+           .WithTracking(false) // No tracking for efficient
+           .WithPredicate(bid => bid.ProjectId == projectId)
+           .Build();
+
+            return await _unitOfWork.GetRepo<Bid>().GetAllAsync(queryOptions);
+        }
+
+        public Task<BidDTO> GetBidByIdAsync(long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Bid> UpdateBidAsync(Bid bid)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -19,6 +19,8 @@ public class Account
     public string Email { get; set; } = string.Empty;
     [Column("password")]
     public string Password { get; set; } = string.Empty;
+    [Column("avatar_url")]
+    public string AvatarURL { get; set; } = string.Empty;
     [Column("phone")]
     public string Phone { get; set; } = string.Empty;
     [Column("address")]
@@ -27,12 +29,14 @@ public class Account
     public DateTime Birthday { get; set; } = DateTime.MinValue;
     [Column("gender")]
     public Gender Gender { get; set; } = Gender.Other;
+    [Column("nationality")]
+    public string Nationality { get; set; } = string.Empty;
     [Column("reputation_point")]
     public int ReputationPoint { get; set; } = 0;
     [Column("total_credit")]
-    public double TotalCredit { get; set; } = 0;
+    public decimal TotalCredit { get; set; } = 0;
     [Column("lock_credit")]
-    public double LockCredit { get; set; } = 0;
+    public decimal LockCredit { get; set; } = 0;
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.MinValue;
     [Column("status")]
@@ -50,12 +54,6 @@ public class Account
     public virtual ICollection<Bid> Bids { get; set; } = new List<Bid>();
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
-    public virtual ICollection<Chat> SenderChats { get; set; } = new List<Chat>();
-    public virtual ICollection<Chat> ReceiverChats { get; set; } = new List<Chat>();
-
-
-    
-
-
-
+    public virtual ICollection<Messages> Messages { get; set; } = new List<Messages>();
+    public virtual ICollection<RoomDetail> RoomDetails { get; set; } = new List<RoomDetail>();
 }

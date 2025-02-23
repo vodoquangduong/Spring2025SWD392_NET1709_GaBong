@@ -17,7 +17,7 @@ namespace DAOs.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "8.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -35,6 +35,11 @@ namespace DAOs.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("address");
+
+                    b.Property<string>("AvatarURL")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("avatar_url");
 
                     b.Property<DateTime>("Birthday")
                         .HasColumnType("timestamp with time zone")
@@ -54,14 +59,19 @@ namespace DAOs.Migrations
                         .HasColumnType("text")
                         .HasColumnName("gender");
 
-                    b.Property<long>("LockCredit")
-                        .HasColumnType("bigint")
+                    b.Property<decimal>("LockCredit")
+                        .HasColumnType("numeric")
                         .HasColumnName("lock_credit");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<string>("Nationality")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nationality");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -87,8 +97,8 @@ namespace DAOs.Migrations
                         .HasColumnType("text")
                         .HasColumnName("status");
 
-                    b.Property<long>("TotalCredit")
-                        .HasColumnType("bigint")
+                    b.Property<decimal>("TotalCredit")
+                        .HasColumnType("numeric")
                         .HasColumnName("total_credit");
 
                     b.HasKey("AccountId");
@@ -105,14 +115,14 @@ namespace DAOs.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("BidId"));
 
-                    b.Property<long>("Amount")
-                        .HasColumnType("bigint")
-                        .HasColumnName("amount");
-
                     b.Property<string>("BidDescription")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("bid_description");
+
+                    b.Property<decimal>("BidOffer")
+                        .HasColumnType("numeric")
+                        .HasColumnName("bid_offer");
 
                     b.Property<long>("BidOwnerId")
                         .HasColumnType("bigint")
@@ -135,39 +145,23 @@ namespace DAOs.Migrations
                     b.ToTable("Bid");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.Chat", b =>
+            modelBuilder.Entity("BusinessObjects.Models.ChatRoom", b =>
                 {
-                    b.Property<long>("ChatId")
+                    b.Property<long>("ChatRoomID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnName("chat_id");
+                        .HasColumnName("chat_room_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ChatId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ChatRoomID"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("MessageContent")
+                    b.Property<string>("ChatRoomName")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("message_content");
+                        .HasColumnName("chat_room_name");
 
-                    b.Property<long>("ReceiverId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("receiver_id");
+                    b.HasKey("ChatRoomID");
 
-                    b.Property<long>("SenderId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("sender_id");
-
-                    b.HasKey("ChatId");
-
-                    b.HasIndex("ReceiverId");
-
-                    b.HasIndex("SenderId");
-
-                    b.ToTable("Chat");
+                    b.ToTable("ChatRoom");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Contract", b =>
@@ -232,6 +226,41 @@ namespace DAOs.Migrations
                     b.ToTable("Feedback");
                 });
 
+            modelBuilder.Entity("BusinessObjects.Models.Messages", b =>
+                {
+                    b.Property<long>("MessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("message_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("MessageId"));
+
+                    b.Property<long>("ChatRoomId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("chat_room_id");
+
+                    b.Property<string>("MessageContent")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("message_content");
+
+                    b.Property<DateTime>("SendAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("send_at");
+
+                    b.Property<long>("SenderId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("sender_id");
+
+                    b.HasKey("MessageId");
+
+                    b.HasIndex("ChatRoomId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Messages");
+                });
+
             modelBuilder.Entity("BusinessObjects.Models.Milestone", b =>
                 {
                     b.Property<long>("MilestoneId")
@@ -250,8 +279,8 @@ namespace DAOs.Migrations
                         .HasColumnType("text")
                         .HasColumnName("milestone_description");
 
-                    b.Property<long>("PayAmount")
-                        .HasColumnType("bigint")
+                    b.Property<decimal>("PayAmount")
+                        .HasColumnType("numeric")
                         .HasColumnName("pay_amount");
 
                     b.Property<long>("ProjectId")
@@ -364,17 +393,26 @@ namespace DAOs.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ProjectId"));
 
+                    b.Property<int>("AvailableTimeRange")
+                        .HasColumnType("integer")
+                        .HasColumnName("available_time_range");
+
                     b.Property<long>("ClientId")
                         .HasColumnType("bigint")
                         .HasColumnName("client_id");
 
-                    b.Property<DateTime>("EndBiddingDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("end_bidding_date");
+                    b.Property<decimal>("EstimateBudget")
+                        .HasColumnType("numeric")
+                        .HasColumnName("estimate_budget");
 
                     b.Property<long?>("FreelancerId")
                         .HasColumnType("bigint")
                         .HasColumnName("freelancer_id");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("location");
 
                     b.Property<DateTime>("PostDate")
                         .HasColumnType("timestamp with time zone")
@@ -384,6 +422,11 @@ namespace DAOs.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("project_description");
+
+                    b.Property<string>("ProjectName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("project_name");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -451,6 +494,23 @@ namespace DAOs.Migrations
                     b.ToTable("Report");
                 });
 
+            modelBuilder.Entity("BusinessObjects.Models.RoomDetail", b =>
+                {
+                    b.Property<long>("ChatRoomId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("chat_room_id");
+
+                    b.Property<long>("AccountId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("account_id");
+
+                    b.HasKey("ChatRoomId", "AccountId");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("RoomDetail");
+                });
+
             modelBuilder.Entity("BusinessObjects.Models.SkillCategory", b =>
                 {
                     b.Property<long>("SkillId")
@@ -480,7 +540,7 @@ namespace DAOs.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("skill_id");
 
-                    b.HasKey("AccountId");
+                    b.HasKey("AccountId", "SkillId");
 
                     b.HasIndex("SkillId");
 
@@ -497,7 +557,7 @@ namespace DAOs.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("skill_id");
 
-                    b.HasKey("ProjectId");
+                    b.HasKey("ProjectId", "SkillId");
 
                     b.HasIndex("SkillId");
 
@@ -517,8 +577,8 @@ namespace DAOs.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("account_id");
 
-                    b.Property<long>("Amount")
-                        .HasColumnType("bigint")
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric")
                         .HasColumnName("amount");
 
                     b.Property<DateTime>("CreatedAt")
@@ -561,25 +621,6 @@ namespace DAOs.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("BusinessObjects.Models.Chat", b =>
-                {
-                    b.HasOne("BusinessObjects.Models.Account", "Receiver")
-                        .WithMany("ReceiverChats")
-                        .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObjects.Models.Account", "Sender")
-                        .WithMany("SenderChats")
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Receiver");
-
-                    b.Navigation("Sender");
-                });
-
             modelBuilder.Entity("BusinessObjects.Models.Contract", b =>
                 {
                     b.HasOne("BusinessObjects.Models.Project", "Project")
@@ -600,6 +641,25 @@ namespace DAOs.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("BusinessObjects.Models.Messages", b =>
+                {
+                    b.HasOne("BusinessObjects.Models.ChatRoom", "ChatRoom")
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObjects.Models.Account", "Sender")
+                        .WithMany("Messages")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ChatRoom");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Milestone", b =>
@@ -687,6 +747,25 @@ namespace DAOs.Migrations
                     b.Navigation("VerifyStaff");
                 });
 
+            modelBuilder.Entity("BusinessObjects.Models.RoomDetail", b =>
+                {
+                    b.HasOne("BusinessObjects.Models.Account", "Account")
+                        .WithMany("RoomDetails")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObjects.Models.ChatRoom", "ChatRooms")
+                        .WithMany("RoomDetails")
+                        .HasForeignKey("ChatRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("ChatRooms");
+                });
+
             modelBuilder.Entity("BusinessObjects.Models.SkillPerform", b =>
                 {
                     b.HasOne("BusinessObjects.Models.Account", "Account")
@@ -744,13 +823,13 @@ namespace DAOs.Migrations
 
                     b.Navigation("FreelancerProjects");
 
+                    b.Navigation("Messages");
+
                     b.Navigation("Notifications");
 
                     b.Navigation("Portfolio");
 
-                    b.Navigation("ReceiverChats");
-
-                    b.Navigation("SenderChats");
+                    b.Navigation("RoomDetails");
 
                     b.Navigation("SenderReports");
 
@@ -761,6 +840,13 @@ namespace DAOs.Migrations
                     b.Navigation("VerifiedReports");
 
                     b.Navigation("VerifyStaffIdProjects");
+                });
+
+            modelBuilder.Entity("BusinessObjects.Models.ChatRoom", b =>
+                {
+                    b.Navigation("Messages");
+
+                    b.Navigation("RoomDetails");
                 });
 
             modelBuilder.Entity("BusinessObjects.Models.Project", b =>

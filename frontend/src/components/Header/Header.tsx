@@ -19,13 +19,15 @@ const HeaderLinkItem = ({
   subMenu?: boolean;
 }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   return (
     <li className="relative">
       <Link
+        to={href}
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
-        to={href}
+        // onClick={() => navigate(href)}
         className="group block py-2 pr-4 pl-3 text-emerald-500 hover:text-emerald-500 dark:text-emerald-400 bg-primary-700 lg:bg-transparent lg:text-primary-700 lg:p-0"
         aria-current="page"
       >
@@ -37,14 +39,14 @@ const HeaderLinkItem = ({
             />
           )}
         </div>
-        {/* <div
+        <div
           className={`mt-1 h-0.5 bg-emerald-500 group-hover:w-full transition-all duration-300 ${
             (location.pathname === href && href == "/") ||
             (location.pathname.startsWith(href) && href != "/")
               ? "w-full"
               : "w-0"
           }`}
-        ></div> */}
+        ></div>
         {subMenu && isOpen && <MegaMenu subMenu={children as string} />}
       </Link>
     </li>
@@ -65,10 +67,13 @@ export default function Header() {
             id="mobile-menu-2"
           >
             <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-              <HeaderLinkItem href={"/search/freelancers"} subMenu>
+              <HeaderLinkItem href={"/search/freelancers"}>
                 Hire freelancers
               </HeaderLinkItem>
-              <HeaderLinkItem href={"/search/projects"} subMenu>
+              <HeaderLinkItem
+                href={"/search/projects"}
+                // subMenu={true}
+              >
                 Find works
               </HeaderLinkItem>
               {/* <HeaderLinkItem href={"/news"}>News</HeaderLinkItem> */}

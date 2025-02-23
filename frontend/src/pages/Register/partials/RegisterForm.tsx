@@ -6,7 +6,6 @@ import { registerUseCase } from "../usecases/registerUseCase";
 const RegisterForm = () => {
   const navigate = useNavigate();
   const { message } = App.useApp();
-  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -36,7 +35,6 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     // Validate
     if (
@@ -44,17 +42,17 @@ const RegisterForm = () => {
       formData.name.length < 2 ||
       formData.name.length > 50
     ) {
-      setError("Full name must be between 2 and 50 characters");
+      message.error("Full name must be between 2 and 50 characters");
       return;
     }
 
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError("Invalid email address");
+      message.error("Invalid email address");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      message.error("Passwords do not match");
       return;
     }
 
@@ -63,17 +61,24 @@ const RegisterForm = () => {
       const { confirmPassword, ...registerData } = formData;
 
       console.log("Register data:", registerData); // Debug log
+      message.open({
+        type: "loading",
+        content: "Creating your account...",
+        duration: 0,
+      });
       const response = await registerUseCase.register(registerData);
       console.log("Register success:", response);
 
+      message.destroy(); // Đóng loading message
       message.success("Registration successful!");
       navigate("/login");
     } catch (err: any) {
+      message.destroy(); // Đóng loading message
       console.error("Registration failed:", err);
       if (err.message && err.message !== "Failed to fetch") {
-        setError(err.message);
+        message.error(err.message);
       } else {
-        setError("Registration failed. Please try again.");
+        message.error("Registration failed. Please try again.");
       }
     }
   };
@@ -90,10 +95,6 @@ const RegisterForm = () => {
 
           <div className="flex-auto p-6">
             <form className="text-left" onSubmit={handleSubmit}>
-              {error && (
-                <div className="mb-4 text-red-500 text-sm">{error}</div>
-              )}
-
               <div className="mb-4">
                 <label
                   htmlFor="name"
