@@ -1,8 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessObjects.Models
 {
+    [PrimaryKey("AccountId", "SkillId")]
     public class SkillPerform
     {
         [Key]

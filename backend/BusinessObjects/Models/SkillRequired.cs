@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessObjects.Models
 {
+    [PrimaryKey("ProjectId", "SkillId")]
+
     public class SkillRequired
     {
         [Key]
