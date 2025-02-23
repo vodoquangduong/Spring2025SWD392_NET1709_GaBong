@@ -42,7 +42,7 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
         </div>
       </div>
       <div className="text-sm">
-        Budget: {getRandomInt(100, 10000).toLocaleString()} USD
+        Budget: {project.estimateBudget.toLocaleString()} USD
       </div>
       <div className="mt-6">{project?.projectDescription}</div>
       <div className="mt-4">
@@ -64,7 +64,7 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
 
 const ListingItemSkeletion = () => {
   return (
-    <div className="p-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950 cursor-pointer">
+    <div className="p-4 border-b dark:border-gray-700">
       <Skeleton.Input active style={{ width: "600px" }} />
       <div className="text-sm text-red-600 pt-8">
         <Skeleton active style={{ width: "100%" }} paragraph={{ rows: 3 }} />
