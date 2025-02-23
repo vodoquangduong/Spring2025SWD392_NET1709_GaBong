@@ -54,12 +54,12 @@ export default function DashboardLayout() {
           collapsed={collapsed}
           onCollapse={(value) => setCollapsed(value)}
           theme={"dark"}
-          className="!bg-zinc-800"
+          className="!bg-zinc-800 pt-4"
           width={250}
         >
           <Logo />
           <Menu
-            className="px-2 bg-zinc-800"
+            className="mt-4 px-2 bg-zinc-800"
             theme={"dark"}
             selectedKeys={location.pathname.split("/").slice(0, 3)}
             mode="vertical"

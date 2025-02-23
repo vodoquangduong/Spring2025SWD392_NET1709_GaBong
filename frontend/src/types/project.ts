@@ -5,7 +5,9 @@ export interface Project {
   title: string;
   postDate: string;
   projectDescription: string;
+  estimateBudget: number;
   type: "fixed" | "hourly";
+  availableTimeRange: number;
   budget: {
     min: number;
     max: number;

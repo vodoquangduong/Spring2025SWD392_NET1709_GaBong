@@ -4,10 +4,11 @@ export default function Logo() {
   return (
     <Link to="/" className={`flex items-center justify-center p-4}`}>
       <div
-        className={`flex items-center py-3 -ms-3 self-center text-emerald-500 whitespace-nowrap font-sans font-bold`}
-      >
-        Freelancer
-      </div>
+        className={`h-[40px] aspect-[804/301] bg-center bg-contain  text-emerald-500 bg-no-repeat`}
+        style={{
+          backgroundImage: `url(${import.meta.env.VITE_CLIENT_URL}/logo.png)`,
+        }}
+      ></div>
     </Link>
   );
 }

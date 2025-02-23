@@ -7,7 +7,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 export default function App() {
   const { isDarkMode } = useConfigStore();
   const { defaultAlgorithm, darkAlgorithm } = theme;
-  const queryClient = new QueryClient();
+  // const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
 
   return (
     <BrowserRouter>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using Repositories.Queries;
+using BusinessObjects.Models;
 
 namespace Repositories.Interfaces
 {

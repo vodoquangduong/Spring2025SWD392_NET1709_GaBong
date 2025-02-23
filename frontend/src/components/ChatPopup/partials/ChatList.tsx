@@ -7,7 +7,7 @@ export default function ChatList({
 }) {
   return (
     <div className="dark:bg-zinc-800 bg-white border-r dark:border-zinc-700">
-      <div className="p-2 font-bold border-b dark:border-zinc-600">
+      <div className="p-2 font-bold border-b dark:border-zinc-600 text-secondary-foreground">
         Partner List
       </div>
       <div>

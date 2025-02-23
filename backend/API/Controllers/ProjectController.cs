@@ -37,6 +37,13 @@ namespace API.Controllers
             return Ok(createdProject);
         }
 
+        [HttpGet("{projectId}")]
+        public async Task<IActionResult> GetProjectById([FromRoute] long projectId)
+        {
+            var projectDTO = await _projectService.GetProjectByIdAsync(projectId);
+            return Ok(projectDTO);
+        }
+
         [HttpGet("test-current-user")]
         public IActionResult TestCurrentUser()
         {
