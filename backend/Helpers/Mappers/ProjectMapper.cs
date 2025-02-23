@@ -8,7 +8,7 @@ public static class ProjectMapper
 {
     public static ProjectDTO ToProjectDTO(this Project project)
     {
-        if (project == null) return null;
+        if (project == null) return new ProjectDTO();
 
         return new ProjectDTO
         {
