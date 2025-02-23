@@ -54,6 +54,6 @@ public class Account
     public virtual ICollection<Bid> Bids { get; set; } = new List<Bid>();
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
-    public virtual ICollection<Chat> SenderChats { get; set; } = new List<Chat>();
-    public virtual ICollection<Chat> ReceiverChats { get; set; } = new List<Chat>();
+    public virtual ICollection<Messages> Messages { get; set; } = new List<Messages>();
+    public virtual ICollection<RoomDetail> RoomDetails { get; set; } = new List<RoomDetail>();
 }
