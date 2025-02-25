@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Helpers.DTOs.Chat;
+using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -7,11 +8,11 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ChatController : ControllerBase
+    public class ChatRoomController : ControllerBase
     {
         private readonly IChatRoomService _chatRoomService;
 
-        public ChatController(IChatRoomService chatRoomService)
+        public ChatRoomController(IChatRoomService chatRoomService)
         {
             _chatRoomService = chatRoomService;
         }
@@ -39,11 +40,12 @@ namespace API.Controllers
             return Ok(chatRoom);
         }
 
-        //// POST api/<ChatRoomController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] CreateChatRoomDTO createChatDTO)
+        {
+            var chatRoom = await _chatRoomService.CreateDmChatRoomAsync(createChatDTO);
+            return Ok(chatRoom);
+        }
 
         //// PUT api/<ChatRoomController>/5
         //[HttpPut("{id}")]

@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Helpers.DTOs.Chat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,6 @@ namespace Services.Interfaces
     {
         Task<IEnumerable<ChatRoom>> GetChatRoomsByUserIdAsync(long accountId);
         Task<ChatRoom?> GetDmChatRoomAsync(long clientId, long freelancerId);
-        Task<ChatRoom> CreateDmChatRoomAsync(long clientId, long freelancerId);
+        Task<ChatRoom> CreateDmChatRoomAsync(CreateChatRoomDTO createChatDTO);
     }
 }

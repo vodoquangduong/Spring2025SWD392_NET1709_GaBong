@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Helpers.DTOs.Chat;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
@@ -21,9 +22,37 @@ namespace Services.Implements
             _unitOfWork = unitOfWork;
         }
 
-        public Task<ChatRoom> CreateDmChatRoomAsync(long clientId, long freelancerId)
+        public async Task<ChatRoom> CreateDmChatRoomAsync(CreateChatRoomDTO createChatDTO)
         {
-            throw new NotImplementedException();
+            var existedChatRoom = await GetDmChatRoomAsync(createChatDTO.ClientId, createChatDTO.FreelancerId);
+            if(existedChatRoom != null)
+            {
+                return existedChatRoom;
+            }
+
+            //TODO: change this chatroom name
+            var createdChatRoom = await CreateChatRoom(createChatDTO.ChatRoomName);
+
+            await _unitOfWork.GetRepo<RoomDetail>().CreateAsync(new RoomDetail() { AccountId = createChatDTO.ClientId, 
+                ChatRoomId = createdChatRoom.ChatRoomID
+            });
+            await _unitOfWork.GetRepo<RoomDetail>().CreateAsync(new RoomDetail() { AccountId = createChatDTO.FreelancerId, 
+                ChatRoomId = createdChatRoom.ChatRoomID
+            });
+
+            await _unitOfWork.SaveChangesAsync();
+            //await AddAccountToChatRoom(chatRoom.ChatRoomID, createChatDTO.ClientId);
+            //await AddAccountToChatRoom(chatRoom.ChatRoomID, createChatDTO.FreelancerId);
+
+            return createdChatRoom;
+        }
+
+        private async Task<ChatRoom> CreateChatRoom(string chatRoomName)
+        {
+            var chatRoom = new ChatRoom() { ChatRoomName = chatRoomName };
+            chatRoom = await _unitOfWork.GetRepo<ChatRoom>().CreateAsync(chatRoom);
+            await _unitOfWork.SaveChangesAsync();
+            return chatRoom;
         }
 
         public async Task<IEnumerable<ChatRoom>> GetChatRoomsByUserIdAsync(long accountId)
@@ -50,6 +79,7 @@ namespace Services.Implements
                 .FirstOrDefault(
                 g => g.Select(rd => rd.AccountId).Distinct().Count() == 2
                 );
+
             if (roomGrouping == null)
             {
                 return null;
