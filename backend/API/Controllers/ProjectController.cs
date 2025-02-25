@@ -33,7 +33,7 @@ namespace API.Controllers
         [HttpPost("post-project")]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO project)
         {
-            var createdProject = await _projectService.CreateProjectAsync(project, _currentUserService.AccountId);
+            var createdProject = await _projectService.CreateProjectAsync(project);
             return Ok(createdProject);
         }
 
