@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BusinessObjects.Models
@@ -24,8 +25,10 @@ namespace BusinessObjects.Models
 
 
         //navigation property
+        [JsonIgnore]
         [ForeignKey("SenderId")]
         public virtual Account Sender { get; set; } = null!;
+        [JsonIgnore]
         [ForeignKey("ChatRoomId")]
         public virtual ChatRoom ChatRoom {get; set;} = null!;
         

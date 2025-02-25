@@ -9,6 +9,7 @@ using Services.Interfaces;
 using AutoMapper;
 using Serilog;
 using System.Text;
+using API.Chat;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,11 +60,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidAudience = configuration["JWT:Audience"],
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:SigningKey"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:SigningKey"] ?? "Error when getting JWT SigningKey"))
         };
     });
 
-builder.Services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddAutoMapper(typeof(ProjectMapper));
@@ -82,6 +83,10 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IBidService, BidService>();
 builder.Services.AddScoped<ISkillCategoryService, SkillCategoryService>(); 
 builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IChatRoomService, ChatRoomService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -103,6 +108,7 @@ app.UseCors(builder =>
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHub<ChatHub>("/chatHub");
 app.MapControllers();
 
 app.Run();

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace BusinessObjects.Models
 {
@@ -20,6 +21,7 @@ namespace BusinessObjects.Models
 
 
         //Navigation Property
+        [JsonIgnore]
         public virtual ICollection<Messages> Messages { get; set; } = new List<Messages>();
         public virtual ICollection<RoomDetail> RoomDetails { get; set; } = new List<RoomDetail>();
     }
