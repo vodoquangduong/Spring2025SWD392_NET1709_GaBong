@@ -83,7 +83,6 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IBidService, BidService>();
 builder.Services.AddScoped<ISkillCategoryService, SkillCategoryService>(); 
 builder.Services.AddScoped<IContractService, ContractService>();
-builder.Services.AddScoped<ISkillCategoryService, SkillCategoryService>();
 builder.Services.AddScoped<IChatRoomService, ChatRoomService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 
