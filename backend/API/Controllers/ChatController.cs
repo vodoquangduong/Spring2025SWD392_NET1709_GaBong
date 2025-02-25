@@ -7,11 +7,11 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ChatRoomController : ControllerBase
+    public class ChatController : ControllerBase
     {
         private readonly IChatRoomService _chatRoomService;
 
-        public ChatRoomController(IChatRoomService chatRoomService)
+        public ChatController(IChatRoomService chatRoomService)
         {
             _chatRoomService = chatRoomService;
         }

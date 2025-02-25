@@ -1,5 +1,7 @@
 ﻿using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Repositories.Interfaces;
 using Repositories.Queries;
 using Services.Interfaces;
 using System;
@@ -45,7 +47,9 @@ namespace Services.Implements
             var roomDetails = await _unitOfWork.GetRepo<RoomDetail>().GetAllAsync(queryRoomDetail);
 
             var roomGrouping = roomDetails.GroupBy(r => r.ChatRoomId)
-                .FirstOrDefault(g => g.Select(rd => rd.AccountId).Distinct().Count() == 2);
+                .FirstOrDefault(
+                g => g.Select(rd => rd.AccountId).Distinct().Count() == 2
+                );
             if (roomGrouping == null)
             {
                 return null;
