@@ -5,8 +5,25 @@ import { IoClose } from "react-icons/io5";
 import useUiStore from "@/stores/uiStore";
 
 export default function ChatPopup() {
-  const partnerList = ["Mohamed Salah", "Cristiano Ronaldo", "Lionel Messi"];
-  const [currentPartner, setCurrentPartner] = useState<string>(partnerList[0]);
+  const partnerList = [
+    {
+      name: "Lê Thế Freelancer",
+      accountId: 9,
+    },
+    {
+      name: "Đỗ Long Admin",
+      accountId: 1,
+    },
+    {
+      name: "Nguyễn Viết Client",
+      accountId: 8,
+    },
+    {
+      name: "Võ Đỗ Quang Staff",
+      accountId: 1,
+    },
+  ];
+  const [currentPartner, setCurrentPartner] = useState<any>(partnerList[0]);
   const { toogleChatPopup } = useUiStore();
 
   return (
