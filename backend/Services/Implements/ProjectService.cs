@@ -35,6 +35,7 @@ namespace Services.Implements
                 AvailableTimeRange = projectDto.AvailableTimeRange,
                 EstimateBudget = projectDto.EstimateBudget,
                 Status = ProjectStatus.Pending,
+                Location = projectDto.Location,
                 SkillRequired = projectDto.SkillIds.Select(skillId => new SkillRequired
                 {
                     SkillId = skillId
@@ -97,6 +98,30 @@ namespace Services.Implements
             project.PostDate = DateTime.UtcNow;
             project.Status = ProjectStatus.Verified;
             project.VerifyStaffId = staffId;
+
+            await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
+            await _unitOfWork.SaveChangesAsync();
+
+            return project;
+        }
+
+        public async Task<Project> ChooseFreelancerAsync(long projectId, long freelancerId)
+        {
+            Console.WriteLine($"Verifying project with ID: {projectId}");
+
+            var queryOptions = new QueryBuilder<Project>()
+            .WithTracking(true)
+            .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
+            .Build();
+
+            var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
+            if (project == null)
+            {
+                throw new KeyNotFoundException("Project not found");
+            }
+
+            project.Status = ProjectStatus.OnGoing;
+            project.FreelancerId = freelancerId;
 
             await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
             await _unitOfWork.SaveChangesAsync();

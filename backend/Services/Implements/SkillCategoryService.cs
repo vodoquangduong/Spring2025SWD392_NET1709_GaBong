@@ -47,9 +47,17 @@ namespace Services.Implements
         }
 
 
-        public Task<SkillCategoryDTO> GetSkillCategoryByIdAsync(long id)
+        public async Task<List<SkillCategoryDTO>> GetSkillCategoryByIdAsync(long id)
         {
-            throw new NotImplementedException();
+            var queryOptions = new QueryBuilder<SkillCategory>()
+                       .WithTracking(false) // No tracking for efficient
+                       .WithPredicate(s => s.SkillId == id)
+                       .Build();
+            var queryResult = await _unitOfWork.GetRepo<SkillCategory>().GetAllAsync(queryOptions);
+            var skillCategoryDTOs = queryResult
+                                    .Select(skillCategory => skillCategory.ToSkillCategoryDTO())
+                                    .ToList();
+            return skillCategoryDTOs;
         }
     }
 }

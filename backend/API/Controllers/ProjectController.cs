@@ -45,7 +45,7 @@ namespace API.Controllers
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO project)
         {
             var createdProject = await _projectService.CreateProjectAsync(project);
-            return Ok(createdProject);
+            return Ok(createdProject.ToProjectDTO());
         }
 
         [HttpGet("{projectId}")]
@@ -54,6 +54,9 @@ namespace API.Controllers
             var projectDTO = await _projectService.GetProjectByIdAsync(projectId);
             return Ok(projectDTO);
         }
+
+
+
 
         [HttpGet("test-current-user")]
         public IActionResult TestCurrentUser()
@@ -76,6 +79,13 @@ namespace API.Controllers
         {
             var updatedProject = await _projectService.VerifyProjectAsync(projectId, _currentUserService.AccountId);
             return Ok("Project verified");
+        }
+
+        [HttpPut("choose-freelancer")]
+        public async Task<IActionResult> ChooseFreelancer([FromBody] ChooseFreelancerDTO chooseFreelancerDTO)
+        {
+            var updatedProject = await _projectService.ChooseFreelancerAsync(chooseFreelancerDTO.ProjectId, chooseFreelancerDTO.FreelancerId);
+            return Ok("Project is on going");
         }
     }
 }
