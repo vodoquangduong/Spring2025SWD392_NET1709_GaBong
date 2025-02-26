@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 
 export default function Project() {
   const { id: projectId } = useParams();
+
   const { data, isLoading } = useQuery<ProjectDetail>({
     queryKey: ["projectDetail", projectId],
     queryFn: async () => await GET(`/api/Project/${projectId}`),

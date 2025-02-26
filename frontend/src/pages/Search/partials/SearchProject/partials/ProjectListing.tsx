@@ -1,6 +1,6 @@
 import { Pagination, Rate, Skeleton, Tag } from "antd";
 import { CiBookmark } from "react-icons/ci";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getRandomInt } from "../../../../../modules/random";
 import { FaStar } from "react-icons/fa6";
 import Skills from "../../../../../components/Skills";
@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { GET } from "@/modules/request";
 import { ProjectDetail, ProjectStatus } from "@/types/project";
 import { formatTimeAgo } from "@/modules/formatTimeAgo";
+import useQueryParams from "@/hooks/useQueryParams";
 
 const items = [
   "PHP",
@@ -81,16 +82,19 @@ const ListingItemSkeletion = () => {
 };
 
 export default function ProjectListing() {
+  const { page } = useQueryParams();
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery({
-    queryKey: ["publicProjects"],
-    queryFn: async () => await GET("/api/Project/get-all-project", false),
+    queryKey: ["publicProjects", page],
+    queryFn: async () =>
+      await GET(`/api/Project/get-all-project?pageNumber=${page || 1}`, false),
   });
   return (
     <div>
       <div className="border-b w-full p-4 flex justify-between items-center dark:border-gray-500 shadow-md">
         <div>
           <span className="font-semibold text-xl mr-3">Top result</span> 1-20 of
-          {data?.length} results
+          {data?.items?.length} results
         </div>
         <div className="flex gap-1 items-center">
           <label htmlFor="" className="w-[100px]">
@@ -105,12 +109,10 @@ export default function ProjectListing() {
         </div>
       </div>
       <div>
-        {data?.map(
-          (project: ProjectDetail) =>
-            project.status == ProjectStatus.OPEN && (
-              <ListingItem key={project.projectId} project={project} />
-            )
-        )}
+        {data?.items?.map((project: ProjectDetail) => (
+          // project.status == ProjectStatus.OPEN &&
+          <ListingItem key={project.projectId} project={project} />
+        ))}
         {isLoading &&
           [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => (
             <ListingItemSkeletion key={index} />
@@ -119,8 +121,11 @@ export default function ProjectListing() {
       <div className="p-4 flex justify-end">
         <Pagination
           showTotal={(total) => `Total ${total} items`}
-          defaultCurrent={1}
-          total={30}
+          defaultCurrent={data?.pageNumber}
+          total={data?.totalCount}
+          onChange={(page) => {
+            navigate(`/search/projects?page=${page}`);
+          }}
         />
       </div>
     </div>
