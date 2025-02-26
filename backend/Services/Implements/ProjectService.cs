@@ -50,16 +50,17 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<Project>> GetAllProjectsAsync()
+        public async Task<PaginatedResult<Project>> GetAllProjectsAsync(int pageNumber, int pageSize)
         {
 
             var queryOptions = new QueryBuilder<Project>()
             .WithTracking(false) // No tracking for efficient
             .WithInclude(p => p.SkillRequired)
-            
+            .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
             .Build();
 
-            return await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
+            var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);  
+            return await  Pagination.ApplyPaginationAsync(query, pageNumber, pageSize);
         }
 
         public async Task<ProjectDTO> GetProjectByIdAsync(long projectId)
