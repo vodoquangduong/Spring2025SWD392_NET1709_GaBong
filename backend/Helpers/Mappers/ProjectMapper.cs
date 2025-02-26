@@ -1,8 +1,4 @@
-using AutoMapper;
-using BusinessObjects.Enums;
 using BusinessObjects.Models;
-using Helpers.DTOs.Account;
-using Helpers.DTOs.Project;
 
 public static class ProjectMapper
 {
@@ -16,7 +12,7 @@ public static class ProjectMapper
             ClientId = project.ClientId,
             FreelancerId = project.FreelancerId,
             VerifyStaffId = project.VerifyStaffId,
-            PostDate = project.PostDate,
+            PostDate = project.PostDate.ToString("dd-MM-yyyy"),
             ProjectName = project.ProjectName,
             Location = project.Location,
             EstimateBudget = project.EstimateBudget,

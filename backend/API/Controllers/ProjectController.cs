@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Helpers.DTOs.Project;
 using Microsoft.AspNetCore.Mvc;
-using Services.Implements;
 using Services.Interfaces;
 
 namespace API.Controllers
@@ -25,16 +20,23 @@ namespace API.Controllers
         [HttpGet("get-all-project")]
         public async Task<IActionResult> GetAllProject()
         {
-            var projects = await _projectService.GetAllProjectsAsync();
-            var projectDTOs = projects.Select(project => project.ToProjectDTO());
-            return Ok(projectDTOs);
+            var result = await _projectService.GetAllProjectsAsync();
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
         }
 
         [HttpPost("post-project")]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO project)
         {
-            var createdProject = await _projectService.CreateProjectAsync(project);
-            return Ok(createdProject);
+            var result = await _projectService.CreateProjectAsync(project);
+            if(result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
         }
 
         [HttpGet("test-current-user")]
@@ -54,9 +56,13 @@ namespace API.Controllers
         }
 
         [HttpPut("verify/{projectId}")]
-        public async Task<IActionResult> VeridyProject([FromRoute] long projectId)
+        public async Task<IActionResult> VerifyProject([FromRoute] long projectId)
         {
-            var updatedProject = await _projectService.VerifyProjectAsync(projectId, _currentUserService.AccountId);
+            var result = await _projectService.VerifyProjectAsync(projectId, _currentUserService.AccountId);
+            if(result.Value == null)
+            {
+                return BadRequest("Project not found");
+            }
             return Ok("Project verified");
         }
     }

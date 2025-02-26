@@ -30,9 +30,7 @@ namespace API.Controllers
             {
                 return BadRequest(result.Error);
             }
-            var bids = result.Value;
-            var bidDTOs = bids.Select(bid => bid.ToBidDTO());
-            return Ok(bidDTOs);
+            return Ok(result.Value);
         }
 
         [HttpGet("freelancer/{freelancerId}")]
@@ -43,8 +41,7 @@ namespace API.Controllers
             {
                 return BadRequest(result.Error);
             }
-            var bidDTOs = result.Value.Select(bid => bid.ToBidDTO());
-            return Ok(bidDTOs);
+            return Ok(result.Value);
         }
 
         [HttpPost]

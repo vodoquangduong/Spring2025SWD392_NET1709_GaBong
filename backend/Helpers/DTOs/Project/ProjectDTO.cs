@@ -9,7 +9,7 @@ public class ProjectDTO
     public long ClientId { get; set; }
     public long? FreelancerId { get; set; }
     public long? VerifyStaffId { get; set; }
-    public DateTime PostDate { get; set; }
+    public string PostDate { get; set; } = string.Empty;
     public int AvailableTimeRange { get; set; }
     public string ProjectName { get; set; } = string.Empty;
     public string ProjectDescription { get; set; } = string.Empty;

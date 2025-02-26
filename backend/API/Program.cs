@@ -82,6 +82,9 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IBidService, BidService>();
 builder.Services.AddScoped<ISkillCategoryService, SkillCategoryService>(); 
 builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IPortfolioService, PortfolioService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IMilestoneService, MilestoneService>();
 
 var app = builder.Build();
 

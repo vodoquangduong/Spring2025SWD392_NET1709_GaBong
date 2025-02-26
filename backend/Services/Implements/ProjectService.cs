@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
-using Helpers.DTOs.Authentication;
 using Helpers.DTOs.Project;
 using Helpers.HelperClasses;
-using Repositories.Interfaces;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -25,24 +19,35 @@ namespace Services.Implements
             _currentUserService = currentUserService;
         }
 
-        public async Task<Project> CreateProjectAsync(CreateProjectDTO projectDto)
+        public async Task<Result<ProjectDTO>> CreateProjectAsync(CreateProjectDTO projectDto)
         {
-            var project = new Project()
+            try
             {
-                ClientId = _currentUserService.AccountId,
-                ProjectName = projectDto.ProjectName,
-                ProjectDescription = projectDto.ProjectDescription,
-                AvailableTimeRange = projectDto.AvailableTimeRange,
-                EstimateBudget = projectDto.EstimateBudget,
-                Status = ProjectStatus.Pending,
-                SkillRequired = projectDto.SkillIds.Select(skillId => new SkillRequired
+                if (projectDto.EstimateBudget <= 0)
                 {
-                    SkillId = skillId
-                }).ToList()
-            };
-            var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
-            await _unitOfWork.SaveChangesAsync();
-            return createProject;
+                    return Result.Failure<ProjectDTO>(new Error("Create project failed", "Estimate budget must be greater than 0"));
+                }
+                var project = new Project()
+                {
+                    ClientId = _currentUserService.AccountId,
+                    ProjectName = projectDto.ProjectName,
+                    ProjectDescription = projectDto.ProjectDescription,
+                    AvailableTimeRange = projectDto.AvailableTimeRange,
+                    EstimateBudget = projectDto.EstimateBudget,
+                    Status = ProjectStatus.Pending,
+                    SkillRequired = projectDto.SkillIds.Select(skillId => new SkillRequired
+                    {
+                        SkillId = skillId
+                    }).ToList()
+                };
+                var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
+                await _unitOfWork.SaveChangesAsync();
+                return createProject.ToProjectDTO();
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<ProjectDTO>(new Error("Create project failed", $"{e.Message}"));
+            }
         }
 
         public Task<bool> DeleteProjectAsync(long id)
@@ -50,19 +55,18 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<Project>> GetAllProjectsAsync()
+        public async Task<Result<IEnumerable<ProjectDTO>>> GetAllProjectsAsync()
         {
 
             var queryOptions = new QueryBuilder<Project>()
             .WithTracking(false) // No tracking for efficient
             .WithInclude(p => p.SkillRequired)
-            
             .Build();
-
-            return await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
+            var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
+            return Result.Success(projects.Select(project => project.ToProjectDTO()));
         }
 
-        
+
 
         public Task<ProjectDTO> GetProjectByIdAsync(long id)
         {
@@ -74,19 +78,19 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<Project> VerifyProjectAsync(long projectId, long staffId)
+        public async Task<Result<Project>> VerifyProjectAsync(long projectId, long staffId)
         {
             Console.WriteLine($"Verifying project with ID: {projectId}");
 
             var queryOptions = new QueryBuilder<Project>()
-            .WithTracking(true) 
+            .WithTracking(true)
             .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
             .Build();
 
             var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
             if (project == null)
             {
-                throw new KeyNotFoundException("Project not found");
+                return Result.Failure<Project>(new Error("Project not found", $"Project with project id {projectId}"));
             }
 
             project.PostDate = DateTime.UtcNow;
@@ -96,7 +100,7 @@ namespace Services.Implements
             await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
             await _unitOfWork.SaveChangesAsync();
 
-            return project;
-        }
+            return Result.Success(project);
+            }
     }
 }

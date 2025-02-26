@@ -14,6 +14,8 @@ namespace BusinessObjects.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("milestone_id")]
         public long MilestoneId { get; set; }
+        [Column("milestone_name")]
+        public string MilestoneName { get; set; } = string.Empty;
         [Column("project_id")]
         public long ProjectId { get; set; }
         [Column("deadline_date")]
@@ -27,10 +29,5 @@ namespace BusinessObjects.Models
         // Navigation property
         [ForeignKey("ProjectId")]
         public virtual Project Project { get; set; } = null!;
-        
-        
-        
-
-
     }
 }
