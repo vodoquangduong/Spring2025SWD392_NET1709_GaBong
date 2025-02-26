@@ -18,7 +18,8 @@ const candidates = [
 const Temp = () => {
   useEffect(() => {
     const hero = document.querySelector(".hero");
-    const parallaxs = document.querySelectorAll(".parallax1");
+    // const parallaxs = document.querySelectorAll(".parallax1");
+    const parallaxs = document.querySelectorAll(".parallax1, .parallax");
 
     if (hero) {
       hero.addEventListener("mousemove", (e: Event) => {
@@ -50,9 +51,9 @@ const Temp = () => {
               className="parallax w-[400px] rounded-xl shadow dark:shadow-gray-700 -translate-x-10"
               alt=""
             />
-            <div className="parallax p-5 absolute lg:bottom-20 -bottom-24 xl:-end-20 lg:-end-10 end-2 rounded-lg shadow-md bg-white z-10">
+            {/* <div className="parallax p-5 absolute lg:bottom-20 -bottom-24 xl:-end-20 lg:-end-10 end-2 rounded-lg shadow-md bg-white z-10">
               <div className="text-base font-semibold mb-3">
-                Candidates get job
+                Freelancers get job
               </div>
 
               <ul className="list-none relative">
@@ -77,7 +78,7 @@ const Temp = () => {
                   </Link>
                 </li>
               </ul>
-            </div>
+            </div> */}
           </div>
           <div className="parallax absolute -start-5 -bottom-16 z-20">
             <img
@@ -88,7 +89,9 @@ const Temp = () => {
 
             <div className="parallax absolute flex justify-between items-center -top-6 md:-start-10 start-2 p-4 rounded-lg shadow-md dark:shadow-gray-800 bg-white w-max">
               <FaRegBell className="text-amber-500" size={24} />
-              <p className="text-lg font-semibold mb-0 ms-2">Job Alert</p>
+              <p className="text-lg font-semibold mb-0 ms-2">
+                Freelance Job Alert
+              </p>
             </div>
           </div>
 
@@ -124,7 +127,7 @@ const HeroSection = () => {
                   Find the
                   <span className="parallax1 ml-10 before:block before:absolute shadow-2xl p-2 px-4 rounded-lg bg-emerald-600 relative inline-block">
                     <motion.div
-                      className="text-secondary font-bold"
+                      className="text-secondary font-bold dark:text-black"
                       initial={{ opacity: 0, y: 75 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 2, ease: "easeInOut" }}
@@ -142,9 +145,8 @@ const HeroSection = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 2, ease: "easeInOut" }}
                 >
-                  Find Jobs, Employment & Career Opportunities. Some of the
-                  companies we've helped recruit excellent applicants over the
-                  years.
+                  Find Freelance Jobs & Client Opportunities. Some of the client
+                  we've helped find excellent freelancers over the years.
                 </motion.p>
 
                 <motion.form
