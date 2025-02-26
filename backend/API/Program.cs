@@ -85,6 +85,7 @@ builder.Services.AddScoped<IContractService, ContractService>();
 builder.Services.AddScoped<IPortfolioService, PortfolioService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IMilestoneService, MilestoneService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 var app = builder.Build();
 
