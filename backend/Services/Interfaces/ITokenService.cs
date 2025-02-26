@@ -12,7 +12,7 @@ namespace Services.Interfaces
     {
         string CreateToken(Account account);
         string CreateVerifyToken(RegisterDTO registerDto);
-        string CreateResetToken(ResetPasswordDTO resetPasswordDto, string role);
+        string CreateResetToken(ResetPasswordDTO resetPasswordDto);
         RegisterDTO ParseToken(string verifyGmailToken);
     }
 }
