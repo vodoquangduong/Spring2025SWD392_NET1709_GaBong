@@ -31,12 +31,11 @@ namespace Services.Implements
                 )
             );
         }
-        public string CreateResetToken(ResetPasswordDTO resetPasswordDto, string role)
+        public string CreateResetToken(ResetPasswordDTO resetPasswordDto)
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Email, resetPasswordDto.Email),
-                new Claim(ClaimTypes.Role, role),// Client or freelancer
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
@@ -120,13 +119,12 @@ namespace Services.Implements
             string name = jwt.Claims.FirstOrDefault(c => c.Type == "name")?.Value ?? "";
             string password = jwt.Claims.FirstOrDefault(c => c.Type == "password")?.Value ?? "";
             string email = jwt.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "";
-
+            string role = jwt.Claims.FirstOrDefault(c => c.Type == "role")?.Value ?? "";
             var registerDto = new RegisterDTO()
             {
                 Name = name,
                 Password = password,
                 Email = email,
-
             };
 
             return registerDto;
