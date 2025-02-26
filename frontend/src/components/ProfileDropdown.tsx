@@ -9,9 +9,9 @@ import useAuthStore from "../stores/authStore";
 import { setCookie } from "../modules/cookie";
 
 const ProfileDropdown = () => {
-  const { logout } = useAuthStore();
-  const userInfor = localStorage.getItem("auth");
-  const userInforString = userInfor ? JSON.parse(userInfor) : null;
+  const { logout, email, name } = useAuthStore();
+  // const userInfor = localStorage.getItem("auth");
+  // const userInforString = userInfor ? JSON.parse(userInfor) : null;
   const navigate = useNavigate();
   const items = [
     {
@@ -91,7 +91,7 @@ const ProfileDropdown = () => {
       }}
     >
       <span
-        className="text-emerald-700 flex items-center cursor-pointer"
+        className="text-emerald-700 flex items-center cursor-pointer inter"
         onClick={() => navigate(`/profile`)}
       >
         <div
@@ -101,8 +101,8 @@ const ProfileDropdown = () => {
           className="h-10 aspect-square bg-cover bg-center rounded-full bg-white border border-emerald-500"
         />
         <div className="text-xs text-emerald-500">
-          <div className="">{userInforString?.state?.name}</div>
-          <div className="">{userInforString?.state?.email}</div>
+          <div className="">{name}</div>
+          <div className="">{email}</div>
         </div>
       </span>
     </Dropdown>

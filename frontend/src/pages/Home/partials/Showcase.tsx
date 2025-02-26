@@ -11,7 +11,7 @@ export const ShowcaseItem = ({ item }: any) => {
         backgroundImage: `url(${item.image})`,
       }}
     >
-      <div className="text-white absolute text-base bottom-0 left-0 group-hover:opacity-100 opacity-0 font-semibold bg-black/50 p-2 rounded-b-lg">
+      <div className="text-white absolute text-base bottom-0 left-0 w-full group-hover:opacity-100 opacity-0 font-semibold bg-black/50 p-2 rounded-b-lg">
         {item.title}
       </div>
     </div>
