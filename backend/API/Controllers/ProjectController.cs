@@ -18,14 +18,22 @@ namespace API.Controllers
         }
 
         [HttpGet("get-all-project")]
-        public async Task<IActionResult> GetAllProject()
+        public async Task<IActionResult> GetAllProject([FromRoute] int pageNumber = 1, int pageSize = 10)
         {
-            var result = await _projectService.GetAllProjectsAsync();
-            if (result.IsFailure)
+            var paginatedProjects = await _projectService.GetAllProjectsAsync(pageNumber, pageSize);
+            var projectDTOs = paginatedProjects.Items
+                            .Select(project => project.ToProjectDTO())
+                            .ToList();
+            var response = new
             {
-                return BadRequest(result.Error);
-            }
-            return Ok(result.Value);
+                Items = projectDTOs,
+                TotalCount = paginatedProjects.TotalCount,
+                PageNumber = paginatedProjects.PageNumber,
+                PageSize = paginatedProjects.PageSize,
+                TotalPages = paginatedProjects.TotalPages
+            };
+
+            return Ok(response);
         }
 
         [HttpPost("post-project")]
@@ -38,6 +46,16 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
+        [HttpGet("{projectId}")]
+        public async Task<IActionResult> GetProjectById([FromRoute] long projectId)
+        {
+            var projectDTO = await _projectService.GetProjectByIdAsync(projectId);
+            return Ok(projectDTO);
+        }
+
+
+
 
         [HttpGet("test-current-user")]
         public IActionResult TestCurrentUser()
@@ -64,6 +82,13 @@ namespace API.Controllers
                 return BadRequest("Project not found");
             }
             return Ok("Project verified");
+        }
+
+        [HttpPut("choose-freelancer")]
+        public async Task<IActionResult> ChooseFreelancer([FromBody] ChooseFreelancerDTO chooseFreelancerDTO)
+        {
+            var updatedProject = await _projectService.ChooseFreelancerAsync(chooseFreelancerDTO.ProjectId, chooseFreelancerDTO.FreelancerId);
+            return Ok("Project is on going");
         }
     }
 }

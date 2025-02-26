@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="w-full py-6 lg:py-8">
           <div className="md:flex md:justify-between">
             <div className="mb-6 md:mb-0">
-              <div className="flex items-start mb-4 ml-3">
+              <div className="flex items-start mb-4">
                 <Logo />
               </div>
               <div className="flex gap-2 flex-col">

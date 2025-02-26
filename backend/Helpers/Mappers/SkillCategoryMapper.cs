@@ -7,7 +7,7 @@ namespace Helpers.Mappers
     {
         public static SkillCategoryDTO ToSkillCategoryDTO(this SkillCategory skillCategory)
         {
-            if (skillCategory == null) return null;
+            if (skillCategory == null) return new SkillCategoryDTO();
 
             return new SkillCategoryDTO
             {
@@ -18,7 +18,7 @@ namespace Helpers.Mappers
 
         public static SkillCategory ToSkillCategory(SkillCategoryDTO skillCategoryDTO)
         {
-            if (skillCategoryDTO == null) return null;
+            if (skillCategoryDTO == null) return new SkillCategory();
             SkillCategory skillCategory = new SkillCategory { 
                 SkillName = skillCategoryDTO.SkillName 
             };

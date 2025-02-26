@@ -33,6 +33,7 @@ import {
 } from "../pages/Project";
 import Register from "../pages/Register";
 import { Search, SearchFreelancer, SearchProject } from "../pages/Search";
+import { Payment } from "@/pages/Payment";
 
 export default function MainRoutes() {
   return (
@@ -71,6 +72,7 @@ export default function MainRoutes() {
             </Route>
             <Route path="policy" element={<Policy />} />
           </Route>
+          <Route path="payment" element={<Payment />} />
           <Route path="register" element={<Register />} />
           <Route path="login" element={<Login />} />
           <Route path="forgot-password" element={<ForgotPassword />} />

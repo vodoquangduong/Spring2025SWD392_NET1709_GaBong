@@ -1,16 +1,83 @@
 import { HiCheckCircle } from "react-icons/hi2";
 import { MdPlace } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getRandomInt } from "../../../../../modules/random";
-import { Rate, Skeleton } from "antd";
+import {
+  App,
+  Button,
+  Dropdown,
+  MenuProps,
+  Popconfirm,
+  Rate,
+  Skeleton,
+} from "antd";
 import { FaFlag, FaStar } from "react-icons/fa6";
 import CreateModal from "../../../../../components/CreateModal";
 import CreateReportFreelancerForm from "../forms/CreateReportFreelancerForm";
+import { useMutation } from "@tanstack/react-query";
+import { PUT } from "@/modules/request";
+import { HiOutlineDotsHorizontal } from "react-icons/hi";
+import useUiStore from "@/stores/uiStore";
 
 export default function ProposalItem({ item }: { item: any }) {
   const navigate = useNavigate();
+  const { toogleChatPopup } = useUiStore();
+
+  const { id: projectId } = useParams();
+  const { message } = App.useApp();
+  const mutation = useMutation({
+    mutationKey: ["projects"],
+    mutationFn: async (freelancerId: string) =>
+      await PUT(`/api/Project/${projectId}/chooseBid`, {
+        freelancerId,
+      }),
+    onError: () => {
+      message.destroy();
+      message.error("Choose freelancer failed");
+    },
+    onSuccess: () => {
+      message.destroy();
+      message.success("Choose freelancer successfully");
+    },
+  });
+
+  const items: MenuProps["items"] = [
+    {
+      key: "1",
+      label: (
+        <Popconfirm
+          title="Approve the project"
+          description="Are you sure to approve this project?"
+          onConfirm={() => {
+            message.open({
+              type: "loading",
+              content: "Approving project ...",
+              duration: 0,
+            });
+            mutation.mutate(item?.bidOwnerId);
+          }}
+        >
+          Choose this Freelancer
+        </Popconfirm>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <div
+          onClick={() => {
+            toogleChatPopup();
+            // setIsChatOpen(true)
+          }}
+        >
+          Start chatting
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <div className="py-6 px-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950">
+    <div className="py-6 px-4 border-b dark:border-gray-700">
       <div className="flex justify-between">
         <div
           className="flex gap-4 cursor-pointer"
@@ -36,13 +103,20 @@ export default function ProposalItem({ item }: { item: any }) {
             </div>
           </div>
         </div>
-        <div className="">
+        <div className="flex gap-4">
           <div className="font-semibold text-xl">
             ${item?.bidOffer.toLocaleString()} USD
           </div>
           {/* <div className="text-sm text-end mt-1">
             in {getRandomInt(2, 30).toLocaleString()} days
-          </div> */}
+            </div> */}
+          <div>
+            <Dropdown menu={{ items }}>
+              <div className="p-2 rounded-full bg-slate-200 dark:bg-black/20 transition-all">
+                <HiOutlineDotsHorizontal />
+              </div>
+            </Dropdown>
+          </div>
         </div>
       </div>
       <div className="my-4">{item?.bidDescription}</div>
@@ -52,15 +126,17 @@ export default function ProposalItem({ item }: { item: any }) {
           disabled
           character={<FaStar size={16} />}
         />
-        <CreateModal
-          icon={<FaFlag />}
-          children="Report Freelancer"
-          type="text"
-          modalTitle={"Report this freelancer"}
-          form={(
-            setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
-          ) => <CreateReportFreelancerForm setIsModalOpen={setIsModalOpen} />}
-        />
+        <div className="space-x-4">
+          <CreateModal
+            icon={<FaFlag />}
+            children="Report Freelancer"
+            type="text"
+            modalTitle={"Report this freelancer"}
+            form={(
+              setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+            ) => <CreateReportFreelancerForm setIsModalOpen={setIsModalOpen} />}
+          />
+        </div>
       </div>
     </div>
   );
@@ -69,7 +145,7 @@ export default function ProposalItem({ item }: { item: any }) {
 export function ProposalItemSkeleton() {
   const navigate = useNavigate();
   return (
-    <div className="py-6 px-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950">
+    <div className="py-6 px-4 border-b dark:border-gray-700">
       <div className="flex justify-between">
         <div
           className="flex gap-4 cursor-pointer"

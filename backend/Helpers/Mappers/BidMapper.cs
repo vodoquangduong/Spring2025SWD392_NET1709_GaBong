@@ -8,7 +8,7 @@ namespace Helpers.Mappers
     {
         public static BidDTO ToBidDTO(this Bid bid)
         {
-            if (bid == null) return null;
+            if (bid == null) return new BidDTO();
 
             return new BidDTO
             {
@@ -22,7 +22,7 @@ namespace Helpers.Mappers
 
         public static Bid ToBid(BidDTO bidDTO)
         {
-            if (bidDTO == null) return null;
+            if (bidDTO == null) return new Bid();
 
             return new Bid
             {

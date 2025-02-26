@@ -7,7 +7,7 @@ namespace Services.Interfaces
     {
 
         Task<IEnumerable<SkillCategory>> GetAllSkillCategoryAsync();
-        Task<SkillCategoryDTO> GetSkillCategoryByIdAsync(long id);
+        Task<List<SkillCategoryDTO>> GetSkillCategoryByIdAsync(long id);
         Task<SkillCategoryDTO> CreateSkillCategoryAsync(CreateSkillCategoryDTO createskillDTO);
         Task DeleteSkillCategoryAsync(long id);
 

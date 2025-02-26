@@ -8,7 +8,7 @@ namespace Helpers.Mappers
     {
         public static AccountDTO ToAccountDTO(this Account account)
         {
-            if (account == null) return null;
+            if (account == null) return new AccountDTO();
 
             return new AccountDTO
             {
@@ -33,7 +33,7 @@ namespace Helpers.Mappers
 
         public static Account ToAccount(AccountDTO accountDto)
         {
-            if (accountDto == null) return null;
+            if (accountDto == null) return new Account();
 
             return new Account
             {

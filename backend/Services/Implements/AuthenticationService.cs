@@ -6,17 +6,21 @@ namespace Services.Implements
 {
     public class AuthenticationService : IAuthenticationService
     {
+        //========================
+        //FIELD                 ||
+        //========================
         private readonly ITokenService _tokenService;
         private readonly IAccountService _accountService;
+
+        //========================
+        //CONSTRUCTOR           ||
+        //========================
         public AuthenticationService(ITokenService tokenService, IAccountService accountService)
         {
             _accountService = accountService;
             _tokenService = tokenService;
         }
-        public Task<AuthenticationResponse?> GetResetToken(ResetPasswordDTO resetPasswordDto)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public async Task<AuthenticationResponse?> Login(LoginDTO loginDto)
         {
@@ -36,10 +40,20 @@ namespace Services.Implements
             return new AuthenticationResponse { Token = _tokenService.CreateToken(account) };
         }
 
-        //TODO
-        public Task<AuthenticationResponse?> LoginGoogle(LoginGoogleDTO loginGoogleDto)
+        
+        public async Task<AuthenticationResponse?> LoginGoogle(LoginGoogleDTO loginGoogleDto)
         {
-            throw new NotImplementedException();
+            var existingAccount = await _accountService.GetAccountByEmailAsync(
+               loginGoogleDto.Email
+           );
+            if (existingAccount == null)
+            {
+                return null;
+            }
+            return new AuthenticationResponse()
+            {
+                Token = _tokenService.CreateToken(existingAccount)
+            };
         }
 
         public async Task<AuthenticationResponse?> Register(RegisterDTO registerDto)
@@ -56,23 +70,61 @@ namespace Services.Implements
             };
         }
 
-
-
-        public Task<AuthenticationResponse?> RegisterGoogle(RegisterDTO registerGoogleDto)
+        public async Task<AuthenticationResponse?> RegisterGoogle(RegisterDTO registerGoogleDto)
         {
-            throw new NotImplementedException();
+            var existingAccount = await _accountService.GetAccountByEmailAsync(
+               registerGoogleDto.Email
+           );
+            if (existingAccount != null)
+            {
+                return null;
+            }
+            var account = await _accountService.CreateAccount(registerGoogleDto);
+            return new AuthenticationResponse { Token = _tokenService.CreateToken(account) };
         }
 
-        //TODO
-        public Task<AuthenticationResponse?> ResetPassword(string email, UpdatePasswordDTO updatePasswordDto)
+        public async Task<AuthenticationResponse?> VerifyGmail(string token)
         {
-            throw new NotImplementedException();
+            var registerDto = _tokenService.ParseToken(token);
+            var existingAccount = await _accountService.GetAccountByEmailAsync(registerDto.Email);
+            if (existingAccount != null)
+            {
+                return null;
+            }
+            var account = await _accountService.CreateAccount(registerDto);
+            return new AuthenticationResponse { Token = _tokenService.CreateToken(account) };
         }
 
-        //TODO
-        public Task<AuthenticationResponse?> VerifyGmail(string token)
+        public async Task<AuthenticationResponse?> GetResetToken(ResetPasswordDTO resetPasswordDto)
         {
-            throw new NotImplementedException();
+            var existingAccount = await _accountService.GetAccountByEmailAsync(
+                resetPasswordDto.Email
+            );
+            if (existingAccount == null)
+            {
+                return null;
+            }
+            return new AuthenticationResponse()
+            {
+                Token = _tokenService.CreateResetToken(resetPasswordDto)
+            };
+        }
+
+        public async Task<AuthenticationResponse?> ResetPassword(string email, UpdatePasswordDTO updatePasswordDto)
+        {
+            var existingAccount = await _accountService.GetAccountByEmailAsync(email);
+            if (existingAccount == null)
+            {
+                return null;
+            }
+            var account = await _accountService.ResetPasswordAsync(
+                existingAccount.AccountId,
+                updatePasswordDto.Password
+            );
+            return new AuthenticationResponse()
+            {
+                Token = _tokenService.CreateToken(existingAccount)
+            };
         }
     }
 }

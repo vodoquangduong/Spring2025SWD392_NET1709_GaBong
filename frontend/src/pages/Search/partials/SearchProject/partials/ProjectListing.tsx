@@ -1,13 +1,14 @@
 import { Pagination, Rate, Skeleton, Tag } from "antd";
 import { CiBookmark } from "react-icons/ci";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getRandomInt } from "../../../../../modules/random";
 import { FaStar } from "react-icons/fa6";
 import Skills from "../../../../../components/Skills";
 import { useQuery } from "@tanstack/react-query";
 import { GET } from "@/modules/request";
-import { ProjectDetail } from "@/types/project";
+import { ProjectDetail, ProjectStatus } from "@/types/project";
 import { formatTimeAgo } from "@/modules/formatTimeAgo";
+import useQueryParams from "@/hooks/useQueryParams";
 
 const items = [
   "PHP",
@@ -29,7 +30,7 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
   return (
     <div
       className="p-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950 cursor-pointer"
-      onClick={() => navigate(`/projects/1/details`)}
+      onClick={() => navigate(`/projects/${project.projectId}/details`)}
     >
       <div className="flex justify-between">
         <div className="text-xl">{project?.projectName}</div>
@@ -42,7 +43,7 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
         </div>
       </div>
       <div className="text-sm">
-        Budget: {getRandomInt(100, 10000).toLocaleString()} USD
+        Budget: {project.estimateBudget.toLocaleString()} USD
       </div>
       <div className="mt-6">{project?.projectDescription}</div>
       <div className="mt-4">
@@ -64,7 +65,7 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
 
 const ListingItemSkeletion = () => {
   return (
-    <div className="p-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950 cursor-pointer">
+    <div className="p-4 border-b dark:border-gray-700">
       <Skeleton.Input active style={{ width: "600px" }} />
       <div className="text-sm text-red-600 pt-8">
         <Skeleton active style={{ width: "100%" }} paragraph={{ rows: 3 }} />
@@ -81,16 +82,19 @@ const ListingItemSkeletion = () => {
 };
 
 export default function ProjectListing() {
+  const { page } = useQueryParams();
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery({
-    queryKey: ["projects"],
-    queryFn: async () => await GET("/api/Project/get-all-project", false),
+    queryKey: ["publicProjects", page],
+    queryFn: async () =>
+      await GET(`/api/Project/get-all-project?pageNumber=${page || 1}`, false),
   });
   return (
     <div>
       <div className="border-b w-full p-4 flex justify-between items-center dark:border-gray-500 shadow-md">
         <div>
           <span className="font-semibold text-xl mr-3">Top result</span> 1-20 of
-          {data?.length} results
+          {data?.items?.length} results
         </div>
         <div className="flex gap-1 items-center">
           <label htmlFor="" className="w-[100px]">
@@ -105,7 +109,8 @@ export default function ProjectListing() {
         </div>
       </div>
       <div>
-        {data?.map((project: ProjectDetail) => (
+        {data?.items?.map((project: ProjectDetail) => (
+          // project.status == ProjectStatus.OPEN &&
           <ListingItem key={project.projectId} project={project} />
         ))}
         {isLoading &&
@@ -116,8 +121,11 @@ export default function ProjectListing() {
       <div className="p-4 flex justify-end">
         <Pagination
           showTotal={(total) => `Total ${total} items`}
-          defaultCurrent={1}
-          total={30}
+          defaultCurrent={data?.pageNumber}
+          total={data?.totalCount}
+          onChange={(page) => {
+            navigate(`/search/projects?page=${page}`);
+          }}
         />
       </div>
     </div>

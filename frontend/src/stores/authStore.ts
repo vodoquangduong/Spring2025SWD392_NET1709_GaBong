@@ -2,9 +2,9 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Role } from "../types";
 
-import { decodeJWT } from "../modules/jwtUtil";
 import { setCookie } from "../modules/cookie";
-const jwt_decode = decodeJWT;
+import { jwtDecode } from "jwt-decode";
+// const jwt_decode = decodeJWT;
 
 interface User {
   email: string;
@@ -15,6 +15,7 @@ interface User {
 
 const useAuthStore = create<{
   isAuthenticated: boolean;
+  accountId: number;
   email: string;
   name: string;
   avatar: string;
@@ -25,6 +26,7 @@ const useAuthStore = create<{
   persist(
     (set, get) => ({
       isAuthenticated: false,
+      accountId: 0,
       email: "",
       name: "",
       avatar: "",
@@ -44,7 +46,8 @@ const useAuthStore = create<{
 
         try {
           // Giải mã token để lấy thông tin người dùng
-          const decoded: any = jwt_decode(token);
+          const decoded: any = jwtDecode(token);
+
           if (decoded?.email) {
             console.log("Email:", decoded.email);
           } else {
@@ -59,6 +62,7 @@ const useAuthStore = create<{
 
           set({
             isAuthenticated: true,
+            accountId: decoded.accountId || 0,
             email: decoded.email,
             name: decoded.name || decoded.email,
             avatar: decoded.avatar || "",
@@ -75,6 +79,7 @@ const useAuthStore = create<{
         setCookie("accessToken", "", 0);
         set({
           isAuthenticated: false,
+          accountId: 0,
           email: "",
           name: "",
           avatar: "",

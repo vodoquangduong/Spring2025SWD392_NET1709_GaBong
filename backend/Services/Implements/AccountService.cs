@@ -73,4 +73,21 @@ public class AccountService : IAccountService
         await _unitOfWork.SaveChangesAsync();
         return createdAccount;
     }
+
+    public async Task<Account?> ResetPasswordAsync(long id, string password)
+    {
+        var queryOptions = new QueryBuilder<Account>()
+            .WithTracking(false) // No tracking for efficiency
+            .WithPredicate(a => a.AccountId == id) // Filter by ID
+            .Build();
+        var existedAccount = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryOptions);
+        if (existedAccount == null)
+        {
+            return null;
+        }
+        existedAccount.Password = PasswordHasher.HashPassword(password);
+        _unitOfWork.GetRepo<Account>().UpdateAsync(existedAccount);
+        await _unitOfWork.SaveChangesAsync();
+        return existedAccount;
+    }
 }
