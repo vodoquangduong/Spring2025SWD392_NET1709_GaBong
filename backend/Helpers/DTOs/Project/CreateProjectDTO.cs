@@ -20,9 +20,11 @@ namespace Helpers.DTOs.Project
 
         [Required]
         public decimal EstimateBudget { get; set; }
+        [Required]
+        public string Location { get; set; } = string.Empty;
 
-        //[Required]
-        //public List<SkillRequired> SkillRequired { get; set; } = new List<SkillRequired>();
+        [Required]
+        public List<long> SkillIds { get; set; } = new List<long>();
 
     }
 }

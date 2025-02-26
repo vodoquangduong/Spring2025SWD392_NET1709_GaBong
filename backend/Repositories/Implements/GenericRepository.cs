@@ -89,7 +89,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await Get(options).ToListAsync();
     }
 
-    public async Task<T> GetSingleAsync(QueryOptions<T> options)
+    public async Task<T?> GetSingleAsync(QueryOptions<T> options)
     {
         return await Get(options).FirstOrDefaultAsync();
     }

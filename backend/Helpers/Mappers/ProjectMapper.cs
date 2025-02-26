@@ -8,7 +8,7 @@ public static class ProjectMapper
 {
     public static ProjectDTO ToProjectDTO(this Project project)
     {
-        if (project == null) return null;
+        if (project == null) return new ProjectDTO();
 
         return new ProjectDTO
         {
@@ -18,33 +18,12 @@ public static class ProjectMapper
             VerifyStaffId = project.VerifyStaffId,
             PostDate = project.PostDate,
             ProjectName = project.ProjectName,
+            Location = project.Location,
             EstimateBudget = project.EstimateBudget,
             AvailableTimeRange = project.AvailableTimeRange,
             ProjectDescription = project.ProjectDescription,
             Status = project.Status,
-        };
-    }
-
-    public static Account ToAccount(AccountDTO accountDto)
-    {
-        if (accountDto == null) return null;
-
-        return new Account
-        {
-            AccountId = accountDto.AccountId,
-            Role = Enum.Parse<AccountRole>(accountDto.Role.ToString()),
-            Name = accountDto.Name,
-            Email = accountDto.Email,
-            Password = accountDto.Password,
-            Phone = accountDto.Phone,
-            Address = accountDto.Address,
-            Birthday = accountDto.Birthday,
-            Gender = Enum.Parse<Gender>(accountDto.Gender.ToString()),
-            ReputationPoint = accountDto.ReputationPoint,
-            TotalCredit = accountDto.TotalCredit,
-            LockCredit = accountDto.LockCredit,
-            CreatedAt = accountDto.CreatedAt,
-            Status = Enum.Parse<AccountStatus>(accountDto.Status.ToString()),
+            SkillIds = project.SkillRequired?.Select(sr => sr.SkillId).ToList() ?? new List<long>()
         };
     }
 }

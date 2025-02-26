@@ -1,4 +1,4 @@
-import { FaCamera, FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { FaCamera } from "react-icons/fa";
 import { UserProfileData } from "../models/types";
 
 interface EditAboutProps {
@@ -14,36 +14,41 @@ const EditAbout: React.FC<EditAboutProps> = ({ profile, onUpdate }) => {
         <div className="relative group">
           <div className="w-32 h-32 rounded-lg overflow-hidden">
             <img
-              src={profile.profileImage}
+              src={profile.avatarURL}
               alt="Profile"
               className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src =
+                  "https://via.placeholder.com/160?text=User";
+              }}
             />
           </div>
-          <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-lg">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-not-allowed rounded-lg">
             <FaCamera className="w-8 h-8 text-white" />
-            <input type="file" className="hidden" accept="image/*" />
-          </label>
+          </div>
         </div>
       </div>
 
       {/* Basic Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium mb-2">First Name</label>
+          <label className="block text-sm font-medium mb-2">Full Name</label>
           <input
             type="text"
             className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500 bg-transparent dark:text-white"
-            placeholder="Enter your first name"
-            defaultValue={profile.firstName}
+            placeholder="Enter your full name"
+            value={profile.name}
+            onChange={(e) => onUpdate?.({ name: e.target.value })}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Last Name</label>
+          <label className="block text-sm font-medium mb-2">Nationality</label>
           <input
             type="text"
             className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500 bg-transparent dark:text-white"
-            placeholder="Enter your last name"
-            defaultValue={profile.lastName}
+            placeholder="Enter your nationality"
+            value={profile.nationality}
+            onChange={(e) => onUpdate?.({ nationality: e.target.value })}
           />
         </div>
       </div>
@@ -56,7 +61,8 @@ const EditAbout: React.FC<EditAboutProps> = ({ profile, onUpdate }) => {
             type="email"
             className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500 bg-transparent dark:text-white"
             placeholder="example@email.com"
-            defaultValue={profile.email}
+            value={profile.email}
+            onChange={(e) => onUpdate?.({ email: e.target.value })}
           />
         </div>
         <div>
@@ -65,76 +71,47 @@ const EditAbout: React.FC<EditAboutProps> = ({ profile, onUpdate }) => {
             type="tel"
             className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500 bg-transparent dark:text-white"
             placeholder="+1 234 567 890"
-            defaultValue={profile.phone}
+            value={profile.phone}
+            onChange={(e) => onUpdate?.({ phone: e.target.value })}
           />
         </div>
       </div>
 
-      {/* Professional Info */}
+      {/* Additional Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium mb-2">Profession</label>
+          <label className="block text-sm font-medium mb-2">Birthday</label>
           <input
-            type="text"
+            type="date"
             className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500 bg-transparent dark:text-white"
-            placeholder="e.g. Senior Full Stack Developer"
-            defaultValue={profile.profession}
+            value={profile.birthday}
+            onChange={(e) => onUpdate?.({ birthday: e.target.value })}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Location</label>
-          <input
-            type="text"
+          <label className="block text-sm font-medium mb-2">Gender</label>
+          <select
             className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500 bg-transparent dark:text-white"
-            placeholder="City, Country"
-            defaultValue={profile.location}
-          />
+            value={profile.gender}
+            onChange={(e) => onUpdate?.({ gender: parseInt(e.target.value) })}
+          >
+            <option value={1}>Male</option>
+            <option value={2}>Female</option>
+            <option value={3}>Other</option>
+          </select>
         </div>
       </div>
 
-      {/* Bio */}
+      {/* Address */}
       <div>
-        <label className="block text-sm font-medium mb-2">Bio</label>
+        <label className="block text-sm font-medium mb-2">Address</label>
         <textarea
           className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500 bg-transparent dark:text-white"
-          rows={4}
-          placeholder="Write a few sentences about yourself..."
-          defaultValue={profile.bio}
+          rows={2}
+          placeholder="Enter your address"
+          value={profile.address}
+          onChange={(e) => onUpdate?.({ address: e.target.value })}
         />
-      </div>
-
-      {/* Social Links */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Social Links</h3>
-        <div className="grid grid-cols-1 gap-4">
-          <div className="flex items-center gap-2">
-            <FaGithub className="w-5 h-5" />
-            <input
-              type="text"
-              className="flex-1 p-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500 bg-transparent dark:text-white"
-              placeholder="GitHub URL"
-              defaultValue={profile.socials.github}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <FaLinkedin className="w-5 h-5" />
-            <input
-              type="text"
-              className="flex-1 p-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500 bg-transparent dark:text-white"
-              placeholder="LinkedIn URL"
-              defaultValue={profile.socials.linkedin}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <FaTwitter className="w-5 h-5" />
-            <input
-              type="text"
-              className="flex-1 p-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500 bg-transparent dark:text-white"
-              placeholder="Twitter URL"
-              defaultValue={profile.socials.twitter}
-            />
-          </div>
-        </div>
       </div>
     </div>
   );

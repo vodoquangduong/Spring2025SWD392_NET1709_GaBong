@@ -7,6 +7,7 @@ using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
 using Helpers.DTOs.Project;
+using Helpers.HelperClasses;
 using Repositories.Interfaces;
 using Repositories.Queries;
 using Services.Interfaces;
@@ -16,23 +17,28 @@ namespace Services.Implements
     public class ProjectService : IProjectService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICurrentUserService _currentUserService;
 
-        public ProjectService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ProjectService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
+            _currentUserService = currentUserService;
         }
 
-        public async Task<Project> CreateProjectAsync(CreateProjectDTO projectDto, long userId)
+        public async Task<Project> CreateProjectAsync(CreateProjectDTO projectDto)
         {
             var project = new Project()
             {
-                ClientId = userId,
+                ClientId = _currentUserService.AccountId,
                 ProjectName = projectDto.ProjectName,
                 ProjectDescription = projectDto.ProjectDescription,
                 AvailableTimeRange = projectDto.AvailableTimeRange,
                 EstimateBudget = projectDto.EstimateBudget,
-              //  SkillRequired = projectDto.SkillRequired,
                 Status = ProjectStatus.Pending,
+                SkillRequired = projectDto.SkillIds.Select(skillId => new SkillRequired
+                {
+                    SkillId = skillId
+                }).ToList()
             };
             var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
             await _unitOfWork.SaveChangesAsync();
@@ -44,14 +50,17 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<Project>> GetAllProjectsAsync()
+        public async Task<PaginatedResult<Project>> GetAllProjectsAsync(int pageNumber, int pageSize)
         {
 
             var queryOptions = new QueryBuilder<Project>()
             .WithTracking(false) // No tracking for efficient
+            .WithInclude(p => p.SkillRequired)
+            .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
             .Build();
 
-            return await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
+            var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);  
+            return await  Pagination.ApplyPaginationAsync(query, pageNumber, pageSize);
         }
 
         public async Task<ProjectDTO> GetProjectByIdAsync(long projectId)

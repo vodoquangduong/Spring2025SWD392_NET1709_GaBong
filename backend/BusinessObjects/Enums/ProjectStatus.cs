@@ -4,6 +4,7 @@ namespace BusinessObjects.Enums
     {
         Pending,
         Verified,
+        ReVerify,
         OnGoing,
         Completed,
         Closed

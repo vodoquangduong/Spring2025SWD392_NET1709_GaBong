@@ -13,7 +13,7 @@ namespace Helpers.Mappers
     {
         public static AccountDTO ToAccountDTO(this Account account)
         {
-            if (account == null) return null;
+            if (account == null) return new AccountDTO();
 
             return new AccountDTO
             {
@@ -27,6 +27,7 @@ namespace Helpers.Mappers
                 Address = account.Address,
                 Birthday = account.Birthday,
                 Gender = account.Gender,
+                Nationality = account.Nationality,
                 ReputationPoint = account.ReputationPoint,
                 TotalCredit = account.TotalCredit,
                 LockCredit = account.LockCredit,
@@ -37,7 +38,7 @@ namespace Helpers.Mappers
 
         public static Account ToAccount(AccountDTO accountDto)
         {
-            if (accountDto == null) return null;
+            if (accountDto == null) return new Account();
 
             return new Account
             {
@@ -51,6 +52,7 @@ namespace Helpers.Mappers
                 Address = accountDto.Address,
                 Birthday = accountDto.Birthday,
                 Gender = Enum.Parse<Gender>(accountDto.Gender.ToString()),
+                Nationality = accountDto.Nationality,
                 ReputationPoint = accountDto.ReputationPoint,
                 TotalCredit = accountDto.TotalCredit,
                 LockCredit = accountDto.LockCredit,

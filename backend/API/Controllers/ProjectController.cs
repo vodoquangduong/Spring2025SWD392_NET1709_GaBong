@@ -23,17 +23,28 @@ namespace API.Controllers
         }
 
         [HttpGet("get-all-project")]
-        public async Task<IActionResult> GetAllProject()
+        public async Task<IActionResult> GetAllProject([FromRoute] int pageNumber = 1, int pageSize = 10)
         {
-            var projects = await _projectService.GetAllProjectsAsync();
-            var projectDTOs = projects.Select(project => project.ToProjectDTO());
-            return Ok(projectDTOs);
+            var paginatedProjects = await _projectService.GetAllProjectsAsync(pageNumber, pageSize);
+            var projectDTOs = paginatedProjects.Items
+                            .Select(project => project.ToProjectDTO())
+                            .ToList();
+            var response = new
+            {
+                Items = projectDTOs,
+                TotalCount = paginatedProjects.TotalCount,
+                PageNumber = paginatedProjects.PageNumber,
+                PageSize = paginatedProjects.PageSize,
+                TotalPages = paginatedProjects.TotalPages
+            };
+
+            return Ok(response);
         }
 
         [HttpPost("post-project")]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO project)
         {
-            var createdProject = await _projectService.CreateProjectAsync(project, _currentUserService.AccountId);
+            var createdProject = await _projectService.CreateProjectAsync(project);
             return Ok(createdProject);
         }
 

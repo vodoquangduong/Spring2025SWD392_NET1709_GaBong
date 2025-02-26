@@ -25,7 +25,12 @@ namespace API.Controllers
         [HttpGet("project/{projectId}")]
         public async Task<IActionResult> GetAllBidsByProjectId([FromRoute] long projectId)
         {
-            var bids = await _bidService.GetAllBidsByProjectIdAsync(projectId);
+            var result = await _bidService.GetAllBidsByProjectIdAsync(projectId);
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            var bids = result.Value;
             var bidDTOs = bids.Select(bid => bid.ToBidDTO());
             return Ok(bidDTOs);
         }
@@ -33,8 +38,12 @@ namespace API.Controllers
         [HttpGet("freelancer/{freelancerId}")]
         public async Task<IActionResult> GetAllBidsByFreelancerId([FromRoute] long freelancerId)
         {
-            var bids = await _bidService.GetAllBidsByFreelancerIdAsync(freelancerId);
-            var bidDTOs = bids.Select(bid => bid.ToBidDTO());
+            var result = await _bidService.GetAllBidsByFreelancerIdAsync(freelancerId);
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            var bidDTOs = result.Value.Select(bid => bid.ToBidDTO());
             return Ok(bidDTOs);
         }
 

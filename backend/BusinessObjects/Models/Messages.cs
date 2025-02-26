@@ -3,29 +3,34 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BusinessObjects.Models
 {
-    public class Chat
+    public class Messages
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("chat_id")]
-        public long ChatId { get; set; }
+        [Column("message_id")]
+        public long MessageId { get; set; }
         [Column("sender_id")]
         public long SenderId { get; set; }
-        [Column("receiver_id")]
-        public long ReceiverId { get; set; }
+        [Column("chat_room_id")]
+        public long ChatRoomId { get; set; }
         [Column("message_content")]
         public string MessageContent { get; set; } = string.Empty;
-        [Column("created_at")]
-        public DateTime CreatedAt { get; set; }
+        [Column("send_at")]
+        public DateTime SendAt { get; set; }
+
+
         //navigation property
+        [JsonIgnore]
         [ForeignKey("SenderId")]
         public virtual Account Sender { get; set; } = null!;
-        [ForeignKey("ReceiverId")]
-        public virtual Account Receiver {get; set;} = null!;
+        [JsonIgnore]
+        [ForeignKey("ChatRoomId")]
+        public virtual ChatRoom ChatRoom {get; set;} = null!;
         
     }
 }
