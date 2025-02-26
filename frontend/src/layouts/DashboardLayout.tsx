@@ -1,10 +1,10 @@
 import { Layout, Menu } from "antd";
-import Logo from "../components/Logo";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { FaBox, FaRegCalendarAlt } from "react-icons/fa";
-import { Role } from "../types";
 import { useState } from "react";
+import { FaBox, FaRegCalendarAlt, FaUsers } from "react-icons/fa";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import DashboardHeader from "../components/DashboardHeader";
+import Logo from "../components/Logo";
+import { Role } from "../types";
 
 export default function DashboardLayout() {
   const location = useLocation();
@@ -27,6 +27,14 @@ export default function DashboardLayout() {
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
       allowedroles: [Role.GUEST],
+    },
+    {
+      label: "Freelancers",
+      key: "/employee/freelancers",
+      icon: <FaUsers />,
+      className:
+        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
+      allowedroles: [Role.STAFF],
     },
     {
       label: "Test label 3",
