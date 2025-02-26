@@ -34,7 +34,7 @@ export default function ChatBox({
         </div>
       </div>
       <div
-        className=" bg-zinc-400 grow h-[200px] overflow-y-scroll p-2"
+        className="bg-zinc-300 dark:bg-zinc-800 grow h-[200px] overflow-y-scroll p-2"
         id="message-box"
       >
         {messages.map((message: MessageItemProps, index: number) => (
@@ -43,7 +43,7 @@ export default function ChatBox({
         <div ref={messageEndRef} className=""></div>
       </div>
       <textarea
-        className="p-2 no-ring resize-none bg-zinc-200 dark:bg-zinc-700 text-secondary-foreground"
+        className="p-2 no-ring resize-none bg-white dark:bg-zinc-700 text-secondary-foreground"
         placeholder="Enter your message..."
         rows={2}
         onKeyDown={(e) => {

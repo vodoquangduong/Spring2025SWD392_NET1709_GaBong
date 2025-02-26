@@ -4,7 +4,8 @@ import { Role } from "../types";
 
 import { decodeJWT } from "../modules/jwtUtil";
 import { setCookie } from "../modules/cookie";
-const jwt_decode = decodeJWT;
+import { jwtDecode } from "jwt-decode";
+// const jwt_decode = decodeJWT;
 
 interface User {
   email: string;
@@ -44,7 +45,8 @@ const useAuthStore = create<{
 
         try {
           // Giải mã token để lấy thông tin người dùng
-          const decoded: any = jwt_decode(token);
+          const decoded: any = jwtDecode(token);
+
           if (decoded?.email) {
             console.log("Email:", decoded.email);
           } else {
