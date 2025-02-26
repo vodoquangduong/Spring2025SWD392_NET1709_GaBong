@@ -37,7 +37,7 @@ export default function PlaceBid() {
     },
     onSuccess: () => {
       message.destroy();
-      message.success("Placed bid successfully, please wait for approval");
+      message.success("Placed bid successfully");
       reset();
       navigate(`/projects/${id}/proposals`);
     },
@@ -47,7 +47,7 @@ export default function PlaceBid() {
     formData.projectId = id;
     message.open({
       type: "loading",
-      content: "Creating project ...",
+      content: "Placing bid ...",
       duration: 0,
     });
     mutation.mutate(formData);

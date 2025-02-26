@@ -30,6 +30,7 @@ const SendRequest = async (
     setCookie("accessToken", "", 0);
     location.href = "/login";
   }
+
   return await data.json();
 };
 
