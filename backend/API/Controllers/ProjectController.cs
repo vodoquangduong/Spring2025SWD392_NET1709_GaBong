@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Helpers.DTOs.Project;
+using Helpers.DTOs.Query;
 using Microsoft.AspNetCore.Mvc;
 using Services.Implements;
 using Services.Interfaces;
@@ -22,22 +23,10 @@ namespace API.Controllers
             _currentUserService = currentUserService;
         }
 
-        [HttpGet("get-all-project")]
-        public async Task<IActionResult> GetAllProject([FromRoute] int pageNumber = 1, int pageSize = 10)
+        [HttpGet("get-all-verified-project")]
+        public async Task<IActionResult> GetAllProjectsVerifiedAsync([FromQuery]  Query query)
         {
-            var paginatedProjects = await _projectService.GetAllProjectsAsync(pageNumber, pageSize);
-            var projectDTOs = paginatedProjects.Items
-                            .Select(project => project.ToProjectDTO())
-                            .ToList();
-            var response = new
-            {
-                Items = projectDTOs,
-                TotalCount = paginatedProjects.TotalCount,
-                PageNumber = paginatedProjects.PageNumber,
-                PageSize = paginatedProjects.PageSize,
-                TotalPages = paginatedProjects.TotalPages
-            };
-
+            var response = await _projectService.GetAllProjectsVerifiedAsync(query.PageNumber, query.PageSize);
             return Ok(response);
         }
 
@@ -54,9 +43,6 @@ namespace API.Controllers
             var projectDTO = await _projectService.GetProjectByIdAsync(projectId);
             return Ok(projectDTO);
         }
-
-
-
 
         [HttpGet("test-current-user")]
         public IActionResult TestCurrentUser()
