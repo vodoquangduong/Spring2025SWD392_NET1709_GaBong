@@ -103,7 +103,7 @@ const WorksSection = () => {
       <div className="flex flex-wrap gap-4 pb-6">
         <div className="relative">
           <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <select className="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500">
+          <select className="pl-10 pr-4 py-2 bg-white dark:bg-[#141414] border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500">
             <option value="">All Categories</option>
             <option value="web">
               <FaCode className="inline mr-2" /> Web Development
@@ -119,7 +119,7 @@ const WorksSection = () => {
 
         <div className="relative">
           <FaSort className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <select className="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500">
+          <select className="pl-10 pr-4 py-2 bg-white dark:bg-[#141414] border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-emerald-500">
             <option value="recent">Most Recent</option>
             <option value="popular">Most Popular</option>
             <option value="views">Most Viewed</option>
@@ -132,7 +132,7 @@ const WorksSection = () => {
         {works.map((work) => (
           <div
             key={work.id}
-            className="group relative bg-white dark:bg-gray-800/50 backdrop-blur-xl rounded-xl overflow-hidden transition-all hover:shadow-xl hover:shadow-emerald-500/10"
+            className="group relative bg-white dark:bg-[#141414] backdrop-blur-xl rounded-xl overflow-hidden transition-all hover:shadow-xl hover:shadow-emerald-500/10"
           >
             {/* Project Image */}
             <div className="relative aspect-video">

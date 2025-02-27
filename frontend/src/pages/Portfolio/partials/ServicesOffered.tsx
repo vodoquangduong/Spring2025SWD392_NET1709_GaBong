@@ -118,7 +118,7 @@ const ServicesOffered: React.FC<ServicesOfferedProps> = ({
         {services.map((service) => (
           <div
             key={service.id}
-            className="group bg-white dark:bg-gray-800/50 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800/50 hover:shadow-lg transition-all duration-300"
+            className="group bg-white dark:bg-[#141414] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800/50 hover:shadow-lg transition-all duration-300"
           >
             <div className="p-6">
               {/* Service Header */}

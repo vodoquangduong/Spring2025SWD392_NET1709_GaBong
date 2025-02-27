@@ -64,7 +64,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({
         {projects.map((project) => (
           <div
             key={project.id}
-            className="group relative bg-white dark:bg-gray-800/50 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800/50"
+            className="group relative bg-white dark:bg-[#141414]/50 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800/50"
           >
             {/* Project Image */}
             <div className="aspect-video relative overflow-hidden">

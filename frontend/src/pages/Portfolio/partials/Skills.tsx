@@ -1,3 +1,4 @@
+import { Button, Card, Col, Progress, Row, Space, Typography } from "antd";
 import { useState } from "react";
 import {
   FaAward,
@@ -9,6 +10,8 @@ import {
   FaTrophy,
 } from "react-icons/fa";
 import { SkillCategory } from "../models/types";
+
+const { Title, Text } = Typography;
 
 interface Skill {
   name: string;
@@ -80,108 +83,124 @@ const Skills: React.FC<SkillsProps> = ({ isEditing = false }) => {
   ];
 
   return (
-    <div className="space-y-8">
+    <Space direction="vertical" size="large" style={{ width: "100%" }}>
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Skills & Expertise
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">
+          <Title level={2}>Skills & Expertise</Title>
+          <Text type="secondary">
             Highlight your technical skills and proficiency levels
-          </p>
+          </Text>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white rounded-lg transition-all">
-          <FaPlus className="w-4 h-4" />
-          <span>Add Skill</span>
-        </button>
+        <Button type="primary" icon={<FaPlus />}>
+          Add Skill
+        </Button>
       </div>
 
       {/* Skills Categories */}
-      <div className="grid md:grid-cols-2 gap-8">
+      <Row gutter={[24, 24]}>
         {categories.map((category) => (
-          <div
-            key={category.name}
-            className="p-6 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800/50"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-2xl text-emerald-500 dark:text-emerald-400">
-                {category.icon}
-              </span>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                {category.name}
-              </h3>
-            </div>
-            <div className="space-y-6">
-              {category.skills.map((skill) => (
-                <div key={skill.name} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {skill.name}
-                        </span>
-                        {skill.certified && (
-                          <FaStar className="w-4 h-4 text-yellow-400 dark:text-yellow-300" />
-                        )}
+          <Col key={category.name} xs={24} md={12}>
+            <Card>
+              <Space align="center" style={{ marginBottom: 24 }}>
+                <Text style={{ fontSize: 24, color: "#10b981" }}>
+                  {category.icon}
+                </Text>
+                <Title level={3} style={{ margin: 0 }}>
+                  {category.name}
+                </Title>
+              </Space>
+              <Space
+                direction="vertical"
+                size="middle"
+                style={{ width: "100%" }}
+              >
+                {category.skills.map((skill) => (
+                  <div key={skill.name}>
+                    <Space
+                      align="center"
+                      style={{ justifyContent: "space-between", width: "100%" }}
+                    >
+                      <div>
+                        <Space>
+                          <Text strong>{skill.name}</Text>
+                          {skill.certified && (
+                            <FaStar style={{ color: "#fadb14" }} />
+                          )}
+                        </Space>
+                        <br />
+                        <Text type="secondary">
+                          {skill.years} {skill.years === 1 ? "year" : "years"}{" "}
+                          of experience
+                        </Text>
                       </div>
-                      <span className="text-sm text-gray-600 dark:text-gray-300">
-                        {skill.years} {skill.years === 1 ? "year" : "years"} of
-                        experience
-                      </span>
-                    </div>
-                    <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                      {skill.level}/5
-                    </span>
-                  </div>
-                  <div className="h-2 bg-gray-100 dark:bg-gray-700/30 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-emerald-600 dark:bg-emerald-400 rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${(skill.level / 5) * 100}%` }}
+                      <Text type="success">{skill.level}/5</Text>
+                    </Space>
+                    <Progress
+                      percent={(skill.level / 5) * 100}
+                      showInfo={false}
+                      strokeColor="#10b981"
                     />
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                ))}
+              </Space>
+            </Card>
+          </Col>
         ))}
-      </div>
+      </Row>
 
       {/* Certifications */}
-      <div className="mt-12">
-        <div className="flex items-center gap-3 mb-6">
-          <FaCertificate className="w-6 h-6 text-emerald-500" />
-          <h3 className="text-xl font-semibold bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">
+      <div>
+        <Space align="center" style={{ marginBottom: 24 }}>
+          <FaCertificate style={{ fontSize: 24, color: "#10b981" }} />
+          <Title
+            level={3}
+            style={{
+              margin: 0,
+              background: "linear-gradient(to right, #10b981, #059669)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
             Certifications
-          </h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          </Title>
+        </Space>
+        <Row gutter={[16, 16]}>
           {certifications.map((cert) => (
-            <div
-              key={cert.id}
-              className="group p-4 bg-white dark:bg-gray-800/50 backdrop-blur-xl border-gray-100/50 dark:border-gray-700/50 rounded-lg hover:shadow-lg hover:shadow-emerald-500/10 transition-all"
-            >
-              <div className="flex items-center gap-4">
-                <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg">
-                  {cert.icon}
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                    {cert.name}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {cert.issuer}
-                  </p>
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                    Issued: {cert.date}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <Col key={cert.id} xs={24} md={8}>
+              <Card hoverable>
+                <Space align="start">
+                  <div
+                    style={{
+                      padding: 8,
+                      background: "rgba(16, 185, 129, 0.1)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    {cert.icon}
+                  </div>
+                  <div>
+                    <Text strong>{cert.name}</Text>
+                    <br />
+                    <Text type="secondary">{cert.issuer}</Text>
+                    <br />
+                    <Text type="success" style={{ fontSize: 12 }}>
+                      Issued: {cert.date}
+                    </Text>
+                  </div>
+                </Space>
+              </Card>
+            </Col>
           ))}
-        </div>
+        </Row>
       </div>
-    </div>
+    </Space>
   );
 };
 
