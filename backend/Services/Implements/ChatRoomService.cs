@@ -63,8 +63,27 @@ namespace Services.Implements
                 .WithInclude(r => r.ChatRooms)
                 .Build();
 
-            var result = await _unitOfWork.GetRepo<RoomDetail>().GetAllAsync(queryOption);
-            return result.Select(rd => rd.ChatRooms);
+            //var result = await _unitOfWork.GetRepo<RoomDetail>().GetAllAsync(queryOption);
+            //return result.Select(rd => rd.ChatRooms);
+            var roomDetail = await _unitOfWork.GetRepo<RoomDetail>().GetAllAsync(queryOption);
+
+            var roomId = roomDetail.Select(rd => rd.ChatRooms.ChatRoomID);
+
+            var roomQuery = new QueryBuilder<ChatRoom>()
+                .WithTracking(false)
+                .WithPredicate(r => roomId.Contains(r.ChatRoomID))
+                .WithInclude(r => r.RoomDetails)
+                .Build();
+            var room =  await _unitOfWork.GetRepo<ChatRoom>().GetAllAsync(roomQuery);
+            //room.Where(r => roomId.Contains(r.ChatRoomID));
+            //room.Where(r => !r.RoomDetails.Any(rd => rd.AccountId.Equals(accountId)));
+            foreach(ChatRoom r in room)
+            {
+                var temp = r.RoomDetails.AsQueryable().Where(rd => !rd.AccountId.Equals(accountId)).ToList();
+                r.RoomDetails = temp;
+            }
+
+            return room;
         }
 
         public async Task<ChatRoom?> GetDmChatRoomAsync(long clientId, long freelancerId)
