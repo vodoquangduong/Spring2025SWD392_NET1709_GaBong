@@ -53,5 +53,25 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+        [HttpPut]
+        public async Task<IActionResult> UpdatePortfolio([FromBody] UpdatePortfolioDTO updatePortfolioDto)
+        {
+            var result = await _portfolioService.UpdatePortfolioAsync(updatePortfolioDto);
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
+        }
+        [HttpPut("verify/{portfolioId}")]
+        public async Task<IActionResult> VerifyPortfolio([FromRoute] long portfolioId, [FromBody] VerifyPortfolioDTO verifyPortfolioDto)
+        {
+            var result = await _portfolioService.VerifyPortfolioAsync(portfolioId, verifyPortfolioDto);
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
+        }
     }
 }

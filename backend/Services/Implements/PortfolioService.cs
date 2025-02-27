@@ -113,5 +113,70 @@ namespace Services.Implements
                 return Result.Failure<PortfolioDTO>(new Error("Get portfolio by id failed", $"{e.Message}"));
             }
         }
+
+        public async Task<Result<PortfolioDTO>> UpdatePortfolioAsync(UpdatePortfolioDTO updatePortfolioDto)
+        {
+            try
+            {
+                var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(new QueryOptions<Portfolio>
+                {
+                    Predicate = p => p.FreelancerId == _currentUserService.AccountId
+                });
+                if(portfolio == null)
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed",$"Portfolio with freelancer id {_currentUserService.AccountId} not found"));
+                }
+                if(string.IsNullOrWhiteSpace(updatePortfolioDto.Title) || updatePortfolioDto.Title.Length >20)
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed",$"Title can not empty or length > 20"));
+                }
+                if(string.IsNullOrWhiteSpace(updatePortfolioDto.Works))
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed",$"Work can not empty"));
+                }
+                if(string.IsNullOrWhiteSpace(updatePortfolioDto.Certificate))
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Certificate can not empty"));
+                }
+                if(string.IsNullOrWhiteSpace(updatePortfolioDto.About) || updatePortfolioDto.About.Length > 100)
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"About can not empty or length > 100"));
+                }
+                portfolio.Title = updatePortfolioDto.Title;
+                portfolio.Works = updatePortfolioDto.Works;
+                portfolio.Certificate = updatePortfolioDto.Certificate;
+                portfolio.About = updatePortfolioDto.About;
+                await  _unitOfWork.GetRepo<Portfolio>().UpdateAsync(portfolio);
+                await _unitOfWork.SaveChangesAsync();
+                return Result.Success(portfolio.ToPortfolioDTO());
+            }
+            catch(Exception e)
+            {
+                return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"{e.Message}"));
+            }
+        }
+
+        public async Task<Result<PortfolioDTO>> VerifyPortfolioAsync(long portfolioId, VerifyPortfolioDTO verifyPortfolioDto)
+        {
+            try
+            {
+                var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(new QueryOptions<Portfolio>
+                {
+                    Predicate = p => p.PortfolioId == portfolioId
+                });
+                if(portfolio == null)
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Verify portfolio failed", $"Portfolio with id {portfolioId} not found"));
+                }
+                portfolio.Status = verifyPortfolioDto.Status;
+                await _unitOfWork.GetRepo<Portfolio>().UpdateAsync(portfolio);
+                await _unitOfWork.SaveChangesAsync();
+                return Result.Success(portfolio.ToPortfolioDTO());
+            }
+            catch(Exception e)
+            {
+                return Result.Failure<PortfolioDTO>(new Error("Verify portfolio failed", $"{e.Message}"));
+            }
+        }
     }
 }

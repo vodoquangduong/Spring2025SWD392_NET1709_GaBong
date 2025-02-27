@@ -14,4 +14,5 @@ namespace Services.Interfaces
         Task<Result<ProjectDTO>> VerifyProjectAsync(long projectId);
         Task<Result<ProjectDTO>> ChooseFreelancerAsync(long projectId, long freelancerId);
     }
+
 }
