@@ -17,8 +17,8 @@ export const ROUTES = {
     CHAT: {
       ROOMS: {
         GET_ALL: `${API_BASE}/api/chatroom`,
-        GET: (RoomId: number, UserId: number) =>
-          `${API_BASE}/api/chatroom/${RoomId}, ${UserId}`,
+        GET: (currentUserId: number, selectedUserId: number) =>
+          `${API_BASE}/api/chatroom/${currentUserId}/${selectedUserId}`,
         GET_BY_ID: (id: number) => `${API_BASE}/api/chatroom/${id}`,
       },
       MESSAGES: {
@@ -57,11 +57,13 @@ export class ChatService {
   }
 
   async start() {
+    //> check connection state
     if (this.connection.state === HubConnectionState.Connected) {
       console.log("Connection already started.");
       return;
     }
 
+    //> connect SignalR
     try {
       console.log("Starting connection...");
       await this.connection.start();
@@ -77,7 +79,7 @@ export class ChatService {
 
   private async ensureConnected() {
     if (this.connection.state !== HubConnectionState.Connected) {
-      //> start connect again if not connected
+      //> keep reconnect again if not connected
       await this.start();
     }
   }

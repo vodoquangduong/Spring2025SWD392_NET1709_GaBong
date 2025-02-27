@@ -20,10 +20,10 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
   const [roomId, setRoomId] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    let isMounted = true;
+  // useEffect()
 
-    //> init when change user to chat with
+  useEffect(() => {
+    //> init when selected user changed
     const initDirectChat = async () => {
       try {
         await chatService.start();
@@ -50,13 +50,17 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
               Number(selectedUserId)
             )
           );
+          console.log(response.data);
 
+          //> add current user to room
           await axios.post(
             ROUTES.API.CHAT.ROOM_MEMBERS.ADD_USER(
               response.data.chatRoomID,
               Number(currentUserId)
             )
           );
+
+          //> add selected user to room
           await axios.post(
             ROUTES.API.CHAT.ROOM_MEMBERS.ADD_USER(
               response.data.chatRoomID,
@@ -66,6 +70,7 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
         }
 
         const room = response.data;
+        //> set current room
         setRoomId(room.chatRoomID);
 
         //> Join room after
@@ -122,7 +127,8 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
         block: "start",
       });
     }
-  }, [messages]);
+    messageInputRef.current?.focus();
+  }, [messages, isLoading]);
 
   return (
     <div className="bg-white dark:bg-zinc-800 h-full flex flex-col">
@@ -139,33 +145,45 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
         </div>
       </div>
       <div
-        className="bg-zinc-300 dark:bg-zinc-800 grow h-[200px] overflow-y-scroll p-2"
+        className="bg-zinc-300 dark:bg-zinc-800 grow h-[200px] overflow-y-scroll"
         id="message-box"
       >
-        {messages.map((message: any, index: number) => (
-          <MessageItem
-            key={index}
-            data={message}
-            currentUserId={currentUserId}
-          />
-        ))}
-        {isLoading && (
-          <div className="flex flex-col justify-center items-center my-4 gap-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
-            <span className="text-zinc-500 pb-8">Loading message ...</span>
-          </div>
-        )}
+        <div className="pl-2 pr-1 relative py-2">
+          {
+            //> display message items
+            messages.map((message: any, index: number) => (
+              <MessageItem
+                key={index}
+                data={message}
+                currentUserId={currentUserId}
+              />
+            ))
+          }
+          {isLoading && (
+            <div
+              id="loading"
+              className="flex flex-col justify-center items-center gap-4 z-10 mt-8"
+            >
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
+              <span className="text-zinc-500 pb-8">Loading message ...</span>
+            </div>
+          )}
+        </div>
+        {/* //> Used for scrolling to bottom after message sent */}
         <div ref={messageEndRef} className=""></div>
       </div>
       <textarea
         className="p-2 no-ring resize-none bg-white dark:bg-zinc-700 text-secondary-foreground"
-        placeholder="Enter your message..."
+        placeholder={
+          isLoading ? "Loading message ..." : "Enter your message..."
+        }
+        disabled={isLoading}
         rows={2}
         ref={messageInputRef}
         onKeyPress={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-
+            // scrollIntoView();
             sendMessage((e.target as HTMLTextAreaElement).value);
             (e.target as HTMLTextAreaElement).value = "";
           }
@@ -189,11 +207,15 @@ const MessageItem = ({
       }`}
     >
       <p
-        className={`min-w-14 whitespace-pre-wrap m-0.5 py-2 px-3 text-[16px] rounded-2xl ${
+        className={`min-w-14 whitespace-pre-wrap m-0.5 py-2 px-3 text-[16px] rounded-2xl text-start ${
           data.senderId == currentUserId
             ? "justify-end bg-emerald-600 dark:bg-emerald-600 text-white"
             : "justify-start bg-zinc-100"
         }`}
+        style={{
+          wordWrap: "break-word",
+          maxWidth: "80%",
+        }}
       >
         {data?.messageContent}
       </p>
