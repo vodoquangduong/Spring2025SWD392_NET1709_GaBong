@@ -73,10 +73,10 @@ namespace API.Controllers
             }
         }
 
-        [HttpPut("verify/{projectId}")]
-        public async Task<IActionResult> VerifyProject([FromRoute] long projectId)
+        [HttpPut("verify")]
+        public async Task<IActionResult> VerifyProject([FromBody] VerrifiedProjectDTO verify)
         {
-            var result = await _projectService.VerifyProjectAsync(projectId);
+            var result = await _projectService.VerifyProjectAsync(verify);
             if(result.Value == null)
             {
                 return BadRequest("Project not found");

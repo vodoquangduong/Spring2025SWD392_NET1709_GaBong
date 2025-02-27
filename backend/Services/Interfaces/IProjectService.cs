@@ -12,7 +12,7 @@ namespace Services.Interfaces
         Task<Result<ProjectDTO>> CreateProjectAsync(CreateProjectDTO projectDto);
         Task<Result<ProjectDTO>> UpdateProjectAsync(Project project);
         Task<bool> DeleteProjectAsync(long id);
-        Task<Result<ProjectDTO>> VerifyProjectAsync(long projectId, bool isVerified);
+        Task<Result<ProjectDTO>> VerifyProjectAsync(VerrifiedProjectDTO verify);
         Task<Result<ProjectDTO>> ChooseFreelancerAsync(long projectId, long freelancerId);
     }
 

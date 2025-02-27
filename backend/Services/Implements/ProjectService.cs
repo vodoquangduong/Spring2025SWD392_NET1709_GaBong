@@ -121,22 +121,21 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<Result<ProjectDTO>> VerifyProjectAsync(long projectId, bool isVerified)
+        public async Task<Result<ProjectDTO>> VerifyProjectAsync(VerrifiedProjectDTO verrified)
         {
             try
             {
-                Console.WriteLine($"Verifying project with ID: {projectId}");
                 var queryOptions = new QueryBuilder<Project>()
                 .WithTracking(true)
-                .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
+                .WithPredicate(a => a.ProjectId == verrified.ProjectId) // Filter by ID
                 .Build();
 
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
                 if (project == null)
                 {
-                    return Result.Failure<ProjectDTO>(new Error("Project not found", $"Project with project id {projectId}"));
+                    return Result.Failure<ProjectDTO>(new Error("Project not found", $"Project with project id {verrified.ProjectId}"));
                 }
-                if (isVerified)
+                if (verrified.IsVerified)
                 {
                     project.PostDate = DateTime.UtcNow;
                     project.Status = ProjectStatus.Verified;
