@@ -7,12 +7,12 @@ namespace Services.Interfaces
 {
     public interface IProjectService
     {
-        Task<PaginatedResult<Project>> GetAllProjectsAsync(int pageNumber, int pageSize);
-        Task<ProjectDTO> GetProjectByIdAsync(long id);
+        Task<PaginatedResult<ProjectDTO>> GetAllProjectsAsync(int pageNumber, int pageSize);
+        Task<Result<ProjectDTO>> GetProjectByIdAsync(long id);
         Task<Result<ProjectDTO>> CreateProjectAsync(CreateProjectDTO projectDto);
-        Task<Project> UpdateProjectAsync(Project project);
+        Task<Result<ProjectDTO>> UpdateProjectAsync(Project project);
         Task<bool> DeleteProjectAsync(long id);
-        Task<Project> VerifyProjectAsync(long projectId, long staffId);
-        Task<Project> ChooseFreelancerAsync(long projectId, long freelancerId);
+        Task<Result<ProjectDTO>> VerifyProjectAsync(long projectId);
+        Task<Result<ProjectDTO>> ChooseFreelancerAsync(long projectId, long freelancerId);
     }
 }

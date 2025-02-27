@@ -22,7 +22,6 @@ namespace API.Controllers
         {
             var paginatedProjects = await _projectService.GetAllProjectsAsync(pageNumber, pageSize);
             var projectDTOs = paginatedProjects.Items
-                            .Select(project => project.ToProjectDTO())
                             .ToList();
             var response = new
             {
@@ -76,7 +75,7 @@ namespace API.Controllers
         [HttpPut("verify/{projectId}")]
         public async Task<IActionResult> VerifyProject([FromRoute] long projectId)
         {
-            var result = await _projectService.VerifyProjectAsync(projectId, _currentUserService.AccountId);
+            var result = await _projectService.VerifyProjectAsync(projectId);
             if(result.Value == null)
             {
                 return BadRequest("Project not found");
@@ -87,7 +86,7 @@ namespace API.Controllers
         [HttpPut("choose-freelancer")]
         public async Task<IActionResult> ChooseFreelancer([FromBody] ChooseFreelancerDTO chooseFreelancerDTO)
         {
-            var updatedProject = await _projectService.ChooseFreelancerAsync(chooseFreelancerDTO.ProjectId, chooseFreelancerDTO.FreelancerId);
+            await _projectService.ChooseFreelancerAsync(chooseFreelancerDTO.ProjectId, chooseFreelancerDTO.FreelancerId);
             return Ok("Project is on going");
         }
     }
