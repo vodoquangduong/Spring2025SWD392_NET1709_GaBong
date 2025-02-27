@@ -2,17 +2,10 @@
 using Helpers.DTOs.Authentication;
 using Microsoft.Extensions.Configuration;
 using Services.Interfaces;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
-using System.Data;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using BusinessObjects.Enums;
 
 namespace Services.Implements
 {

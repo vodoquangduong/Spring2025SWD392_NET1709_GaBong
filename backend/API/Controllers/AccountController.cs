@@ -18,9 +18,12 @@ namespace API.Controllers
        [HttpGet]
        public async Task<IActionResult> GetAllAccount()
        {
-        var accounts = await _accountService.GetAllAccountAsync();
-        var accountDTOs = accounts.Select(account => account.ToAccountDTO());
-        return Ok(accountDTOs);
+        var result = await _accountService.GetAllAccountAsync();
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+        return Ok(result.Value);
        }
 
 

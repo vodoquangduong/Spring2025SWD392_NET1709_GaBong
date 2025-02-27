@@ -1,22 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BusinessObjects.Models;
 using Helpers.DTOs.Project;
 using Helpers.HelperClasses;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Services.Interfaces
 {
     public interface IProjectService
     {
-        Task<object> GetAllProjectsVerifiedAsync(int pageNumber, int pageSize);
-        Task<ProjectDTO> GetProjectByIdAsync(long id);
-        Task<Project> CreateProjectAsync(CreateProjectDTO projectDto);
-        Task<Project> UpdateProjectAsync(Project project);
+        Task<Result<PaginatedResult<ProjectDTO>>> GetAllProjectsVerifiedAsync(int pageNumber, int pageSize);
+        Task<Result<ProjectDTO>> GetProjectByIdAsync(long id);
+        Task<Result<ProjectDTO>> CreateProjectAsync(CreateProjectDTO projectDto);
+        Task<Result<ProjectDTO>> UpdateProjectAsync(Project project);
         Task<bool> DeleteProjectAsync(long id);
-        Task<Project> VerifyProjectAsync(long projectId, long staffId);
-        Task<Project> ChooseFreelancerAsync(long projectId, long freelancerId);
+        Task<Result<ProjectDTO>> VerifyProjectAsync(long projectId);
+        Task<Result<ProjectDTO>> ChooseFreelancerAsync(long projectId, long freelancerId);
     }
+
 }

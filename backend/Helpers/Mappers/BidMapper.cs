@@ -1,13 +1,6 @@
-﻿using BusinessObjects.Enums;
-using BusinessObjects.Models;
-using Helpers.DTOs.Account;
+﻿using BusinessObjects.Models;
 using Helpers.DTOs.Bid;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Helpers.Mappers
 {

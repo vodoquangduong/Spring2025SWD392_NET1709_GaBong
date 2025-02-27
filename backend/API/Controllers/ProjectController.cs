@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Helpers.DTOs.Project;
 using Helpers.DTOs.Query;
 using Microsoft.AspNetCore.Mvc;
-using Services.Implements;
 using Services.Interfaces;
 
 namespace API.Controllers
@@ -27,14 +22,22 @@ namespace API.Controllers
         public async Task<IActionResult> GetAllProjectsVerifiedAsync([FromQuery]  Query query)
         {
             var response = await _projectService.GetAllProjectsVerifiedAsync(query.PageNumber, query.PageSize);
+            if(response.IsFailure)
+            {
+                return BadRequest(response.Error);
+            }
             return Ok(response);
         }
 
         [HttpPost("post-project")]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO project)
         {
-            var createdProject = await _projectService.CreateProjectAsync(project);
-            return Ok(createdProject.ToProjectDTO());
+            var result = await _projectService.CreateProjectAsync(project);
+            if(result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
         }
 
         [HttpGet("{projectId}")]
@@ -61,16 +64,20 @@ namespace API.Controllers
         }
 
         [HttpPut("verify/{projectId}")]
-        public async Task<IActionResult> VeridyProject([FromRoute] long projectId)
+        public async Task<IActionResult> VerifyProject([FromRoute] long projectId)
         {
-            var updatedProject = await _projectService.VerifyProjectAsync(projectId, _currentUserService.AccountId);
+            var result = await _projectService.VerifyProjectAsync(projectId);
+            if(result.Value == null)
+            {
+                return BadRequest("Project not found");
+            }
             return Ok("Project verified");
         }
 
         [HttpPut("choose-freelancer")]
         public async Task<IActionResult> ChooseFreelancer([FromBody] ChooseFreelancerDTO chooseFreelancerDTO)
         {
-            var updatedProject = await _projectService.ChooseFreelancerAsync(chooseFreelancerDTO.ProjectId, chooseFreelancerDTO.FreelancerId);
+            await _projectService.ChooseFreelancerAsync(chooseFreelancerDTO.ProjectId, chooseFreelancerDTO.FreelancerId);
             return Ok("Project is on going");
         }
     }
