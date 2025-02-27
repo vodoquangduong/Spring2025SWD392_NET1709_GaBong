@@ -8,6 +8,9 @@ import { FaChevronDown } from "react-icons/fa";
 import CreateModal from "../CreateModal";
 import CreateProjectForm from "./forms/CreateProjectForm";
 import NotificationDropdown from "../NotificationDropdown/NotificationDropdown";
+import { Role } from "@/types";
+import { MdOutlineEmail } from "react-icons/md";
+import useUiStore from "@/stores/uiStore";
 
 const HeaderLinkItem = ({
   href,
@@ -54,7 +57,8 @@ const HeaderLinkItem = ({
 };
 
 export default function Header() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, role } = useAuthStore();
+  const { toogleChatPopup } = useUiStore();
   const navigate = useNavigate();
 
   return (
@@ -67,15 +71,20 @@ export default function Header() {
             id="mobile-menu-2"
           >
             <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-              <HeaderLinkItem href={"/search/freelancers"}>
-                Hire freelancers
-              </HeaderLinkItem>
-              <HeaderLinkItem
-                href={"/search/projects"}
-                // subMenu={true}
-              >
-                Find works
-              </HeaderLinkItem>
+              {role != Role.FREELANCER && (
+                <HeaderLinkItem href={"/search/freelancers"}>
+                  Hire freelancers
+                </HeaderLinkItem>
+              )}
+              {role != Role.CLIENT && (
+                <HeaderLinkItem
+                  href={"/search/projects"}
+                  // subMenu={true}
+                >
+                  Find works
+                </HeaderLinkItem>
+              )}
+
               {/* <HeaderLinkItem href={"/news"}>News</HeaderLinkItem> */}
               {/* <HeaderLinkItem href={"/about"}>About</HeaderLinkItem> */}
               {isAuthenticated && (
@@ -87,16 +96,22 @@ export default function Header() {
           <div className="flex items-center lg:order-3 gap-4">
             {isAuthenticated ? (
               <>
-                <NotificationDropdown />
-                <CreateModal
-                  children="Post a project"
-                  modalTitle={"Post a new project"}
-                  form={(
-                    setIsModalOpen: React.Dispatch<
-                      React.SetStateAction<boolean>
-                    >
-                  ) => <CreateProjectForm setIsModalOpen={setIsModalOpen} />}
+                <MdOutlineEmail
+                  className="text-2xl text-zinc-300 mx-2 cursor-pointer"
+                  onClick={toogleChatPopup}
                 />
+                <NotificationDropdown />
+                {role == Role.CLIENT && (
+                  <CreateModal
+                    children="Post a project"
+                    modalTitle={"Post a new project"}
+                    form={(
+                      setIsModalOpen: React.Dispatch<
+                        React.SetStateAction<boolean>
+                      >
+                    ) => <CreateProjectForm setIsModalOpen={setIsModalOpen} />}
+                  />
+                )}
                 <ProfileDropdown />
               </>
             ) : (

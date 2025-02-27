@@ -13,7 +13,7 @@ export default function ChatList({
 
   return (
     <div className="dark:bg-zinc-800 bg-white border-r dark:border-zinc-700">
-      <div className="p-2 font-bold border-b dark:border-zinc-600 text-secondary-foreground">
+      <div className="py-2 px-4 font-bold border-b dark:border-zinc-600 text-secondary-foreground">
         Room List
       </div>
       <div>
@@ -22,9 +22,9 @@ export default function ChatList({
             Loading room...
           </div>
         )}
-        {roomList?.map((partner: any, index: number) => (
-          <div onClick={() => setCurrentRoom(partner)} key={index}>
-            <RoomItem key={index} data={partner} />
+        {roomList?.map((item: any, index: number) => (
+          <div onClick={() => setCurrentRoom(item)} key={index}>
+            <RoomItem key={index} data={item} />
           </div>
         ))}
         {!isLoading && roomList.length == 0 && (
@@ -45,16 +45,12 @@ const RoomItem = ({ data }: { data: any }) => {
       <div className="text-sm">
         <div
           className="font-bold text-secondary-foreground line-clamp-1"
-          title={data.chatRoomName}
+          title={data?.roomDetails[0]?.account?.name}
         >
-          Room: {data.chatRoomName}
+          {data?.roomDetails[0]?.account?.name}
         </div>
         <div className="text-zinc-500">
-          Room ID: {data.chatRoomID}
-          {/* {data.roomDetails?.map((item: any) => {
-            if (item.senderId === 1) {
-            }
-          })} */}
+          {data?.roomDetails[0]?.account?.email}
         </div>
       </div>
     </div>

@@ -10,6 +10,7 @@ export const formSchema = () => {
       .string()
       .min(20, "Description must be at least 20 characters")
       .max(1000, "Description must be less than 1000 characters"),
+    location: z.string().min(1, "Required"),
     skillsRequired: z.string().optional(),
     estimateBudget: z.coerce
       .number()

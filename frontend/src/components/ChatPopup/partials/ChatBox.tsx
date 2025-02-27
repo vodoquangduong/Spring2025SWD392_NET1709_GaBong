@@ -4,6 +4,7 @@ import useAuthStore from "@/stores/authStore";
 import { GET, POST } from "@/modules/request";
 import axios from "axios";
 import { Empty, Skeleton } from "antd";
+import { data } from "react-router-dom";
 
 type MessageItemProps = {
   content: string;
@@ -122,7 +123,9 @@ export default function ChatBox({ currentRoom }: { currentRoom: any }) {
       <div className="p-4 flex gap-4 border-b dark:border-zinc-700">
         {currentRoomId ? (
           <img
-            src={`https://robohash.org/${currentRoomId || "placeholder"}`}
+            src={`https://robohash.org/${
+              currentRoom.chatRoomName || "placeholder"
+            }`}
             className="h-12 aspect-square rounded-full object-cover object-center bg-white"
           />
         ) : (
@@ -131,12 +134,14 @@ export default function ChatBox({ currentRoom }: { currentRoom: any }) {
 
         <div>
           <div className="font-bold text-base text-secondary-foreground">
-            {currentRoom?.chatRoomName || (
+            {currentRoom?.roomDetails[0]?.account?.name || (
               <Skeleton.Input style={{ width: 280, height: 30 }} />
             )}
           </div>
-          {currentRoom?.chatRoomName ? (
-            <div className="text-base text-zinc-500">Active 2h ago</div>
+          {currentRoom?.roomDetails[0]?.account?.email ? (
+            <div className="text-base text-zinc-500">
+              {currentRoom?.roomDetails[0]?.account?.email}
+            </div>
           ) : (
             <Skeleton.Input className="mt-1" style={{ height: 10 }} />
           )}

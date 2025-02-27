@@ -31,7 +31,6 @@ namespace Services.Implements
             }
 
             //TODO: change this chatroom name
-            System.Console.WriteLine("Hello create chat room");
             var createdChatRoom = await CreateChatRoom(createChatDTO.ChatRoomName);
 
             await _unitOfWork.GetRepo<RoomDetail>().CreateAsync(new RoomDetail()
@@ -92,6 +91,7 @@ namespace Services.Implements
             return returnRoom;
         }
 
+
         public async Task<ChatRoom?> GetDmChatRoomAsync(long clientId, long freelancerId)
         {
             var queryRoomDetail = new QueryBuilder<RoomDetail>()
@@ -116,6 +116,28 @@ namespace Services.Implements
                 .Build();
             return await _unitOfWork.GetRepo<ChatRoom>().GetSingleAsync(queryRoom);
             //return roomGrouping?.Select(r => r.ChatRooms).ToArray()[0];
+        }
+
+        public async Task<IEnumerable<ChatRoom>> GetRoomDetailsBySharedChatRoomsAsync(long accountId)
+        {
+            // Step 1: Get ChatRoom IDs where the accountId is a member
+            var userRoomQuery = new QueryBuilder<RoomDetail>()
+                .WithTracking(false)
+                .WithPredicate(roomDetail => roomDetail.AccountId == accountId)
+                .Build();
+
+            var userRooms = await _unitOfWork.GetRepo<RoomDetail>().GetAllAsync(userRoomQuery);
+            var chatRoomIds = userRooms.Select(rd => rd.ChatRoomId).Distinct(); // Assuming ChatRoomId is a property
+
+            // Step 2: Get all RoomDetail records for those ChatRoom IDs
+            var sharedRoomQuery = new QueryBuilder<RoomDetail>()
+                .WithTracking(false)
+                .WithInclude(r => r.ChatRooms) // Include ChatRooms if you need the full entity
+                .WithPredicate(roomDetail => chatRoomIds.Contains(roomDetail.ChatRoomId) && roomDetail.AccountId != accountId)
+                .Build();
+
+            var result = await _unitOfWork.GetRepo<RoomDetail>().GetAllAsync(sharedRoomQuery);
+            return result.Select(rd => rd.ChatRooms);
         }
     }
 }

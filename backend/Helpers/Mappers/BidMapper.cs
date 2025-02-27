@@ -23,7 +23,8 @@ namespace Helpers.Mappers
                 BidId = bid.BidId,
                 BidOffer = bid.BidOffer,
                 BidOwnerId = bid.BidOwnerId,
-                CreatedAt = bid.CreatedAt
+                CreatedAt = bid.CreatedAt,
+                BidOwner = bid.BidOwner.ToAccountDTO(),
             };
         }
 

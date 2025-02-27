@@ -87,7 +87,10 @@ export default function ProjectListing() {
   const { data, isLoading } = useQuery({
     queryKey: ["publicProjects", page],
     queryFn: async () =>
-      await GET(`/api/Project/get-all-project?pageNumber=${page || 1}`, false),
+      await GET(
+        `/api/Project/get-all-verified-project?pageNumber=${page || 1}`,
+        false
+      ),
   });
   return (
     <div>

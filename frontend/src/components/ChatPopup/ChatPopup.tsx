@@ -8,33 +8,13 @@ import { GET } from "@/modules/request";
 import useAuthStore from "@/stores/authStore";
 
 export default function ChatPopup() {
-  // const
-  // const partnerList = [
-  //   {
-  //     name: "Lê Thế Freelancer",
-  //     accountId: 9,
-  //   },
-  //   {
-  //     name: "Đỗ Long Admin",
-  //     accountId: 1,
-  //   },
-  //   {
-  //     name: "Nguyễn Viết Client",
-  //     accountId: 8,
-  //   },
-  //   {
-  //     name: "Võ Đỗ Quang Staff",
-  //     accountId: 67,
-  //   },
-  // ];
-
   const [currentRoom, setCurrentRoom] = useState<any>(null);
-  const { toogleChatPopup } = useUiStore();
+  const { toogleChatPopup, isChatOpen } = useUiStore();
   const { accountId } = useAuthStore();
   const { data, isLoading } = useQuery({
     queryKey: ["chatList"],
     queryFn: async () => {
-      const data = await GET(`/api/ChatRoom/${accountId}`);
+      const data = await GET(`/api/ChatRoom/${accountId}`, false);
       console.log(data);
       setCurrentRoom(data[0]);
       return data;
@@ -43,12 +23,11 @@ export default function ChatPopup() {
   console.log(data);
 
   return (
-    <div className="fixed bottom-0 right-24 w-[800px] h-[600px] z-40 grid grid-cols-3 border-2 border-b-0 dark:border-zinc-700">
-      {/* {!isLoading ? (
-        <ChatList roomList={data} setCurrentRoom={setCurrentRoom} />
-      ) : (
-        <></>
-      )} */}
+    <div
+      className={`fixed bottom-0 right-24 w-[800px] h-[600px] z-40 grid grid-cols-3 border-2 border-b-0 dark:border-zinc-700 transition-all ${
+        isChatOpen ? "translate-x-0" : "opacity-0 translate-x-[1000px]"
+      }`}
+    >
       <ChatList
         roomList={data}
         setCurrentRoom={setCurrentRoom}
