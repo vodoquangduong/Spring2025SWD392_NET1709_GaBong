@@ -121,7 +121,7 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<Result<ProjectDTO>> VerifyProjectAsync(long projectId)
+        public async Task<Result<ProjectDTO>> VerifyProjectAsync(long projectId, bool isVerified)
         {
             try
             {
@@ -136,13 +136,22 @@ namespace Services.Implements
                 {
                     return Result.Failure<ProjectDTO>(new Error("Project not found", $"Project with project id {projectId}"));
                 }
-
-                project.PostDate = DateTime.UtcNow;
-                project.Status = ProjectStatus.Verified;
-                project.VerifyStaffId = _currentUserService.AccountId;
-                await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
-                await _unitOfWork.SaveChangesAsync();
+                if (isVerified)
+                {
+                    project.PostDate = DateTime.UtcNow;
+                    project.Status = ProjectStatus.Verified;
+                    project.VerifyStaffId = _currentUserService.AccountId;
+                    await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
+                    await _unitOfWork.SaveChangesAsync();
+                } else
+                {
+                    project.Status = ProjectStatus.ReVerify;
+                    project.VerifyStaffId = _currentUserService.AccountId;
+                    await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
+                    await _unitOfWork.SaveChangesAsync();
+                }
                 return Result.Success(project.ToProjectDTO());
+
             }
             catch (Exception e)
             {
@@ -184,7 +193,7 @@ namespace Services.Implements
                 .WithTracking(false) // No tracking for efficient
                 .WithInclude(p => p.SkillRequired)
                 .WithInclude(p => p.Milestones)
-                .WithPredicate(p => p.Status == ProjectStatus.Pending
+                .WithPredicate(p =>( p.Status == ProjectStatus.Pending|| p.Status == ProjectStatus.ReVerify)
                                    && p.Milestones.Any()
                                    && p.SkillRequired.Any())
                 .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
