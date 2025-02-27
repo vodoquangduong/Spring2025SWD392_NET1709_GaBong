@@ -22,6 +22,10 @@ namespace API.Controllers
         public async Task<IActionResult> GetAllProjectsVerifiedAsync([FromQuery]  Query query)
         {
             var response = await _projectService.GetAllProjectsVerifiedAsync(query.PageNumber, query.PageSize);
+            if(response.IsFailure)
+            {
+                return BadRequest(response.Error);
+            }
             return Ok(response);
         }
 

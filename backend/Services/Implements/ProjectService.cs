@@ -42,7 +42,7 @@ namespace Services.Implements
                 };
                 var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
                 await _unitOfWork.SaveChangesAsync();
-                return createProject.ToProjectDTO();
+                return Result.Success(createProject.ToProjectDTO());
             }
             catch (Exception e)
             {
@@ -55,33 +55,27 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<object> GetAllProjectsVerifiedAsync(int pageNumber, int pageSize)
+        public async Task<Result<PaginatedResult<ProjectDTO>>> GetAllProjectsVerifiedAsync(int pageNumber, int pageSize)
         {
-
+            try
+            {
             var queryOptions = new QueryBuilder<Project>()
             .WithTracking(false) // No tracking for efficient
             .WithInclude(p => p.SkillRequired)
             .WithPredicate(p => p.Status == ProjectStatus.Verified)
             .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
             .Build();
-
             var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);
-            Console.WriteLine($"Total records before pagination: {query}");
-            var paginatedProjects = await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize);
-            Console.WriteLine($"PageNumber: {pageNumber}, PageSize: {pageSize}");
-            Console.WriteLine($"Records after pagination: {paginatedProjects.Items}");
-            var projectDTOs = paginatedProjects.Items
-                                                .Select(project => project.ToProjectDTO())
-                                                .ToList();
-
-            return new
+            var paginatedProjects =  await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize, project => project.ToProjectDTO());
+            // var projectDTOs = paginatedProjects.Items
+            //                                     .Select(project => project.ToProjectDTO())
+            //                                     .ToList();
+            return Result.Success(paginatedProjects);
+            }
+            catch (Exception e)
             {
-                Items = projectDTOs,
-                TotalCount = paginatedProjects.TotalCount,
-                PageNumber = paginatedProjects.PageNumber,
-                PageSize = paginatedProjects.PageSize,
-                TotalPages = paginatedProjects.TotalPages
-            };
+                return Result.Failure<PaginatedResult<ProjectDTO>>(new Error("Get all projects failed", $"{e.Message}"));
+            }
         }
 
         public async Task<Result<ProjectDTO>> GetProjectByIdAsync(long projectId)
@@ -107,54 +101,33 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<Project> VerifyProjectAsync(long projectId, long staffId)
+        public async Task<Result<ProjectDTO>> VerifyProjectAsync(long projectId)
         {
-            Console.WriteLine($"Verifying project with ID: {projectId}");
-
-            var queryOptions = new QueryBuilder<Project>()
-            .WithTracking(true)
-            .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
-            .Build();
-
-            var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
-            if (project == null)
+            try
             {
-                throw new KeyNotFoundException("Project not found");
+                Console.WriteLine($"Verifying project with ID: {projectId}");
+                var queryOptions = new QueryBuilder<Project>()
+                .WithTracking(true)
+                .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
+                .Build();
+
+                var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
+                if (project == null)
+                {
+                    return Result.Failure<ProjectDTO>(new Error("Project not found", $"Project with project id {projectId}"));
+                }
+
+                project.PostDate = DateTime.UtcNow;
+                project.Status = ProjectStatus.Verified;
+                project.VerifyStaffId = _currentUserService.AccountId;
+                await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
+                await _unitOfWork.SaveChangesAsync();
+                return Result.Success(project.ToProjectDTO());
             }
-
-            project.PostDate = DateTime.UtcNow;
-            project.Status = ProjectStatus.Verified;
-            project.VerifyStaffId = staffId;
-
-            await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
-            await _unitOfWork.SaveChangesAsync();
-
-            return project;
-        }
-
-        public async Task<Project> ChooseFreelancerAsync(long projectId, long freelancerId)
-        {
-            Console.WriteLine($"Verifying project with ID: {projectId}");
-
-            var queryOptions = new QueryBuilder<Project>()
-            .WithTracking(true)
-            .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
-            .Build();
-            
-            var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
-            if (project == null)
+            catch (Exception e)
             {
-                return Result.Failure<ProjectDTO>(new Error("Project not found", $"Project with project id {projectId}"));
+                return Result.Failure<ProjectDTO>(new Error("Verify project failed", $"{e.Message}"));
             }
-
-            project.PostDate = DateTime.UtcNow;
-            project.Status = ProjectStatus.Verified;
-            project.VerifyStaffId = _currentUserService.AccountId;
-
-            await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
-            await _unitOfWork.SaveChangesAsync();
-
-            return project.ToProjectDTO();
         }
 
         public async Task<Result<ProjectDTO>> ChooseFreelancerAsync(long projectId, long freelancerId)
