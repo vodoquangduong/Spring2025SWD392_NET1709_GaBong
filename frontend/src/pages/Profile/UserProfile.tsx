@@ -194,7 +194,7 @@ const UserProfile = () => {
                       Reputation
                     </div>
                     <div className="text-xl font-semibold text-emerald-500">
-                      {profile.reputationPoint}/5
+                      {profile.reputationPoint}
                     </div>
                   </div>
                 </div>
