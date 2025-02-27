@@ -7,22 +7,18 @@ export const approveService = async (
   projectId: string,
   mutation: UseMutationResult<any, unknown, any, unknown>
 ) => {
-  mutation.mutate(projectId);
+  mutation.mutate({
+    projectId: projectId,
+    isVerified: true,
+  });
 };
 
 export const rejectService = async (
   projectId: string,
-  message: MessageInstance
+  mutation: UseMutationResult<any, unknown, any, unknown>
 ) => {
-  try {
-    const mutation = useMutation({
-      mutationKey: ["projects"],
-      mutationFn: () => PUT(`/api/Project/verify/${projectId}`, {}),
-    });
-
-    message.success("Project approved successfully");
-  } catch (error) {
-    message.error("Project approval failed");
-    console.log(error);
-  }
+  mutation.mutate({
+    projectId: projectId,
+    isVerified: false,
+  });
 };

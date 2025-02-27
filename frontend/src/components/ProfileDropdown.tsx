@@ -9,7 +9,7 @@ import useAuthStore from "../stores/authStore";
 import { setCookie } from "../modules/cookie";
 
 const ProfileDropdown = () => {
-  const { logout, email, name } = useAuthStore();
+  const { logout, email, name, avatar } = useAuthStore();
   // const userInfor = localStorage.getItem("auth");
   // const userInforString = userInfor ? JSON.parse(userInfor) : null;
   const navigate = useNavigate();
@@ -96,7 +96,7 @@ const ProfileDropdown = () => {
       >
         <div
           style={{
-            backgroundImage: `url(${defaultAvatar})`,
+            backgroundImage: `url(${avatar || defaultAvatar})`,
           }}
           className="h-10 aspect-square bg-cover bg-center rounded-full bg-white border border-emerald-500"
         />

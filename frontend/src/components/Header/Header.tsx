@@ -76,14 +76,14 @@ export default function Header() {
                   Hire freelancers
                 </HeaderLinkItem>
               )}
-              {role != Role.CLIENT && (
+              {
                 <HeaderLinkItem
                   href={"/search/projects"}
                   // subMenu={true}
                 >
                   Find works
                 </HeaderLinkItem>
-              )}
+              }
 
               {/* <HeaderLinkItem href={"/news"}>News</HeaderLinkItem> */}
               {/* <HeaderLinkItem href={"/about"}>About</HeaderLinkItem> */}
@@ -97,20 +97,18 @@ export default function Header() {
             {isAuthenticated ? (
               <>
                 <MdOutlineEmail
-                  className="text-2xl text-zinc-300 mx-2 cursor-pointer"
+                  className="text-2xl text-zinc-200 mx-2 cursor-pointer"
                   onClick={toogleChatPopup}
                 />
                 <NotificationDropdown />
                 {role == Role.CLIENT && (
-                  <CreateModal
-                    children="Post a project"
-                    modalTitle={"Post a new project"}
-                    form={(
-                      setIsModalOpen: React.Dispatch<
-                        React.SetStateAction<boolean>
-                      >
-                    ) => <CreateProjectForm setIsModalOpen={setIsModalOpen} />}
-                  />
+                  <Button
+                    type="primary"
+                    className="font-semibold"
+                    onClick={() => navigate("/post-project")}
+                  >
+                    Post a project
+                  </Button>
                 )}
                 <ProfileDropdown />
               </>

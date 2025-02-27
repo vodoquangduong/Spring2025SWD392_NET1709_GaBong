@@ -114,7 +114,9 @@ export interface ProjectDetail extends Project {
 
 export enum ProjectStatus {
   PENDING = 0,
-  OPEN = 1,
-  COMPLETED = 2,
-  CANCELLED = 3,
+  VERIFIED = 1,
+  REVERIFIED = 2,
+  ON_GOING = 3,
+  COMPLETED = 4,
+  CLOSED = 5,
 }

@@ -4,7 +4,7 @@ import Skills from "../../../../../components/Skills";
 import { App, Button, Divider, Popconfirm, Skeleton } from "antd";
 import CreateModal from "../../../../../components/CreateModal";
 import CreateReportForm from "../forms/CreateReportForm";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import { GET, PUT } from "@/modules/request";
 import { useParams } from "react-router-dom";
 import { ProjectDetail } from "@/types/project";
@@ -14,9 +14,17 @@ import dayjs from "dayjs";
 export default function Content() {
   const { id: projectId } = useParams();
   const { message } = App.useApp();
-  const { data, isLoading } = useQuery<ProjectDetail>({
+  const { data, isLoading } = useQuery<any>({
     queryKey: ["projectDetail", projectId],
     queryFn: async () => await GET(`/api/Project/${projectId}`),
+  });
+  const [skills] = useQueries({
+    queries: [
+      {
+        queryKey: ["skills"],
+        queryFn: async () => await GET(`/api/SkillRequired/${projectId}`),
+      },
+    ],
   });
   const mutation = useMutation({
     mutationKey: ["projects"],
@@ -46,7 +54,7 @@ export default function Content() {
         <div className="flex justify-between items-center">
           <span className="font-bold text-2xl mr-3">Project Details</span>
           <span className="font-bold mr-3">
-            Total Budget: ${data?.estimateBudget} USD
+            Total Budget: ${data?.value?.estimateBudget} USD
           </span>
         </div>
         <div>
@@ -54,12 +62,12 @@ export default function Content() {
             <FaClock />
             <span>
               {dayjs().isBefore(
-                dayjs(data?.postDate!).add(
-                  data?.availableTimeRange || 0,
+                dayjs(data?.value?.postDate!).add(
+                  data?.value?.availableTimeRange || 0,
                   "days"
                 )
               )
-                ? `Bidding ends in ${dayjs(data?.postDate!).format(
+                ? `Bidding ends in ${dayjs(data?.value?.postDate!).format(
                     "MMM DD, YYYY"
                   )}`
                 : "Bidding ended"}
@@ -69,18 +77,18 @@ export default function Content() {
         <Divider />
         {/* <p className="text-base my-2 whitespace-pre-line">{descriptions}</p> */}
         <p className="text-base my-2 whitespace-pre-line tracking-wide">
-          {data?.projectDescription}
+          {data?.value?.projectDescription}
         </p>
         <Divider />
         <div>
           <span className="font-semibold text-lg mr-3">Skills Required</span>
           <div className="mt-4">
-            <Skills />
+            <Skills items={skills?.data} />
           </div>
         </div>
 
         <div className="flex justify-between items-center mb-4 mt-6 text-sm">
-          <div className="">Project ID: 39030966</div>
+          <div className="">Project ID: {projectId}</div>
 
           <CreateModal
             icon={<FaFlag />}

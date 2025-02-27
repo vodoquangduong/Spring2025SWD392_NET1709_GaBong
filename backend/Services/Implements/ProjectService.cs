@@ -192,7 +192,7 @@ namespace Services.Implements
                 .WithTracking(false) // No tracking for efficient
                 .WithInclude(p => p.SkillRequired)
                 .WithInclude(p => p.Milestones)
-                .WithPredicate(p =>( p.Status == ProjectStatus.Pending|| p.Status == ProjectStatus.ReVerify)
+                .WithPredicate(p =>( p.Status == ProjectStatus.Pending)
                                    && p.Milestones.Any()
                                    && p.SkillRequired.Any())
                 .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))

@@ -7,7 +7,7 @@ import { getRandomInt } from "../../modules/random";
 import { TabItem } from "../Search/Search";
 import { Link, Outlet, useParams } from "react-router-dom";
 import Sidebar from "./partials/ProjectDetail/partials/Sidebar";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { ProjectDetail } from "@/types/project";
 import { GET } from "@/modules/request";
 import { formatTimeAgo } from "@/modules/formatTimeAgo";
@@ -20,6 +20,7 @@ export default function Project() {
     queryKey: ["projectDetail", projectId],
     queryFn: async () => await GET(`/api/Project/${projectId}`),
   });
+
   const items = [
     {
       title: <Link to={`/search/projects`}>Projects</Link>,
@@ -62,10 +63,10 @@ export default function Project() {
                   <Skeleton.Input active style={{ width: 400 }} />
                 ) : (
                   <>
-                    {data?.projectName}
+                    {data?.value?.projectName}
                     {dayjs().isBefore(
-                      dayjs(data?.postDate!).add(
-                        data?.availableTimeRange || 0,
+                      dayjs(data?.value?.postDate!).add(
+                        data?.value?.availableTimeRange || 0,
                         "days"
                       )
                     ) ? (
@@ -124,7 +125,7 @@ export default function Project() {
           <Outlet />
         </div>
         <div className="col-span-3 dark:bg-white/5 rounded-md">
-          <Sidebar />
+          <Sidebar clientId={data?.value?.clientId} />
         </div>
       </div>
     </div>
