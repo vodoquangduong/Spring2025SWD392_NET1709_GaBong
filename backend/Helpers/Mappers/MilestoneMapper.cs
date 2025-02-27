@@ -12,7 +12,7 @@ namespace Helpers.Mappers
                 MilestoneId = milestone.MilestoneId,
                 MilestoneName = milestone.MilestoneName,
                 ProjectId = milestone.ProjectId,
-                Deadline = milestone.DeadlineDate.ToString("dd-MM-yyyy"),
+                Deadline = milestone.DeadlineDate,
                 Description = milestone.MilestoneDescription,
                 Amount = milestone.PayAmount,
                 Status = milestone.Status

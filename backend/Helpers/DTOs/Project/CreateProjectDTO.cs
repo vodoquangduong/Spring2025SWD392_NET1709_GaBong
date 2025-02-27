@@ -1,4 +1,5 @@
 
+using Helpers.DTOs.Milestone;
 using System.ComponentModel.DataAnnotations;
 
 
@@ -22,6 +23,9 @@ namespace Helpers.DTOs.Project
 
         [Required]
         public List<long> SkillIds { get; set; } = new List<long>();
+
+        [Required]
+        public List<CreateMilestoneWithProjectDTO> Milestones {  get; set; } = new List<CreateMilestoneWithProjectDTO> { };
 
     }
 }

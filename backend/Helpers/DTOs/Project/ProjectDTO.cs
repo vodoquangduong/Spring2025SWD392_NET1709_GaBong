@@ -2,6 +2,7 @@ using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Helpers.DTOs.Milestone;
 
 public class ProjectDTO
 {
@@ -18,4 +19,5 @@ public class ProjectDTO
 
     public ProjectStatus Status { get; set; }
     public List<long> SkillIds { get; set; } = new List<long>();
+    public List<Milestone> Miletones { get; set; } = new List<Milestone>();  
 }

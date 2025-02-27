@@ -19,7 +19,7 @@ public static class ProjectMapper
             AvailableTimeRange = project.AvailableTimeRange,
             ProjectDescription = project.ProjectDescription,
             Status = project.Status,
-            SkillIds = project.SkillRequired?.Select(sr => sr.SkillId).ToList() ?? new List<long>()
+            SkillIds = project.SkillRequired?.Select(sr => sr.SkillId).ToList() ?? new List<long>(),
         };
     }
 }

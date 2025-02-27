@@ -40,8 +40,24 @@ namespace Services.Implements
                         SkillId = skillId
                     }).ToList()
                 };
+
                 var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
                 await _unitOfWork.SaveChangesAsync();
+
+                var milestones = projectDto.Milestones.Select(m => new Milestone
+                {
+                    ProjectId = createProject.ProjectId,
+                    MilestoneName = m.MilestoneName,
+                    DeadlineDate = m.Deadline,
+                    MilestoneDescription = m.Description,
+                    PayAmount = m.Amount,
+                    Status = MilestoneStatus.NotStarted,
+                }).ToList();
+
+                await _unitOfWork.GetRepo<Milestone>().CreateAllAsync(milestones);
+                await _unitOfWork.SaveChangesAsync(); 
+
+               // return Result.Success(createProject.ToProjectDTO());
                 return Result.Success(createProject.ToProjectDTO());
             }
             catch (Exception e)
@@ -59,18 +75,18 @@ namespace Services.Implements
         {
             try
             {
-            var queryOptions = new QueryBuilder<Project>()
-            .WithTracking(false) // No tracking for efficient
-            .WithInclude(p => p.SkillRequired)
-            .WithPredicate(p => p.Status == ProjectStatus.Verified)
-            .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
-            .Build();
-            var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);
-            var paginatedProjects =  await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize, project => project.ToProjectDTO());
-            // var projectDTOs = paginatedProjects.Items
-            //                                     .Select(project => project.ToProjectDTO())
-            //                                     .ToList();
-            return Result.Success(paginatedProjects);
+                var queryOptions = new QueryBuilder<Project>()
+                .WithTracking(false) // No tracking for efficient
+                .WithInclude(p => p.SkillRequired)
+                .WithPredicate(p => p.Status == ProjectStatus.Verified)
+                .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
+                .Build();
+                var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);
+                var paginatedProjects = await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize, project => project.ToProjectDTO());
+                // var projectDTOs = paginatedProjects.Items
+                //                                     .Select(project => project.ToProjectDTO())
+                //                                     .ToList();
+                return Result.Success(paginatedProjects);
             }
             catch (Exception e)
             {
