@@ -11,11 +11,12 @@ namespace Services.Interfaces
 {
     public interface IProjectService
     {
-        Task<PaginatedResult<Project>> GetAllProjectsAsync(int pageNumber, int pageSize);
+        Task<object> GetAllProjectsVerifiedAsync(int pageNumber, int pageSize);
         Task<ProjectDTO> GetProjectByIdAsync(long id);
         Task<Project> CreateProjectAsync(CreateProjectDTO projectDto);
         Task<Project> UpdateProjectAsync(Project project);
         Task<bool> DeleteProjectAsync(long id);
         Task<Project> VerifyProjectAsync(long projectId, long staffId);
+        Task<Project> ChooseFreelancerAsync(long projectId, long freelancerId);
     }
 }
