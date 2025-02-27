@@ -13,30 +13,28 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
   const chatService = new ChatService();
   const { accountId: currentUserId } = useAuthStore();
   const selectedUserId = currentPartner.accountId;
-  const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<MessageItemProps[]>([]);
   const messageEndRef = useRef<HTMLDivElement>(null);
+  const messageInputRef = useRef<HTMLTextAreaElement>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [roomId, setRoomId] = useState<number>(0);
-  // console.log(accountId);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
+    //> init when change user to chat with
     const initDirectChat = async () => {
       try {
         await chatService.start();
-        if (!isConnected) {
-          console.log("start connect success");
+        setIsConnected(true);
+        chatService.onReceiveMessage((message) => {
+          console.log("Received message:", message);
+          setMessages((prev) => [...prev, message]);
+        });
+        setIsLoading(true);
 
-          // setIsConnected(true);
-          chatService.onReceiveMessage((message) => {
-            console.log("Receive message roi ne");
-            setMessages((prev) => [...prev, message]);
-          });
-        }
-        // Try to get existing room
-        // let response = await axios.get(
-        //   ROUTES.API.CHAT.ROOM_MEMBERS.GET_BY_USER_ID(Number(currentUserId))
-        // );
+        //> Get or create chat room
         let response = await axios.get(
           ROUTES.API.CHAT.ROOMS.GET(
             Number(currentUserId),
@@ -44,8 +42,8 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
           )
         );
 
-        // If no room exists, create one and add users
         if (!response.data) {
+          //> If no room exists, create one (assuming GET handles creation if not found)
           response = await axios.get(
             ROUTES.API.CHAT.ROOMS.GET(
               Number(currentUserId),
@@ -53,16 +51,15 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
             )
           );
 
-          // Add both users to room
           await axios.post(
             ROUTES.API.CHAT.ROOM_MEMBERS.ADD_USER(
-              response.data.id,
+              response.data.chatRoomID,
               Number(currentUserId)
             )
           );
           await axios.post(
             ROUTES.API.CHAT.ROOM_MEMBERS.ADD_USER(
-              response.data.id,
+              response.data.chatRoomID,
               Number(selectedUserId)
             )
           );
@@ -71,14 +68,15 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
         const room = response.data;
         setRoomId(room.chatRoomID);
 
-        // Join room via SignalR
-        console.log("connect ne");
+        //> Join room after
+        console.log("Joining room:", room.chatRoomID);
         await chatService.joinRoom(room.chatRoomID);
 
-        // Load previous messages
+        //> Load previous messages
         const messagesResponse = await axios.get(
           ROUTES.API.CHAT.MESSAGES.GET_BY_ROOM_ID(room.chatRoomID)
         );
+        setIsLoading(false);
         setMessages(messagesResponse.data);
       } catch (error) {
         console.error("Failed to initialize chat:", error);
@@ -88,40 +86,43 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
     if (currentUserId && selectedUserId) {
       initDirectChat();
     }
-  }, [selectedUserId, isConnected]);
 
-  const sendMessage = async () => {
-    console.log("🚀 ~ sendMessage ~ roomId:", roomId);
-    console.log("🚀 ~ sendMessage ~ message:", message);
+    return () => {
+      //TODO: Optionally stop the connection if needed: chatService.connection.stop() or chatService.leaveChat();
+    };
+  }, [currentUserId, selectedUserId]);
 
-    if (message.trim() && roomId) {
-      const messageData = {
-        senderId: Number(currentUserId),
-        chatRoomId: roomId,
-        messageContent: message,
-        sendAt: new Date(),
-      };
+  const sendMessage = async (message: string) => {
+    if (!message.trim() || !roomId || !isConnected) {
+      console.log("Cannot send: message empty, no room, or not connected");
+      return;
+    }
 
-      try {
-        await axios.post(ROUTES.API.CHAT.MESSAGES.CREATE, messageData);
+    const messageData = {
+      senderId: Number(currentUserId),
+      chatRoomId: roomId,
+      messageContent: message,
+      sendAt: new Date(),
+    };
 
-        // await chatService.sendMessage(roomId, message, Number(currentUserId));
-        await chatService.sendMessage(messageData);
-        // setMessage("");
-        // setMessages([...messages, messageData]);
-      } catch (error) {
-        console.error("Failed to send message:", error);
-      }
+    try {
+      setIsLoading(true);
+      await axios.post(ROUTES.API.CHAT.MESSAGES.CREATE, messageData);
+      await chatService.sendMessage(messageData);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Failed to send message:", error);
     }
   };
 
-  // useEffect
-
-  // useEffect(() => {
-  //   if (messageEndRef.current) {
-  //     messageEndRef.current.scrollIntoView({ behavior: "smooth" });
-  //   }
-  // }, [messages]);
+  useEffect(() => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [messages]);
 
   return (
     <div className="bg-white dark:bg-zinc-800 h-full flex flex-col">
@@ -141,23 +142,33 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
         className="bg-zinc-300 dark:bg-zinc-800 grow h-[200px] overflow-y-scroll p-2"
         id="message-box"
       >
-        {messages.map((message: MessageItemProps, index: number) => (
+        {messages.map((message: any, index: number) => (
           <MessageItem
             key={index}
             data={message}
             currentUserId={currentUserId}
           />
         ))}
+        {isLoading && (
+          <div className="flex flex-col justify-center items-center my-4 gap-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
+            <span className="text-zinc-500 pb-8">Loading message ...</span>
+          </div>
+        )}
         <div ref={messageEndRef} className=""></div>
       </div>
       <textarea
         className="p-2 no-ring resize-none bg-white dark:bg-zinc-700 text-secondary-foreground"
         placeholder="Enter your message..."
         rows={2}
-        onChange={(e) => setMessage(e.target.value)}
+        ref={messageInputRef}
         onKeyPress={(e) => {
-          console.log("Ahihi");
-          e.key === "Enter" && sendMessage();
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+
+            sendMessage((e.target as HTMLTextAreaElement).value);
+            (e.target as HTMLTextAreaElement).value = "";
+          }
         }}
       />
     </div>
@@ -179,9 +190,9 @@ const MessageItem = ({
     >
       <p
         className={`min-w-14 whitespace-pre-wrap m-0.5 py-2 px-3 text-[16px] rounded-2xl ${
-          data.sender === "me"
+          data.senderId == currentUserId
             ? "justify-end bg-emerald-600 dark:bg-emerald-600 text-white"
-            : "justify-start bg-zinc-300"
+            : "justify-start bg-zinc-100"
         }`}
       >
         {data?.messageContent}

@@ -1,4 +1,8 @@
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  HubConnectionState,
+} from "@microsoft/signalr";
 // import { ROUTES } from "../config/routes";
 
 const API_BASE = "http://localhost:7273";
@@ -42,58 +46,82 @@ export class ChatService {
       .withUrl(ROUTES.API.CHAT.HUB)
       .withAutomaticReconnect()
       .build();
+
+    this.connection.onclose((error) =>
+      console.log("Connection closed:", error)
+    );
+    this.connection.onreconnecting((error) =>
+      console.log("Reconnecting:", error)
+    );
+    this.connection.onreconnected(() => console.log("Reconnected!"));
   }
 
   async start() {
-    await this.connection.start();
+    if (this.connection.state === HubConnectionState.Connected) {
+      console.log("Connection already started.");
+      return;
+    }
+
+    try {
+      console.log("Starting connection...");
+      await this.connection.start();
+      console.log(
+        "Connection started successfully:",
+        this.connection.connectionId
+      );
+    } catch (error) {
+      console.error("Failed to start connection:", error);
+      throw error;
+    }
+  }
+
+  private async ensureConnected() {
+    if (this.connection.state !== HubConnectionState.Connected) {
+      //> start connect again if not connected
+      await this.start();
+    }
   }
 
   async joinRoom(roomId: number) {
-    console.log(this.connection.connectionId);
-    await this.connection.invoke("JoinRoom", roomId);
+    //> check if the client already connect or not
+    await this.ensureConnected();
+    console.log(
+      "Joining room:",
+      roomId,
+      "Connection ID:",
+      this.connection.connectionId
+    );
+    try {
+      await this.connection.invoke("JoinRoom", roomId);
+      console.log("Successfully joined room:", roomId);
+    } catch (error) {
+      console.error("Failed to join room:", error);
+      throw error;
+    }
   }
 
-  // async joinRoom(roomId: number) {
-  //   // Ensure connection is fully ready before joining
-  //   if (this.connection.state !== "Connected") {
-  //     try {
-  //       console.log("Connection not ready, starting...");
-  //       await this.connection.start();
-  //       // Wait a brief moment to ensure connection is fully established
-  //       await new Promise((resolve) => setTimeout(resolve, 100));
-  //     } catch (err) {
-  //       console.error("Error starting connection:", err);
-  //       throw err;
-  //     }
-  //   }
-
-  //   console.log(`Joining room ${roomId}...`);
-  //   try {
-  //     // Now invoke the JoinRoom method
-  //     await this.connection.invoke("JoinRoom", roomId);
-  //     console.log(`Successfully joined room ${roomId}`);
-  //   } catch (err) {
-  //     console.error(`Failed to join room ${roomId}:`, err);
-  //     throw err;
-  //   }
-  // }
-
-  // async sendMessage(roomId: number, message: string, userId: number) {
-  //   console.log("Sending message to room:", roomId, message, userId);
-  //   await this.connection.invoke("SendMessage", roomId, message, userId);
-  // }
-
   async sendMessage(messageDTO: any) {
-    console.log("Dang o send message 2 neeeeee");
-    console.log(messageDTO);
-    console.log(this.connection.connectionId);
-
-    // await this.connection.start();
-    await this.connection.invoke("SendMessage", messageDTO);
+    await this.ensureConnected();
+    console.log(
+      "Sending message:",
+      messageDTO,
+      "Connection ID:",
+      this.connection.connectionId
+    );
+    try {
+      await this.connection.invoke("SendMessage", messageDTO);
+      console.log("Message sent successfully!");
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      throw error;
+    }
   }
 
   onReceiveMessage(callback: (message: any) => void) {
-    console.log("Receiving message:", callback);
-    this.connection.on("ReceiveMessage", callback);
+    console.log("Setting up message receiver...");
+    this.connection.on("ReceiveMessage", (message) => {
+      console.log("Received message:", message);
+      callback(message);
+    });
   }
 }
