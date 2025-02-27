@@ -25,7 +25,7 @@ namespace Services.Implements
         public async Task<ChatRoom> CreateDmChatRoomAsync(CreateChatRoomDTO createChatDTO)
         {
             var existedChatRoom = await GetDmChatRoomAsync(createChatDTO.ClientId, createChatDTO.FreelancerId);
-            if(existedChatRoom != null)
+            if (existedChatRoom != null)
             {
                 return existedChatRoom;
             }
@@ -33,10 +33,14 @@ namespace Services.Implements
             //TODO: change this chatroom name
             var createdChatRoom = await CreateChatRoom(createChatDTO.ChatRoomName);
 
-            await _unitOfWork.GetRepo<RoomDetail>().CreateAsync(new RoomDetail() { AccountId = createChatDTO.ClientId, 
+            await _unitOfWork.GetRepo<RoomDetail>().CreateAsync(new RoomDetail()
+            {
+                AccountId = createChatDTO.ClientId,
                 ChatRoomId = createdChatRoom.ChatRoomID
             });
-            await _unitOfWork.GetRepo<RoomDetail>().CreateAsync(new RoomDetail() { AccountId = createChatDTO.FreelancerId, 
+            await _unitOfWork.GetRepo<RoomDetail>().CreateAsync(new RoomDetail()
+            {
+                AccountId = createChatDTO.FreelancerId,
                 ChatRoomId = createdChatRoom.ChatRoomID
             });
 
@@ -57,33 +61,34 @@ namespace Services.Implements
 
         public async Task<IEnumerable<ChatRoom>> GetChatRoomsByUserIdAsync(long accountId)
         {
-            var queryOption = new QueryBuilder<RoomDetail>()
+            var queryRoomDetail = new QueryBuilder<RoomDetail>()
                 .WithTracking(false)
                 .WithPredicate(roomDetail => roomDetail.AccountId.Equals(accountId))
                 .WithInclude(r => r.ChatRooms)
                 .Build();
 
-            //var result = await _unitOfWork.GetRepo<RoomDetail>().GetAllAsync(queryOption);
-            //return result.Select(rd => rd.ChatRooms);
-            var roomDetail = await _unitOfWork.GetRepo<RoomDetail>().GetAllAsync(queryOption);
+            var roomDetail = await _unitOfWork.GetRepo<RoomDetail>().GetAllAsync(queryRoomDetail);
 
-            var roomId = roomDetail.Select(rd => rd.ChatRooms.ChatRoomID);
+            var roomIdList = roomDetail.Select(rd => rd.ChatRooms.ChatRoomID);
 
             var roomQuery = new QueryBuilder<ChatRoom>()
                 .WithTracking(false)
-                .WithPredicate(r => roomId.Contains(r.ChatRoomID))
-                .WithInclude(r => r.RoomDetails)
+                .WithPredicate(r => roomIdList.Contains(r.ChatRoomID))
                 .Build();
-            var room =  await _unitOfWork.GetRepo<ChatRoom>().GetAllAsync(roomQuery);
-            //room.Where(r => roomId.Contains(r.ChatRoomID));
-            //room.Where(r => !r.RoomDetails.Any(rd => rd.AccountId.Equals(accountId)));
-            foreach(ChatRoom r in room)
+
+            var returnRoom = await _unitOfWork.GetRepo<ChatRoom>().Get(roomQuery)
+                .Include(cr => cr.RoomDetails)
+                .ThenInclude(rd => rd.Account)
+                .ToListAsync();
+
+
+            foreach (ChatRoom r in returnRoom)
             {
-                var temp = r.RoomDetails.AsQueryable().Where(rd => !rd.AccountId.Equals(accountId)).ToList();
-                r.RoomDetails = temp;
+                var removeCurrentUserFromRoomDetail = r.RoomDetails.AsQueryable().Where(rd => !rd.AccountId.Equals(accountId)).ToList();
+                r.RoomDetails = removeCurrentUserFromRoomDetail;
             }
 
-            return room;
+            return returnRoom;
         }
 
         public async Task<ChatRoom?> GetDmChatRoomAsync(long clientId, long freelancerId)

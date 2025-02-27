@@ -33,7 +33,7 @@ namespace API.Controllers
             return Ok(chatRooms);
         }
 
-        [HttpGet("{clientId}, {freelancerId}")]
+        [HttpGet("{clientId}/{freelancerId}")]
         public async Task<IActionResult> GetDmChatRoom([FromRoute] long clientId, [FromRoute] long freelancerId)
         {
             var chatRoom = await _chatRoomService.GetDmChatRoomAsync(clientId, freelancerId);
