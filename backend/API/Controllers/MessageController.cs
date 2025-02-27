@@ -31,7 +31,7 @@ namespace API.Controllers
         }
 
         /// <summary>
-        /// Send a message to room11111222.
+        /// Send a message to room.
         /// </summary>
         /// <response code="200">Success.</response>
         /// <response code="404">Failed.</response>

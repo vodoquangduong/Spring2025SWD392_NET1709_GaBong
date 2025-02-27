@@ -17,6 +17,7 @@ export const ROUTES = {
     CHAT: {
       ROOMS: {
         GET_ALL: `${API_BASE}/api/chatroom`,
+        CREATE: `${API_BASE}/api/ChatRoom`,
         GET: (currentUserId: number, selectedUserId: number) =>
           `${API_BASE}/api/chatroom/${currentUserId}/${selectedUserId}`,
         GET_BY_ID: (id: number) => `${API_BASE}/api/chatroom/${id}`,
@@ -73,6 +74,17 @@ export class ChatService {
       );
     } catch (error) {
       console.error("Failed to start connection:", error);
+      throw error;
+    }
+  }
+
+  async stop() {
+    try {
+      console.log("Stopping connection...");
+      await this.connection.stop();
+      console.log("Connection stopped successfully.");
+    } catch (error) {
+      console.error("Failed to stop connection:", error);
       throw error;
     }
   }

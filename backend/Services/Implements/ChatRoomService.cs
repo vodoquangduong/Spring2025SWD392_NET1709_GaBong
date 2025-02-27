@@ -31,6 +31,7 @@ namespace Services.Implements
             }
 
             //TODO: change this chatroom name
+            System.Console.WriteLine("Hello create chat room");
             var createdChatRoom = await CreateChatRoom(createChatDTO.ChatRoomName);
 
             await _unitOfWork.GetRepo<RoomDetail>().CreateAsync(new RoomDetail() { AccountId = createChatDTO.ClientId, 

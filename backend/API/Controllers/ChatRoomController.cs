@@ -53,7 +53,6 @@ namespace API.Controllers
             return Ok(chatRoom);
         }
 
-
         /// <summary>
         /// Create a chat room between client and freelancer.
         /// </summary>

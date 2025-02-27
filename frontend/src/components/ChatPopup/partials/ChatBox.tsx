@@ -3,16 +3,17 @@ import { ChatService, ROUTES } from "../services/chatService";
 import useAuthStore from "@/stores/authStore";
 import { GET, POST } from "@/modules/request";
 import axios from "axios";
+import { Empty, Skeleton } from "antd";
 
 type MessageItemProps = {
   content: string;
   sender: string;
 };
 
-export default function ChatBox({ currentPartner }: { currentPartner: any }) {
+export default function ChatBox({ currentRoom }: { currentRoom: any }) {
   const chatService = new ChatService();
   const { accountId: currentUserId } = useAuthStore();
-  const selectedUserId = currentPartner.accountId;
+  const currentRoomId = currentRoom?.chatRoomID;
   const [messages, setMessages] = useState<MessageItemProps[]>([]);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
@@ -20,82 +21,68 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
   const [roomId, setRoomId] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  // useEffect()
+  useEffect(() => {
+    // Reset messages when partner changes
+    setMessages([]);
+    return () => {
+      // Cleanup: Stop the connection when partner changes or component unmounts
+      chatService
+        .stop()
+        .then(() => console.log("Connection stopped for partner change"));
+    };
+  }, [currentRoomId]);
 
   useEffect(() => {
-    //> init when selected user changed
+    let isMounted = true;
+
     const initDirectChat = async () => {
       try {
         await chatService.start();
+        if (!isMounted) return;
+
         setIsConnected(true);
+
+        // Register the message handler ONCE
         chatService.onReceiveMessage((message) => {
-          console.log("Received message:", message);
-          setMessages((prev) => [...prev, message]);
+          if (isMounted) {
+            setMessages((prev) => [...prev, message]);
+          }
         });
+
         setIsLoading(true);
 
-        //> Get or create chat room
-        let response = await axios.get(
-          ROUTES.API.CHAT.ROOMS.GET(
-            Number(currentUserId),
-            Number(selectedUserId)
-          )
-        );
+        // Get or create chat room
+        if (!isMounted) return;
 
-        if (!response.data) {
-          //> If no room exists, create one (assuming GET handles creation if not found)
-          response = await axios.get(
-            ROUTES.API.CHAT.ROOMS.GET(
-              Number(currentUserId),
-              Number(selectedUserId)
-            )
-          );
-          console.log(response.data);
+        setRoomId(currentRoomId);
+        console.log("Joining room:", currentRoomId);
+        await chatService.joinRoom(currentRoomId);
 
-          //> add current user to room
-          await axios.post(
-            ROUTES.API.CHAT.ROOM_MEMBERS.ADD_USER(
-              response.data.chatRoomID,
-              Number(currentUserId)
-            )
-          );
-
-          //> add selected user to room
-          await axios.post(
-            ROUTES.API.CHAT.ROOM_MEMBERS.ADD_USER(
-              response.data.chatRoomID,
-              Number(selectedUserId)
-            )
-          );
-        }
-
-        const room = response.data;
-        //> set current room
-        setRoomId(room.chatRoomID);
-
-        //> Join room after
-        console.log("Joining room:", room.chatRoomID);
-        await chatService.joinRoom(room.chatRoomID);
-
-        //> Load previous messages
+        // Load previous messages
         const messagesResponse = await axios.get(
-          ROUTES.API.CHAT.MESSAGES.GET_BY_ROOM_ID(room.chatRoomID)
+          ROUTES.API.CHAT.MESSAGES.GET_BY_ROOM_ID(currentRoomId)
         );
-        setIsLoading(false);
+        if (!isMounted) return;
+
         setMessages(messagesResponse.data);
+        setIsLoading(false);
       } catch (error) {
         console.error("Failed to initialize chat:", error);
       }
     };
 
-    if (currentUserId && selectedUserId) {
+    if (currentUserId && currentRoomId) {
       initDirectChat();
     }
 
+    // Cleanup function: Stop connection and remove listeners
     return () => {
-      //TODO: Optionally stop the connection if needed: chatService.connection.stop() or chatService.leaveChat();
+      isMounted = false;
+      chatService
+        .stop()
+        .then(() => console.log("Connection stopped on cleanup"));
     };
-  }, [currentUserId, selectedUserId]);
+  }, [currentUserId, currentRoomId]);
 
   const sendMessage = async (message: string) => {
     if (!message.trim() || !roomId || !isConnected) {
@@ -133,15 +120,26 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
   return (
     <div className="bg-white dark:bg-zinc-800 h-full flex flex-col">
       <div className="p-4 flex gap-4 border-b dark:border-zinc-700">
-        <img
-          src={`https://robohash.org/${currentPartner?.name}`}
-          className="h-12 aspect-square rounded-full object-cover object-center bg-white"
-        />
+        {currentRoomId ? (
+          <img
+            src={`https://robohash.org/${currentRoomId || "placeholder"}`}
+            className="h-12 aspect-square rounded-full object-cover object-center bg-white"
+          />
+        ) : (
+          <Skeleton.Avatar style={{ height: 50, width: 50 }} />
+        )}
+
         <div>
           <div className="font-bold text-base text-secondary-foreground">
-            {currentPartner?.name}
+            {currentRoom?.chatRoomName || (
+              <Skeleton.Input style={{ width: 280, height: 30 }} />
+            )}
           </div>
-          <div className="text-base text-zinc-500">Active 2h ago</div>
+          {currentRoom?.chatRoomName ? (
+            <div className="text-base text-zinc-500">Active 2h ago</div>
+          ) : (
+            <Skeleton.Input className="mt-1" style={{ height: 10 }} />
+          )}
         </div>
       </div>
       <div
@@ -151,14 +149,24 @@ export default function ChatBox({ currentPartner }: { currentPartner: any }) {
         <div className="pl-2 pr-1 relative py-2">
           {
             //> display message items
-            messages.map((message: any, index: number) => (
-              <MessageItem
-                key={index}
-                data={message}
-                currentUserId={currentUserId}
+            messages.length === 0 && !isLoading && currentRoom ? (
+              <Empty
+                className="mt-8"
+                description="You have no message, start the conversation now"
               />
-            ))
+            ) : (
+              <>
+                {messages.map((message: any, index: number) => (
+                  <MessageItem
+                    key={index}
+                    data={message}
+                    currentUserId={currentUserId}
+                  />
+                ))}
+              </>
+            )
           }
+
           {isLoading && (
             <div
               id="loading"
