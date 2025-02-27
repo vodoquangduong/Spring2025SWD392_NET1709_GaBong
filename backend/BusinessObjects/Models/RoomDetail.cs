@@ -27,7 +27,6 @@ namespace BusinessObjects.Models
         public virtual ChatRoom ChatRooms { get; set; } = null!;
 
         [ForeignKey("AccountId")]
-        [JsonIgnore]
         public virtual Account Account { get; set; } = null!;
     }
 }

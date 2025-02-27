@@ -29,7 +29,9 @@ export default function ProjectList() {
     queryKey: ["projects", page],
     queryFn: async () =>
       await GET(
-        `/api/Project/get-all-project?pageNumber=${page || 1}&pageSize=10`
+        `/api/Project/get-all-verified-project?pageNumber=${
+          page || 1
+        }&pageSize=10`
       ),
   });
   console.log(data);

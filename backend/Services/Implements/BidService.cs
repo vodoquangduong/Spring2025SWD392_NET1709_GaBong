@@ -77,6 +77,7 @@ namespace Services.Implements
         public async Task<Result<IEnumerable<BidDTO>>> GetAllBidsByProjectIdAsync(long projectId)
         {
             var queryOptions = new QueryBuilder<Bid>()
+           .WithInclude(bid => bid.BidOwner)
            .WithTracking(false) // No tracking for efficient
            .WithPredicate(bid => bid.ProjectId == projectId)
            .Build();

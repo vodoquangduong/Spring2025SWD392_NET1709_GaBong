@@ -54,11 +54,11 @@ export default function NotificationDropdown() {
       placement="bottom"
       className="mr-2"
     >
-      <Space>
-        <Badge size="default">
-          <FaRegBell size={20} className="text-white cursor-pointer" />
-        </Badge>
-      </Space>
+      {/* <Space> */}
+      <Badge size="default">
+        <FaRegBell size={20} className="text-white cursor-pointer" />
+      </Badge>
+      {/* </Space> */}
     </Dropdown>
   );
 }

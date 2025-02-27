@@ -16,6 +16,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { UserProfileData } from "./models/types";
 import { profileUseCase } from "./usecases/profileUseCase";
+import useAuthStore from "@/stores/authStore";
+import { defaultAvatar } from "@/modules/default";
 
 const { Title } = Typography;
 
@@ -24,6 +26,7 @@ const UserProfile = () => {
   const { message } = App.useApp();
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { avatar } = useAuthStore();
 
   useEffect(() => {
     loadProfile();
@@ -133,7 +136,7 @@ const UserProfile = () => {
               <div className="relative mb-4">
                 <Avatar
                   size={160}
-                  src={profile.avatarURL}
+                  src={avatar || defaultAvatar}
                   className="border-4 border-white shadow-lg"
                 />
                 <Button

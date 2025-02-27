@@ -18,6 +18,6 @@ namespace Helpers.DTOs.Bid
         public DateTime CreatedAt { get; set; }
         public string BidDescription { get; set; } = string.Empty;
 
-        //public AccountDTO BidOwner { get; set; } = null!;
+        public AccountDTO BidOwner { get; set; } = null!;
     }
 }

@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import { useForm } from "react-hook-form";
 import { formSchema } from "../schemas";
 import { POST } from "@/modules/request";
+import countries from "@/mocks/countries.json";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function CreateProjectForm({
@@ -27,6 +28,7 @@ export default function CreateProjectForm({
       projectDescription: "",
       estimateBudget: "",
       availableTimeRange: "",
+      location: "",
     },
     resolver: zodResolver(formSchema()),
   });
@@ -93,6 +95,23 @@ export default function CreateProjectForm({
             options={options}
           />
         </div>
+        <div className="col-span-2">
+          <div className="font-semibold text-base pb-2">Location</div>
+          <select className="py-2 px-2 input-style" {...register("location")}>
+            <option className="input-style" value={""}>
+              Select a location
+            </option>
+            {countries.map((item: string) => (
+              <option
+                className="input-style"
+                value={item}
+                // selected={item.id == record.campaign_id}
+              >
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
         <div>
           <div className="font-semibold text-base pb-2">Estimate Budget</div>
           <div className="input-style flex gap-2 py-[10px]">
@@ -109,6 +128,7 @@ export default function CreateProjectForm({
             <div className="error-msg">{errors.estimateBudget.message}</div>
           )}
         </div>
+
         <div>
           <div className="font-semibold text-base pb-2">
             Available Time Range

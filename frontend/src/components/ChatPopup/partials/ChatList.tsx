@@ -1,37 +1,56 @@
+import { Empty, Skeleton } from "antd";
+
 export default function ChatList({
-  partnerList,
-  setCurrentPartner,
+  roomList,
+  isLoading,
+  setCurrentRoom,
 }: {
-  partnerList: string[];
-  setCurrentPartner: React.Dispatch<React.SetStateAction<string>>;
+  roomList: any[];
+  isLoading: boolean;
+  setCurrentRoom: React.Dispatch<React.SetStateAction<string>>;
 }) {
+  console.log("🚀 ~ roomList:", roomList);
+
   return (
     <div className="dark:bg-zinc-800 bg-white border-r dark:border-zinc-700">
-      <div className="p-2 font-bold border-b dark:border-zinc-600 text-secondary-foreground">
-        Partner List
+      <div className="py-2 px-4 font-bold border-b dark:border-zinc-600 text-secondary-foreground">
+        Room List
       </div>
       <div>
-        {partnerList.map((partner: string, index: number) => (
-          <div onClick={() => setCurrentPartner(partner)} key={index}>
-            <PartnerItem key={index} data={partner} />
+        {isLoading && (
+          <div className="mt-10 w-full flex justify-center items-center text-zinc-500">
+            Loading room...
+          </div>
+        )}
+        {roomList?.map((item: any, index: number) => (
+          <div onClick={() => setCurrentRoom(item)} key={index}>
+            <RoomItem key={index} data={item} />
           </div>
         ))}
+        {!isLoading && roomList.length == 0 && (
+          <Empty className="mt-10" description="No room found" />
+        )}
       </div>
     </div>
   );
 }
 
-const PartnerItem = ({ data }: { data: string }) => {
+const RoomItem = ({ data }: { data: any }) => {
   return (
     <div className="flex items-center gap-4 p-3 border-b dark:border-zinc-700 bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 cursor-pointer">
       <img
-        src={`https://robohash.org/${data}`}
+        src={`https://robohash.org/${data.chatRoomName}`}
         className="h-12 aspect-square rounded-full object-cover object-center bg-white"
       />
       <div className="text-sm">
-        <div className="font-bold text-secondary-foreground">Mohamed Salah</div>
+        <div
+          className="font-bold text-secondary-foreground line-clamp-1"
+          title={data?.roomDetails[0]?.account?.name}
+        >
+          {data?.roomDetails[0]?.account?.name}
+        </div>
         <div className="text-zinc-500">
-          <span>Active 2h ago</span>
+          {data?.roomDetails[0]?.account?.email}
         </div>
       </div>
     </div>

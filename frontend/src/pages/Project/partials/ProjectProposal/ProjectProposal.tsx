@@ -31,7 +31,7 @@ export default function ProjectProposal() {
           </div>
         </>
       ) : (
-        <Empty />
+        <Empty className="mt-10" description={"This project has no bids"} />
       )}
     </>
   );

@@ -18,6 +18,11 @@ namespace API.Controllers
             this.messageService = messageService;
         }
 
+        /// <summary>
+        /// Get all message of a room.
+        /// </summary>
+        /// <response code="200">Success.</response>
+        /// <response code="404">Failed.</response>
         [HttpGet("messages/{chatRoomId}")]
         public async Task<IActionResult> GetChatRoomMessages([FromRoute] long chatRoomId)
         {
@@ -25,6 +30,11 @@ namespace API.Controllers
             return Ok(result.Select(r => r.ToMessageDTO()));
         }
 
+        /// <summary>
+        /// Send a message to room.
+        /// </summary>
+        /// <response code="200">Success.</response>
+        /// <response code="404">Failed.</response>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] MessageDTO messageDTO)
         {
