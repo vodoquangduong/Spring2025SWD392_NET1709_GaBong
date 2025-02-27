@@ -28,6 +28,16 @@ namespace API.Controllers
             }
             return Ok(response);
         }
+        [HttpGet("get-all-pending-project")]
+        public async Task<IActionResult> GetAllProjectsPendingAsync([FromQuery] Query query)
+        {
+            var response = await _projectService.GetAllProjectsPendingAsync(query.PageNumber, query.PageSize);
+            if (response.IsFailure)
+            {
+                return BadRequest(response.Error);
+            }
+            return Ok(response);
+        }
 
         [HttpPost("post-project")]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO project)

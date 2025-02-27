@@ -20,6 +20,7 @@ public static class ProjectMapper
             ProjectDescription = project.ProjectDescription,
             Status = project.Status,
             SkillIds = project.SkillRequired?.Select(sr => sr.SkillId).ToList() ?? new List<long>(),
+            Miletones = (List<Milestone>) project.Milestones,
         };
     }
 }

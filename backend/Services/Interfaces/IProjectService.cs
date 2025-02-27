@@ -7,6 +7,7 @@ namespace Services.Interfaces
     public interface IProjectService
     {
         Task<Result<PaginatedResult<ProjectDTO>>> GetAllProjectsVerifiedAsync(int pageNumber, int pageSize);
+        Task<Result<PaginatedResult<ProjectDTO>>> GetAllProjectsPendingAsync(int pageNumber, int pageSize);
         Task<Result<ProjectDTO>> GetProjectByIdAsync(long id);
         Task<Result<ProjectDTO>> CreateProjectAsync(CreateProjectDTO projectDto);
         Task<Result<ProjectDTO>> UpdateProjectAsync(Project project);
