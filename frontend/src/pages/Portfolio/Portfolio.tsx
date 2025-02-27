@@ -1,24 +1,19 @@
+import type { TabsProps } from "antd";
+import { Col, Row, Tabs, Typography } from "antd";
 import { useState } from "react";
-import { TabType } from "./models/types";
 import About from "./partials/About";
 import ProjectGallery from "./partials/ProjectGallery";
 import ServicesOffered from "./partials/ServicesOffered";
 import Skills from "./partials/Skills";
 import VerificationStatus from "./partials/VerificationStatus";
 
+const { Title } = Typography;
+
 const Portfolio: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>("works");
   const [isEditing, setIsEditing] = useState(false);
 
-  const tabs: { id: TabType; label: string }[] = [
-    { id: "works", label: "Works" },
-    { id: "skills", label: "Skills" },
-    { id: "services", label: "Services" },
-    { id: "about", label: "About" },
-  ];
-
-  const renderContent = () => {
-    switch (activeTab) {
+  const renderContent = (activeKey: string) => {
+    switch (activeKey) {
       case "works":
         return (
           <ProjectGallery
@@ -42,42 +37,44 @@ const Portfolio: React.FC = () => {
     }
   };
 
+  const items: TabsProps["items"] = [
+    {
+      key: "works",
+      label: "Works",
+      children: renderContent("works"),
+    },
+    {
+      key: "skills",
+      label: "Skills",
+      children: renderContent("skills"),
+    },
+    {
+      key: "services",
+      label: "Services",
+      children: renderContent("services"),
+    },
+    {
+      key: "about",
+      label: "About",
+      children: renderContent("about"),
+    },
+  ];
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Main Content */}
-        <div className="lg:col-span-8 space-y-8">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-white">
-            Portfolio
-          </h1>
-          {/* Tab Navigation */}
-          <div className="border-b border-gray-200 dark:border-gray-800">
-            <nav className="flex gap-6">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`pb-4 px-2 font-medium transition-colors relative ${
-                    activeTab === tab.id
-                      ? "text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 dark:border-emerald-400"
-                      : "text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
+    <div style={{ padding: "50px 50px" }}>
+      <Row gutter={32}>
+        <Col xs={24} lg={16}>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "24px" }}
+          >
+            <Title level={1}>Portfolio</Title>
+            <Tabs defaultActiveKey="works" items={items} size="large" />
           </div>
-
-          {/* Tab Content */}
-          {renderContent()}
-        </div>
-
-        {/* Sidebar */}
-        <div className="lg:col-span-4 space-y-8">
+        </Col>
+        <Col xs={24} lg={8}>
           <VerificationStatus />
-        </div>
-      </div>
+        </Col>
+      </Row>
     </div>
   );
 };

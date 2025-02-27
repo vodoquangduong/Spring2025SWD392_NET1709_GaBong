@@ -1,50 +1,76 @@
+import { ClockCircleOutlined } from "@ant-design/icons";
+import { Badge, Button, Card, Space, Timeline, Typography } from "antd";
+
+const { Title, Text } = Typography;
+
 const VerificationStatus = () => {
   return (
-    <div className="border rounded-xl p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-semibold mb-1">Verification Status</h2>
-          <p className="text-sm text-gray-500">
+    <Card>
+      <div style={{ marginBottom: 24 }}>
+        <Space direction="vertical" size={4}>
+          <Title level={4} style={{ margin: 0 }}>
+            Verification Status
+          </Title>
+          <Text type="secondary">
             Get your portfolio verified to increase visibility
-          </p>
+          </Text>
+        </Space>
+        <div style={{ marginTop: 16 }}>
+          <Badge
+            status="warning"
+            text={<Text style={{ color: "#d48806" }}>Pending Review</Text>}
+          />
         </div>
-        <span className="px-4 py-1.5 rounded-full text-sm font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">
-          Pending Review
-        </span>
       </div>
 
-      <div className="space-y-6">
-        <div className="flex items-center gap-4 p-4 border rounded-lg">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
-              <span className="font-medium">Document Verification</span>
-            </div>
-            <p className="text-sm text-gray-500">
-              Your documents are being reviewed by our team
-            </p>
-          </div>
-          <span className="text-sm text-gray-500">2 days ago</span>
-        </div>
+      <Space
+        direction="vertical"
+        size="middle"
+        style={{ width: "100%", marginBottom: 24 }}
+      >
+        <Timeline
+          items={[
+            {
+              color: "warning",
+              children: (
+                <Space direction="vertical" size={4}>
+                  <Text strong>Document Verification</Text>
+                  <Text type="secondary">
+                    Your documents are being reviewed by our team
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    2 days ago
+                  </Text>
+                </Space>
+              ),
+            },
+            {
+              color: "gray",
+              children: (
+                <Space direction="vertical" size={4}>
+                  <Text strong>Skills Assessment</Text>
+                  <Text type="secondary">
+                    Pending technical skills verification
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    Waiting
+                  </Text>
+                </Space>
+              ),
+            },
+          ]}
+        />
+      </Space>
 
-        <div className="flex items-center gap-4 p-4 border rounded-lg">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-gray-300"></span>
-              <span className="font-medium">Skills Assessment</span>
-            </div>
-            <p className="text-sm text-gray-500">
-              Pending technical skills verification
-            </p>
-          </div>
-          <span className="text-sm text-gray-500">Waiting</span>
-        </div>
-
-        <button className="w-full px-4 py-2.5 text-white rounded-lg bg-emerald-600 hover:bg-emerald-700 transition-colors">
-          Track Verification Progress
-        </button>
-      </div>
-    </div>
+      <Button
+        type="primary"
+        block
+        style={{ backgroundColor: "#10b981" }}
+        icon={<ClockCircleOutlined />}
+      >
+        Track Verification Progress
+      </Button>
+    </Card>
   );
 };
 
