@@ -53,9 +53,14 @@ export class NotifyService {
   }
 
   async sendNotification(receiverId: number, message: string) {
-    console.log("Send " + message + " to userId " + receiverId);
-
-    this.connection.invoke("NotifyUser", receiverId, message);
+    let createDTO = {
+      AccountId: receiverId,
+      NotificationType: 0,
+      NotificationStatus: 0,
+      Content: message,
+      Time: new Date(),
+    };
+    this.connection.invoke("NotifyUser", createDTO);
   }
 
   async userConnect(userId: number) {

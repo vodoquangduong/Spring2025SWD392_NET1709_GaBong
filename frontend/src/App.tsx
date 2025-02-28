@@ -8,7 +8,6 @@ import { NotifyService } from "./components/ChatPopup/services/notifyService";
 export default function App() {
   const { isDarkMode } = useConfigStore();
   const { defaultAlgorithm, darkAlgorithm } = theme;
-  const noti = new NotifyService();
   // const queryClient = new QueryClient();
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -18,15 +17,17 @@ export default function App() {
     },
   });
 
+  //============================================
+  const noti = new NotifyService();
   const sendNotification = async () => {
     try {
       await noti.start();
       await noti.userConnect(9);
       await noti.sendNotification(1, "test test");
       // await noti.stop();
-      noti.onReceiveNotification((message) => {
-        console.log(message);
-        alert(message);
+      noti.onReceiveNotification((createDTO) => {
+        console.log(createDTO);
+        alert(createDTO);
       });
     } catch (error) {
       console.log(error);
@@ -48,9 +49,7 @@ export default function App() {
     }
   };
 
-  const stopNoti = async () => {
-    await noti.stop();
-  };
+  //==================================
   return (
     <BrowserRouter>
       <AntApp component={false}>
@@ -68,9 +67,10 @@ export default function App() {
         >
           <QueryClientProvider client={queryClient}>
             <MainRoutes />
+            //==============================
             <Button onClick={sendNotification}>Connect 9</Button>
             <Button onClick={sendNotification2}>Connect 1</Button>
-            <Button onClick={stopNoti}>Stop</Button>
+            //=================================
           </QueryClientProvider>
         </ConfigProvider>
       </AntApp>
