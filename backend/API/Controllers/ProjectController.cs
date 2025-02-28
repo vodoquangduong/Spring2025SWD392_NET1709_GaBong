@@ -108,5 +108,16 @@ namespace API.Controllers
             await _projectService.ChooseFreelancerAsync(chooseFreelancerDTO.ProjectId, chooseFreelancerDTO.FreelancerId);
             return Ok("Project is on going");
         }
+
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateProject([FromBody] UpdateProjectDTO updateProjectDTO, [FromRoute] long id)
+        {
+            var result = await _projectService.UpdateProjectAsync(updateProjectDTO, id);
+            if (result.Value == null)
+            {
+                return BadRequest("Project not found");
+            }
+            return Ok("Update project success");
+        }
     }
 }

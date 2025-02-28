@@ -11,7 +11,7 @@ namespace Services.Interfaces
         Task<Result<PaginatedResult<ProjectDTO>>> GetAllProjectsPendingAsync(int pageNumber, int pageSize);
         Task<Result<ProjectDTO>> GetProjectByIdAsync(long id);
         Task<Result<ProjectDTO>> CreateProjectAsync(CreateProjectDTO projectDto);
-        Task<Result<ProjectDTO>> UpdateProjectAsync(Project project);
+        Task<Result<ProjectDTO>> UpdateProjectAsync(UpdateProjectDTO project, long projectId);
         Task<bool> DeleteProjectAsync(long id);
         Task<Result<ProjectDTO>> VerifyProjectAsync(VerrifiedProjectDTO verify);
         Task<Result<ProjectDTO>> ChooseFreelancerAsync(long projectId, long freelancerId);

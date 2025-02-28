@@ -1,4 +1,6 @@
 using BusinessObjects.Models;
+using Helpers.DTOs.Bid;
+using Helpers.Mappers;
 
 public static class ProjectMapper
 {
@@ -21,6 +23,7 @@ public static class ProjectMapper
             Status = project.Status,
             SkillIds = project.SkillRequired?.Select(sr => sr.SkillId).ToList() ?? new List<long>(),
             Miletones = (List<Milestone>) project.Milestones,
+            Bids = project.Bids?.Select(b => b.ToBidDTO()).ToList() ?? new List<BidDTO>()
         };
     }
 }

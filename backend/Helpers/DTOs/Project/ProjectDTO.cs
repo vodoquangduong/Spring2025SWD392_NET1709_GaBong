@@ -3,6 +3,7 @@ using BusinessObjects.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Helpers.DTOs.Milestone;
+using Helpers.DTOs.Bid;
 
 public class ProjectDTO
 {
@@ -20,4 +21,5 @@ public class ProjectDTO
     public ProjectStatus Status { get; set; }
     public List<long> SkillIds { get; set; } = new List<long>();
     public List<Milestone> Miletones { get; set; } = new List<Milestone>();
+    public List<BidDTO> Bids { get; set; } = new List<BidDTO>();
 }

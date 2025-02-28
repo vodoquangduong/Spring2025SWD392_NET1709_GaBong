@@ -56,8 +56,10 @@ namespace BusinessObjects.Models
         [JsonIgnore]
         public virtual ICollection<SkillRequired> SkillRequired { get; set; } = new List<SkillRequired>();
         public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
+        public virtual ICollection<Bid> Bids { get; set; } = new List<Bid>();
         public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();
         public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
+
 
     }
 }
