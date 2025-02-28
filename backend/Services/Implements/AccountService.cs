@@ -3,6 +3,7 @@ using Helpers.DTOs.Account;
 using Helpers.DTOs.Authentication;
 using Helpers.HelperClasses;
 using Helpers.Mappers;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -89,5 +90,24 @@ public class AccountService : IAccountService
         _unitOfWork.GetRepo<Account>().UpdateAsync(existedAccount);
         await _unitOfWork.SaveChangesAsync();
         return existedAccount;
+    }
+
+    public async Task<Result<PaginatedResult<AccountDTO>>> GetAllFreeLancerAsync(int pageSize, int pageNumber)
+    {
+        try
+        {
+            var queryOptions = new QueryBuilder<Account>()
+                .WithTracking(false) // No tracking for efficient
+                .WithPredicate(a => a.Role == BusinessObjects.Enums.AccountRole.Freelancer 
+                                && a.Status == BusinessObjects.Enums.AccountStatus.Active)
+                .Build();
+            var accounts = _unitOfWork.GetRepo<Account>().Get(queryOptions);
+            var paginatedAccounts = await Pagination.ApplyPaginationAsync<Account, AccountDTO>(accounts, pageNumber, pageSize, a => a.ToAccountDTO());
+            return Result.Success(paginatedAccounts);
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<PaginatedResult<AccountDTO>>(new Error("Get all projects failed", $"{e.Message}"));
+        }
     }
 }

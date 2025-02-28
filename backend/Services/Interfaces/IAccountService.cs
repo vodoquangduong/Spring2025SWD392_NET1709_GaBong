@@ -8,6 +8,7 @@ namespace Services.Interfaces;
 public interface IAccountService
 {
     Task<Result<IEnumerable<AccountDTO>>> GetAllAccountAsync();
+    Task<Result<PaginatedResult<AccountDTO>>> GetAllFreeLancerAsync(int pageSize, int pageNumber);
     Task<Result<AccountDTO>> GetAccountByIdAsync(long id);
     Task<Account> GetAccountByEmailAsync(string email);
     Task<Account> CreateAccount(RegisterDTO registerDto);

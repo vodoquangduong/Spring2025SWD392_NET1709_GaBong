@@ -26,14 +26,16 @@ namespace Services.Implements
 
             var queryOptions = new QueryBuilder<SkillRequired>()
                 .WithTracking(false)
-        .WithInclude(sr => sr.SkillCategory)
-        .Build();
+                .WithInclude(sr => sr.SkillCategory)
+                .WithInclude(sr => sr.ProjectId)
+                .Build();
 
             var skills = await _unitOfWork.GetRepo<SkillRequired>().GetAllAsync(queryOptions);
 
-            return skills.Where(sr => sr.ProjectId == projectId)
-                         .Select(sr => sr.SkillCategory)
-                         .ToList();
+            //return skills.Where(sr => sr.ProjectId == projectId)
+            //             .Select(sr => sr.SkillCategory)
+            //             .ToList();
+            return skills.Select(sr => sr.SkillCategory).ToList();
         }
     }
 }

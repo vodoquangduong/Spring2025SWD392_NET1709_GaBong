@@ -37,7 +37,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
-        [HttpGet("{id}")]
+        [HttpGet("get-by-project/{id}")]
         public async Task<IActionResult> GetMilestoneByProjectId([FromRoute] long id)
         {
             var result = await _milestoneService.GetMilestoneByProjectIdAsync(id);
