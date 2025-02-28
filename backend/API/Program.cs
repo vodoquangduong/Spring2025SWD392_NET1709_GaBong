@@ -94,6 +94,7 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IChatRoomService, ChatRoomService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<ISkillRequiredService, SkillRequiredService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddSignalR();
 
