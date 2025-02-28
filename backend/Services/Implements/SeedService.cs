@@ -55,14 +55,60 @@ namespace Services.Implements
 
         private async Task InsertSkillCategories()
         {
+            
             var skillCategories = new List<string>
-        {
-            "Web Development", "Mobile Development", "Data Science", "Machine Learning",
-            "Cybersecurity", "Cloud Computing", "Blockchain", "UI/UX Design",
-            "Project Management", "Marketing", "Finance", "Business Analysis",
-            "Graphic Design", "SEO Optimization", "Game Development", "HTML", "CSS",
-            "Java", ".NET", "AWS"
-        };
+            {
+                "Web Development", "Frontend Development", "Backend Development", "Full Stack Development", "JavaScript",
+                "TypeScript", "React.js", "Vue.js", "Angular", "Svelte", "Next.js", "Nuxt.js", "HTML", "CSS", "SCSS",
+                "Tailwind CSS", "Bootstrap", "Material UI", "jQuery", "WordPress Development", "Shopify Development",
+                "WooCommerce", "Magento", "Webflow", "Wix Development", "PHP", "Laravel", "Symfony", "CodeIgniter",
+                "Python", "Django", "Flask", "FastAPI", "Node.js", "Express.js", "NestJS", "Ruby on Rails", "Golang",
+                "Java", "Spring Boot", "Kotlin", "Android Development", "iOS Development", "Swift", "Objective-C",
+                "Flutter", "React Native", "Xamarin", "Ionic", "Firebase", "PostgreSQL", "MySQL", "SQLite", "MongoDB",
+                "Redis", "DynamoDB", "GraphQL", "REST API", "SOAP API", "Microservices", "Docker", "Kubernetes",
+                "CI/CD Pipelines", "Jenkins", "Git", "GitHub", "GitLab", "Bitbucket", "AWS", "Azure",
+                "Google Cloud Platform (GCP)", "Terraform", "Ansible", "Cybersecurity", "Ethical Hacking",
+                "Penetration Testing", "Network Security", "Blockchain Development", "Smart Contracts", "Solidity",
+                "Ethereum", "Binance Smart Chain (BSC)", "Web3.js", "Rust", "C++", "C#", "Unity Development",
+                "Unreal Engine", "Game Development", "AR/VR Development", "3D Modeling", "Blender", "Maya",
+                "Cinema 4D", "AutoCAD", "SketchUp", "Graphic Design", "UI/UX Design", "Adobe Photoshop",
+                "Adobe Illustrator", "Adobe XD", "Figma", "Canva", "CorelDRAW", "InDesign", "Logo Design",
+                "Branding", "Motion Graphics", "Video Editing", "Adobe Premiere Pro", "Final Cut Pro",
+                "DaVinci Resolve", "After Effects", "Animation", "2D Animation", "3D Animation",
+                "Whiteboard Animation", "Explainer Videos", "Copywriting", "SEO Writing", "Technical Writing",
+                "Blog Writing", "Article Writing", "Creative Writing", "Ghostwriting", "Scriptwriting",
+                "Resume Writing", "Business Writing", "Translation Services", "Transcription", "Proofreading",
+                "Editing", "Content Marketing", "Digital Marketing", "Social Media Marketing", "Facebook Marketing",
+                "Instagram Marketing", "LinkedIn Marketing", "Twitter Marketing", "TikTok Marketing", "YouTube Marketing",
+                "Email Marketing", "SMS Marketing", "Affiliate Marketing", "Influencer Marketing", "PPC Advertising",
+                "Google Ads", "Facebook Ads", "LinkedIn Ads", "Instagram Ads", "Twitter Ads", "TikTok Ads", "Bing Ads",
+                "SEO (Search Engine Optimization)", "On-Page SEO", "Off-Page SEO", "Technical SEO", "Local SEO",
+                "Keyword Research", "Backlink Building", "Google Analytics", "Google Search Console", "Website Auditing",
+                "Lead Generation", "CRM Management", "HubSpot", "Salesforce", "Zoho CRM", "Business Development",
+                "Sales Strategy", "Cold Calling", "Email Outreach", "Customer Support", "Virtual Assistance",
+                "Data Entry", "Market Research", "Project Management", "Scrum Master", "Agile Methodology", "Jira",
+                "Trello", "Asana", "Monday.com", "ClickUp", "Notion", "Finance Consulting", "Accounting", "QuickBooks",
+                "Xero", "SAP", "Bookkeeping", "Financial Analysis", "Financial Modeling", "Investment Research",
+                "Stock Trading", "Cryptocurrency Trading", "Forex Trading", "Risk Management", "Business Analysis",
+                "Data Science", "Machine Learning", "Deep Learning", "Artificial Intelligence", "TensorFlow", "PyTorch",
+                "Keras", "Scikit-Learn", "Computer Vision", "Natural Language Processing", "Big Data", "Apache Spark",
+                "Hadoop", "Data Engineering", "ETL Pipelines", "Snowflake", "Power BI", "Tableau", "Data Visualization",
+                "Cloud Computing", "Serverless Computing", "IoT Development", "Embedded Systems", "Robotics",
+                "Automation", "Process Optimization", "DevOps", "Site Reliability Engineering (SRE)", "Performance Tuning",
+                "High Availability Systems", "Quantum Computing", "Bioinformatics", "Scientific Computing",
+                "Mathematical Modeling", "Actuarial Science", "Econometrics", "Game Theory", "Cyber Law",
+                "Intellectual Property Law", "Regulatory Compliance", "GDPR Compliance", "Legal Writing",
+                "Public Relations", "Corporate Communications", "Brand Management", "Event Planning",
+                "Fundraising", "Grant Writing", "Non-Profit Management", "HR Consulting", "Employee Training",
+                "Recruitment & Talent Acquisition", "HR Analytics", "Workforce Planning", "Organizational Development",
+                "Leadership Coaching", "Psychometric Testing", "Education & E-Learning", "Curriculum Development",
+                "Instructional Design", "Online Course Creation", "Tutoring", "Standardized Test Preparation",
+                "Life Coaching", "Personal Finance Advising", "Real Estate Investment", "Supply Chain Management",
+                "Logistics", "E-commerce Strategy", "Dropshipping", "Amazon FBA", "Customer Journey Mapping",
+                "User Research", "Growth Hacking", "Venture Capital Analysis", "Business Valuation",
+                "Lean Startup Methodology", "Design Thinking", "Agile Coaching", "Kaizen", "Six Sigma",
+                "Lean Manufacturing", "Environmental Consulting", "Sustainability Strategy"
+            };
 
 
             foreach (var skill in skillCategories)
@@ -71,7 +117,8 @@ namespace Services.Implements
             }
 
             await _context.SaveChangesAsync();
-            Console.WriteLine("Inserted skill categories successfully!");
+            Console.WriteLine($"Inserted skill categories successfully! {skillCategories.Count} index) ");
+
         }
 
         private Account GenerateFakeAccount()
@@ -191,11 +238,11 @@ namespace Services.Implements
             {
                 accounts.Add(GenerateFakeAccount());
             }
-            
+
             await _context.Accounts.AddRangeAsync(accounts);
             await _context.SaveChangesAsync();
 
-            Console.WriteLine($"Inserted {count} fake accounts successfully!");
+            Console.WriteLine($"Inserted {accounts.Count} fake accounts successfully!");
         }
     }
 }

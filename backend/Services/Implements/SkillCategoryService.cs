@@ -18,10 +18,23 @@ namespace Services.Implements
         }
         public async Task<SkillCategoryDTO> CreateSkillCategoryAsync(CreateSkillCategoryDTO createSkillCategoryDTO)
         {
-            var skillCategory = new SkillCategory()
+
+            var queryOption = new QueryOptions<SkillCategory>
             {
-                SkillName = createSkillCategoryDTO.SkillName,
+                Predicate = s => s.SkillName == createSkillCategoryDTO.SkillName
             };
+
+            var existingSkill = await _unitOfWork.GetRepo<SkillCategory>().GetSingleAsync(queryOption);
+
+            if (existingSkill != null)
+            {
+                throw new InvalidOperationException("Skill category with this name already exists.");
+            }
+            var skillCategory = new SkillCategory
+            {
+                SkillName = createSkillCategoryDTO.SkillName
+            };
+
             var result = await _unitOfWork.GetRepo<SkillCategory>().CreateAsync(skillCategory);
             await _unitOfWork.SaveChangesAsync();
             return result.ToSkillCategoryDTO();
