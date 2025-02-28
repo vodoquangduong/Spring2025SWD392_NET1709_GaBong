@@ -54,7 +54,7 @@ export default function MainRoutes() {
               <Route path=":id" element={<Project />}>
                 <Route path="details" element={<ProjectDetail />} />
                 <Route path="proposals" element={<ProjectProposal />} />
-                <Route path="payments" element={<ProjectPayment />} />
+                <Route path="milestones" element={<ProjectPayment />} />
               </Route>
             </Route>
             <Route path="freelancers">
@@ -62,7 +62,7 @@ export default function MainRoutes() {
               <Route path=":id" element={<Freelancer />} />
             </Route>
             <Route path="manage" element={<Manage />}>
-              <Route path="" element={<Navigate to="/manage/dashboard" />} />
+              <Route path="" element={<Navigate to="/manage/projects" />} />
               <Route path="dashboard" element={<UserDashboard />} />
               <Route path="projects" element={<MyProject />} />
               <Route path="bookmarks" element={<Bookmark />} />

@@ -59,7 +59,7 @@ export const projectColumns = () => {
       key: "id",
       render: (text: string) => (
         <Link
-          to={`/employee/projects/${text}`}
+          to={`/projects/${text}/details`}
           className="text-xs"
         >{`#${text}`}</Link>
       ),

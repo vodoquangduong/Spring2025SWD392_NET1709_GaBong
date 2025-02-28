@@ -8,15 +8,18 @@ import { TabItem } from "../Search/Search";
 import { Link, Outlet, useParams } from "react-router-dom";
 import Sidebar from "./partials/ProjectDetail/partials/Sidebar";
 import { useQueries, useQuery } from "@tanstack/react-query";
-import { ProjectDetail } from "@/types/project";
 import { GET } from "@/modules/request";
 import { formatTimeAgo } from "@/modules/formatTimeAgo";
 import dayjs from "dayjs";
+import useAuthStore from "@/stores/authStore";
+import { ProjectStatus } from "@/types/project";
+import { mapProjectStatusToTag } from "@/modules/mapUiStatus";
 
 export default function Project() {
   const { id: projectId } = useParams();
+  const { accountId } = useAuthStore();
 
-  const { data, isLoading } = useQuery<ProjectDetail>({
+  const { data, isLoading } = useQuery<any>({
     queryKey: ["projectDetail", projectId],
     queryFn: async () => await GET(`/api/Project/${projectId}`),
   });
@@ -42,11 +45,10 @@ export default function Project() {
       name: "Proposals",
       path: `/projects/${projectId}/proposals`,
     },
-    {
-      name: "Payments",
-      path: `/projects/${projectId}/payments`,
-    },
   ];
+
+  console.log(data?.value?.miletones);
+  console.log(data?.value);
 
   return (
     <div>
@@ -56,57 +58,70 @@ export default function Project() {
             className="pt-4 capitalize font-bold text-base"
             items={items}
           />
-          <div>
+          <div className="mt-4">
             <div className="flex justify-between items-center">
-              <div className="text-3xl font-semibold flex gap-4 items-center">
+              <div className="text-2xl font-semibold flex gap-4 items-center">
                 {isLoading ? (
                   <Skeleton.Input active style={{ width: 400 }} />
                 ) : (
                   <>
                     {data?.value?.projectName}
-                    {dayjs().isBefore(
-                      dayjs(data?.value?.postDate!).add(
-                        data?.value?.availableTimeRange || 0,
-                        "days"
-                      )
-                    ) ? (
-                      <Tag color="green" className="rounded-full !px-3">
-                        Open
-                      </Tag>
-                    ) : (
-                      <Tag color="red" className="rounded-full !px-3">
-                        Closed
-                      </Tag>
-                    )}
+                    {mapProjectStatusToTag(data?.value?.status)}
                   </>
                 )}
               </div>
-              <div className="flex gap-4 items-end">
-                <div className="font-semibold flex flex-col gap-2 justify-center">
-                  <span>Bids</span>
-                  <span className="text-2xl">{getRandomInt(1, 40)}</span>
+              {isLoading ? (
+                <Skeleton.Input
+                  className="mt-2"
+                  active
+                  style={{ width: 200 }}
+                />
+              ) : (
+                <div className="flex gap-10 items-end">
+                  <div className="font-semibold flex flex-col gap-2 justify-center">
+                    <span>Bids</span>
+                    <span className="text-xl">{data?.value?.bids?.length}</span>
+                  </div>
+                  <div className="font-semibold flex flex-col gap-2 justify-center">
+                    <span>Average Bid</span>
+                    <span className="text-xl">
+                      {data?.value?.bids?.length
+                        ? (
+                            data?.value?.bids?.reduce(
+                              (a: any, b: any) => a + b.bidOffer,
+                              0
+                            ) / data?.value?.bids?.length
+                          ).toLocaleString()
+                        : 0}{" "}
+                      USD
+                    </span>
+                  </div>
                 </div>
-                <GoDotFill size={10} className="mb-2" />
-                <div className="font-semibold flex flex-col gap-2 justify-center">
-                  <span>Average Bid</span>
-                  <span className="text-2xl">
-                    $ {getRandomInt(100, 10000).toLocaleString()} USD
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
             <div className="text-sm">
               {isLoading ? (
                 <Skeleton.Input active style={{ width: 200 }} />
               ) : (
-                `Posted ${formatTimeAgo(data?.postDate!)}`
+                `Posted ${formatTimeAgo(
+                  dayjs(data?.value?.postDate, "DD-MM-YYYY").toISOString()
+                )}`
               )}
             </div>
             <div className="flex justify-between items-center gap-4 mt-4">
               <div className="flex gap-1 mt-4">
                 {tabItems.map((item) => (
-                  <TabItem key={item.path} item={item} />
+                  <TabItem key={item?.path} item={item} />
                 ))}
+                {(data?.value?.clientId == accountId ||
+                  data?.value?.freelancerId == accountId) && (
+                  <TabItem
+                    item={{
+                      name: "Milestones",
+                      path: `/projects/${projectId}/milestones`,
+                    }}
+                  />
+                )}
               </div>
               <div className="flex gap-2 items-center">
                 <span className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-600 rounded-full cursor-pointer">

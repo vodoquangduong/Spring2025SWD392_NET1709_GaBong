@@ -4,11 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getRandomInt } from "../../../../../modules/random";
 import { FaStar } from "react-icons/fa6";
 import Skills from "../../../../../components/Skills";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { GET } from "@/modules/request";
 import { ProjectDetail, ProjectStatus } from "@/types/project";
 import { formatTimeAgo } from "@/modules/formatTimeAgo";
 import useQueryParams from "@/hooks/useQueryParams";
+import dayjs from "dayjs";
 
 const items = [
   "PHP",
@@ -25,7 +26,13 @@ const items = [
   "Java",
 ];
 
-const ListingItem = ({ project }: { project: ProjectDetail }) => {
+const ListingItem = ({
+  project,
+  skillCategory,
+}: {
+  project: any;
+  skillCategory: any;
+}) => {
   const navigate = useNavigate();
   return (
     <div
@@ -35,9 +42,17 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
       <div className="flex justify-between">
         <div className="text-xl">{project?.projectName}</div>
         <div className="flex gap-6">
-          <div>{getRandomInt(1, 40)} bids</div>
+          <div>
+            {project?.bids?.length} {project?.bids?.length > 1 ? "bids" : "bid"}
+          </div>
           <div className="font-semibold">
-            $ {getRandomInt(100, 10000).toLocaleString()} USD
+            {project?.bids?.length
+              ? (
+                  project?.bids?.reduce((a: any, b: any) => a + b.bidOffer, 0) /
+                  project?.bids?.length
+                ).toLocaleString()
+              : 0}{" "}
+            USD
             <div className="text-xs text-end">average bid</div>
           </div>
         </div>
@@ -47,13 +62,21 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
       </div>
       <div className="mt-6">{project?.projectDescription}</div>
       <div className="mt-4">
-        <Skills />
+        <Skills
+          items={project?.skillIds.map((skillId: any) => {
+            return skillCategory?.find((item: any) => item.skillId === skillId);
+          })}
+        />
       </div>
       <div className="mt-4 flex justify-between items-center">
         <div></div>
         {/* <Rate disabled defaultValue={getRandomInt(1, 5)} /> */}
         <div className="flex gap-4 items-center">
-          <div className="text-sm">{formatTimeAgo(project?.postDate)}</div>
+          <div className="text-sm">
+            {formatTimeAgo(
+              dayjs(project?.postDate, "DD-MM-YYYY").toISOString()
+            )}
+          </div>
           <div className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-800 rounded-full cursor-pointer">
             <CiBookmark size={24} strokeWidth={1} />
           </div>
@@ -63,11 +86,11 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
   );
 };
 
-const ListingItemSkeletion = () => {
+export const ListingItemSkeletion = () => {
   return (
     <div className="p-4 border-b dark:border-gray-700">
       <Skeleton.Input active style={{ width: "600px" }} />
-      <div className="text-sm text-red-600 pt-8">
+      <div className="text-sm pt-8">
         <Skeleton active style={{ width: "100%" }} paragraph={{ rows: 3 }} />
       </div>
       <div className="pt-4 flex justify-between items-center">
@@ -84,22 +107,25 @@ const ListingItemSkeletion = () => {
 export default function ProjectListing() {
   const { page } = useQueryParams();
   const navigate = useNavigate();
+  const [skillCategory] = useQueries({
+    queries: [
+      {
+        queryKey: ["skills"],
+        queryFn: async () => await GET(`/api/SkillCategory`),
+      },
+    ],
+  });
   const { data, isLoading } = useQuery({
     queryKey: ["publicProjects", page],
-    queryFn: async () =>
-      await GET(
-        `/api/Project/get-all-verified-project?pageNumber=${page || 1}`,
-        false
-      ),
+    queryFn: async () => await GET(`/api/Project`, false),
   });
-  console.log("🚀 ~ ProjectListing ~ value:", data);
 
   return (
     <div>
       <div className="border-b w-full p-4 flex justify-between items-center dark:border-gray-500 shadow-md">
         <div>
-          <span className="font-semibold text-xl mr-3">Top result</span> 1-20 of
-          {data?.value?.items?.length} results
+          <span className="font-semibold text-xl mr-3">Top result</span>
+          {data?.value?.items?.length} result
         </div>
         <div className="flex gap-1 items-center">
           <label htmlFor="" className="w-[100px]">
@@ -114,9 +140,13 @@ export default function ProjectListing() {
         </div>
       </div>
       <div>
-        {data?.value?.items?.map((project: ProjectDetail) => (
+        {data?.value?.map((project: ProjectDetail) => (
           // project.status == ProjectStatus.OPEN &&
-          <ListingItem key={project.projectId} project={project} />
+          <ListingItem
+            key={project.projectId}
+            project={project}
+            skillCategory={skillCategory?.data}
+          />
         ))}
         {isLoading &&
           [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => (
