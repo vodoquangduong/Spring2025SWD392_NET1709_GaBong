@@ -18,10 +18,12 @@ import { useMutation } from "@tanstack/react-query";
 import { PUT } from "@/modules/request";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import useUiStore from "@/stores/uiStore";
+import useContractStore from "@/pages/MakeContract/store/contractStore";
 
 export default function ProposalItem({ item }: { item: any }) {
   const navigate = useNavigate();
   const { toogleChatPopup } = useUiStore();
+  const { setSelected } = useContractStore();
 
   const { id: projectId } = useParams();
   const { message } = App.useApp();
@@ -45,20 +47,18 @@ export default function ProposalItem({ item }: { item: any }) {
     {
       key: "1",
       label: (
-        <Popconfirm
-          title="Approve the project"
-          description="Are you sure to approve this project?"
-          onConfirm={() => {
-            message.open({
-              type: "loading",
-              content: "Approving project ...",
-              duration: 0,
-            });
-            mutation.mutate(item?.bidOwnerId);
+        <div
+          onClick={() => {
+            setSelected(
+              item?.bidOwnerId,
+              Number(projectId) || 0,
+              item?.bidOffer
+            );
+            navigate("/make-contract");
           }}
         >
           Choose this Freelancer
-        </Popconfirm>
+        </div>
       ),
     },
     {
@@ -86,12 +86,13 @@ export default function ProposalItem({ item }: { item: any }) {
           <div
             className="h-16 aspect-square rounded-full bg-center bg-no-repeat bg-cover bg-white border border-black"
             style={{
-              backgroundImage: `url(https://robohash.org/${item?.bidOwnerId})`,
+              backgroundImage: `url(${item?.bidOwner?.avatarURL})`,
+              // backgroundImage: `url(https://robohash.org/${item?.bidOwnerId})`,
             }}
           ></div>
           <div className="text-sm font-semibold">
             <div className="flex gap-4 items-center mb-1">
-              <div className="text-lg leading-none">{item?.bidOwnerId}</div>
+              <div className="text-lg leading-none">{item?.bidOwner?.name}</div>
               <HiCheckCircle color="green" size={20} />
             </div>
             <div className="font-normal text-[14px] my-1">
@@ -99,7 +100,7 @@ export default function ProposalItem({ item }: { item: any }) {
             </div>
             <div className="flex gap-1 items-center">
               <MdPlace />
-              <div className="">England</div>
+              <div className="">{item?.bidOwner?.nationality}</div>
             </div>
           </div>
         </div>

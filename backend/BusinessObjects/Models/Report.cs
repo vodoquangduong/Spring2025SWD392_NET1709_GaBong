@@ -23,7 +23,7 @@ namespace BusinessObjects.Models
         public long ProjectId { get; set; }
 
         [Column("verify_staff_id")]
-        public long VerifyStaffId { get; set; }
+        public long? VerifyStaffId { get; set; }
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }

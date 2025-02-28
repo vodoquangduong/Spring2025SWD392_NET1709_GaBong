@@ -1,11 +1,8 @@
-using System;
 using BusinessObjects.Models;
 using Helpers.DTOs.Account;
 using Helpers.DTOs.Authentication;
 using Helpers.HelperClasses;
 using Helpers.Mappers;
-using Microsoft.EntityFrameworkCore;
-using Repositories.Interfaces;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -20,16 +17,23 @@ public class AccountService : IAccountService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<IEnumerable<Account>> GetAllAccountAsync()
+    public async Task<Result<IEnumerable<AccountDTO>>> GetAllAccountAsync()
     {
+        try
+        {
         var queryOptions = new QueryBuilder<Account>()
             .WithTracking(false) // No tracking for efficient
             .Build();
-
-        return await _unitOfWork.GetRepo<Account>().GetAllAsync(queryOptions);
+            var accounts = await _unitOfWork.GetRepo<Account>().GetAllAsync(queryOptions);
+            return Result.Success(accounts.Select(account  => account.ToAccountDTO()));
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<IEnumerable<AccountDTO>>(new Error("Get all account failed", $"{e.Message}"));
+        }
     }
 
-    public async Task<AccountDTO> GetAccountByIdAsync(long id)
+    public async Task<Result<AccountDTO>> GetAccountByIdAsync(long id)
     {
         var queryOptions = new QueryBuilder<Account>()
             .WithTracking(false) // No tracking for efficiency

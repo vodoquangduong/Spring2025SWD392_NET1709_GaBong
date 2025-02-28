@@ -30,7 +30,7 @@ const ListingItem = ({ project }: { project: ProjectDetail }) => {
   return (
     <div
       className="p-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950 cursor-pointer"
-      onClick={() => navigate(`/projects/${project.projectId}/details`)}
+      onClick={() => navigate(`/projects/${project?.projectId}/details`)}
     >
       <div className="flex justify-between">
         <div className="text-xl">{project?.projectName}</div>
@@ -87,14 +87,19 @@ export default function ProjectListing() {
   const { data, isLoading } = useQuery({
     queryKey: ["publicProjects", page],
     queryFn: async () =>
-      await GET(`/api/Project/get-all-project?pageNumber=${page || 1}`, false),
+      await GET(
+        `/api/Project/get-all-verified-project?pageNumber=${page || 1}`,
+        false
+      ),
   });
+  console.log("🚀 ~ ProjectListing ~ value:", data);
+
   return (
     <div>
       <div className="border-b w-full p-4 flex justify-between items-center dark:border-gray-500 shadow-md">
         <div>
           <span className="font-semibold text-xl mr-3">Top result</span> 1-20 of
-          {data?.items?.length} results
+          {data?.value?.items?.length} results
         </div>
         <div className="flex gap-1 items-center">
           <label htmlFor="" className="w-[100px]">
@@ -109,7 +114,7 @@ export default function ProjectListing() {
         </div>
       </div>
       <div>
-        {data?.items?.map((project: ProjectDetail) => (
+        {data?.value?.items?.map((project: ProjectDetail) => (
           // project.status == ProjectStatus.OPEN &&
           <ListingItem key={project.projectId} project={project} />
         ))}
@@ -121,8 +126,8 @@ export default function ProjectListing() {
       <div className="p-4 flex justify-end">
         <Pagination
           showTotal={(total) => `Total ${total} items`}
-          defaultCurrent={data?.pageNumber}
-          total={data?.totalCount}
+          defaultCurrent={data?.value?.pageNumber}
+          total={data?.value?.totalCount}
           onChange={(page) => {
             navigate(`/search/projects?page=${page}`);
           }}

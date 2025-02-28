@@ -29,7 +29,9 @@ export default function ProjectList() {
     queryKey: ["projects", page],
     queryFn: async () =>
       await GET(
-        `/api/Project/get-all-project?pageNumber=${page || 1}&pageSize=10`
+        `/api/Project/get-all-pending-project?pageNumber=${
+          page || 1
+        }&pageSize=10`
       ),
   });
   console.log(data);
@@ -51,15 +53,15 @@ export default function ProjectList() {
         pagination={false}
         loading={isLoading || isRefetching}
         columns={projectColumns()}
-        dataSource={data?.items as ProjectDetail[]}
+        dataSource={data?.value?.items as ProjectDetail[]}
         rowKey={(record: ProjectDetail) => record?.projectId}
       />
       <div className="flex justify-end">
         <Pagination
           className="py-8"
           showTotal={(total) => `Total ${total} items`}
-          defaultCurrent={data?.pageNumber}
-          total={data?.totalCount}
+          defaultCurrent={data?.value?.pageNumber}
+          total={data?.value?.totalCount}
           onChange={(page) => {
             navigate(`/employee/projects?page=${page}`);
           }}

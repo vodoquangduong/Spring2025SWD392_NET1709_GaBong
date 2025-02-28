@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using BusinessObjects.Enums;
 
 namespace BusinessObjects.Models;
@@ -55,5 +56,6 @@ public class Account
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     public virtual ICollection<Messages> Messages { get; set; } = new List<Messages>();
+    [JsonIgnore]
     public virtual ICollection<RoomDetail> RoomDetails { get; set; } = new List<RoomDetail>();
 }

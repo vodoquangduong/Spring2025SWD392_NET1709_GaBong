@@ -1,9 +1,7 @@
-using BusinessObjects.Models;
-using System;
-using System.Collections.Generic;
+
+using Helpers.DTOs.Milestone;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Helpers.DTOs.Project
 {
@@ -25,6 +23,9 @@ namespace Helpers.DTOs.Project
 
         [Required]
         public List<long> SkillIds { get; set; } = new List<long>();
+
+        [Required]
+        public List<CreateMilestoneWithProjectDTO> Milestones {  get; set; } = new List<CreateMilestoneWithProjectDTO> { };
 
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using BusinessObjects.Enums;
 
@@ -14,6 +15,8 @@ namespace BusinessObjects.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("milestone_id")]
         public long MilestoneId { get; set; }
+        [Column("milestone_name")]
+        public string MilestoneName { get; set; } = string.Empty;
         [Column("project_id")]
         public long ProjectId { get; set; }
         [Column("deadline_date")]
@@ -26,11 +29,7 @@ namespace BusinessObjects.Models
         public decimal PayAmount { get; set; }
         // Navigation property
         [ForeignKey("ProjectId")]
+        [JsonIgnore]
         public virtual Project Project { get; set; } = null!;
-        
-        
-        
-
-
     }
 }

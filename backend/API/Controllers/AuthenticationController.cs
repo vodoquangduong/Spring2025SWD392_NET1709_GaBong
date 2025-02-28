@@ -1,6 +1,5 @@
 ﻿using Helpers.DTOs.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Services.Implements;
 using Services.Interfaces;
 
 namespace API.Controllers
@@ -15,7 +14,7 @@ namespace API.Controllers
 
         public AuthenticationController(
            IAuthenticationService authenticationService
-          //IEmailSender emailSender
+       //IEmailSender emailSender
        )
         {
             _authenticationService = authenticationService;
@@ -53,7 +52,7 @@ namespace API.Controllers
             //    verifyGmailToken.Token,
             //    "[DATJ Diamond] – Email verification"
             //);
-            
+
             return Ok("Registration successful");
         }
 

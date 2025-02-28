@@ -1,15 +1,6 @@
-﻿using BusinessObjects.Models;
-using Helpers.DTOs.Authentication;
+﻿using Helpers.DTOs.Authentication;
 using Helpers.HelperClasses;
-using Microsoft.AspNetCore.Identity;
-using Repositories.Interfaces;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services.Implements
 {

@@ -32,28 +32,31 @@ export const TabItem = ({ item }: { item: any }) => {
 export default function Search() {
   return (
     <div>
-      <div className="w-full bg-black text-secondary dark:text-primary">
+      <div className="w-full bg-black text-secondary dark:text-primary pb-6">
         <div className="mx-container pt-0">
           <div>
             <div className="text-3xl font-bold">Browse</div>
             <div>
-              <div className="flex items-center gap-4 mt-4">
+              <div className="">
                 <SearchBox
                   placeholder="Search Jobs..."
                   widthClass="w-full py-2"
                   className="!bg-gray-100 py-2 dark:!bg-zinc-800"
                   value={""}
                 />
-                <Button type="primary" className="py-5">
+                <Button
+                  type="primary"
+                  className="mt-2 px-14 py-5 text-lg font-semibold"
+                >
                   Search
                 </Button>
               </div>
             </div>
-            <div className="flex gap-1 mt-4">
+            {/* <div className="flex gap-1 mt-4">
               {items.map((item) => (
                 <TabItem key={item.path} item={item} />
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

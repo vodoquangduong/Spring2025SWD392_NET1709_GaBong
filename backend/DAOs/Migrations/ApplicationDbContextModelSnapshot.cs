@@ -279,6 +279,11 @@ namespace DAOs.Migrations
                         .HasColumnType("text")
                         .HasColumnName("milestone_description");
 
+                    b.Property<string>("MilestoneName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("milestone_name");
+
                     b.Property<decimal>("PayAmount")
                         .HasColumnType("numeric")
                         .HasColumnName("pay_amount");
@@ -479,7 +484,7 @@ namespace DAOs.Migrations
                         .HasColumnType("text")
                         .HasColumnName("status");
 
-                    b.Property<long>("VerifyStaffId")
+                    b.Property<long?>("VerifyStaffId")
                         .HasColumnType("bigint")
                         .HasColumnName("verify_staff_id");
 
@@ -737,8 +742,7 @@ namespace DAOs.Migrations
                     b.HasOne("BusinessObjects.Models.Account", "VerifyStaff")
                         .WithMany("VerifiedReports")
                         .HasForeignKey("VerifyStaffId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Project");
 

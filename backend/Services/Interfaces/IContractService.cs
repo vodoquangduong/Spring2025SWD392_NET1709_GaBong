@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Helpers.DTOs;
 using Helpers.DTOs.Contract;
 using Helpers.HelperClasses;

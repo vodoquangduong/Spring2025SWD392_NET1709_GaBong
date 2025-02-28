@@ -31,8 +31,17 @@ export const projectColumns = () => {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationKey: ["projects"],
-    mutationFn: async (projectId: string) =>
-      await PUT(`/api/Project/verify/${projectId}`, {}),
+    mutationFn: async ({
+      projectId,
+      isVerified,
+    }: {
+      projectId: string;
+      isVerified: boolean;
+    }) =>
+      await PUT(`/api/Project/verify`, {
+        projectId,
+        isVerified,
+      }),
     onError: () => {
       message.destroy();
       message.error("Project approval failed");
@@ -113,7 +122,7 @@ export const projectColumns = () => {
                 <Popconfirm
                   title="Reject the project"
                   description="Are you sure to reject this project?"
-                  onConfirm={() => rejectService(record.projectId, message)}
+                  onConfirm={() => rejectService(record.projectId, mutation)}
                 >
                   <Button type="primary" danger className="font-bold">
                     Reject

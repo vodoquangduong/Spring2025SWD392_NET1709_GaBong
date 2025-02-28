@@ -40,6 +40,7 @@ export default function PlaceBid() {
       message.success("Placed bid successfully");
       reset();
       navigate(`/projects/${id}/proposals`);
+      scrollTo(0, 0);
     },
   });
 

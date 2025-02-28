@@ -9,6 +9,7 @@ using Services.Interfaces;
 using AutoMapper;
 using Serilog;
 using System.Text;
+using System.Reflection;
 using API.Chat;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +49,9 @@ builder.Services.AddSwaggerGen(option =>
             new string[] { }
         }
     });
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    option.IncludeXmlComments(xmlPath);
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -83,6 +87,10 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IBidService, BidService>();
 builder.Services.AddScoped<ISkillCategoryService, SkillCategoryService>(); 
 builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IPortfolioService, PortfolioService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IMilestoneService, MilestoneService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IChatRoomService, ChatRoomService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<ISkillRequiredService, SkillRequiredService>();

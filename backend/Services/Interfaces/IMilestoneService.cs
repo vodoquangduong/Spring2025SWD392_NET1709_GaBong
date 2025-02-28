@@ -1,18 +1,14 @@
-﻿using Helpers.DTOs.Project;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Helpers.DTOs.Milestone;
+using Helpers.HelperClasses;
 
 namespace Services.Interfaces
 {
-    internal interface IMilestoneService
+    public interface IMilestoneService
     {
-        Task<IEnumerable<ProjectDTO>> GetAllMilestoneAsync();
-        //Task<MilestoneDTO> GetMilestoneByIdAsync(long id);
-        // Task<MilestoneDTO> CreateMilestoneAsync(CreateProjectDTO projectDto, long userId);
-        // Task<Project> UpdateProjectAsync(Project project);
+        Task<Result<IEnumerable<MilestoneDTO>>> GetAllMilestoneAsync();
+        Task<Result<MilestoneDTO>> GetMilestoneByProjectIdAsync(long id);
+        Task<Result<MilestoneDTO>> CreateMilestoneAsync(CreateMilestoneDTO createMilestoneDTO);
+        //Task<MilestoneDTO> UpdateProjectAsync(UpdateMilestoneDTO updateMilestoneDTO);
         // Task<bool> DeleteProjectAsync(long id);
     }
 }

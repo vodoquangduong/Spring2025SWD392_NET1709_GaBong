@@ -1,15 +1,10 @@
 ﻿using AutoMapper;
-using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.SkillCategory;
 using Helpers.Mappers;
 using Repositories.Queries;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Services.Implements
 {
