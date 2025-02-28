@@ -206,5 +206,27 @@ namespace Services.Implements
                 return Result.Failure<PaginatedResult<ProjectDTO>>(new Error("Get all projects failed", $"{e.Message}"));
             }
         }
+
+        public async Task<Result<IEnumerable<ProjectDTO>>> GetAllProjectsAsync()
+        {
+            try
+            {
+                var queryOptions = new QueryBuilder<Project>()
+                .WithTracking(false) // No tracking for efficient
+                .WithInclude(p => p.SkillRequired)
+                .WithInclude(p => p.Milestones)
+                .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
+                .Build();
+                var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
+                //var accounts = await _unitOfWork.GetRepo<Account>().GetAllAsync(queryOptions);
+                return Result.Success(projects.Select(p => p.ToProjectDTO()));
+                //return Result.Success(projects.Select(p => p.ToProjectDTO()));
+                //return Result.Success(projects);
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<IEnumerable<ProjectDTO>>(new Error("Get all projects failed", $"{e.Message}"));
+            }
+        }
     }
 }

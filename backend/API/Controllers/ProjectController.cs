@@ -18,6 +18,23 @@ namespace API.Controllers
             _currentUserService = currentUserService;
         }
 
+        /// <summary>
+        /// Tempotary solution for getting all projects.
+        /// </summary>
+        /// <returns>A list of chat rooms for the specified user.</returns>
+        /// <response code="200">Returns the list of chat rooms.</response>
+        /// <response code="404">If no chat rooms are found for the user.</response>
+        [HttpGet("")]
+        public async Task<IActionResult> GetAllProjectsAsync()
+        {
+            var response = await _projectService.GetAllProjectsAsync();
+            if (response.IsFailure)
+            {
+                return BadRequest(response.Error);
+            }
+            return Ok(response);
+        }
+
         [HttpGet("get-all-verified-project")]
         public async Task<IActionResult> GetAllProjectsVerifiedAsync([FromQuery]  Query query)
         {
@@ -28,6 +45,7 @@ namespace API.Controllers
             }
             return Ok(response);
         }
+
         [HttpGet("get-all-pending-project")]
         public async Task<IActionResult> GetAllProjectsPendingAsync([FromQuery] Query query)
         {
