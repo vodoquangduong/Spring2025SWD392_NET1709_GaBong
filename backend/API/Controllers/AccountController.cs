@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using Helpers.Mappers;
+using Helpers.DTOs.Query;
+using BusinessObjects.Models;
+using Helpers.DTOs.Account;
 
 namespace API.Controllers
 {
@@ -15,7 +18,8 @@ namespace API.Controllers
             _accountService = accountService;
         }   
 
-       [HttpGet]
+
+       [HttpGet("get-all-account")]
        public async Task<IActionResult> GetAllAccount()
        {
         var result = await _accountService.GetAllAccountAsync();
@@ -25,6 +29,17 @@ namespace API.Controllers
         }
         return Ok(result.Value);
        }
+
+        [HttpGet("get-all-freelancer")]
+        public async Task<IActionResult> GetAllFreelancer([FromQuery] Query query)
+        {
+            var result = await _accountService.GetAllFreeLancerAsync(query.PageSize, query.PageNumber);
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
+        }
 
 
         [HttpGet("{id}")]
