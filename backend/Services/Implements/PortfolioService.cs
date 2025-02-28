@@ -22,10 +22,18 @@ namespace Services.Implements
         {
             try
             {
-                // if(_currentUserService.Role != Role.Freelancer)
-                // {
-                //     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Only freelancer can create portfolio"));
-                // }
+                if(!_currentUserService.Role.Equals("Freelancer"))
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Only freelancer can create portfolio"));
+                }
+                var portfolioExist = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(new QueryOptions<Portfolio>
+                {
+                    Predicate = p => p.FreelancerId == _currentUserService.AccountId
+                });
+                if(portfolioExist != null)
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Portfolio already exist"));
+                }
                 if(string.IsNullOrEmpty(portfolioDto.Title))
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Title must not be empty"));
@@ -49,7 +57,7 @@ namespace Services.Implements
                     Works = portfolioDto.Works,
                     Certificate = portfolioDto.Certificate,
                     About = portfolioDto.About,
-                    Status = PortfolioStatus.Pending,
+                    Status = PortfolioStatus.Modifying,
                 };
                 var result = await _unitOfWork.GetRepo<Portfolio>().CreateAsync(portfolio);
                 await _unitOfWork.SaveChangesAsync();
@@ -114,6 +122,29 @@ namespace Services.Implements
             }
         }
 
+        public async Task<Result<PortfolioDTO>> SubmitPortfolioAsync()
+        {
+            try
+            {
+                var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(new QueryOptions<Portfolio>
+                {
+                    Predicate = p => p.FreelancerId == _currentUserService.AccountId
+                });
+                if(portfolio == null)
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Submit portfolio failed", $"Portfolio with freelancer id {_currentUserService.AccountId} not found"));
+                }
+                portfolio.Status = PortfolioStatus.Pending;
+                await _unitOfWork.GetRepo<Portfolio>().UpdateAsync(portfolio);
+                await _unitOfWork.SaveChangesAsync();
+                return Result.Success(portfolio.ToPortfolioDTO());
+            }
+            catch(Exception e)
+            {
+                return Result.Failure<PortfolioDTO>(new Error("Submit portfolio failed", $"{e.Message}"));
+            }
+        }
+
         public async Task<Result<PortfolioDTO>> UpdatePortfolioAsync(UpdatePortfolioDTO updatePortfolioDto)
         {
             try
@@ -160,6 +191,10 @@ namespace Services.Implements
         {
             try
             {
+                if(!_currentUserService.Role.Equals("Staff"))
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Verify portfolio failed", "Only staff can verify portfolio"));
+                }
                 var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(new QueryOptions<Portfolio>
                 {
                     Predicate = p => p.PortfolioId == portfolioId
