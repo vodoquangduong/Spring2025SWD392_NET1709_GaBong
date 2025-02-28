@@ -8,8 +8,8 @@ namespace Services.Interfaces
         Task<Result<IEnumerable<MilestoneDTO>>> GetAllMilestoneAsync();
         Task<Result<MilestoneDTO>> GetMilestoneByProjectIdAsync(long id);
         Task<Result<MilestoneDTO>> CreateMilestoneAsync(CreateMilestoneDTO createMilestoneDTO);
-        //Task<MilestoneDTO> UpdateProjectAsync(UpdateMilestoneDTO updateMilestoneDTO);
-        // Task<bool> DeleteProjectAsync(long id);
+        Task<Result<MilestoneDTO>> UpdateMilestoneAsync(UpdateMilestoneDTO updateMilestoneDTO, long milestoneId);
+        Task<bool> DeleteMilestoneAsync(long id);
     }
 }
 

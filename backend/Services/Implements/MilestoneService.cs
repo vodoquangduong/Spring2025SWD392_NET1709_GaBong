@@ -67,6 +67,11 @@ namespace Services.Implements
             }
         }
 
+        public Task<bool> DeleteMilestoneAsync(long id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Result<IEnumerable<MilestoneDTO>>> GetAllMilestoneAsync()
         {
             try
@@ -98,6 +103,35 @@ namespace Services.Implements
             catch (Exception e)
             {
                 return Result.Failure<MilestoneDTO>(new Error("Get milestone by project id failed", $"{e.Message}"));
+            }
+        }
+
+        public async Task<Result<MilestoneDTO>> UpdateMilestoneAsync(UpdateMilestoneDTO updateMilestoneDTO, long milestoneId)
+        {
+            try
+            {
+                var queryOptions = new QueryBuilder<Milestone>()
+                .WithTracking(true)
+                .WithPredicate(a => a.MilestoneId == milestoneId) // Filter by ID
+                .Build();
+                var milestone = await _unitOfWork.GetRepo<Milestone>().GetSingleAsync(queryOptions);
+                if (milestone == null)
+                {
+                    return Result.Failure<MilestoneDTO>(new Error("Milestone not found", $"Milestone with id {milestoneId}"));
+                }
+                milestone.MilestoneName = updateMilestoneDTO.MilestoneName;
+                milestone.Status = updateMilestoneDTO.Status;
+                milestone.DeadlineDate = updateMilestoneDTO.Deadline;
+                milestone.MilestoneDescription = updateMilestoneDTO.Description;
+                milestone.PayAmount = updateMilestoneDTO.Amount;
+
+                await _unitOfWork.GetRepo<Milestone>().UpdateAsync(milestone);
+                await _unitOfWork.SaveChangesAsync();
+                return milestone.ToMilestoneDTO();
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<MilestoneDTO>(new Error("Update milestone failed", $"{e.Message}"));
             }
         }
     }

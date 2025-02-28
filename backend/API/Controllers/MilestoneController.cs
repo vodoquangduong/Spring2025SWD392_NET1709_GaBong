@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Helpers.DTOs.Milestone;
 using Microsoft.AspNetCore.Mvc;
+using Services.Implements;
 using Services.Interfaces;
 
 namespace API.Controllers
@@ -46,6 +47,18 @@ namespace API.Controllers
                 return BadRequest(result.Error);
             }
             return Ok(result.Value);
+        }
+
+
+        [HttpPut("update-milestone/{mileStoneId}")]
+        public async Task<IActionResult> UpdateMilestone([FromBody] UpdateMilestoneDTO updateMilestoneDTO, [FromRoute] long mileStoneId)
+        {
+            var result = await _milestoneService.UpdateMilestoneAsync(updateMilestoneDTO, mileStoneId);
+            if (result.Value == null)
+            {
+                return BadRequest("milestone not found");
+            }
+            return Ok("update milestone success");
         }
     }
 }
