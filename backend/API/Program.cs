@@ -10,7 +10,7 @@ using AutoMapper;
 using Serilog;
 using System.Text;
 using System.Reflection;
-using API.Chat;
+using Helpers.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -120,6 +120,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHub<ChatHub>("/chatHub");
+app.MapHub<NotifyUserHub>("/userHub");
 app.MapControllers();
 
 app.Run();
