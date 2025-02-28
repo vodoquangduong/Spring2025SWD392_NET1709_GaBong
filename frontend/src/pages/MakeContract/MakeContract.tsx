@@ -1,103 +1,146 @@
 import Back from "@/components/Back";
 import Logo from "@/components/Logo";
-import { Button } from "antd";
+import { GET, POST, PUT } from "@/modules/request";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { App, Button, Popconfirm, Skeleton } from "antd";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import useContractStore from "./store/contractStore";
+import { defaultAvatar } from "@/modules/default";
 
 export default function MakeContract() {
+  const navigate = useNavigate();
   const [amount, setAmount] = useState(0);
+  const { message } = App.useApp();
+  const { freelancerId, projectId, bidTotal } = useContractStore();
+  const [freelancer, project] = useQueries({
+    queries: [
+      {
+        queryKey: ["selectedFreelancer"],
+        queryFn: async () => await GET(`/api/Account/${freelancerId}`),
+      },
+      {
+        queryKey: ["selectedProject"],
+        queryFn: async () => await GET(`/api/Project/${projectId}`),
+      },
+    ],
+  });
+  if (!freelancerId || !projectId) {
+    location.href = "/";
+  }
+  console.log(freelancer, project);
+
   return (
     <div className="h-screen w-screen mx-container flex justify-center">
       <Back />
-      <div className="w-2/3">
+      <div className="mx-container">
         <div className="flex justify-end py-4">
           <Logo />
         </div>
-        <div className=" grid grid-cols-2 gap-10 text-lg">
-          <div>
+        <div className=" grid grid-cols-3 gap-6 text-lg">
+          <div className="col-span-2">
             <div className="rounded-2xl bg-zinc-200 dark:bg-white/10">
               <div className="font-bold justify-between p-4 border-b border-zinc-400 dark:border-zinc-600">
-                <div>Enter your card information</div>
+                <div>Edit your contract information</div>
               </div>
               <div className="space-y-4 p-4">
                 <div className="grid grid-cols-12 gap-x-2 gap-y-4 text-base ">
-                  <div className="col-span-8">
-                    <div>Card number:</div>
-                    <input
-                      className="mt-1 h-10 input-style no-ring"
-                      type="number"
-                    />
-                  </div>
-                  <div className="col-span-4">
-                    <div>Expiry date:</div>
-                    <input
-                      className="mt-1 h-10 input-style no-ring"
-                      type="date"
-                    />
-                  </div>
-                  <div className="col-span-8">
-                    <div>Cardholder name:</div>
-                    <input
-                      className="mt-1 h-10 input-style no-ring"
-                      type="number"
-                    />
-                  </div>
-                  <div className="col-span-4">
-                    <div>CVC/CVV:</div>
-                    <input
-                      className="mt-1 h-10 input-style no-ring"
-                      type="number"
-                    />
+                  <div className="col-span-12 flex justify-between">
+                    <div className="font-semibold">
+                      Project:
+                      <span className="ml-2 font-semibold text-xl">
+                        {project.data?.value?.projectName || (
+                          <Skeleton.Input active />
+                        )}
+                      </span>
+                    </div>
+                    <div className="font-semibold">
+                      Total Budget:
+                      <span className="ml-2 text-2xl">{bidTotal}</span> USD
+                    </div>
                   </div>
                 </div>
-                <CardImages />
+                <div className="col-span-4 text-base">
+                  <div className="font-semibold mb-4">Contract policy:</div>
+                  <textarea
+                    id="contractPolicy"
+                    rows={10}
+                    className="py-2 mt-1 input-style no-ring"
+                  />
+                </div>
+                <div className="col-span-4 text-base flex justify-end items-center">
+                  <Popconfirm
+                    title="Approve the freelancer"
+                    description="Are you sure to approve this freelancer?"
+                    onConfirm={async () => {
+                      message.open({
+                        type: "loading",
+                        content: "Creating contract ...",
+                        duration: 0,
+                      });
+                      const response = await PUT(
+                        "/api/Project/choose-freelancer",
+                        {
+                          freelancerId,
+                          projectId,
+                        }
+                      );
+
+                      const contractPolicy = (
+                        document.querySelector(
+                          "#contractPolicy"
+                        ) as HTMLInputElement
+                      )?.value;
+                      let data = { projectId, contractPolicy };
+
+                      const response2 = await POST("/api/Contract", data);
+                      message.destroy();
+                      message.success("Contract created successfully");
+                      navigate("/");
+                    }}
+                  >
+                    <Button
+                      type="primary"
+                      className="py-6 text-lg font-semibold"
+                    >
+                      Confirm and Create
+                    </Button>
+                  </Popconfirm>
+                </div>
               </div>
             </div>
           </div>
-          <div className="rounded-2xl bg-zinc-200 dark:bg-white/10">
-            <div className="font-bold flex justify-between p-4 border-b border-zinc-400 dark:border-zinc-600">
-              <div>Select amount</div>
-              <div>USD</div>
-            </div>
-            <div className="space-y-4 p-4">
-              <div className="flex items-center justify-between gap-10">
-                <div className="min-w-28 ">Amount</div>
-                <div className="sm-input-style flex gap-2 py-2 mt-2">
-                  <div className="px-1">$</div>
-                  <input
-                    className="no-ring grow"
-                    type="number"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setAmount(parseInt(e.target.value, 10))
-                    }
+          <div>
+            <div className="rounded-2xl bg-zinc-200 dark:bg-white/10">
+              <div className="font-bold flex justify-between p-4 border-b border-zinc-400 dark:border-zinc-600">
+                Freelancer Info
+              </div>
+              <div className="space-y-4 p-4">
+                <div className="flex gap-4">
+                  <img
+                    className="h-20 rounded-full"
+                    src={freelancer?.data?.value?.avatarURL || defaultAvatar}
                   />
-                  <div className="px-2">USD</div>
+                  <div>
+                    <div className="text-xl font-semibold">
+                      {freelancer?.data?.value?.name}
+                    </div>
+                    <div className="text-xl">
+                      {freelancer?.data?.value?.email}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex justify-between">
-                <div className="">Total due</div>
-                <div>{amount} USD</div>
-              </div>
-              <div className="flex justify-between border-b pb-4 border-zinc-400 dark:border-zinc-600">
-                <div className="">Processing fee</div>
-                <div>{Math.floor(amount * 0.1)} USD</div>
-              </div>
-              <div className="flex justify-between">
-                <div className="">Payment due</div>
-                <div>{Math.floor(amount * 1.1)} USD</div>
-              </div>
-              <Button
-                type="primary"
-                className="my-4 py-8 w-full text-xl font-semibold"
-              >
-                Confirm and pay {Math.floor(amount * 1.1)} USD
-              </Button>
-              <div className="text-sm py-2">
-                You agree to authorize the use of your card for this deposit and
-                future payments, and agree to be bound to the{" "}
-                <Link to={"/policy"} className="font-semibold text-emerald-500">
-                  Terms & Conditions
-                </Link>
+
+                <div className="text-sm py-2">
+                  You agree to authorize the use of your card for this deposit
+                  and future payments, and agree to be bound to the{" "}
+                  <Link
+                    to={"/policy"}
+                    className="font-semibold text-emerald-500"
+                  >
+                    Terms & Conditions
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

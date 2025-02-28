@@ -18,10 +18,12 @@ import { useMutation } from "@tanstack/react-query";
 import { PUT } from "@/modules/request";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import useUiStore from "@/stores/uiStore";
+import useContractStore from "@/pages/MakeContract/store/contractStore";
 
 export default function ProposalItem({ item }: { item: any }) {
   const navigate = useNavigate();
   const { toogleChatPopup } = useUiStore();
+  const { setSelected } = useContractStore();
 
   const { id: projectId } = useParams();
   const { message } = App.useApp();
@@ -45,20 +47,18 @@ export default function ProposalItem({ item }: { item: any }) {
     {
       key: "1",
       label: (
-        <Popconfirm
-          title="Approve the project"
-          description="Are you sure to approve this project?"
-          onConfirm={() => {
-            message.open({
-              type: "loading",
-              content: "Approving project ...",
-              duration: 0,
-            });
-            mutation.mutate(item?.bidOwnerId);
+        <div
+          onClick={() => {
+            setSelected(
+              item?.bidOwnerId,
+              Number(projectId) || 0,
+              item?.bidOffer
+            );
+            navigate("/make-contract");
           }}
         >
           Choose this Freelancer
-        </Popconfirm>
+        </div>
       ),
     },
     {

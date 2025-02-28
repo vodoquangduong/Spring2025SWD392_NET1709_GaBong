@@ -56,7 +56,8 @@ namespace Services.Implements
                 new Claim(JwtRegisteredClaimNames.Email, account.Email),
                 new Claim("name", account.Name),
                 new Claim(ClaimTypes.Role, account.Role.ToString()),
-                new Claim("accountId", account.AccountId.ToString())
+                new Claim("accountId", account.AccountId.ToString()),
+                new Claim("avatar", account.AvatarURL),
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);

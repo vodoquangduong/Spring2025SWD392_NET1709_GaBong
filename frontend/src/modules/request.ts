@@ -31,7 +31,15 @@ const SendRequest = async (
     location.href = "/login";
   }
 
-  return await data.json();
+  const response = await data.json();
+
+  return response;
+
+  // return {
+  //   ...response.value,
+  //   isSuccess: response.isSuccess,
+  //   isFailure: response.isFailure,
+  // };
 };
 
 export const GET = async (url: string, privateEndpoint = true) =>
