@@ -76,14 +76,14 @@ export default function Header() {
                   Hire freelancers
                 </HeaderLinkItem>
               )}
-              {
+              {role != Role.CLIENT && (
                 <HeaderLinkItem
                   href={"/search/projects"}
                   // subMenu={true}
                 >
                   Find works
                 </HeaderLinkItem>
-              }
+              )}
 
               {/* <HeaderLinkItem href={"/news"}>News</HeaderLinkItem> */}
               {/* <HeaderLinkItem href={"/about"}>About</HeaderLinkItem> */}

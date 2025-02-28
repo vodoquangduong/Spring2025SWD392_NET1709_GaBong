@@ -50,7 +50,7 @@ const LoginForm = () => {
       console.error("Login failed:", err);
       // Ưu tiên hiển thị message từ server
       if (err.message && err.message !== "Failed to fetch") {
-        message.error(err.message);
+        message.error("Remote database return 500 again 😥");
       } else {
         message.error("Login failed. Please try again.");
       }

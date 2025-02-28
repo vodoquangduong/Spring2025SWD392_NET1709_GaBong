@@ -38,7 +38,7 @@ export default function MyProject() {
         loading={projects.isLoading}
         className="mt-4"
         dataSource={projects?.data?.value?.filter(
-          (p: any) => p.clientId == accountId
+          (p: any) => p.clientId == accountId || p.freelancerId == accountId
         )}
         columns={tableColumns()}
         // columns

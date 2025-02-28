@@ -9,8 +9,6 @@ export default function ChatList({
   isLoading: boolean;
   setCurrentRoom: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  console.log("🚀 ~ roomList:", roomList);
-
   return (
     <div className="dark:bg-zinc-800 bg-white border-r dark:border-zinc-700">
       <div className="py-2 px-4 font-bold border-b dark:border-zinc-600 text-secondary-foreground">

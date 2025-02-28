@@ -3,10 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { getRandomInt } from "../../../../../modules/random";
 import { FaRegHeart, FaStar } from "react-icons/fa6";
 import { HiCheckCircle } from "react-icons/hi2";
-import { MdPlace } from "react-icons/md";
+import { MdOutlineEmail, MdPlace } from "react-icons/md";
 import Skills from "../../../../../components/Skills";
+import { useQueries } from "@tanstack/react-query";
+import { GET } from "@/modules/request";
+import { defaultAvatar } from "@/modules/default";
+import { ListingItemSkeletion } from "../../SearchProject/partials/ProjectListing";
 
-const FreelancerItem = () => {
+const FreelancerItem = ({ freelancer }: { freelancer: any }) => {
   const navigate = useNavigate();
   return (
     <div
@@ -18,20 +22,20 @@ const FreelancerItem = () => {
           <div
             className="h-20 aspect-square rounded-full bg-center bg-no-repeat bg-cover"
             style={{
-              backgroundImage: "url(https://picsum.photos/id/10/400/200)",
+              backgroundImage: `url(${freelancer?.avatarURL || defaultAvatar})`,
             }}
           ></div>
           <div className="text-sm font-semibold">
             <div className="flex gap-2 items-center mb-1">
-              <div className="text-lg leading-none">Raja Ahmad Ayaz N.</div>
+              <div className="text-lg leading-none">{freelancer?.name}</div>
               <HiCheckCircle color="green" size={20} />
             </div>
-            <div className="font-normal text-[15px] my-1">
-              Full Stack Developer | 10+ Years of Experience
+            <div className="flex gap-2 items-center mb-1">
+              {freelancer?.email}
             </div>
             <div className="flex gap-2 items-center">
               <MdPlace size={18} />
-              <div className="">England</div>
+              <div className="">{freelancer?.nationality}</div>
             </div>
           </div>
         </div>
@@ -47,9 +51,9 @@ const FreelancerItem = () => {
         <div>
           <Skills />
         </div>
-        <span className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-600 rounded-full cursor-pointer">
+        {/* <span className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-600 rounded-full cursor-pointer">
           <FaRegHeart size={20} strokeWidth={1} />
-        </span>
+        </span> */}
       </div>
       <div className="flex items-center justify-between">
         <Rate
@@ -58,9 +62,9 @@ const FreelancerItem = () => {
           character={<FaStar size={16} />}
         />
         <div className="flex gap-4 items-center text-xs">
-          <Button type="primary" className="py-4 font-bold">
+          {/* <Button type="primary" className="py-4 font-bold">
             Invite to Bid
-          </Button>
+          </Button> */}
           <Button type="primary" className="py-4 font-bold">
             Contact
           </Button>
@@ -71,12 +75,21 @@ const FreelancerItem = () => {
 };
 
 export default function FreelancerListing() {
+  const [freelancers] = useQueries({
+    queries: [
+      {
+        queryKey: ["freelancers"],
+        queryFn: async () => await GET("/api/Account/get-all-freelancer"),
+      },
+    ],
+  });
+
   return (
     <div>
       <div className="border-b w-full p-4 flex justify-between items-center dark:border-gray-500 shadow-md">
         <div>
-          <span className="font-semibold text-xl mr-3">Top result</span> 1-20 of
-          186 results
+          <span className="font-semibold text-xl mr-3">Top result</span>{" "}
+          {freelancers?.data?.items?.length} results
         </div>
         <div className="flex gap-1 items-center">
           <label htmlFor="" className="w-[100px]">
@@ -91,10 +104,18 @@ export default function FreelancerListing() {
         </div>
       </div>
       <div>
-        <FreelancerItem />
-        <FreelancerItem />
-        <FreelancerItem />
-        <FreelancerItem />
+        {freelancers?.data?.items?.map((freelancer: any) => (
+          <FreelancerItem key={freelancer?.accountId} freelancer={freelancer} />
+        ))}
+        {freelancers?.isLoading &&
+          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => (
+            <ListingItemSkeletion key={index} />
+          ))}
+      </div>
+      <div>
+        {freelancers?.data?.items?.map((freelancer: any) => (
+          <FreelancerItem freelancer={freelancer} key={freelancer?.accountId} />
+        ))}
       </div>
       <div className="p-4 flex justify-end">
         <Pagination
