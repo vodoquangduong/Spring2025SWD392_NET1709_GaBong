@@ -29,7 +29,7 @@ export default function GlobalLayout() {
       <div className="dark:bg-secondary text-secondary-foreground">
         <Outlet />
       </div>
-      <ChatPopup />
+      {/* <ChatPopup /> */}
     </>
   );
 }

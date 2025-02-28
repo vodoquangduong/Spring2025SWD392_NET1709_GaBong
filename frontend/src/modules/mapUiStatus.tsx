@@ -4,14 +4,16 @@ import { Tag } from "antd";
 export const mapProjectStatusToTag = (status: ProjectStatus) => {
   switch (status) {
     case ProjectStatus.PENDING:
-      return <Tag color="gold">Pending</Tag>;
+      return <Tag color="gold-inverse">Pending</Tag>;
     case ProjectStatus.VERIFIED:
-      return <Tag color="green">Verified</Tag>;
+      return <Tag color="green-inverse">Verified</Tag>;
     case ProjectStatus.REVERIFIED:
-      return <Tag color="gold">Re verify</Tag>;
+      return <Tag color="red-inverse">Re verify</Tag>;
+    case ProjectStatus.ON_GOING:
+      return <Tag color="blue-inverse">On going</Tag>;
     case ProjectStatus.CLOSED:
-      return <Tag color="red">Cancelled</Tag>;
+      return <Tag color="red-inverse">Cancelled</Tag>;
     case ProjectStatus.COMPLETED:
-      return <Tag color="red">Completed</Tag>;
+      return <Tag color="red-inverse">Completed</Tag>;
   }
 };

@@ -3,8 +3,25 @@ import { TabItem } from "../../../Search/Search";
 import SearchBox from "../../../../components/SearchBox";
 import { Button, Table } from "antd";
 import { Link } from "react-router-dom";
+import { useQueries } from "@tanstack/react-query";
+import { GET } from "@/modules/request";
+import useAuthStore from "@/stores/authStore";
+import { tableColumns } from "./schemas";
 
 export default function MyProject() {
+  const { accountId } = useAuthStore();
+  const [projects] = useQueries({
+    queries: [
+      {
+        queryKey: ["projects"],
+        queryFn: async () => await GET("/api/Project"),
+      },
+    ],
+  });
+  console.log(accountId);
+
+  console.log(projects?.data?.value);
+
   return (
     <div>
       <div className="text-3xl font-bold mt-8">My Projects</div>
@@ -18,74 +35,13 @@ export default function MyProject() {
         />
       </div>
       <Table
+        loading={projects.isLoading}
         className="mt-4"
-        dataSource={[
-          {
-            key: "1",
-            title: "Project 1",
-            description: "Description of project 1",
-            status: "Active",
-            date: "2022-01-01",
-            action: <Button>View</Button>,
-          },
-          {
-            key: "2",
-            title: "Project 2",
-            description: "Description of project 2",
-            status: "Active",
-            date: "2022-01-01",
-            action: <Button>View</Button>,
-          },
-          {
-            key: "3",
-            title: "Project 3",
-            description: "Description of project 3",
-            status: "Active",
-            date: "2022-01-01",
-            action: <Button>View</Button>,
-          },
-          {
-            key: "4",
-            title: "Project 4",
-            description: "Description of project 4",
-            status: "Active",
-            date: "2022-01-01",
-            action: <Button>View</Button>,
-          },
-        ]}
-        columns={[
-          {
-            title: "Project",
-            dataIndex: "title",
-            key: "title",
-            render: (text: string, record: any) => (
-              <a href={`/projects/${record.key}`}>{text}</a>
-            ),
-          },
-          {
-            title: "Description",
-            dataIndex: "description",
-            key: "description",
-          },
-          {
-            title: "Status",
-            dataIndex: "status",
-            key: "status",
-          },
-          {
-            title: "Date",
-            dataIndex: "date",
-            key: "date",
-          },
-          {
-            title: "Action",
-            dataIndex: "action",
-            key: "action",
-            render: (text: string, record: any) => (
-              <Link to={`/projects/${record.key}/details`}>{text}</Link>
-            ),
-          },
-        ]}
+        dataSource={projects?.data?.value?.filter(
+          (p: any) => p.clientId == accountId
+        )}
+        columns={tableColumns()}
+        // columns
       />
     </div>
   );
