@@ -10,8 +10,10 @@ import { useParams } from "react-router-dom";
 import { ProjectDetail } from "@/types/project";
 import PlaceBid from "../partials/PlaceBid";
 import dayjs from "dayjs";
+import useAuthStore from "@/stores/authStore";
 
 export default function Content() {
+  const { accountId } = useAuthStore();
   const { id: projectId } = useParams();
   const { message } = App.useApp();
   const { data, isLoading } = useQuery<any>({
@@ -102,7 +104,7 @@ export default function Content() {
         </div>
         <Divider />
       </div>
-      <PlaceBid />
+      {data?.value?.clientId != accountId && <PlaceBid />}
     </>
   );
 }

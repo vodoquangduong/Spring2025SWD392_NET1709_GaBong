@@ -2,6 +2,10 @@ import { Badge, Dropdown, MenuProps, Space } from "antd";
 import { FaRegBell } from "react-icons/fa";
 import { getRandomInt } from "../../modules/random";
 import { Link } from "react-router-dom";
+import { useQueries } from "@tanstack/react-query";
+import { GET } from "@/modules/request";
+import useChatStore from "../ChatPopup/stores/chatStore";
+import { NotificationType } from "@/types/notification";
 
 const NotificationItem = () => {
   return (
@@ -37,6 +41,14 @@ const items: MenuProps["items"] = [
     key: "2",
   },
   {
+    label: <NotificationItem />,
+    key: "3",
+  },
+  {
+    label: <NotificationItem />,
+    key: "4",
+  },
+  {
     label: (
       <Link to={"/manage/notifications"} className="flex justify-center">
         View all
@@ -47,15 +59,30 @@ const items: MenuProps["items"] = [
 ];
 
 export default function NotificationDropdown() {
+  const { hasNewGlobalNotification, readNotification } = useChatStore();
+  const [notifications] = useQueries({
+    queries: [
+      {
+        queryKey: ["notifications"],
+        queryFn: async () =>
+          await GET(`/api/Notification?pageNumber=${1}&pageSize=${5}`),
+      },
+    ],
+  });
+  console.log(notifications?.data);
+
   return (
     <Dropdown
+      onOpenChange={(open) => {
+        readNotification(NotificationType.GLOBAL);
+      }}
       menu={{ items }}
       trigger={["click"]}
       placement="bottom"
-      className="mr-2"
+      className="flex justify-between items-center mr-2"
     >
       {/* <Space> */}
-      <Badge size="default">
+      <Badge size="default" dot={hasNewGlobalNotification}>
         <FaRegBell size={20} className="text-white cursor-pointer" />
       </Badge>
       {/* </Space> */}

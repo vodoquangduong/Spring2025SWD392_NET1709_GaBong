@@ -9,7 +9,7 @@ import ChatPopup from "../components/ChatPopup/ChatPopup";
 import useUiStore from "@/stores/uiStore";
 
 export default function GlobalLayout() {
-  const { toogleChatPopup } = useUiStore();
+  const { toogleChatPopup, isChatOpen } = useUiStore();
   const { isDarkMode } = useConfigStore();
   const { isAuthenticated } = useAuthStore();
 
@@ -29,7 +29,7 @@ export default function GlobalLayout() {
       <div className="dark:bg-secondary text-secondary-foreground">
         <Outlet />
       </div>
-      {/* <ChatPopup /> */}
+      {isChatOpen && <ChatPopup />}
     </>
   );
 }

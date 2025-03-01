@@ -1,7 +1,7 @@
 {
   "ConnectionStrings": {
-    //"DefaultConnection": "User ID =postgres;Password=12345;Server=localhost;Port=5432;Database=testDb;Pooling=false;",
+    "DefaultConnection": "User ID =postgres;Password=12345;Server=localhost;Port=5432;Database=swd;Pooling=true;"
     //"DefaultConnection": "User ID=e04q69;Password=xau_FXXqLruXfMgEFEKZWAUmIqKRd3pNVv011;Server=us-east-1.sql.xata.sh;Port=5432;Database=PostgreGaBong;Pooling=false;SslMode=Require;Timeout=300;CommandTimeout=300"
-    "DefaultConnection": "User ID=ktmdpd;Password=xau_NJVYW0Agf3UcUpvhlIy5yv5n8SRfCjvJ6;Server=us-east-1.sql.xata.sh;Port=5432;Database=SWD392;Pooling=false;SslMode=Require;Timeout=300;CommandTimeout=300"
-     }
+    // "DefaultConnection": "User ID=ktmdpd;Password=xau_NJVYW0Agf3UcUpvhlIy5yv5n8SRfCjvJ6;Server=us-east-1.sql.xata.sh;Port=5432;Database=SWD392;Pooling=false;SslMode=Require;Timeout=300;CommandTimeout=300"
+  }
 }

@@ -2,8 +2,8 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Role } from "../types";
 
-import { setCookie } from "../modules/cookie";
 import { jwtDecode } from "jwt-decode";
+import { setCookie } from "../modules/cookie";
 // const jwt_decode = decodeJWT;
 
 interface User {

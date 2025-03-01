@@ -13,12 +13,21 @@ namespace API.Controllers
     public class NotificationController : ControllerBase
     {
         private readonly INotificationService _notificationService;
+
         public NotificationController(INotificationService notificationService)
         {
             _notificationService = notificationService;
         }
+
+        /// <summary>
+        /// Send a notification to a specific user.
+        /// </summary>
+        /// <response code="200">Returns the list of chat rooms.</response>
+        /// <response code="404">If no chat rooms are found for the user.</response>
         [HttpPost]
-        public async Task<IActionResult> CreateNotification([FromBody] CreateNotificationDTO notificationDto)
+        public async Task<IActionResult> CreateNotification(
+            [FromBody] CreateNotificationDTO notificationDto
+        )
         {
             var result = await _notificationService.CreateNotificationAsync(notificationDto);
             if (result.IsFailure)
@@ -27,8 +36,17 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
+        /// <summary>
+        /// Retrieves all notification of a specific user.
+        /// </summary>
+        /// <response code="200">Returns the list of chat rooms.</response>
+        /// <response code="404">If no chat rooms are found for the user.</response>
         [HttpGet]
-        public async Task<IActionResult> GetAllNotification([FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<IActionResult> GetAllNotification(
+            [FromQuery] int pageNumber,
+            [FromQuery] int pageSize
+        )
         {
             var result = await _notificationService.GetAllNotificationAsync(pageNumber, pageSize);
             if (result.IsFailure)

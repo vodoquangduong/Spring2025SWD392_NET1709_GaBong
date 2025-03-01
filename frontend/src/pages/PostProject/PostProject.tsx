@@ -1,14 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { App, Button, Select } from "antd";
+import { App, Button, Select, Table } from "antd";
 import React from "react";
 import { set, useForm } from "react-hook-form";
-import { formSchema } from "./schemas";
+import { formSchema, tableColumns } from "./schemas";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { GET, POST } from "@/modules/request";
 import countries from "@/mocks/countries.json";
 import Back from "@/components/Back";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { FaPlus } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 dayjs.extend(utc);
 
@@ -20,8 +22,16 @@ type Milestone = {
 };
 
 export default function PostProject() {
+  const navigate = useNavigate();
   const { message } = App.useApp();
-  const [milestones, setMilestones] = React.useState<Milestone[]>([]);
+  const [milestones, setMilestones] = React.useState<Milestone[]>([
+    {
+      milestoneName: "Init milestone",
+      description: "This is the init milestone",
+      amount: 10,
+      deadline: new Date().toISOString(),
+    },
+  ]);
   const [skills, setSkills] = React.useState<string[]>([]);
   const {
     handleSubmit,
@@ -32,7 +42,9 @@ export default function PostProject() {
     reset,
     setValue,
     getValues,
+    clearErrors,
   } = useForm({
+    criteriaMode: "all",
     defaultValues: {
       projectName: "",
       projectDescription: "",
@@ -59,13 +71,10 @@ export default function PostProject() {
     onSuccess: () => {
       message.destroy();
       message.success("Created successfully, please wait for approval");
+      navigate("/manage/projects");
       reset();
     },
   });
-
-  const handleChangeSkill = (value: any) => {
-    setSkills(value);
-  };
 
   const onSubmit = async (formData: any) => {
     message.open({
@@ -73,22 +82,23 @@ export default function PostProject() {
       content: "Creating project ...",
       duration: 0,
     });
+    const totalAmount = milestones.reduce((a, b) => a + b.amount, 0);
+    milestones.forEach((milestone: Milestone) => {
+      milestone.amount = (milestone.amount * 100) / totalAmount;
+    });
     formData.milestones = milestones;
     formData.skillIds = skills;
     mutation.mutate(formData);
-    console.log(formData);
-    // console.log(skills);
-    // console.log(milestones);
   };
 
   return (
     <form
-      className="mx-container flex flex-col justify-center items-center"
+      className="mx-auto grid grid-cols-12 gap-10 px-20 min-h-screen"
       onSubmit={handleSubmit(onSubmit)}
     >
       <Back />
-      <div className="grid grid-cols-2 gap-4 mb-2 max-w-[1000px]">
-        <div className="font-semibold text-3xl pb-2 mt-10 col-span-2">
+      <div className="grid grid-cols-2 gap-4 mb-2 col-span-6">
+        <div className="font-semibold text-2xl mt-10 col-span-2">
           Create new project
         </div>
         <div className="col-span-1">
@@ -162,6 +172,12 @@ export default function PostProject() {
           <div className="font-semibold text-base pb-2">Required Skills</div>
           <Select
             className="!py-[9px]"
+            maxCount={5}
+            showSearch
+            suffixIcon={<span>{skills.length} / 5</span>}
+            filterOption={(input, option: any) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
             mode="multiple"
             style={{
               width: "100%",
@@ -170,7 +186,7 @@ export default function PostProject() {
               value: item.skillId,
               label: item.skillName,
             }))}
-            onChange={handleChangeSkill}
+            onChange={setSkills}
           />
         </div>
         <div className="col-span-2">
@@ -187,8 +203,8 @@ export default function PostProject() {
         </div>
 
         <div className="col-span-2">
-          <div className="font-semibold text-3xl pb-2 mt-4 col-span-2">
-            Milestones
+          <div className="font-semibold text-2xl pb-4 mt-4 col-span-2">
+            Add Milestones
           </div>
           {/* <div className="font-semibold text-base pb-2">Milestones</div> */}
           <div className="gap-2 grid grid-cols-12">
@@ -202,17 +218,6 @@ export default function PostProject() {
                 placeholder="Milestone name"
               />
             </div>
-            <div className="col-span-3">
-              <div className="font-semibold text-base pb-2 col-span-8">
-                Deadline
-              </div>
-              <input
-                id="milestoneDeadline"
-                className="input-style py-[10px] no-ring grow no-scrollbar"
-                placeholder="Enter estimated budget"
-                type="datetime-local"
-              />
-            </div>
             <div className="col-span-2">
               <div className="font-semibold text-base pb-2 col-span-8">
                 Percentage
@@ -222,6 +227,21 @@ export default function PostProject() {
                 className="input-style py-[10px] no-ring grow no-scrollbar"
                 placeholder="Percentage"
                 type="number"
+              />
+            </div>
+            <div className="col-span-3">
+              <div className="font-semibold text-base pb-2 col-span-8">
+                Deadline
+              </div>
+              <input
+                // min="2025-02-28T00:00"
+                min={dayjs(milestones[milestones.length - 1]?.deadline)
+                  .add(1, "day")
+                  .format("YYYY-MM-DDTHH:mm")}
+                id="milestoneDeadline"
+                className="input-style py-[10px] no-ring grow no-scrollbar"
+                placeholder="Enter estimated budget"
+                type="datetime-local"
               />
             </div>
             <div className="col-span-12">
@@ -235,73 +255,98 @@ export default function PostProject() {
                 placeholder="Milestone description"
               />
             </div>
+            <div className="col-span-12 flex justify-between">
+              {errors.root?.milestoneError ? (
+                <div className="error-msg">
+                  {errors.root?.milestoneError?.message}
+                </div>
+              ) : (
+                <div></div>
+              )}
+              <Button
+                type="primary"
+                className="font-bold col-span-2 h-full px-4 py-2"
+                icon={<FaPlus />}
+                onClick={() => {
+                  const milestoneName = document.getElementById(
+                    "milestoneName"
+                  ) as HTMLInputElement;
+                  const milestoneDeadline = document.getElementById(
+                    "milestoneDeadline"
+                  ) as HTMLInputElement;
+                  const milestonePercentage = document.getElementById(
+                    "milestonePercentage"
+                  ) as HTMLInputElement;
+                  const milestoneDescription = document.getElementById(
+                    "milestoneDescription"
+                  ) as HTMLInputElement;
+
+                  if (
+                    !milestoneName.value ||
+                    !milestoneDeadline.value ||
+                    !milestonePercentage.value ||
+                    !milestoneDescription.value
+                  ) {
+                    setError("root.milestoneError", {
+                      message: "Please fill in the empty fields",
+                    });
+                    return;
+                  }
+
+                  const milestone: Milestone = {
+                    milestoneName: milestoneName.value,
+                    deadline: new Date(milestoneDeadline.value).toISOString(),
+                    amount: parseInt(milestonePercentage.value),
+                    description: milestoneDescription.value,
+                  };
+                  if (
+                    milestones.reduce((a, b) => a + b.amount, 0) +
+                      milestone.amount >
+                      100 ||
+                    milestone.amount > 100
+                  ) {
+                    setError("root.milestoneError", {
+                      message: "Percentage should not exceed 100%",
+                    });
+                    return;
+                  }
+
+                  clearErrors("root.milestoneError");
+                  // clear input
+                  milestoneName.value = "";
+                  milestoneDeadline.value = "";
+                  milestonePercentage.value = "";
+                  milestoneDescription.value = "";
+                  setMilestones([...milestones, milestone]);
+                }}
+              >
+                Add milestone
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="space-y-2 col-span-6">
+        <div className="sticky top-10">
+          <div className="font-semibold text-2xl pb-2 mt-10 col-span-2">
+            Project's Milestones
+          </div>
+          <Table
+            pagination={false}
+            dataSource={milestones}
+            columns={tableColumns({ setMilestones, milestones })}
+          />
+          <div className="flex justify-end py-4">
             <Button
               type="primary"
-              className="font-bold col-span-2 h-full px-8 py-2"
-              onClick={() => {
-                const milestoneName = document.getElementById(
-                  "milestoneName"
-                ) as HTMLInputElement;
-                const milestoneDeadline = document.getElementById(
-                  "milestoneDeadline"
-                ) as HTMLInputElement;
-                const milestonePercentage = document.getElementById(
-                  "milestonePercentage"
-                ) as HTMLInputElement;
-                const milestoneDescription = document.getElementById(
-                  "milestoneDescription"
-                ) as HTMLInputElement;
-                const milestone: Milestone = {
-                  milestoneName: milestoneName.value,
-                  deadline: new Date(milestoneDeadline.value).toISOString(),
-                  amount: parseInt(milestonePercentage.value),
-                  description: milestoneDescription.value,
-                };
-                if (
-                  milestones.reduce((a, b) => a + b.amount, 0) +
-                    milestone.amount >
-                    100 ||
-                  milestone.amount > 100
-                ) {
-                  message.error("Percentage should not exceed 100%");
-                  return;
-                }
-                setMilestones([...milestones, milestone]);
-              }}
+              htmlType="submit"
+              className="font-bold"
+              onClick={() => console.log(errors)}
             >
-              + Add
+              Create Project
             </Button>
           </div>
         </div>
-
-        <div className="col-span-2 space-y-2">
-          {milestones?.length > 0 && (
-            <div className="gap-2 grid grid-cols-12 font-semibold">
-              <div className="col-span-3">Name</div>
-              <div className="col-span-4">Description</div>
-              <div className="col-span-3">Deadline</div>
-              <div className="col-span-1">Percent</div>
-            </div>
-          )}
-          {milestones?.map((item: Milestone, index: number) => (
-            <MilestoneItem
-              item={item}
-              index={index}
-              milestones={milestones}
-              setMilestones={setMilestones}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="flex justify-end py-4">
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="font-bold"
-          onClick={() => console.log(errors)}
-        >
-          Create
-        </Button>
       </div>
     </form>
   );
@@ -312,11 +357,13 @@ const MilestoneItem = ({
   index,
   milestones,
   setMilestones,
+  message,
 }: {
   item: Milestone;
   index: number;
   milestones: Milestone[];
   setMilestones: any;
+  message: any;
 }) => {
   return (
     <div className="gap-2 grid grid-cols-12">
@@ -331,6 +378,10 @@ const MilestoneItem = ({
           type="primary"
           className="font-bold"
           onClick={() => {
+            if (milestones.length == 1) {
+              message.error("Please leave at least one milestone");
+              return;
+            }
             const newMilestones = milestones.filter((_, i) => i !== index);
             setMilestones(newMilestones);
           }}

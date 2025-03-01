@@ -7,9 +7,11 @@ import { Dropdown } from "antd";
 import { defaultAvatar } from "../modules/default";
 import useAuthStore from "../stores/authStore";
 import { setCookie } from "../modules/cookie";
+import useChatStore from "./ChatPopup/stores/chatStore";
 
 const ProfileDropdown = () => {
   const { logout, email, name, avatar } = useAuthStore();
+  const { setCurrentRoom } = useChatStore();
   // const userInfor = localStorage.getItem("auth");
   // const userInforString = userInfor ? JSON.parse(userInfor) : null;
   const navigate = useNavigate();
@@ -72,6 +74,7 @@ const ProfileDropdown = () => {
       key: "4",
       onClick: () => {
         setCookie("accessToken", "", 0);
+        setCurrentRoom(null);
         logout();
         navigate("/");
       },

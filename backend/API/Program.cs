@@ -10,7 +10,7 @@ using AutoMapper;
 using Serilog;
 using System.Text;
 using System.Reflection;
-using API.Chat;
+using Helpers.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,6 +94,7 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IChatRoomService, ChatRoomService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<ISkillRequiredService, SkillRequiredService>();
+builder.Services.AddScoped<ISeedService, SeedService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddSignalR();
@@ -119,6 +120,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHub<ChatHub>("/chatHub");
+app.MapHub<NotifyUserHub>("/userHub");
 app.MapControllers();
 
 app.Run();

@@ -111,7 +111,7 @@
     @apply hover:text-green-700;
   }
   .mx-container {
-    @apply mx-auto container;
+    @apply mx-auto w-[80%];
   }
 }
 

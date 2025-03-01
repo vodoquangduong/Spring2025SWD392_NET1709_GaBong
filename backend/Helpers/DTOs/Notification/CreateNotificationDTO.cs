@@ -8,7 +8,6 @@ namespace Helpers.DTOs.Notification
 {
     public class CreateNotificationDTO
     {
-        public long NotificationId { get; set; }
         public long AccountId { get; set; }
         public NotificationType NotificationType { get; set; }
         public NotificationStatus Status { get; set; }
