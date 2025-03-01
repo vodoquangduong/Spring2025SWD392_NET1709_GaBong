@@ -8,7 +8,7 @@ export const portfolioService = {
     portfolioData: CreatePortfolioDTO
   ): Promise<PortfolioDTO> => {
     try {
-      const token = getCookie("token");
+      const token = getCookie("accessToken");
       if (!token) {
         throw new Error("Authentication required. Please login.");
       }
@@ -32,7 +32,11 @@ export const portfolioService = {
       const data = await response.json();
       console.log("API Response:", data);
 
-      return data;
+      if (data.isSuccess && data.value) {
+        return data.value;
+      }
+
+      throw new Error("Invalid API response format");
     } catch (error: any) {
       console.error("API Error:", error);
       throw new Error(error.message || "Failed to create portfolio");
@@ -41,7 +45,7 @@ export const portfolioService = {
 
   getPortfolioById: async (portfolioId: number): Promise<PortfolioDTO> => {
     try {
-      const token = getCookie("token");
+      const token = getCookie("accessToken");
       if (!token) {
         throw new Error("Authentication required. Please login.");
       }
@@ -59,7 +63,12 @@ export const portfolioService = {
       }
 
       const data = await response.json();
-      return data;
+
+      if (data.isSuccess && data.value) {
+        return data.value;
+      }
+
+      throw new Error("Invalid API response format");
     } catch (error: any) {
       console.error("API Error:", error);
       throw new Error(error.message || "Failed to get portfolio");
@@ -70,10 +79,12 @@ export const portfolioService = {
     freelancerId: number
   ): Promise<PortfolioDTO> => {
     try {
-      const token = getCookie("token");
+      const token = getCookie("accessToken");
       if (!token) {
         throw new Error("Authentication required. Please login.");
       }
+
+      console.log(`Fetching portfolio for freelancer ID: ${freelancerId}`);
 
       const response = await fetch(
         `${API_URL}/api/Portfolio/freelancer/${freelancerId}`,
@@ -87,11 +98,27 @@ export const portfolioService = {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error("API error response:", errorText);
         throw new Error(errorText || "Failed to get portfolio");
       }
 
       const data = await response.json();
-      return data;
+      console.log("Raw API response:", data);
+
+      // Check if the response has the expected structure
+      if (data.isSuccess && data.value) {
+        console.log("Using isSuccess/value format");
+        return data.value;
+      }
+
+      // If the response is directly the portfolio object
+      if (data.portfolioId && data.freelancerId) {
+        console.log("Using direct portfolio object format");
+        return data;
+      }
+
+      console.error("Unexpected API response format:", data);
+      throw new Error("Invalid API response format");
     } catch (error: any) {
       console.error("API Error:", error);
       throw new Error(error.message || "Failed to get portfolio");
@@ -136,5 +163,56 @@ export const portfolioService = {
     }));
 
     return JSON.stringify(processedCertificates || []);
+  },
+
+  updatePortfolio: async (
+    portfolioId: number,
+    portfolioData: CreatePortfolioDTO
+  ): Promise<PortfolioDTO> => {
+    try {
+      const token = getCookie("accessToken");
+      if (!token) {
+        throw new Error("Authentication required. Please login.");
+      }
+
+      console.log(
+        `Updating portfolio ID ${portfolioId} with data:`,
+        portfolioData
+      );
+
+      const response = await fetch(`${API_URL}/api/Portfolio/${portfolioId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(portfolioData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API error response:", errorText);
+        throw new Error(errorText || "Failed to update portfolio");
+      }
+
+      const data = await response.json();
+      console.log("API Response:", data);
+
+      // Check if the response has the expected structure
+      if (data.isSuccess && data.value) {
+        return data.value;
+      }
+
+      // If the response is directly the portfolio object
+      if (data.portfolioId && data.freelancerId) {
+        return data;
+      }
+
+      console.error("Unexpected API response format:", data);
+      throw new Error("Invalid API response format");
+    } catch (error: any) {
+      console.error("API Error:", error);
+      throw new Error(error.message || "Failed to update portfolio");
+    }
   },
 };

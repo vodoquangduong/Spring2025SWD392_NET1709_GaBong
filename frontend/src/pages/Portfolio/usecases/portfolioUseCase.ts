@@ -63,4 +63,41 @@ export const portfolioUseCase = {
   parseCertificates: (certificates: any[]): string => {
     return portfolioService.parseCertificates(certificates);
   },
+
+  updatePortfolio: async (
+    portfolioId: number,
+    portfolioData: CreatePortfolioDTO
+  ): Promise<PortfolioDTO> => {
+    try {
+      // Kiểm tra dữ liệu đầu vào
+      if (!portfolioData.title) {
+        throw new Error("Title is required");
+      }
+
+      if (!portfolioData.about) {
+        throw new Error("About information is required");
+      }
+
+      // Kiểm tra xem works và certificate có phải là chuỗi JSON hợp lệ không
+      try {
+        JSON.parse(portfolioData.works);
+        JSON.parse(portfolioData.certificate);
+      } catch (error) {
+        console.error("Invalid JSON format:", error);
+        throw new Error("Invalid data format");
+      }
+
+      console.log("Updating portfolio with data:", portfolioData);
+
+      // Gọi API cập nhật portfolio
+      const result = await portfolioService.updatePortfolio(
+        portfolioId,
+        portfolioData
+      );
+      return result;
+    } catch (error: any) {
+      console.error("Error updating portfolio:", error);
+      throw error;
+    }
+  },
 };

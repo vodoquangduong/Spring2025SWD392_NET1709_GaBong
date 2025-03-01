@@ -15,15 +15,20 @@ import {
   Row,
   Select,
   Space,
-  Tabs,
+  Spin,
   Tag,
   Timeline,
   Typography,
 } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HiCheckCircle } from "react-icons/hi2";
-import { MdPlace } from "react-icons/md";
-import { Certificate, Experience as ExperienceType } from "./models/types";
+import { useParams } from "react-router-dom";
+import useAuthStore from "../../stores/authStore";
+import {
+  Certificate,
+  Experience as ExperienceType,
+  PortfolioDTO,
+} from "./models/types";
 import Experience from "./partials/Experience";
 import { portfolioUseCase } from "./usecases/portfolioUseCase";
 
@@ -146,6 +151,83 @@ const Portfolio: React.FC = () => {
   const [form] = Form.useForm();
   const [isEditing, setIsEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [portfolio, setPortfolio] = useState<PortfolioDTO | null>(null);
+  const { accountId } = useAuthStore();
+  const { id } = useParams<{ id: string }>();
+
+  // Fetch portfolio data on component mount
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      try {
+        setLoading(true);
+        // Use the ID from URL params if available, otherwise use the logged-in user's ID
+        const freelancerId = id ? parseInt(id) : accountId;
+
+        if (!freelancerId) {
+          throw new Error("No freelancer ID available");
+        }
+
+        console.log("Fetching portfolio for freelancer ID:", freelancerId);
+        const data = await portfolioUseCase.getPortfolioByFreelancerId(
+          freelancerId
+        );
+        console.log("Portfolio data received:", data);
+        setPortfolio(data);
+
+        // Parse JSON strings to objects
+        let worksData;
+        let certificatesData;
+
+        try {
+          // Try to parse the works JSON string
+          if (data.works) {
+            console.log("Parsing works data:", data.works);
+            worksData = JSON.parse(data.works);
+            console.log("Parsed works data:", worksData);
+          } else {
+            console.warn("No works data available");
+            worksData = { skills: [], experiences: [] };
+          }
+
+          // Try to parse the certificate JSON string
+          if (data.certificate) {
+            console.log("Parsing certificate data:", data.certificate);
+            certificatesData = JSON.parse(data.certificate);
+            console.log("Parsed certificate data:", certificatesData);
+          } else {
+            console.warn("No certificate data available");
+            certificatesData = [];
+          }
+        } catch (parseError) {
+          console.error("Error parsing JSON data:", parseError);
+          message.error("Error parsing portfolio data");
+          worksData = { skills: [], experiences: [] };
+          certificatesData = [];
+        }
+
+        // Set form values
+        form.setFieldsValue({
+          title: data.title,
+          description: data.about,
+          skills: worksData.skills
+            ? worksData.skills.map((skill: any) =>
+                typeof skill === "string" ? skill : skill.name
+              )
+            : [],
+          experiences: worksData.experiences || [],
+          certificates: certificatesData || [],
+        });
+      } catch (error: any) {
+        console.error("Error fetching portfolio:", error);
+        message.error(error.message || "Failed to load portfolio");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPortfolio();
+  }, [accountId, id, form]);
 
   const handleSubmit = async (values: any) => {
     try {
@@ -171,12 +253,13 @@ const Portfolio: React.FC = () => {
     try {
       const values = await form.validateFields();
       setSubmitting(true);
+      console.log("Form values before processing:", values);
 
       // Xử lý dữ liệu ngày tháng trước khi chuyển đổi sang JSON
       const processedExperiences = (values.experiences || []).map(
         (exp: ExperienceType) => ({
-          ...exp,
-          // Chuyển đổi đối tượng Dayjs sang chuỗi ISO
+          position: exp.position,
+          company: exp.company,
           startDate: exp.startDate
             ? typeof exp.startDate === "object" && exp.startDate.format
               ? exp.startDate.format("YYYY-MM-DD")
@@ -187,14 +270,20 @@ const Portfolio: React.FC = () => {
               ? exp.endDate.format("YYYY-MM-DD")
               : exp.endDate
             : null,
+          description: exp.description,
           isCurrentPosition: !exp.endDate, // Nếu không có endDate thì đây là vị trí hiện tại
         })
       );
 
+      // Prepare skills in the correct format
+      const processedSkills = (values.skills || []).map((skill: string) => ({
+        name: skill,
+      }));
+
       const processedCertificates = (values.certificates || []).map(
         (cert: Certificate) => ({
-          ...cert,
-          // Chuyển đổi đối tượng Dayjs sang chuỗi ISO nếu có
+          title: cert.title,
+          url: cert.url || "",
           issueDate: cert.issueDate
             ? typeof cert.issueDate === "object" && cert.issueDate.format
               ? cert.issueDate.format("YYYY-MM-DD")
@@ -205,9 +294,12 @@ const Portfolio: React.FC = () => {
 
       // Prepare data for API
       const worksData = {
-        skills: values.skills || [],
+        skills: processedSkills,
         experiences: processedExperiences || [],
       };
+
+      console.log("Processed works data:", worksData);
+      console.log("Processed certificates:", processedCertificates);
 
       // Chuyển đổi dữ liệu thành chuỗi JSON
       const worksString = JSON.stringify(worksData);
@@ -218,18 +310,37 @@ const Portfolio: React.FC = () => {
         title: values.title || "",
         works: worksString,
         certificate: certificatesString,
-        about: values.description || "", // Sửa từ about thành description
+        about: values.description || "",
       };
 
       // Log dữ liệu cuối cùng sẽ gửi đến API
       console.log("Final portfolio data to send:", portfolioData);
 
       try {
-        // Create new portfolio
-        const result = await portfolioUseCase.createPortfolio(portfolioData);
-        console.log("Portfolio created successfully:", result);
+        // Create or update portfolio
+        let result;
+        if (portfolio && portfolio.portfolioId) {
+          // Update existing portfolio
+          // Note: You'll need to implement updatePortfolio in your service
+          result = await portfolioUseCase.updatePortfolio(
+            portfolio.portfolioId,
+            portfolioData
+          );
+        } else {
+          // Create new portfolio
+          result = await portfolioUseCase.createPortfolio(portfolioData);
+        }
+
+        console.log("Portfolio saved successfully:", result);
         message.success("Portfolio saved successfully");
         setIsEditing(false);
+
+        // Refresh the data
+        if (accountId) {
+          const refreshedData =
+            await portfolioUseCase.getPortfolioByFreelancerId(accountId);
+          setPortfolio(refreshedData);
+        }
       } catch (apiError: any) {
         console.error("API Error:", apiError);
         message.error(apiError.message || "Failed to save portfolio");
@@ -274,14 +385,43 @@ const Portfolio: React.FC = () => {
     },
   ];
 
+  // If loading, show a loading state
+  if (loading) {
+    return (
+      <div className="mx-container">
+        <Card>
+          <div className="flex items-center justify-center h-[400px]">
+            <Space direction="vertical" align="center">
+              <Spin size="large" />
+              <Text>Loading portfolio...</Text>
+            </Space>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // If no portfolio data found
+  if (!portfolio) {
+    return (
+      <div className="mx-container">
+        <Card>
+          <div className="flex flex-col items-center justify-center h-[400px]">
+            <Text type="secondary" style={{ fontSize: 18, marginBottom: 16 }}>
+              No portfolio found
+            </Text>
+            <Button type="primary" onClick={() => setIsEditing(true)}>
+              Create Portfolio
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-container">
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        initialValues={mockPortfolioData}
-      >
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Row gutter={24}>
           <Col span={18}>
             <Card
@@ -344,7 +484,7 @@ const Portfolio: React.FC = () => {
                             />
                           ) : (
                             <div className="text-2xl font-semibold">
-                              {mockPortfolioData.fullName}
+                              {portfolio.title}
                             </div>
                           )}
                         </Form.Item>
@@ -364,89 +504,22 @@ const Portfolio: React.FC = () => {
                         {isEditing ? (
                           <Input variant="outlined" />
                         ) : (
-                          <div>{mockPortfolioData.title}</div>
+                          <div>{portfolio.title}</div>
                         )}
                       </Form.Item>
 
-                      <Space>
-                        <MdPlace size={18} />
-                        <Form.Item
-                          name="location"
-                          style={{ margin: 0 }}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Please enter your location",
-                            },
-                          ]}
-                        >
-                          {isEditing ? (
-                            <Input variant="outlined" />
-                          ) : (
-                            <div>{mockPortfolioData.location}</div>
-                          )}
-                        </Form.Item>
-                        <Form.Item name="availability" style={{ margin: 0 }}>
-                          {isEditing ? (
-                            <Select style={{ width: 120 }}>
-                              <Option value="available">Open to work</Option>
-                              <Option value="busy">Busy</Option>
-                              <Option value="unavailable">Unavailable</Option>
-                            </Select>
-                          ) : (
-                            <Tag color="green" className="rounded-full !px-3">
-                              {mockPortfolioData.availability === "available"
-                                ? "Open to work"
-                                : mockPortfolioData.availability === "busy"
-                                ? "Busy"
-                                : "Unavailable"}
-                            </Tag>
-                          )}
-                        </Form.Item>
-                      </Space>
+                      {/* Status indicator based on portfolio status */}
+                      <Tag
+                        color={portfolio.status === 3 ? "green" : "orange"}
+                        className="rounded-full !px-3"
+                      >
+                        {portfolio.status === 3 ? "Approved" : "Pending Review"}
+                      </Tag>
                     </Space>
                   </Space>
                 </Space>
 
-                {/* Stats Section - Chỉ hiển thị, không cho phép edit */}
-                <Row gutter={16}>
-                  <Col span={6}>
-                    <div>
-                      <Text type="secondary">Hourly Rate</Text>
-                      <div>
-                        <Text strong>{mockPortfolioData.hourlyRate}</Text>
-                      </div>
-                    </div>
-                  </Col>
-                  <Col span={6}>
-                    <div>
-                      <Text type="secondary">Total Earned</Text>
-                      <div>
-                        <Text strong>{mockPortfolioData.totalEarned}</Text>
-                      </div>
-                    </div>
-                  </Col>
-                  <Col span={6}>
-                    <div>
-                      <Text type="secondary">Projects Completed</Text>
-                      <div>
-                        <Text strong>
-                          {mockPortfolioData.projectsCompleted}
-                        </Text>
-                      </div>
-                    </div>
-                  </Col>
-                  <Col span={6}>
-                    <div>
-                      <Text type="secondary">Rating</Text>
-                      <div>
-                        <Text strong>{mockPortfolioData.rating}</Text>
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-
-                {/* Skills Section - Dropdown chọn nhiều với theme mặc định */}
+                {/* Skills Section */}
                 <Form.Item
                   name="skills"
                   label="Skills"
@@ -465,15 +538,55 @@ const Portfolio: React.FC = () => {
                     <div
                       style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}
                     >
-                      {mockPortfolioData.skills.map((skill) => (
-                        <Tag key={skill}>{skill}</Tag>
-                      ))}
+                      {portfolio.works &&
+                        (() => {
+                          try {
+                            const worksData = JSON.parse(portfolio.works);
+                            return (
+                              worksData.skills &&
+                              worksData.skills.map(
+                                (skill: any, index: number) => (
+                                  <Tag key={index}>
+                                    {typeof skill === "string"
+                                      ? skill
+                                      : skill.name}
+                                  </Tag>
+                                )
+                              )
+                            );
+                          } catch (e) {
+                            console.error("Error rendering skills:", e);
+                            return (
+                              <Text type="danger">
+                                Error parsing skills data
+                              </Text>
+                            );
+                          }
+                        })()}
                     </div>
                   )}
                 </Form.Item>
 
-                {/* Main Content Tabs */}
-                <Tabs items={items} />
+                {/* About Section */}
+                <div>
+                  <Title level={5}>About</Title>
+                  <Divider style={{ margin: "12px 0" }} />
+                  <Form.Item
+                    name="description"
+                    rules={[
+                      { required: true, message: "Please enter a description" },
+                    ]}
+                  >
+                    {isEditing ? (
+                      <TextArea
+                        placeholder="Tell clients about your background, skills, and work experience"
+                        autoSize={{ minRows: 4, maxRows: 8 }}
+                      />
+                    ) : (
+                      <div>{portfolio.about}</div>
+                    )}
+                  </Form.Item>
+                </div>
 
                 {/* Experience Section */}
                 <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
@@ -831,13 +944,14 @@ const Portfolio: React.FC = () => {
                     <Button
                       type="primary"
                       onClick={handleSubmitForReview}
-                      disabled={isEditing}
+                      disabled={isEditing || portfolio.status === 3}
                     >
                       Submit for Review
                     </Button>
                     <Text>
-                      Submit your portfolio for staff review to get verified
-                      status.
+                      {portfolio.status === 3
+                        ? "Your portfolio has been approved by staff."
+                        : "Submit your portfolio for staff review to get verified status."}
                     </Text>
                   </Space>
                 </Space>
