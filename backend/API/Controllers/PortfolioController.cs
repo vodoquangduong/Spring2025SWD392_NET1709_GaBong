@@ -83,5 +83,16 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+        [HttpGet("public/{freelancerId}")]
+        public async Task<IActionResult> GetPublicPortfolioByFreelancerId([FromRoute] long freelancerId)
+        {
+            var result = await _portfolioService.GetPublicPortfolioByFreelancerIdAsync(freelancerId);
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
+        }
+        
     }
 }
