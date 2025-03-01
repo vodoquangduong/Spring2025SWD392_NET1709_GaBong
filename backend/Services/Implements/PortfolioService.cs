@@ -34,13 +34,13 @@ namespace Services.Implements
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Portfolio already exist"));
                 }
-                if (string.IsNullOrEmpty(portfolioDto.Title))
+                if (string.IsNullOrEmpty(portfolioDto.Title) || portfolioDto.Title.Length > 50)
                 {
-                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Title must not be empty"));
+                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Title must not be empty and length < 50"));
                 }
-                if (string.IsNullOrEmpty(portfolioDto.About))
+                if (string.IsNullOrEmpty(portfolioDto.About) || portfolioDto.About.Length > 500)
                 {
-                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "About must not be empty"));
+                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "About must not be empty and length < 500"));
                 }
                 if (string.IsNullOrEmpty(portfolioDto.Works))
                 {
@@ -180,9 +180,9 @@ namespace Services.Implements
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Portfolio with freelancer id {_currentUserService.AccountId} not found"));
                 }
-                if (string.IsNullOrWhiteSpace(updatePortfolioDto.Title) || updatePortfolioDto.Title.Length > 20)
+                if (string.IsNullOrWhiteSpace(updatePortfolioDto.Title) || updatePortfolioDto.Title.Length > 50)
                 {
-                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Title can not empty or length > 20"));
+                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Title can not empty or length > 50"));
                 }
                 if (string.IsNullOrWhiteSpace(updatePortfolioDto.Works))
                 {
@@ -192,9 +192,9 @@ namespace Services.Implements
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Certificate can not empty"));
                 }
-                if (string.IsNullOrWhiteSpace(updatePortfolioDto.About) || updatePortfolioDto.About.Length > 100)
+                if (string.IsNullOrWhiteSpace(updatePortfolioDto.About) || updatePortfolioDto.About.Length > 500)
                 {
-                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"About can not empty or length > 100"));
+                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"About can not empty or length > 500"));
                 }
                 portfolio.Title = updatePortfolioDto.Title;
                 portfolio.Works = updatePortfolioDto.Works;
