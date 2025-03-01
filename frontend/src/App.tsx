@@ -1,8 +1,9 @@
-import { App as AntApp, ConfigProvider, theme } from "antd";
+import { App as AntApp, Button, ConfigProvider, theme } from "antd";
 import { BrowserRouter } from "react-router-dom";
 import MainRoutes from "./routes/MainRoutes";
 import useConfigStore from "./stores/configStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NotifyService } from "./components/ChatPopup/services/notifyService";
 
 export default function App() {
   const { isDarkMode } = useConfigStore();
@@ -16,6 +17,39 @@ export default function App() {
     },
   });
 
+  //============================================
+  const noti = new NotifyService();
+  const sendNotification = async () => {
+    try {
+      await noti.start();
+      await noti.userConnect(9);
+      await noti.sendNotification(1, "test test");
+      // await noti.stop();
+      noti.onReceiveNotification((createDTO) => {
+        console.log(createDTO);
+        alert(createDTO);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const sendNotification2 = async () => {
+    try {
+      await noti.start();
+      await noti.userConnect(1);
+      await noti.sendNotification(9, "test test");
+      // await noti.stop();
+      noti.onReceiveNotification((message) => {
+        console.log(message);
+        alert(message);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //==================================
   return (
     <BrowserRouter>
       <AntApp component={false}>
@@ -33,6 +67,10 @@ export default function App() {
         >
           <QueryClientProvider client={queryClient}>
             <MainRoutes />
+            //==============================
+            <Button onClick={sendNotification}>Connect 9</Button>
+            <Button onClick={sendNotification2}>Connect 1</Button>
+            //=================================
           </QueryClientProvider>
         </ConfigProvider>
       </AntApp>

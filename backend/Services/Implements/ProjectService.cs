@@ -3,6 +3,8 @@ using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Project;
 using Helpers.HelperClasses;
+using Helpers.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -213,6 +215,7 @@ namespace Services.Implements
                     await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
                     await _unitOfWork.SaveChangesAsync();
                 }
+
                 return Result.Success(project.ToProjectDTO());
             }
             catch (Exception e)
