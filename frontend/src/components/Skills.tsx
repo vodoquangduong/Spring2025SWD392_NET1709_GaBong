@@ -5,7 +5,11 @@ export default function Skills({ items }: any) {
     <>
       {items &&
         items?.map((item: any) => (
-          <Tag key={item} color="default" className="rounded-full !px-3 mb-2">
+          <Tag
+            key={item?.skillName + item?.skillId}
+            color="default"
+            className="rounded-full !px-3 mb-2"
+          >
             {item?.skillName}
           </Tag>
         ))}

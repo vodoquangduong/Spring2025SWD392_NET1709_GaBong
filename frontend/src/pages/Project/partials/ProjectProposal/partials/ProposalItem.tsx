@@ -22,7 +22,7 @@ import useContractStore from "@/pages/MakeContract/store/contractStore";
 import useAuthStore from "@/stores/authStore";
 import { Role } from "@/types";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
-import { log } from "util";
+import { NotificationType } from "@/types/notification";
 
 export default function ProposalItem({
   item,
@@ -32,7 +32,7 @@ export default function ProposalItem({
   clientId: string;
 }) {
   const navigate = useNavigate();
-  const { setCurrentRoom } = useChatStore();
+  const { setCurrentRoom, notifyService } = useChatStore();
   const { accountId, role } = useAuthStore();
   const { toogleChatPopup } = useUiStore();
   const { setSelected } = useContractStore();
@@ -84,12 +84,39 @@ export default function ProposalItem({
               chatRoomName: `${accountId}-${item?.bidOwnerId}`,
             });
             console.log("🚀 ~ onClick={ ~ res:", res);
+            await notifyService?.sendNotification(
+              Number(item?.bidOwnerId),
+              NotificationType.GLOBAL,
+              `Hello bidder ${item?.bidOwnerId}, I'll choose you as my freelancer`
+            );
             toogleChatPopup();
             setCurrentRoom(res);
             // setIsChatOpen(true)
           }}
         >
           Start chatting
+        </div>
+      ),
+    },
+    {
+      key: "3",
+      label: (
+        <div
+          onClick={async () => {
+            try {
+              await notifyService?.sendNotification(
+                Number(item?.bidOwnerId),
+                NotificationType.GLOBAL,
+                `Hello bidder ${item?.bidOwnerId}, I'll choose you as my freelancer`
+              );
+              console.log(notifyService?.onReceiveNotification);
+            } catch (error) {
+              console.log("notify failed:", error);
+            }
+            console.log("notify sended successfully");
+          }}
+        >
+          Test noti
         </div>
       ),
     },

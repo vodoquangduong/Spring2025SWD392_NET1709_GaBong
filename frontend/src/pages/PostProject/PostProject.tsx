@@ -234,6 +234,10 @@ export default function PostProject() {
                 Deadline
               </div>
               <input
+                // min="2025-02-28T00:00"
+                min={dayjs(milestones[milestones.length - 1]?.deadline)
+                  .add(1, "day")
+                  .format("YYYY-MM-DDTHH:mm")}
                 id="milestoneDeadline"
                 className="input-style py-[10px] no-ring grow no-scrollbar"
                 placeholder="Enter estimated budget"
@@ -276,6 +280,19 @@ export default function PostProject() {
                   const milestoneDescription = document.getElementById(
                     "milestoneDescription"
                   ) as HTMLInputElement;
+
+                  if (
+                    !milestoneName.value ||
+                    !milestoneDeadline.value ||
+                    !milestonePercentage.value ||
+                    !milestoneDescription.value
+                  ) {
+                    setError("root.milestoneError", {
+                      message: "Please fill in the empty fields",
+                    });
+                    return;
+                  }
+
                   const milestone: Milestone = {
                     milestoneName: milestoneName.value,
                     deadline: new Date(milestoneDeadline.value).toISOString(),
@@ -293,18 +310,13 @@ export default function PostProject() {
                     });
                     return;
                   }
-                  if (
-                    !milestone.amount ||
-                    !milestone.deadline ||
-                    !milestone.milestoneName ||
-                    !milestone.description
-                  ) {
-                    setError("root.milestoneError", {
-                      message: "Please fill in the empty fields",
-                    });
-                    return;
-                  }
+
                   clearErrors("root.milestoneError");
+                  // clear input
+                  milestoneName.value = "";
+                  milestoneDeadline.value = "";
+                  milestonePercentage.value = "";
+                  milestoneDescription.value = "";
                   setMilestones([...milestones, milestone]);
                 }}
               >

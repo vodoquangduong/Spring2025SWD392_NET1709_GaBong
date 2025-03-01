@@ -1,3 +1,4 @@
+import { NotificationType } from "@/types/notification";
 import {
   HubConnection,
   HubConnectionBuilder,
@@ -52,25 +53,39 @@ export class NotifyService {
     }
   }
 
-  async sendNotification(receiverId: number, message: string) {
+  async sendNotification(
+    receiverId: number,
+    type: NotificationType,
+    message: string
+  ) {
     let createDTO = {
       AccountId: receiverId,
-      NotificationType: 0,
+      NotificationType: type,
       NotificationStatus: 0,
       Content: message,
       Time: new Date(),
     };
-    this.connection.invoke("NotifyUser", createDTO);
+    try {
+      await this.connection.invoke("NotifyUser", createDTO);
+      console.log("Message sent successfully!");
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      throw error;
+    }
   }
 
   async userConnect(userId: number) {
-    this.connection.invoke("UserConnect", userId);
+    try {
+      this.connection.invoke("UserConnect", userId);
+    } catch (error) {
+      console.log("Failed to connect user:", error);
+    }
   }
 
   onReceiveNotification(callback: (notification: any) => void) {
     this.connection.on("ReceiveNotification", (notification: any) => {
       // alert(notification.MessageContent);
-      // console.log(notification.MessageContent);
+      console.log("received notification: ", notification);
       callback(notification);
     });
   }

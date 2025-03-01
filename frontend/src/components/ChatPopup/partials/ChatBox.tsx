@@ -6,6 +6,7 @@ import axios from "axios";
 import { Empty, Skeleton } from "antd";
 import { data } from "react-router-dom";
 import useChatStore from "../stores/chatStore";
+import { NotificationType } from "@/types/notification";
 
 type MessageItemProps = {
   content: string;
@@ -13,8 +14,10 @@ type MessageItemProps = {
 };
 
 export default function ChatBox() {
-  const { currentRoom, setCurrentRoom } = useChatStore();
+  const { currentRoom, notifyService, setNotification } = useChatStore();
   const currentRoomId = currentRoom?.chatRoomID;
+  const receiverId = currentRoom?.roomDetails?.[0]?.accountId;
+
   const chatService = new ChatService();
   const { accountId: currentUserId } = useAuthStore();
   const [messages, setMessages] = useState<MessageItemProps[]>([]);
@@ -105,6 +108,13 @@ export default function ChatBox() {
       await axios.post(ROUTES.API.CHAT.MESSAGES.CREATE, messageData);
       await chatService.sendMessage(messageData);
       setIsLoading(false);
+
+      //> Gửi thông báo cho người đối diện là có tin nhắn mới
+      notifyService?.sendNotification(
+        Number(receiverId),
+        NotificationType.CHAT,
+        "New message"
+      );
     } catch (error) {
       console.error("Failed to send message:", error);
     }
@@ -136,13 +146,13 @@ export default function ChatBox() {
 
         <div>
           <div className="font-bold text-base text-secondary-foreground">
-            {currentRoom?.roomDetails[0]?.account?.name || (
+            {currentRoom?.roomDetails?.[0]?.account?.name || (
               <Skeleton.Input style={{ width: 280, height: 30 }} />
             )}
           </div>
-          {currentRoom?.roomDetails[0]?.account?.email ? (
+          {currentRoom?.roomDetails?.[0]?.account?.email ? (
             <div className="text-base text-zinc-500">
-              {currentRoom?.roomDetails[0]?.account?.email}
+              {currentRoom?.roomDetails?.[0]?.account?.email}
             </div>
           ) : (
             <Skeleton.Input className="mt-1" style={{ height: 10 }} />

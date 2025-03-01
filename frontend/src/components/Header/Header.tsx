@@ -3,7 +3,7 @@ import Logo from "../Logo";
 import React, { useState } from "react";
 import ProfileDropdown from "../ProfileDropdown";
 import useAuthStore from "../../stores/authStore";
-import { Button } from "antd";
+import { Badge, Button } from "antd";
 import { FaChevronDown } from "react-icons/fa";
 import CreateModal from "../CreateModal";
 import CreateProjectForm from "./forms/CreateProjectForm";
@@ -11,6 +11,8 @@ import NotificationDropdown from "../NotificationDropdown/NotificationDropdown";
 import { Role } from "@/types";
 import { MdOutlineEmail } from "react-icons/md";
 import useUiStore from "@/stores/uiStore";
+import useChatStore from "../ChatPopup/stores/chatStore";
+import { NotificationType } from "@/types/notification";
 
 const HeaderLinkItem = ({
   href,
@@ -58,6 +60,7 @@ const HeaderLinkItem = ({
 
 export default function Header() {
   const { isAuthenticated, role } = useAuthStore();
+  const { readNotification, hasNewChatNotification } = useChatStore();
   const { toogleChatPopup } = useUiStore();
   const navigate = useNavigate();
 
@@ -93,13 +96,18 @@ export default function Header() {
             </ul>
           </div>
           <div className="grow order-2"></div>
-          <div className="flex items-center lg:order-3 gap-4">
+          <div className="flex items-center lg:order-3 gap-6">
             {isAuthenticated ? (
               <>
-                <MdOutlineEmail
-                  className="text-2xl text-zinc-200 mx-2 cursor-pointer"
-                  onClick={toogleChatPopup}
-                />
+                <Badge dot={hasNewChatNotification}>
+                  <MdOutlineEmail
+                    className="text-2xl text-zinc-200 cursor-pointer"
+                    onClick={() => {
+                      readNotification(NotificationType.CHAT);
+                      toogleChatPopup();
+                    }}
+                  />
+                </Badge>
                 <NotificationDropdown />
                 {role == Role.CLIENT && (
                   <Button

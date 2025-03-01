@@ -4,8 +4,13 @@ import MainRoutes from "./routes/MainRoutes";
 import useConfigStore from "./stores/configStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NotifyService } from "./components/ChatPopup/services/notifyService";
+import { useEffect } from "react";
+import useAuthStore from "./stores/authStore";
+import useChatStore from "./components/ChatPopup/stores/chatStore";
 
 export default function App() {
+  const { accountId } = useAuthStore();
+  const { setNotifyService, setNotification } = useChatStore();
   const { isDarkMode } = useConfigStore();
   const { defaultAlgorithm, darkAlgorithm } = theme;
   // const queryClient = new QueryClient();
@@ -17,39 +22,25 @@ export default function App() {
     },
   });
 
-  //============================================
-  const noti = new NotifyService();
-  const sendNotification = async () => {
-    try {
-      await noti.start();
-      await noti.userConnect(9);
-      await noti.sendNotification(1, "test test");
-      // await noti.stop();
-      noti.onReceiveNotification((createDTO) => {
-        console.log(createDTO);
-        alert(createDTO);
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  useEffect(() => {
+    (async () => {
+      try {
+        const noti = new NotifyService();
+        await noti.start();
+        await noti.userConnect(Number(accountId));
+        noti.onReceiveNotification((message) => {
+          console.log("message", message);
+          if (message?.accountId == accountId) {
+            setNotification(message.notificationType);
+          }
+        });
+        setNotifyService(noti);
+      } catch (error) {
+        console.log("Failed to start notify service:", error);
+      }
+    })();
+  }, [accountId]);
 
-  const sendNotification2 = async () => {
-    try {
-      await noti.start();
-      await noti.userConnect(1);
-      await noti.sendNotification(9, "test test");
-      // await noti.stop();
-      noti.onReceiveNotification((message) => {
-        console.log(message);
-        alert(message);
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  //==================================
   return (
     <BrowserRouter>
       <AntApp component={false}>
@@ -67,10 +58,6 @@ export default function App() {
         >
           <QueryClientProvider client={queryClient}>
             <MainRoutes />
-            //==============================
-            <Button onClick={sendNotification}>Connect 9</Button>
-            <Button onClick={sendNotification2}>Connect 1</Button>
-            //=================================
           </QueryClientProvider>
         </ConfigProvider>
       </AntApp>
