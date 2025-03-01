@@ -11,8 +11,21 @@ export const portfolioUseCase = {
         throw new Error("Title is required");
       }
 
+      if (portfolioData.title.length > 20) {
+        throw new Error("Title must be less than 20 characters");
+      }
+
       if (!portfolioData.about) {
         throw new Error("About information is required");
+      }
+
+      if (portfolioData.about.length > 100) {
+        throw new Error("About must be less than 100 characters");
+      }
+
+      // Đảm bảo trường status được đặt
+      if (portfolioData.status === undefined) {
+        portfolioData.status = 3;
       }
 
       // Kiểm tra xem works và certificate có phải là chuỗi JSON hợp lệ không
@@ -64,6 +77,78 @@ export const portfolioUseCase = {
     return portfolioService.parseCertificates(certificates);
   },
 
+  // Hàm phân tích dữ liệu portfolio từ API
+  parsePortfolioData: (portfolioData: PortfolioDTO) => {
+    // Nếu không có dữ liệu, trả về đối tượng rỗng
+    if (!portfolioData) {
+      return {
+        title: "",
+        about: "",
+        skills: [],
+        experiences: [],
+        certificates: [],
+      };
+    }
+
+    let worksData = { skills: [], experiences: [] };
+    let certificatesData = [];
+
+    try {
+      // Parse works data
+      if (portfolioData.works) {
+        console.log("Parsing works data:", portfolioData.works);
+        worksData = JSON.parse(portfolioData.works);
+        console.log("Parsed works data:", worksData);
+      } else {
+        console.warn("No works data available");
+      }
+
+      // Parse certificate data
+      if (portfolioData.certificate) {
+        console.log("Parsing certificate data:", portfolioData.certificate);
+        certificatesData = JSON.parse(portfolioData.certificate);
+        console.log("Parsed certificate data:", certificatesData);
+      } else {
+        console.warn("No certificate data available");
+      }
+
+      // Xử lý dữ liệu skills để đảm bảo định dạng đúng
+      const processedSkills = worksData.skills
+        ? worksData.skills.map((skill: any) =>
+            typeof skill === "string" ? skill : skill.name
+          )
+        : [];
+
+      // Xử lý dữ liệu experiences để đảm bảo định dạng đúng
+      const processedExperiences = worksData.experiences
+        ? worksData.experiences.map((exp: any) => ({
+            ...exp,
+            isCurrentPosition:
+              exp.isCurrentPosition !== undefined
+                ? exp.isCurrentPosition
+                : !exp.endDate,
+          }))
+        : [];
+
+      return {
+        title: portfolioData.title || "",
+        about: portfolioData.about || "",
+        skills: processedSkills,
+        experiences: processedExperiences,
+        certificates: certificatesData || [],
+      };
+    } catch (error) {
+      console.error("Error parsing portfolio data:", error);
+      return {
+        title: portfolioData.title || "",
+        about: portfolioData.about || "",
+        skills: [],
+        experiences: [],
+        certificates: [],
+      };
+    }
+  },
+
   updatePortfolio: async (
     portfolioId: number,
     portfolioData: CreatePortfolioDTO
@@ -74,8 +159,21 @@ export const portfolioUseCase = {
         throw new Error("Title is required");
       }
 
+      if (portfolioData.title.length > 20) {
+        throw new Error("Title must be less than 20 characters");
+      }
+
       if (!portfolioData.about) {
         throw new Error("About information is required");
+      }
+
+      if (portfolioData.about.length > 100) {
+        throw new Error("About must be less than 100 characters");
+      }
+
+      // Đảm bảo trường status được đặt
+      if (portfolioData.status === undefined) {
+        portfolioData.status = 3;
       }
 
       // Kiểm tra xem works và certificate có phải là chuỗi JSON hợp lệ không

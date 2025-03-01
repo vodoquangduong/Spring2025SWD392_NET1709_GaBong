@@ -52,16 +52,19 @@ export interface CreatePortfolioDTO {
   works: string;
   certificate: string;
   about: string;
+  content?: string;
+  status?: number;
 }
 
 export interface PortfolioDTO {
   portfolioId: number;
-  freelancerId: number;
+  freelancerId?: number;
   title: string;
   works: string;
   certificate: string;
   about: string;
-  status: string;
+  content?: string;
+  status?: number;
 }
 
 export interface ApiResponse<T> {

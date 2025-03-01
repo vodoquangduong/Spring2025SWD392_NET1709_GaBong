@@ -13,7 +13,21 @@ export const portfolioService = {
         throw new Error("Authentication required. Please login.");
       }
 
-      console.log("Sending portfolio data to API:", portfolioData);
+      // Đảm bảo dữ liệu đúng định dạng theo mẫu đã test thành công
+      const apiData = {
+        title: portfolioData.title,
+        works: portfolioData.works,
+        certificate: portfolioData.certificate,
+        about: portfolioData.about,
+        status: 3,
+      };
+
+      console.log(
+        "Sending portfolio data to API:",
+        JSON.stringify(apiData, null, 2)
+      );
+      console.log("API URL:", `${API_URL}/api/Portfolio`);
+      console.log("Token:", token.substring(0, 15) + "...");
 
       const response = await fetch(`${API_URL}/api/Portfolio`, {
         method: "POST",
@@ -21,12 +35,66 @@ export const portfolioService = {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(portfolioData),
+        body: JSON.stringify(apiData),
       });
 
+      // Log response status và headers để debug
+      console.log("API Response Status:", response.status);
+      console.log(
+        "API Response Headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Failed to create portfolio");
+        let errorMessage = "";
+
+        // Xử lý riêng cho lỗi 405 Method Not Allowed
+        if (response.status === 405) {
+          errorMessage =
+            "Method Not Allowed (405): The API endpoint does not support this operation.";
+          console.error(errorMessage);
+          throw new Error(errorMessage);
+        }
+
+        try {
+          // Try to parse as JSON first
+          const errorData = await response.json();
+          console.error("API error response:", errorData);
+
+          if (errorData) {
+            if (errorData.message) {
+              errorMessage = errorData.message;
+            } else if (errorData.error) {
+              errorMessage = errorData.error;
+            } else if (errorData.errors) {
+              const errorMessages = Object.values(errorData.errors).flat();
+              errorMessage = errorMessages.join(", ");
+            } else if (typeof errorData === "string") {
+              errorMessage = errorData;
+            } else {
+              errorMessage = JSON.stringify(errorData);
+            }
+          }
+        } catch (jsonError) {
+          // If not JSON, try to get text
+          try {
+            const errorText = await response.text();
+            if (errorText) {
+              errorMessage = errorText;
+            }
+            console.error("API error response (text):", errorText);
+          } catch (textError) {
+            console.error("Could not parse error response as text");
+            errorMessage = "Unknown error";
+          }
+        }
+
+        if (!errorMessage) {
+          errorMessage = `API Error (${response.status})`;
+        }
+
+        console.error(errorMessage);
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -36,10 +104,15 @@ export const portfolioService = {
         return data.value;
       }
 
+      // Nếu response trả về trực tiếp đối tượng portfolio
+      if (data.portfolioId !== undefined) {
+        return data;
+      }
+
       throw new Error("Invalid API response format");
     } catch (error: any) {
       console.error("API Error:", error);
-      throw new Error(error.message || "Failed to create portfolio");
+      throw error; // Trả về lỗi gốc thay vì tạo lỗi mới
     }
   },
 
@@ -96,10 +169,42 @@ export const portfolioService = {
         }
       );
 
+      // Nếu không tìm thấy portfolio (404), trả về null thay vì throw error
+      if (response.status === 404) {
+        console.log("No portfolio found for freelancer ID:", freelancerId);
+        return null as any;
+      }
+
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("API error response:", errorText);
-        throw new Error(errorText || "Failed to get portfolio");
+        let errorMessage = "Failed to get portfolio";
+
+        try {
+          // Try to parse as JSON first
+          const errorData = await response.json();
+          console.error("API error response:", errorData);
+
+          if (errorData && errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData && errorData.error) {
+            errorMessage = errorData.error;
+          } else if (errorData && errorData.errors) {
+            const errorMessages = Object.values(errorData.errors).flat();
+            errorMessage = errorMessages.join(", ");
+          }
+        } catch (jsonError) {
+          // If not JSON, try to get text
+          try {
+            const errorText = await response.text();
+            if (errorText) {
+              errorMessage = errorText;
+            }
+            console.error("API error response (text):", errorText);
+          } catch (textError) {
+            console.error("Could not parse error response as text");
+          }
+        }
+
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -112,7 +217,7 @@ export const portfolioService = {
       }
 
       // If the response is directly the portfolio object
-      if (data.portfolioId && data.freelancerId) {
+      if (data.portfolioId !== undefined) {
         console.log("Using direct portfolio object format");
         return data;
       }
@@ -127,6 +232,12 @@ export const portfolioService = {
 
   // Hàm chuyển đổi dữ liệu kinh nghiệm làm việc thành chuỗi JSON
   parseWorks: (skills: string[], experiences: any[]): string => {
+    // Đảm bảo skills có định dạng đúng
+    const processedSkills = skills.map((skill) => ({
+      name: skill,
+    }));
+
+    // Đảm bảo experiences có định dạng đúng
     const processedExperiences = experiences.map((exp) => ({
       position: exp.position,
       company: exp.company,
@@ -141,13 +252,20 @@ export const portfolioService = {
           : exp.endDate
         : null,
       description: exp.description,
-      isCurrentPosition: !exp.endDate,
+      isCurrentPosition:
+        exp.isCurrentPosition !== undefined
+          ? exp.isCurrentPosition
+          : !exp.endDate,
     }));
 
-    return JSON.stringify({
-      skills: skills || [],
+    // Tạo đối tượng works và chuyển đổi thành chuỗi JSON
+    const worksObject = {
+      skills: processedSkills || [],
       experiences: processedExperiences || [],
-    });
+    };
+
+    // Chuyển đổi thành chuỗi JSON
+    return JSON.stringify(worksObject);
   },
 
   // Hàm chuyển đổi dữ liệu chứng chỉ thành chuỗi JSON
@@ -175,24 +293,88 @@ export const portfolioService = {
         throw new Error("Authentication required. Please login.");
       }
 
+      // Đảm bảo dữ liệu đúng định dạng theo mẫu đã test thành công
+      const apiData = {
+        title: portfolioData.title,
+        works: portfolioData.works,
+        certificate: portfolioData.certificate,
+        about: portfolioData.about,
+        status: 3,
+      };
+
       console.log(
         `Updating portfolio ID ${portfolioId} with data:`,
-        portfolioData
+        JSON.stringify(apiData, null, 2)
       );
+      console.log("API URL:", `${API_URL}/api/Portfolio`);
+      console.log("Token:", token.substring(0, 15) + "...");
 
-      const response = await fetch(`${API_URL}/api/Portfolio/${portfolioId}`, {
+      const response = await fetch(`${API_URL}/api/Portfolio`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(portfolioData),
+        body: JSON.stringify(apiData),
       });
 
+      // Log response status và headers để debug
+      console.log("API Response Status:", response.status);
+      console.log(
+        "API Response Headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("API error response:", errorText);
-        throw new Error(errorText || "Failed to update portfolio");
+        let errorMessage = "";
+
+        // Xử lý riêng cho lỗi 405 Method Not Allowed
+        if (response.status === 405) {
+          errorMessage =
+            "Method Not Allowed (405): The API endpoint does not support this operation.";
+          console.error(errorMessage);
+          throw new Error(errorMessage);
+        }
+
+        try {
+          // Try to parse as JSON first
+          const errorData = await response.json();
+          console.error("API error response:", errorData);
+
+          if (errorData) {
+            if (errorData.message) {
+              errorMessage = errorData.message;
+            } else if (errorData.error) {
+              errorMessage = errorData.error;
+            } else if (errorData.errors) {
+              const errorMessages = Object.values(errorData.errors).flat();
+              errorMessage = errorMessages.join(", ");
+            } else if (typeof errorData === "string") {
+              errorMessage = errorData;
+            } else {
+              errorMessage = JSON.stringify(errorData);
+            }
+          }
+        } catch (jsonError) {
+          // If not JSON, try to get text
+          try {
+            const errorText = await response.text();
+            if (errorText) {
+              errorMessage = errorText;
+            }
+            console.error("API error response (text):", errorText);
+          } catch (textError) {
+            console.error("Could not parse error response as text");
+            errorMessage = "Unknown error";
+          }
+        }
+
+        if (!errorMessage) {
+          errorMessage = `API Error (${response.status})`;
+        }
+
+        console.error(errorMessage);
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -204,7 +386,7 @@ export const portfolioService = {
       }
 
       // If the response is directly the portfolio object
-      if (data.portfolioId && data.freelancerId) {
+      if (data.portfolioId !== undefined) {
         return data;
       }
 
@@ -212,7 +394,7 @@ export const portfolioService = {
       throw new Error("Invalid API response format");
     } catch (error: any) {
       console.error("API Error:", error);
-      throw new Error(error.message || "Failed to update portfolio");
+      throw error; // Trả về lỗi gốc thay vì tạo lỗi mới
     }
   },
 };

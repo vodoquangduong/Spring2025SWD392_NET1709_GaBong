@@ -35,11 +35,8 @@ import {
 } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import useAuthStore from "../../stores/authStore";
-import {
-  Certificate,
-  Experience as ExperienceType,
-  PortfolioDTO,
-} from "./models/types";
+import { CreatePortfolioDTO, PortfolioDTO } from "./models/types";
+import { portfolioService } from "./services/portfolioService";
 import { portfolioUseCase } from "./usecases/portfolioUseCase";
 
 const { Title, Text } = Typography;
@@ -167,50 +164,26 @@ const Portfolio: React.FC = () => {
           freelancerId
         );
         console.log("Portfolio data received:", data);
+
+        // Nếu không tìm thấy portfolio, set portfolio là null
+        if (!data) {
+          setPortfolio(null);
+          setLoading(false);
+          return;
+        }
+
         setPortfolio(data);
 
-        // Parse JSON strings to objects
-        let worksData;
-        let certificatesData;
-
-        try {
-          // Try to parse the works JSON string
-          if (data.works) {
-            console.log("Parsing works data:", data.works);
-            worksData = JSON.parse(data.works);
-            console.log("Parsed works data:", worksData);
-          } else {
-            console.warn("No works data available");
-            worksData = { skills: [], experiences: [] };
-          }
-
-          // Try to parse the certificate JSON string
-          if (data.certificate) {
-            console.log("Parsing certificate data:", data.certificate);
-            certificatesData = JSON.parse(data.certificate);
-            console.log("Parsed certificate data:", certificatesData);
-          } else {
-            console.warn("No certificate data available");
-            certificatesData = [];
-          }
-        } catch (parseError) {
-          console.error("Error parsing JSON data:", parseError);
-          message.error("Error parsing portfolio data");
-          worksData = { skills: [], experiences: [] };
-          certificatesData = [];
-        }
+        // Sử dụng hàm parsePortfolioData để phân tích dữ liệu
+        const parsedData = portfolioUseCase.parsePortfolioData(data);
 
         // Set form values
         form.setFieldsValue({
-          title: data.title,
-          description: data.about,
-          skills: worksData.skills
-            ? worksData.skills.map((skill: any) =>
-                typeof skill === "string" ? skill : skill.name
-              )
-            : [],
-          experiences: worksData.experiences || [],
-          certificates: certificatesData || [],
+          title: parsedData.title,
+          description: parsedData.about,
+          skills: parsedData.skills,
+          experiences: parsedData.experiences,
+          certificates: parsedData.certificates,
         });
       } catch (error: any) {
         console.error("Error fetching portfolio:", error);
@@ -249,62 +222,36 @@ const Portfolio: React.FC = () => {
       setSubmitting(true);
       console.log("Form values before processing:", values);
 
-      // Xử lý dữ liệu ngày tháng trước khi chuyển đổi sang JSON
-      const processedExperiences = (values.experiences || []).map(
-        (exp: ExperienceType) => ({
-          position: exp.position,
-          company: exp.company,
-          startDate: exp.startDate
-            ? typeof exp.startDate === "object" && exp.startDate.format
-              ? exp.startDate.format("YYYY-MM-DD")
-              : exp.startDate
-            : null,
-          endDate: exp.endDate
-            ? typeof exp.endDate === "object" && exp.endDate.format
-              ? exp.endDate.format("YYYY-MM-DD")
-              : exp.endDate
-            : null,
-          description: exp.description,
-          isCurrentPosition: !exp.endDate, // Nếu không có endDate thì đây là vị trí hiện tại
-        })
+      // Validate title and about length
+      if (values.title && values.title.length > 20) {
+        message.error("Title must be less than 20 characters");
+        setSubmitting(false);
+        return;
+      }
+
+      if (values.description && values.description.length > 100) {
+        message.error("About must be less than 100 characters");
+        setSubmitting(false);
+        return;
+      }
+
+      // Sử dụng các hàm tiện ích từ portfolioService để chuyển đổi dữ liệu
+      const worksString = portfolioService.parseWorks(
+        values.skills || [],
+        values.experiences || []
       );
 
-      // Prepare skills in the correct format
-      const processedSkills = (values.skills || []).map((skill: string) => ({
-        name: skill,
-      }));
-
-      const processedCertificates = (values.certificates || []).map(
-        (cert: Certificate) => ({
-          title: cert.title,
-          url: cert.url || "",
-          issueDate: cert.issueDate
-            ? typeof cert.issueDate === "object" && cert.issueDate.format
-              ? cert.issueDate.format("YYYY-MM-DD")
-              : cert.issueDate
-            : null,
-        })
+      const certificatesString = portfolioService.parseCertificates(
+        values.certificates || []
       );
-
-      // Prepare data for API
-      const worksData = {
-        skills: processedSkills,
-        experiences: processedExperiences || [],
-      };
-
-      console.log("Processed works data:", worksData);
-      console.log("Processed certificates:", processedCertificates);
-
-      // Chuyển đổi dữ liệu thành chuỗi JSON
-      const worksString = JSON.stringify(worksData);
-      const certificatesString = JSON.stringify(processedCertificates || []);
 
       // Đảm bảo dữ liệu không bị null hoặc undefined và đúng thứ tự
-      const portfolioData = {
+      const portfolioData: CreatePortfolioDTO = {
         title: values.title || "",
         works: worksString,
         certificate: certificatesString,
         about: values.description || "",
+        status: 3,
       };
 
       // Log dữ liệu cuối cùng sẽ gửi đến API
@@ -315,18 +262,19 @@ const Portfolio: React.FC = () => {
         let result;
         if (portfolio && portfolio.portfolioId) {
           // Update existing portfolio
-          // Note: You'll need to implement updatePortfolio in your service
           result = await portfolioUseCase.updatePortfolio(
             portfolio.portfolioId,
             portfolioData
           );
+          console.log("Portfolio updated successfully:", result);
+          message.success("Portfolio updated successfully");
         } else {
           // Create new portfolio
           result = await portfolioUseCase.createPortfolio(portfolioData);
+          console.log("Portfolio created successfully:", result);
+          message.success("Portfolio created successfully");
         }
 
-        console.log("Portfolio saved successfully:", result);
-        message.success("Portfolio saved successfully");
         setIsEditing(false);
 
         // Refresh the data
@@ -334,14 +282,32 @@ const Portfolio: React.FC = () => {
           const refreshedData =
             await portfolioUseCase.getPortfolioByFreelancerId(accountId);
           setPortfolio(refreshedData);
+
+          // Sử dụng hàm parsePortfolioData để phân tích dữ liệu
+          const parsedData = portfolioUseCase.parsePortfolioData(refreshedData);
+
+          // Cập nhật form với dữ liệu mới
+          form.setFieldsValue({
+            title: parsedData.title,
+            description: parsedData.about,
+            skills: parsedData.skills,
+            experiences: parsedData.experiences,
+            certificates: parsedData.certificates,
+          });
         }
       } catch (apiError: any) {
         console.error("API Error:", apiError);
-        message.error(apiError.message || "Failed to save portfolio");
+
+        // Hiển thị thông báo lỗi chi tiết từ backend
+        if (apiError.message) {
+          message.error(apiError.message);
+        } else {
+          message.error("Failed to save portfolio. Please try again later.");
+        }
       }
     } catch (error: any) {
       console.error("Form validation error:", error);
-      message.error("Please check your form inputs and try again");
+      message.error("Please check your input and try again");
     } finally {
       setSubmitting(false);
     }
@@ -890,7 +856,7 @@ const Portfolio: React.FC = () => {
                     <Button
                       type="primary"
                       onClick={handleSubmitForReview}
-                      disabled={isEditing || portfolio.status === 3}
+                      disabled={isEditing || Number(portfolio.status) === 3}
                       icon={<CheckOutlined />}
                     >
                       Submit for Review
