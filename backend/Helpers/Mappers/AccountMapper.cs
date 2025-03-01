@@ -55,5 +55,15 @@ namespace Helpers.Mappers
                 Status = Enum.Parse<AccountStatus>(accountDto.Status.ToString()),
             };
         }
+        public static void ToAccount(this Account account, UpdateAccountDTO updateDTO)
+        {
+                account.Name = updateDTO.Name;
+                account.Phone = updateDTO.Phone;
+                account.Address = updateDTO.Address;
+                account.AvatarURL = updateDTO.AvatarURL;
+                account.Birthday = updateDTO.Birthday;
+                account.Gender = updateDTO.Gender;
+                account.Nationality = updateDTO.Nationality;
+        }
     }
 }
