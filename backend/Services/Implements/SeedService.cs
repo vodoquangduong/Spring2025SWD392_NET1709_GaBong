@@ -221,7 +221,7 @@ namespace Services.Implements
             {
                 Name = "Lê Thế Freelancer",
                 Role = AccountRole.Freelancer,
-                Email = "admin@gmail.com",
+                Email = "freelancer@gmail.com",
                 Password = HashPassword("12345678"),
                 Phone = faker.Phone.PhoneNumber(),
                 Address = faker.Address.StreetAddress(),

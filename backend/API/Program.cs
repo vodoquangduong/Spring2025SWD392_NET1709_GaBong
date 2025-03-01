@@ -11,6 +11,7 @@ using Serilog;
 using System.Text;
 using System.Reflection;
 using API.Chat;
+using backend.Payment_src.core.Payment.Service.Paypal.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +74,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddAutoMapper(typeof(ProjectMapper));
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddSingleton(x => new PaypalClient(
+              builder.Configuration["PaypalOptions:Mode"],
+              builder.Configuration["PaypalOptions:ClientId"],
+              builder.Configuration["PaypalOptions:ClientSecret"]
+          ));
 
 // Repository
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
