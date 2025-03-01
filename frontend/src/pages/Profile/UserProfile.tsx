@@ -1,3 +1,5 @@
+import { defaultAvatar } from "@/modules/default";
+import useAuthStore from "@/stores/authStore";
 import { App, Avatar, Button, Card, Spin, Tag, Typography } from "antd";
 import { useEffect, useState } from "react";
 import {
@@ -16,8 +18,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { UserProfileData } from "./models/types";
 import { profileUseCase } from "./usecases/profileUseCase";
-import useAuthStore from "@/stores/authStore";
-import { defaultAvatar } from "@/modules/default";
 
 const { Title } = Typography;
 
@@ -38,6 +38,7 @@ const UserProfile = () => {
       console.log("Profile data:", data);
       setProfile(data);
     } catch (error: any) {
+      console.error("Profile error:", error);
       message.error(error.message || "Failed to load profile");
     } finally {
       setLoading(false);
