@@ -13,7 +13,11 @@ namespace Services.Implements
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUserService;
 
-        public ProjectService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
+        public ProjectService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ICurrentUserService currentUserService
+        )
         {
             _unitOfWork = unitOfWork;
             _currentUserService = currentUserService;
@@ -25,7 +29,9 @@ namespace Services.Implements
             {
                 if (projectDto.EstimateBudget <= 0)
                 {
-                    return Result.Failure<ProjectDTO>(new Error("Create project failed", "Estimate budget must be greater than 0"));
+                    return Result.Failure<ProjectDTO>(
+                        new Error("Create project failed", "Estimate budget must be greater than 0")
+                    );
                 }
                 var project = new Project()
                 {
@@ -35,24 +41,25 @@ namespace Services.Implements
                     AvailableTimeRange = projectDto.AvailableTimeRange,
                     EstimateBudget = projectDto.EstimateBudget,
                     Status = ProjectStatus.Pending,
-                    SkillRequired = projectDto.SkillIds.Select(skillId => new SkillRequired
-                    {
-                        SkillId = skillId
-                    }).ToList()
+                    SkillRequired = projectDto
+                        .SkillIds.Select(skillId => new SkillRequired { SkillId = skillId })
+                        .ToList(),
                 };
 
                 var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
                 await _unitOfWork.SaveChangesAsync();
 
-                var milestones = projectDto.Milestones.Select(m => new Milestone
-                {
-                    ProjectId = createProject.ProjectId,
-                    MilestoneName = m.MilestoneName,
-                    DeadlineDate = m.Deadline,
-                    MilestoneDescription = m.Description,
-                    PayAmount = m.Amount,
-                    Status = MilestoneStatus.NotStarted,
-                }).ToList();
+                var milestones = projectDto
+                    .Milestones.Select(m => new Milestone
+                    {
+                        ProjectId = createProject.ProjectId,
+                        MilestoneName = m.MilestoneName,
+                        DeadlineDate = m.Deadline,
+                        MilestoneDescription = m.Description,
+                        PayAmount = m.Amount,
+                        Status = MilestoneStatus.NotStarted,
+                    })
+                    .ToList();
 
                 await _unitOfWork.GetRepo<Milestone>().CreateAllAsync(milestones);
                 await _unitOfWork.SaveChangesAsync();
@@ -61,7 +68,9 @@ namespace Services.Implements
             }
             catch (Exception e)
             {
-                return Result.Failure<ProjectDTO>(new Error("Create project failed", $"{e.Message}"));
+                return Result.Failure<ProjectDTO>(
+                    new Error("Create project failed", $"{e.Message}")
+                );
             }
         }
 
@@ -70,44 +79,57 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<Result<PaginatedResult<ProjectDTO>>> GetAllProjectsVerifiedAsync(int pageNumber, int pageSize)
+        public async Task<Result<PaginatedResult<ProjectDTO>>> GetAllProjectsVerifiedAsync(
+            int pageNumber,
+            int pageSize
+        )
         {
             try
             {
                 var queryOptions = new QueryBuilder<Project>()
-                .WithTracking(false) // No tracking for efficient
-                .WithInclude(p => p.SkillRequired)
-                .WithInclude(p => p.Milestones)
-                .WithInclude(p => p.Bids)
-                .WithPredicate(p => p.Status == ProjectStatus.Verified
-                                   && p.Milestones.Any()
-                                   && p.SkillRequired.Any())
-                .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
-                .Build();
+                    .WithTracking(false) // No tracking for efficient
+                    .WithInclude(p => p.SkillRequired)
+                    .WithInclude(p => p.Milestones)
+                    .WithInclude(p => p.Bids)
+                    .WithPredicate(p =>
+                        p.Status == ProjectStatus.Verified
+                        && p.Milestones.Any()
+                        && p.SkillRequired.Any()
+                    )
+                    .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
+                    .Build();
                 var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);
-                var paginatedProjects = await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize, project => project.ToProjectDTO());
+                var paginatedProjects = await Pagination.ApplyPaginationAsync(
+                    query,
+                    pageNumber,
+                    pageSize,
+                    project => project.ToProjectDTO()
+                );
                 return Result.Success(paginatedProjects);
             }
             catch (Exception e)
             {
-                return Result.Failure<PaginatedResult<ProjectDTO>>(new Error("Get all projects failed", $"{e.Message}"));
+                return Result.Failure<PaginatedResult<ProjectDTO>>(
+                    new Error("Get all projects failed", $"{e.Message}")
+                );
             }
         }
-
 
         public async Task<Result<ProjectDTO>> GetProjectByIdAsync(long projectId)
         {
             try
             {
                 var queryOptions = new QueryBuilder<Project>()
-                            .WithTracking(false) // No tracking for efficient
-                            .WithInclude(p => p.SkillRequired)
-                            .WithInclude(p => p.Milestones)
-                            .WithInclude(p => p.Bids)
-                            .WithPredicate(project => project.ProjectId == projectId
-                                                    && project.Milestones.Any()
-                                                    && project.SkillRequired.Any())
-                            .Build();
+                    .WithTracking(false) // No tracking for efficient
+                    .WithInclude(p => p.SkillRequired)
+                    .WithInclude(p => p.Milestones)
+                    .WithInclude(p => p.Bids)
+                    .WithPredicate(project =>
+                        project.ProjectId == projectId
+                        && project.Milestones.Any()
+                        && project.SkillRequired.Any()
+                    )
+                    .Build();
 
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
                 return Result.Success(project.ToProjectDTO());
@@ -118,19 +140,24 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<ProjectDTO>> UpdateProjectAsync(UpdateProjectDTO updateProjectDTO, long projectId)
+        public async Task<Result<ProjectDTO>> UpdateProjectAsync(
+            UpdateProjectDTO updateProjectDTO,
+            long projectId
+        )
         {
             try
             {
                 var queryOptions = new QueryBuilder<Project>()
-                .WithTracking(true)
-                .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
-                .Build();
+                    .WithTracking(true)
+                    .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
+                    .Build();
 
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
                 if (project == null)
                 {
-                    return Result.Failure<ProjectDTO>(new Error("Project not found", $"Project with project id {projectId}"));
+                    return Result.Failure<ProjectDTO>(
+                        new Error("Project not found", $"Project with project id {projectId}")
+                    );
                 }
                 project.ProjectName = updateProjectDTO.ProjectName;
                 project.AvailableTimeRange = updateProjectDTO.AvailableTimeRange;
@@ -142,13 +169,13 @@ namespace Services.Implements
                 await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
                 await _unitOfWork.SaveChangesAsync();
 
-
                 return Result.Success(project.ToProjectDTO());
-
             }
             catch (Exception e)
             {
-                return Result.Failure<ProjectDTO>(new Error("Update project failed", $"{e.Message}"));
+                return Result.Failure<ProjectDTO>(
+                    new Error("Update project failed", $"{e.Message}")
+                );
             }
         }
 
@@ -157,14 +184,19 @@ namespace Services.Implements
             try
             {
                 var queryOptions = new QueryBuilder<Project>()
-                .WithTracking(true)
-                .WithPredicate(a => a.ProjectId == verrified.ProjectId) // Filter by ID
-                .Build();
+                    .WithTracking(true)
+                    .WithPredicate(a => a.ProjectId == verrified.ProjectId) // Filter by ID
+                    .Build();
 
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
                 if (project == null)
                 {
-                    return Result.Failure<ProjectDTO>(new Error("Project not found", $"Project with project id {verrified.ProjectId}"));
+                    return Result.Failure<ProjectDTO>(
+                        new Error(
+                            "Project not found",
+                            $"Project with project id {verrified.ProjectId}"
+                        )
+                    );
                 }
                 if (verrified.IsVerified)
                 {
@@ -182,27 +214,33 @@ namespace Services.Implements
                     await _unitOfWork.SaveChangesAsync();
                 }
                 return Result.Success(project.ToProjectDTO());
-
             }
             catch (Exception e)
             {
-                return Result.Failure<ProjectDTO>(new Error("Verify project failed", $"{e.Message}"));
+                return Result.Failure<ProjectDTO>(
+                    new Error("Verify project failed", $"{e.Message}")
+                );
             }
         }
 
-        public async Task<Result<ProjectDTO>> ChooseFreelancerAsync(long projectId, long freelancerId)
+        public async Task<Result<ProjectDTO>> ChooseFreelancerAsync(
+            long projectId,
+            long freelancerId
+        )
         {
             try
             {
                 Console.WriteLine($"Verifying project with ID: {projectId}");
                 var queryOptions = new QueryBuilder<Project>()
-                .WithTracking(true)
-                .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
-                .Build();
+                    .WithTracking(true)
+                    .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
+                    .Build();
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
                 if (project == null)
                 {
-                    return Result.Failure<ProjectDTO>(new Error("Project not found", $"Project with project id {projectId}"));
+                    return Result.Failure<ProjectDTO>(
+                        new Error("Project not found", $"Project with project id {projectId}")
+                    );
                 }
                 project.Status = ProjectStatus.OnGoing;
                 project.FreelancerId = freelancerId;
@@ -212,31 +250,45 @@ namespace Services.Implements
             }
             catch (Exception e)
             {
-                return Result.Failure<ProjectDTO>(new Error("Choose freelancer failed", $"{e.Message}"));
+                return Result.Failure<ProjectDTO>(
+                    new Error("Choose freelancer failed", $"{e.Message}")
+                );
             }
         }
 
-        public async Task<Result<PaginatedResult<ProjectDTO>>> GetAllProjectsPendingAsync(int pageNumber, int pageSize)
+        public async Task<Result<PaginatedResult<ProjectDTO>>> GetAllProjectsPendingAsync(
+            int pageNumber,
+            int pageSize
+        )
         {
             try
             {
                 var queryOptions = new QueryBuilder<Project>()
-                .WithTracking(false) // No tracking for efficient
-                .WithInclude(p => p.SkillRequired)
-                .WithInclude(p => p.Bids)
-                .WithInclude(p => p.Milestones)
-                .WithPredicate(p => (p.Status == ProjectStatus.Pending)
-                                   && p.Milestones.Any()
-                                   && p.SkillRequired.Any())
-                .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
-                .Build();
+                    .WithTracking(false) // No tracking for efficient
+                    .WithInclude(p => p.SkillRequired)
+                    .WithInclude(p => p.Bids)
+                    .WithInclude(p => p.Milestones)
+                    .WithPredicate(p =>
+                        (p.Status == ProjectStatus.Pending)
+                        && p.Milestones.Any()
+                        && p.SkillRequired.Any()
+                    )
+                    .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
+                    .Build();
                 var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);
-                var paginatedProjects = await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize, project => project.ToProjectDTO());
+                var paginatedProjects = await Pagination.ApplyPaginationAsync(
+                    query,
+                    pageNumber,
+                    pageSize,
+                    project => project.ToProjectDTO()
+                );
                 return Result.Success(paginatedProjects);
             }
             catch (Exception e)
             {
-                return Result.Failure<PaginatedResult<ProjectDTO>>(new Error("Get all projects failed", $"{e.Message}"));
+                return Result.Failure<PaginatedResult<ProjectDTO>>(
+                    new Error("Get all projects failed", $"{e.Message}")
+                );
             }
         }
 
@@ -245,12 +297,12 @@ namespace Services.Implements
             try
             {
                 var queryOptions = new QueryBuilder<Project>()
-                .WithTracking(false) // No tracking for efficient
-                .WithInclude(p => p.SkillRequired)
-                .WithInclude(p => p.Milestones)
-                .WithInclude(p => p.Bids)
-                .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
-                .Build();
+                    .WithTracking(false) // No tracking for efficient
+                    .WithInclude(p => p.SkillRequired)
+                    .WithInclude(p => p.Milestones)
+                    .WithInclude(p => p.Bids)
+                    .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
+                    .Build();
                 var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
                 //var accounts = await _unitOfWork.GetRepo<Account>().GetAllAsync(queryOptions);
                 return Result.Success(projects.Select(p => p.ToProjectDTO()));
@@ -259,7 +311,9 @@ namespace Services.Implements
             }
             catch (Exception e)
             {
-                return Result.Failure<IEnumerable<ProjectDTO>>(new Error("Get all projects failed", $"{e.Message}"));
+                return Result.Failure<IEnumerable<ProjectDTO>>(
+                    new Error("Get all projects failed", $"{e.Message}")
+                );
             }
         }
     }

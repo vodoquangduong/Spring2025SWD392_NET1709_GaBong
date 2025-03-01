@@ -5,16 +5,18 @@ import { GET, POST } from "@/modules/request";
 import axios from "axios";
 import { Empty, Skeleton } from "antd";
 import { data } from "react-router-dom";
+import useChatStore from "../stores/chatStore";
 
 type MessageItemProps = {
   content: string;
   sender: string;
 };
 
-export default function ChatBox({ currentRoom }: { currentRoom: any }) {
+export default function ChatBox() {
+  const { currentRoom, setCurrentRoom } = useChatStore();
+  const currentRoomId = currentRoom?.chatRoomID;
   const chatService = new ChatService();
   const { accountId: currentUserId } = useAuthStore();
-  const currentRoomId = currentRoom?.chatRoomID;
   const [messages, setMessages] = useState<MessageItemProps[]>([]);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);

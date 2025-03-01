@@ -82,7 +82,7 @@ const LoginForm = () => {
                   type="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="example@email.com"
+                  placeholder="Your email address"
                   className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
                   required
                 />
@@ -101,7 +101,7 @@ const LoginForm = () => {
                   type="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  placeholder="••••••••"
+                  placeholder="Your password"
                   className="input-style h-11 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white border-zinc-200 dark:border-zinc-700 focus:border-emerald-500 focus:ring-emerald-500"
                   required
                 />

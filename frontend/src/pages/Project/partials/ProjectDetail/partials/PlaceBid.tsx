@@ -4,10 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { POST } from "@/modules/request";
+import { GET, POST } from "@/modules/request";
+import useAuthStore from "@/stores/authStore";
 
 export default function PlaceBid() {
   const { message } = App.useApp();
+  const { accountId } = useAuthStore();
   let { id } = useParams();
   let navigate = useNavigate();
 
@@ -45,6 +47,12 @@ export default function PlaceBid() {
   });
 
   const onSubmit = async (formData: any) => {
+    const res = await GET(`/api/Bid/freelancer/${accountId}`, false);
+    if (res?.some((item: any) => item.bidOwnerId == accountId)) {
+      message.error("You have already placed a bid");
+      navigate(`/projects/${id}/proposals`);
+      return;
+    }
     formData.projectId = id;
     message.open({
       type: "loading",

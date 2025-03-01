@@ -93,7 +93,7 @@ export default function PostProject() {
 
   return (
     <form
-      className="mx-auto grid grid-cols-12 gap-10 mb-2 px-20"
+      className="mx-auto grid grid-cols-12 gap-10 px-20 min-h-screen"
       onSubmit={handleSubmit(onSubmit)}
     >
       <Back />
@@ -173,7 +173,11 @@ export default function PostProject() {
           <Select
             className="!py-[9px]"
             maxCount={5}
+            showSearch
             suffixIcon={<span>{skills.length} / 5</span>}
+            filterOption={(input, option: any) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
             mode="multiple"
             style={{
               width: "100%",
@@ -181,7 +185,6 @@ export default function PostProject() {
             options={skillCategories?.map((item: any) => ({
               value: item.skillId,
               label: item.skillName,
-              disable: true,
             }))}
             onChange={setSkills}
           />
@@ -312,7 +315,7 @@ export default function PostProject() {
         </div>
       </div>
       <div className="space-y-2 col-span-6">
-        <div className="sticky top-4">
+        <div className="sticky top-10">
           <div className="font-semibold text-2xl pb-2 mt-10 col-span-2">
             Project's Milestones
           </div>
