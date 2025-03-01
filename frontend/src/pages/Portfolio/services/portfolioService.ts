@@ -171,37 +171,58 @@ export const portfolioService = {
 
       // Nếu không tìm thấy portfolio (404), trả về null thay vì throw error
       if (response.status === 404) {
-        console.log("No portfolio found for freelancer ID:", freelancerId);
-        return null as any;
+        console.log(
+          `No portfolio found for freelancer ID: ${freelancerId}. This is normal for new users.`
+        );
+        return null as any; // Trả về null mà không hiển thị lỗi
       }
 
       if (!response.ok) {
-        let errorMessage = "Failed to get portfolio";
+        let errorMessage = `API Error (${response.status}): `;
+        let errorData = null;
 
         try {
           // Try to parse as JSON first
-          const errorData = await response.json();
+          errorData = await response.json();
           console.error("API error response:", errorData);
 
-          if (errorData && errorData.message) {
-            errorMessage = errorData.message;
-          } else if (errorData && errorData.error) {
-            errorMessage = errorData.error;
-          } else if (errorData && errorData.errors) {
-            const errorMessages = Object.values(errorData.errors).flat();
-            errorMessage = errorMessages.join(", ");
+          if (errorData) {
+            if (errorData.message) {
+              errorMessage += errorData.message;
+            } else if (errorData.error) {
+              errorMessage += errorData.error;
+            } else if (errorData.errors) {
+              const errorMessages = Object.values(errorData.errors).flat();
+              errorMessage += errorMessages.join(", ");
+            } else if (typeof errorData === "string") {
+              errorMessage += errorData;
+            } else {
+              errorMessage += JSON.stringify(errorData);
+            }
           }
         } catch (jsonError) {
           // If not JSON, try to get text
           try {
             const errorText = await response.text();
             if (errorText) {
-              errorMessage = errorText;
+              errorMessage += errorText;
             }
             console.error("API error response (text):", errorText);
           } catch (textError) {
             console.error("Could not parse error response as text");
+            errorMessage += "Unknown error";
           }
+        }
+
+        // Nếu lỗi liên quan đến "không tìm thấy portfolio", trả về null mà không throw error
+        if (
+          errorMessage.includes("not found") ||
+          errorMessage.includes("No portfolio")
+        ) {
+          console.log(
+            `Portfolio not found for freelancer ID: ${freelancerId}. This is normal for new users.`
+          );
+          return null as any;
         }
 
         throw new Error(errorMessage);
@@ -222,11 +243,32 @@ export const portfolioService = {
         return data;
       }
 
+      // Nếu không có dữ liệu, trả về null
+      if (!data || Object.keys(data).length === 0) {
+        console.log(
+          `Empty response for freelancer ID: ${freelancerId}. User may not have a portfolio yet.`
+        );
+        return null as any;
+      }
+
       console.error("Unexpected API response format:", data);
       throw new Error("Invalid API response format");
     } catch (error: any) {
+      // Nếu lỗi là 404 hoặc liên quan đến "not found", trả về null mà không throw error
+      if (
+        error.message &&
+        (error.message.includes("404") ||
+          error.message.includes("not found") ||
+          error.message.includes("No portfolio"))
+      ) {
+        console.log(
+          `Portfolio not found for freelancer ID: ${freelancerId}. This is normal for new users.`
+        );
+        return null as any;
+      }
+
       console.error("API Error:", error);
-      throw new Error(error.message || "Failed to get portfolio");
+      throw error;
     }
   },
 

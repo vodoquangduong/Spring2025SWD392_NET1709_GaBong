@@ -78,7 +78,7 @@ export const portfolioUseCase = {
   },
 
   // Hàm phân tích dữ liệu portfolio từ API
-  parsePortfolioData: (portfolioData: PortfolioDTO) => {
+  parsePortfolioData: (portfolioData: PortfolioDTO | null) => {
     // Nếu không có dữ liệu, trả về đối tượng rỗng
     if (!portfolioData) {
       return {
