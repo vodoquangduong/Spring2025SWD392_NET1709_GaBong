@@ -4,10 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { POST } from "@/modules/request";
+import { GET, POST } from "@/modules/request";
+import useAuthStore from "@/stores/authStore";
+import useChatStore from "@/components/ChatPopup/stores/chatStore";
+import { NotificationStatus, NotificationType } from "@/types/notification";
 
-export default function PlaceBid() {
+export default function PlaceBid({ project }: { project: any }) {
   const { message } = App.useApp();
+  const { accountId, name } = useAuthStore();
+  const { notifyService } = useChatStore();
   let { id } = useParams();
   let navigate = useNavigate();
 
@@ -35,16 +40,40 @@ export default function PlaceBid() {
       message.destroy();
       message.error("Place bid failed");
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       message.destroy();
       message.success("Placed bid successfully");
       reset();
+      await POST(`/api/Notification`, {
+        accountId: project?.clientId,
+        notificationType: NotificationType.GENERAL_ANNOUNCEMENT,
+        status: NotificationStatus.UNREAD,
+        content: `${name} has bidded on your project ${project?.projectName} (#${project?.projectId})}`,
+        time: new Date().toISOString(),
+      });
+      notifyService?.sendNotification(
+        Number(project?.clientId),
+        NotificationType.GENERAL_ANNOUNCEMENT,
+        ""
+      );
       navigate(`/projects/${id}/proposals`);
       scrollTo(0, 0);
     },
   });
 
   const onSubmit = async (formData: any) => {
+    const res = await GET(`/api/Bid/freelancer/${accountId}`, false);
+    console.log(res);
+
+    if (
+      res?.some(
+        (item: any) => item.bidOwnerId == accountId && item.projectId == id
+      )
+    ) {
+      message.error("You have already placed a bid");
+      navigate(`/projects/${id}/proposals`);
+      return;
+    }
     formData.projectId = id;
     message.open({
       type: "loading",

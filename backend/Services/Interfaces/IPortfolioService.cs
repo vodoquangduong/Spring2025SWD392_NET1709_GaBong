@@ -13,5 +13,7 @@ namespace Services.Interfaces
         Task<Result<PortfolioDTO>> GetPortfolioByIdAsync(long id);
         Task<Result<PortfolioDTO>> UpdatePortfolioAsync(UpdatePortfolioDTO updatePortfolioDto);
         Task<Result<PortfolioDTO>> VerifyPortfolioAsync(long  portfolioId, VerifyPortfolioDTO verifyPortfolioDto);
+        Task<Result<PortfolioDTO>> SubmitPortfolioAsync();
+        Task<Result<PublicPortfolioDTO>> GetPublicPortfolioByFreelancerIdAsync(long id);
     }
 }

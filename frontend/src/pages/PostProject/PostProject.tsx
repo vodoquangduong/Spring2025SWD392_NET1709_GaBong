@@ -93,7 +93,7 @@ export default function PostProject() {
 
   return (
     <form
-      className="mx-auto grid grid-cols-12 gap-10 mb-2 px-20"
+      className="mx-auto grid grid-cols-12 gap-10 px-20 min-h-screen"
       onSubmit={handleSubmit(onSubmit)}
     >
       <Back />
@@ -173,7 +173,11 @@ export default function PostProject() {
           <Select
             className="!py-[9px]"
             maxCount={5}
+            showSearch
             suffixIcon={<span>{skills.length} / 5</span>}
+            filterOption={(input, option: any) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
             mode="multiple"
             style={{
               width: "100%",
@@ -181,7 +185,6 @@ export default function PostProject() {
             options={skillCategories?.map((item: any) => ({
               value: item.skillId,
               label: item.skillName,
-              disable: true,
             }))}
             onChange={setSkills}
           />
@@ -231,6 +234,10 @@ export default function PostProject() {
                 Deadline
               </div>
               <input
+                // min="2025-02-28T00:00"
+                min={dayjs(milestones[milestones.length - 1]?.deadline)
+                  .add(1, "day")
+                  .format("YYYY-MM-DDTHH:mm")}
                 id="milestoneDeadline"
                 className="input-style py-[10px] no-ring grow no-scrollbar"
                 placeholder="Enter estimated budget"
@@ -273,6 +280,19 @@ export default function PostProject() {
                   const milestoneDescription = document.getElementById(
                     "milestoneDescription"
                   ) as HTMLInputElement;
+
+                  if (
+                    !milestoneName.value ||
+                    !milestoneDeadline.value ||
+                    !milestonePercentage.value ||
+                    !milestoneDescription.value
+                  ) {
+                    setError("root.milestoneError", {
+                      message: "Please fill in the empty fields",
+                    });
+                    return;
+                  }
+
                   const milestone: Milestone = {
                     milestoneName: milestoneName.value,
                     deadline: new Date(milestoneDeadline.value).toISOString(),
@@ -290,18 +310,13 @@ export default function PostProject() {
                     });
                     return;
                   }
-                  if (
-                    !milestone.amount ||
-                    !milestone.deadline ||
-                    !milestone.milestoneName ||
-                    !milestone.description
-                  ) {
-                    setError("root.milestoneError", {
-                      message: "Please fill in the empty fields",
-                    });
-                    return;
-                  }
+
                   clearErrors("root.milestoneError");
+                  // clear input
+                  milestoneName.value = "";
+                  milestoneDeadline.value = "";
+                  milestonePercentage.value = "";
+                  milestoneDescription.value = "";
                   setMilestones([...milestones, milestone]);
                 }}
               >
@@ -312,7 +327,7 @@ export default function PostProject() {
         </div>
       </div>
       <div className="space-y-2 col-span-6">
-        <div className="sticky top-4">
+        <div className="sticky top-10">
           <div className="font-semibold text-2xl pb-2 mt-10 col-span-2">
             Project's Milestones
           </div>

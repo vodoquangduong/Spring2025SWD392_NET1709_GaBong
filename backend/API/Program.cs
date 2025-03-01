@@ -10,8 +10,12 @@ using AutoMapper;
 using Serilog;
 using System.Text;
 using System.Reflection;
+<<<<<<< HEAD
 using API.Chat;
 using backend.Payment_src.core.Payment.Service.Paypal.Model;
+=======
+using Helpers.SignalR;
+>>>>>>> 9a88bb52cfe749800fa1719ac442364465982a7f
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -127,6 +131,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHub<ChatHub>("/chatHub");
+app.MapHub<NotifyUserHub>("/userHub");
 app.MapControllers();
 
 app.Run();

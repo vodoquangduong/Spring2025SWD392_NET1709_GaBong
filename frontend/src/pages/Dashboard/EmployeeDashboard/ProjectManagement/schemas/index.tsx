@@ -17,7 +17,9 @@ import { ProjectDetail, ProjectStatus } from "@/types/project";
 import { approveService, rejectService } from "../services/verifyService";
 import { mapProjectStatusToTag } from "@/modules/mapUiStatus";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { PUT } from "@/modules/request";
+import { POST, PUT } from "@/modules/request";
+import useChatStore from "@/components/ChatPopup/stores/chatStore";
+import { NotificationStatus, NotificationType } from "@/types/notification";
 
 // export const formSchema = () => {
 //   return z.object({
@@ -29,26 +31,45 @@ import { PUT } from "@/modules/request";
 export const projectColumns = () => {
   const { message } = App.useApp();
   const queryClient = useQueryClient();
+  const { notifyService } = useChatStore();
   const mutation = useMutation({
     mutationKey: ["projects"],
     mutationFn: async ({
       projectId,
       isVerified,
+      clientId,
     }: {
       projectId: string;
       isVerified: boolean;
-    }) =>
+      clientId: string;
+    }) => {
       await PUT(`/api/Project/verify`, {
         projectId,
         isVerified,
-      }),
+      });
+    },
     onError: () => {
       message.destroy();
       message.error("Project approval failed");
     },
-    onSuccess: () => {
+    onSuccess: async (data, variables) => {
       message.destroy();
-      message.success("Project approved successfully");
+      message.success("Update successfully");
+
+      await POST(`/api/Notification`, {
+        accountId: variables.clientId,
+        notificationType: NotificationType.GENERAL_ANNOUNCEMENT,
+        status: NotificationStatus.UNREAD,
+        content: `Your project (#${variables.projectId}) has been ${
+          variables.isVerified ? "approved" : "rejected"
+        }`,
+        time: new Date().toISOString(),
+      });
+      notifyService?.sendNotification(
+        Number(variables.clientId),
+        NotificationType.GENERAL_ANNOUNCEMENT,
+        ""
+      );
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
@@ -112,7 +133,11 @@ export const projectColumns = () => {
                       content: "Approving project ...",
                       duration: 0,
                     });
-                    approveService(record.projectId, mutation);
+                    mutation.mutate({
+                      projectId: record.projectId,
+                      isVerified: true,
+                      clientId: record.clientId,
+                    });
                   }}
                 >
                   <Button type="primary" className="font-bold">
@@ -122,7 +147,18 @@ export const projectColumns = () => {
                 <Popconfirm
                   title="Reject the project"
                   description="Are you sure to reject this project?"
-                  onConfirm={() => rejectService(record.projectId, mutation)}
+                  onConfirm={() => {
+                    message.open({
+                      type: "loading",
+                      content: "Rejecting project ...",
+                      duration: 0,
+                    });
+                    mutation.mutate({
+                      projectId: record.projectId,
+                      isVerified: false,
+                      clientId: record.clientId,
+                    });
+                  }}
                 >
                   <Button type="primary" danger className="font-bold">
                     Reject

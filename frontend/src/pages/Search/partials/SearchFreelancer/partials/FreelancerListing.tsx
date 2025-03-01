@@ -108,7 +108,7 @@ export default function FreelancerListing() {
           <FreelancerItem key={freelancer?.accountId} freelancer={freelancer} />
         ))}
         {freelancers?.isLoading &&
-          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => (
+          [-1, -2, -3, -4, -5, -6, -7, -8, -9, -10].map((item, index) => (
             <ListingItemSkeletion key={index} />
           ))}
       </div>

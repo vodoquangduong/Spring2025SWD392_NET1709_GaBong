@@ -22,23 +22,31 @@ namespace Services.Implements
         {
             try
             {
-                // if(_currentUserService.Role != Role.Freelancer)
-                // {
-                //     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Only freelancer can create portfolio"));
-                // }
-                if(string.IsNullOrEmpty(portfolioDto.Title))
+                if (!_currentUserService.Role.Equals("Freelancer"))
                 {
-                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Title must not be empty"));
+                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Only freelancer can create portfolio"));
                 }
-                if(string.IsNullOrEmpty(portfolioDto.About))
+                var portfolioExist = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(new QueryOptions<Portfolio>
                 {
-                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "About must not be empty"));
+                    Predicate = p => p.FreelancerId == _currentUserService.AccountId
+                });
+                if (portfolioExist != null)
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Portfolio already exist"));
                 }
-                if(string.IsNullOrEmpty(portfolioDto.Works))
+                if (string.IsNullOrEmpty(portfolioDto.Title) || portfolioDto.Title.Length > 50)
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Title must not be empty and length < 50"));
+                }
+                if (string.IsNullOrEmpty(portfolioDto.About) || portfolioDto.About.Length > 500)
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "About must not be empty and length < 500"));
+                }
+                if (string.IsNullOrEmpty(portfolioDto.Works))
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Works must not be empty"));
                 }
-                if(string.IsNullOrEmpty(portfolioDto.Certificate))
+                if (string.IsNullOrEmpty(portfolioDto.Certificate))
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Certificate must not be empty"));
                 }
@@ -49,7 +57,7 @@ namespace Services.Implements
                     Works = portfolioDto.Works,
                     Certificate = portfolioDto.Certificate,
                     About = portfolioDto.About,
-                    Status = PortfolioStatus.Pending,
+                    Status = PortfolioStatus.Modifying,
                 };
                 var result = await _unitOfWork.GetRepo<Portfolio>().CreateAsync(portfolio);
                 await _unitOfWork.SaveChangesAsync();
@@ -82,7 +90,7 @@ namespace Services.Implements
                 {
                     Predicate = p => p.FreelancerId == id
                 });
-                if(portfolio == null)
+                if (portfolio == null)
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Portfolio not found", $"Portfolio with freelancer id {id}"));
                 }
@@ -102,7 +110,7 @@ namespace Services.Implements
                 {
                     Predicate = p => p.PortfolioId == id
                 });
-                if(portfolio == null)
+                if (portfolio == null)
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Portfolio not found", $"Portfolio with id {id}"));
                 }
@@ -114,6 +122,52 @@ namespace Services.Implements
             }
         }
 
+        public async Task<Result<PublicPortfolioDTO>> GetPublicPortfolioByFreelancerIdAsync(long id)
+        {
+            try
+            {
+                var queryOptions = new QueryBuilder<Portfolio>()
+                    .WithPredicate(p => p.FreelancerId == id)
+                    .WithInclude(p => p.Account)
+                    .WithTracking(false)
+                    .Build();
+                var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(queryOptions);
+                if (portfolio == null)
+                {
+                    return Result.Failure<PublicPortfolioDTO>(new Error("Portfolio not found", $"Portfolio with Freelancer Id {id}"));
+                }
+
+                return Result.Success(portfolio.ToPublicPortfolioDTO());
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<PublicPortfolioDTO>(new Error("Get public portfolio by id failed", $"{e.Message}"));
+            }
+        }
+
+        public async Task<Result<PortfolioDTO>> SubmitPortfolioAsync()
+        {
+            try
+            {
+                var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(new QueryOptions<Portfolio>
+                {
+                    Predicate = p => p.FreelancerId == _currentUserService.AccountId
+                });
+                if (portfolio == null)
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Submit portfolio failed", $"Portfolio with freelancer id {_currentUserService.AccountId} not found"));
+                }
+                portfolio.Status = PortfolioStatus.Pending;
+                await _unitOfWork.GetRepo<Portfolio>().UpdateAsync(portfolio);
+                await _unitOfWork.SaveChangesAsync();
+                return Result.Success(portfolio.ToPortfolioDTO());
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<PortfolioDTO>(new Error("Submit portfolio failed", $"{e.Message}"));
+            }
+        }
+
         public async Task<Result<PortfolioDTO>> UpdatePortfolioAsync(UpdatePortfolioDTO updatePortfolioDto)
         {
             try
@@ -122,35 +176,35 @@ namespace Services.Implements
                 {
                     Predicate = p => p.FreelancerId == _currentUserService.AccountId
                 });
-                if(portfolio == null)
+                if (portfolio == null)
                 {
-                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed",$"Portfolio with freelancer id {_currentUserService.AccountId} not found"));
+                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Portfolio with freelancer id {_currentUserService.AccountId} not found"));
                 }
-                if(string.IsNullOrWhiteSpace(updatePortfolioDto.Title) || updatePortfolioDto.Title.Length >20)
+                if (string.IsNullOrWhiteSpace(updatePortfolioDto.Title) || updatePortfolioDto.Title.Length > 50)
                 {
-                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed",$"Title can not empty or length > 20"));
+                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Title can not empty or length > 50"));
                 }
-                if(string.IsNullOrWhiteSpace(updatePortfolioDto.Works))
+                if (string.IsNullOrWhiteSpace(updatePortfolioDto.Works))
                 {
-                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed",$"Work can not empty"));
+                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Work can not empty"));
                 }
-                if(string.IsNullOrWhiteSpace(updatePortfolioDto.Certificate))
+                if (string.IsNullOrWhiteSpace(updatePortfolioDto.Certificate))
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Certificate can not empty"));
                 }
-                if(string.IsNullOrWhiteSpace(updatePortfolioDto.About) || updatePortfolioDto.About.Length > 100)
+                if (string.IsNullOrWhiteSpace(updatePortfolioDto.About) || updatePortfolioDto.About.Length > 500)
                 {
-                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"About can not empty or length > 100"));
+                    return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"About can not empty or length > 500"));
                 }
                 portfolio.Title = updatePortfolioDto.Title;
                 portfolio.Works = updatePortfolioDto.Works;
                 portfolio.Certificate = updatePortfolioDto.Certificate;
                 portfolio.About = updatePortfolioDto.About;
-                await  _unitOfWork.GetRepo<Portfolio>().UpdateAsync(portfolio);
+                await _unitOfWork.GetRepo<Portfolio>().UpdateAsync(portfolio);
                 await _unitOfWork.SaveChangesAsync();
                 return Result.Success(portfolio.ToPortfolioDTO());
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"{e.Message}"));
             }
@@ -160,11 +214,15 @@ namespace Services.Implements
         {
             try
             {
+                if (!_currentUserService.Role.Equals("Staff"))
+                {
+                    return Result.Failure<PortfolioDTO>(new Error("Verify portfolio failed", "Only staff can verify portfolio"));
+                }
                 var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(new QueryOptions<Portfolio>
                 {
                     Predicate = p => p.PortfolioId == portfolioId
                 });
-                if(portfolio == null)
+                if (portfolio == null)
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Verify portfolio failed", $"Portfolio with id {portfolioId} not found"));
                 }
@@ -173,7 +231,7 @@ namespace Services.Implements
                 await _unitOfWork.SaveChangesAsync();
                 return Result.Success(portfolio.ToPortfolioDTO());
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return Result.Failure<PortfolioDTO>(new Error("Verify portfolio failed", $"{e.Message}"));
             }

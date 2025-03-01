@@ -124,8 +124,8 @@ export default function ProjectListing() {
     <div>
       <div className="border-b w-full p-4 flex justify-between items-center dark:border-gray-500 shadow-md">
         <div>
-          <span className="font-semibold text-xl mr-3">Top result</span>
-          {data?.value?.items?.length} result
+          <span className="font-semibold text-lg mr-3">Top result:</span>
+          {data?.value?.length} result
         </div>
         <div className="flex gap-1 items-center">
           <label htmlFor="" className="w-[100px]">
@@ -149,7 +149,7 @@ export default function ProjectListing() {
           />
         ))}
         {isLoading &&
-          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => (
+          [-1, -2, -3, -4, -5, -6, -7, -8, -9, -10].map((item, index) => (
             <ListingItemSkeletion key={index} />
           ))}
       </div>

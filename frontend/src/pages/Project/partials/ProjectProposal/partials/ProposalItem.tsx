@@ -15,13 +15,25 @@ import { FaFlag, FaStar } from "react-icons/fa6";
 import CreateModal from "../../../../../components/CreateModal";
 import CreateReportFreelancerForm from "../forms/CreateReportFreelancerForm";
 import { useMutation } from "@tanstack/react-query";
-import { PUT } from "@/modules/request";
+import { POST, PUT } from "@/modules/request";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import useUiStore from "@/stores/uiStore";
 import useContractStore from "@/pages/MakeContract/store/contractStore";
+import useAuthStore from "@/stores/authStore";
+import { Role } from "@/types";
+import useChatStore from "@/components/ChatPopup/stores/chatStore";
+import { NotificationType } from "@/types/notification";
 
-export default function ProposalItem({ item }: { item: any }) {
+export default function ProposalItem({
+  item,
+  clientId,
+}: {
+  item: any;
+  clientId: string;
+}) {
   const navigate = useNavigate();
+  const { setCurrentRoom, notifyService } = useChatStore();
+  const { accountId, role } = useAuthStore();
   const { toogleChatPopup } = useUiStore();
   const { setSelected } = useContractStore();
 
@@ -65,9 +77,14 @@ export default function ProposalItem({ item }: { item: any }) {
       key: "2",
       label: (
         <div
-          onClick={() => {
+          onClick={async () => {
+            let res = await POST("/api/ChatRoom", {
+              clientId: accountId,
+              freelancerId: item?.bidOwnerId,
+              chatRoomName: `${accountId}-${item?.bidOwnerId}`,
+            });
             toogleChatPopup();
-            // setIsChatOpen(true)
+            setCurrentRoom(res);
           }}
         >
           Start chatting
@@ -96,7 +113,8 @@ export default function ProposalItem({ item }: { item: any }) {
               <HiCheckCircle color="green" size={20} />
             </div>
             <div className="font-normal text-[14px] my-1">
-              Full Stack Developer | 10+ Years of Experience
+              {item?.bidOwner?.email}
+              {/* Full Stack Developer | 10+ Years of Experience */}
             </div>
             <div className="flex gap-1 items-center">
               <MdPlace />
@@ -108,15 +126,14 @@ export default function ProposalItem({ item }: { item: any }) {
           <div className="font-semibold text-xl">
             ${item?.bidOffer.toLocaleString()} USD
           </div>
-          {/* <div className="text-sm text-end mt-1">
-            in {getRandomInt(2, 30).toLocaleString()} days
-            </div> */}
           <div>
-            <Dropdown menu={{ items }}>
-              <div className="p-2 rounded-full bg-slate-200 dark:bg-black/20 transition-all">
-                <HiOutlineDotsHorizontal />
-              </div>
-            </Dropdown>
+            {role == Role.CLIENT && clientId == accountId + "" && (
+              <Dropdown menu={{ items }}>
+                <div className="p-2 rounded-full bg-slate-200 dark:bg-black/20 transition-all">
+                  <HiOutlineDotsHorizontal />
+                </div>
+              </Dropdown>
+            )}
           </div>
         </div>
       </div>
@@ -163,9 +180,6 @@ export function ProposalItemSkeleton() {
           <div className="font-semibold text-xl">
             <Skeleton.Input active style={{ width: "100px" }} />
           </div>
-          {/* <div className="text-sm text-end mt-1">
-            in {getRandomInt(2, 30).toLocaleString()} days
-          </div> */}
         </div>
       </div>
       <Skeleton active className="my-4" paragraph={{ rows: 3 }} />
