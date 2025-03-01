@@ -83,40 +83,11 @@ export default function ProposalItem({
               freelancerId: item?.bidOwnerId,
               chatRoomName: `${accountId}-${item?.bidOwnerId}`,
             });
-            console.log("🚀 ~ onClick={ ~ res:", res);
-            await notifyService?.sendNotification(
-              Number(item?.bidOwnerId),
-              NotificationType.GLOBAL,
-              `Hello bidder ${item?.bidOwnerId}, I'll choose you as my freelancer`
-            );
             toogleChatPopup();
             setCurrentRoom(res);
-            // setIsChatOpen(true)
           }}
         >
           Start chatting
-        </div>
-      ),
-    },
-    {
-      key: "3",
-      label: (
-        <div
-          onClick={async () => {
-            try {
-              await notifyService?.sendNotification(
-                Number(item?.bidOwnerId),
-                NotificationType.GLOBAL,
-                `Hello bidder ${item?.bidOwnerId}, I'll choose you as my freelancer`
-              );
-              console.log(notifyService?.onReceiveNotification);
-            } catch (error) {
-              console.log("notify failed:", error);
-            }
-            console.log("notify sended successfully");
-          }}
-        >
-          Test noti
         </div>
       ),
     },
@@ -142,7 +113,8 @@ export default function ProposalItem({
               <HiCheckCircle color="green" size={20} />
             </div>
             <div className="font-normal text-[14px] my-1">
-              Full Stack Developer | 10+ Years of Experience
+              {item?.bidOwner?.email}
+              {/* Full Stack Developer | 10+ Years of Experience */}
             </div>
             <div className="flex gap-1 items-center">
               <MdPlace />

@@ -29,17 +29,11 @@ const useChatStore = create<{
   },
 
   setNotification: (type: NotificationType) => {
-    console.log(type);
-    console.log(NotificationType.CHAT);
-
-    if (type == NotificationType.CHAT) {
-      console.log("zo chat ne");
-
+    if (type == NotificationType.NEW_MESSAGE) {
       set((state) => ({
         hasNewChatNotification: true,
       }));
     } else {
-      console.log("zo global ne");
       set((state) => ({
         hasNewGlobalNotification: true,
       }));
@@ -47,7 +41,7 @@ const useChatStore = create<{
   },
 
   readNotification: (type: NotificationType) => {
-    if (type == NotificationType.CHAT) {
+    if (type == NotificationType.NEW_MESSAGE) {
       set((state) => ({
         hasNewChatNotification: false,
       }));

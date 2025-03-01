@@ -112,8 +112,8 @@ export default function ChatBox() {
       //> Gửi thông báo cho người đối diện là có tin nhắn mới
       notifyService?.sendNotification(
         Number(receiverId),
-        NotificationType.CHAT,
-        "New message"
+        NotificationType.NEW_MESSAGE,
+        ""
       );
     } catch (error) {
       console.error("Failed to send message:", error);
