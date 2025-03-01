@@ -25,7 +25,7 @@ import { HiCheckCircle } from "react-icons/hi2";
 import { MdPlace } from "react-icons/md";
 import { Certificate, Experience as ExperienceType } from "./models/types";
 import Experience from "./partials/Experience";
-import portfolioUseCase from "./usecases/portfolioUseCase";
+import { portfolioUseCase } from "./usecases/portfolioUseCase";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -181,12 +181,12 @@ const Portfolio: React.FC = () => {
             ? typeof exp.startDate === "object" && exp.startDate.format
               ? exp.startDate.format("YYYY-MM-DD")
               : exp.startDate
-            : undefined,
+            : null,
           endDate: exp.endDate
             ? typeof exp.endDate === "object" && exp.endDate.format
               ? exp.endDate.format("YYYY-MM-DD")
               : exp.endDate
-            : undefined,
+            : null,
           isCurrentPosition: !exp.endDate, // Nếu không có endDate thì đây là vị trí hiện tại
         })
       );
@@ -199,7 +199,7 @@ const Portfolio: React.FC = () => {
             ? typeof cert.issueDate === "object" && cert.issueDate.format
               ? cert.issueDate.format("YYYY-MM-DD")
               : cert.issueDate
-            : undefined,
+            : null,
         })
       );
 
@@ -226,10 +226,8 @@ const Portfolio: React.FC = () => {
 
       try {
         // Create new portfolio
-        const newPortfolio = await portfolioUseCase.createPortfolio(
-          portfolioData
-        );
-        console.log("Portfolio created successfully:", newPortfolio);
+        const result = await portfolioUseCase.createPortfolio(portfolioData);
+        console.log("Portfolio created successfully:", result);
         message.success("Portfolio saved successfully");
         setIsEditing(false);
       } catch (apiError: any) {
