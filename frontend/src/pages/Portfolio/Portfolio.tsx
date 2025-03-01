@@ -1,4 +1,8 @@
-import { ClockCircleOutlined } from "@ant-design/icons";
+import {
+  ClockCircleOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import {
   Badge,
   Button,
@@ -19,7 +23,9 @@ import {
 import { useState } from "react";
 import { HiCheckCircle } from "react-icons/hi2";
 import { MdPlace } from "react-icons/md";
+import { Certificate, Experience as ExperienceType } from "./models/types";
 import Experience from "./partials/Experience";
+import portfolioUseCase from "./usecases/portfolioUseCase";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -139,6 +145,7 @@ const VerificationStatus = () => {
 const Portfolio: React.FC = () => {
   const [form] = Form.useForm();
   const [isEditing, setIsEditing] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (values: any) => {
     try {
@@ -158,6 +165,91 @@ const Portfolio: React.FC = () => {
     } catch (error) {
       message.error("Please complete all required fields before submitting");
     }
+  };
+
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+      setSubmitting(true);
+
+      // Xử lý dữ liệu ngày tháng trước khi chuyển đổi sang JSON
+      const processedExperiences = (values.experiences || []).map(
+        (exp: ExperienceType) => ({
+          ...exp,
+          // Chuyển đổi đối tượng Dayjs sang chuỗi ISO
+          startDate: exp.startDate
+            ? typeof exp.startDate === "object" && exp.startDate.format
+              ? exp.startDate.format("YYYY-MM-DD")
+              : exp.startDate
+            : undefined,
+          endDate: exp.endDate
+            ? typeof exp.endDate === "object" && exp.endDate.format
+              ? exp.endDate.format("YYYY-MM-DD")
+              : exp.endDate
+            : undefined,
+          isCurrentPosition: !exp.endDate, // Nếu không có endDate thì đây là vị trí hiện tại
+        })
+      );
+
+      const processedCertificates = (values.certificates || []).map(
+        (cert: Certificate) => ({
+          ...cert,
+          // Chuyển đổi đối tượng Dayjs sang chuỗi ISO nếu có
+          issueDate: cert.issueDate
+            ? typeof cert.issueDate === "object" && cert.issueDate.format
+              ? cert.issueDate.format("YYYY-MM-DD")
+              : cert.issueDate
+            : undefined,
+        })
+      );
+
+      // Prepare data for API
+      const worksData = {
+        skills: values.skills || [],
+        experiences: processedExperiences || [],
+      };
+
+      // Chuyển đổi dữ liệu thành chuỗi JSON
+      const worksString = JSON.stringify(worksData);
+      const certificatesString = JSON.stringify(processedCertificates || []);
+
+      // Đảm bảo dữ liệu không bị null hoặc undefined và đúng thứ tự
+      const portfolioData = {
+        title: values.title || "",
+        works: worksString,
+        certificate: certificatesString,
+        about: values.description || "", // Sửa từ about thành description
+      };
+
+      // Log dữ liệu cuối cùng sẽ gửi đến API
+      console.log("Final portfolio data to send:", portfolioData);
+
+      try {
+        // Create new portfolio
+        const newPortfolio = await portfolioUseCase.createPortfolio(
+          portfolioData
+        );
+        console.log("Portfolio created successfully:", newPortfolio);
+        message.success("Portfolio saved successfully");
+        setIsEditing(false);
+      } catch (apiError: any) {
+        console.error("API Error:", apiError);
+        message.error(apiError.message || "Failed to save portfolio");
+      }
+    } catch (error: any) {
+      console.error("Form validation error:", error);
+      message.error("Please check your form inputs and try again");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
   };
 
   const items = [
@@ -194,7 +286,26 @@ const Portfolio: React.FC = () => {
       >
         <Row gutter={24}>
           <Col span={18}>
-            <Card>
+            <Card
+              extra={
+                isEditing ? (
+                  <Space>
+                    <Button onClick={handleCancel}>Cancel</Button>
+                    <Button
+                      type="primary"
+                      onClick={handleSave}
+                      loading={submitting}
+                    >
+                      Save
+                    </Button>
+                  </Space>
+                ) : (
+                  <Button type="primary" onClick={handleEdit}>
+                    Edit
+                  </Button>
+                )
+              }
+            >
               <Space
                 direction="vertical"
                 size="large"
@@ -297,20 +408,6 @@ const Portfolio: React.FC = () => {
                       </Space>
                     </Space>
                   </Space>
-
-                  {/* Edit Button */}
-                  <Button
-                    type={isEditing ? "primary" : "default"}
-                    onClick={() => {
-                      if (isEditing) {
-                        form.submit();
-                      } else {
-                        setIsEditing(true);
-                      }
-                    }}
-                  >
-                    {isEditing ? "Save" : "Edit"}
-                  </Button>
                 </Space>
 
                 {/* Stats Section - Chỉ hiển thị, không cho phép edit */}
@@ -379,6 +476,354 @@ const Portfolio: React.FC = () => {
 
                 {/* Main Content Tabs */}
                 <Tabs items={items} />
+
+                {/* Experience Section */}
+                <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+                  <Col span={24}>
+                    <Title level={5}>Experience</Title>
+                    <Divider style={{ margin: "12px 0" }} />
+                  </Col>
+                  <Col span={24}>
+                    <Form.List name="experiences">
+                      {(fields, { add, remove }) => (
+                        <>
+                          {fields.map(({ key, name, ...restField }) => (
+                            <Card
+                              key={key}
+                              style={{ marginBottom: 16 }}
+                              extra={
+                                isEditing ? (
+                                  <Button
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => remove(name)}
+                                  />
+                                ) : null
+                              }
+                            >
+                              <Row gutter={[16, 16]}>
+                                <Col span={12}>
+                                  <Form.Item
+                                    {...restField}
+                                    name={[name, "position"]}
+                                    label="Position"
+                                    rules={[
+                                      {
+                                        required: true,
+                                        message: "Please enter position",
+                                      },
+                                    ]}
+                                  >
+                                    {isEditing ? (
+                                      <Input
+                                        placeholder="e.g. Software Engineer"
+                                        variant="outlined"
+                                      />
+                                    ) : (
+                                      <div>
+                                        {form.getFieldValue([
+                                          "experiences",
+                                          name,
+                                          "position",
+                                        ])}
+                                      </div>
+                                    )}
+                                  </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                  <Form.Item
+                                    {...restField}
+                                    name={[name, "company"]}
+                                    label="Company"
+                                    rules={[
+                                      {
+                                        required: true,
+                                        message: "Please enter company",
+                                      },
+                                    ]}
+                                  >
+                                    {isEditing ? (
+                                      <Input
+                                        placeholder="e.g. Google"
+                                        variant="outlined"
+                                      />
+                                    ) : (
+                                      <div>
+                                        {form.getFieldValue([
+                                          "experiences",
+                                          name,
+                                          "company",
+                                        ])}
+                                      </div>
+                                    )}
+                                  </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                  <Form.Item
+                                    {...restField}
+                                    name={[name, "startDate"]}
+                                    label="Start Date"
+                                  >
+                                    {isEditing ? (
+                                      <Input
+                                        type="date"
+                                        placeholder="Start Date"
+                                        variant="outlined"
+                                      />
+                                    ) : (
+                                      <div>
+                                        {form.getFieldValue([
+                                          "experiences",
+                                          name,
+                                          "startDate",
+                                        ]) &&
+                                          new Date(
+                                            form.getFieldValue([
+                                              "experiences",
+                                              name,
+                                              "startDate",
+                                            ])
+                                          ).toLocaleDateString()}
+                                      </div>
+                                    )}
+                                  </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                  <Form.Item
+                                    {...restField}
+                                    name={[name, "endDate"]}
+                                    label="End Date"
+                                  >
+                                    {isEditing ? (
+                                      <Input
+                                        type="date"
+                                        placeholder="End Date (leave empty if current)"
+                                        variant="outlined"
+                                      />
+                                    ) : (
+                                      <div>
+                                        {form.getFieldValue([
+                                          "experiences",
+                                          name,
+                                          "endDate",
+                                        ])
+                                          ? new Date(
+                                              form.getFieldValue([
+                                                "experiences",
+                                                name,
+                                                "endDate",
+                                              ])
+                                            ).toLocaleDateString()
+                                          : "Present"}
+                                      </div>
+                                    )}
+                                  </Form.Item>
+                                </Col>
+                              </Row>
+                              <Form.Item
+                                {...restField}
+                                name={[name, "description"]}
+                                label="Description"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Please enter job description",
+                                  },
+                                ]}
+                              >
+                                {isEditing ? (
+                                  <Input.TextArea
+                                    placeholder="Describe your responsibilities and achievements"
+                                    rows={4}
+                                  />
+                                ) : (
+                                  <div>
+                                    {form.getFieldValue([
+                                      "experiences",
+                                      name,
+                                      "description",
+                                    ])}
+                                  </div>
+                                )}
+                              </Form.Item>
+                            </Card>
+                          ))}
+
+                          {isEditing && (
+                            <Form.Item>
+                              <Button
+                                type="dashed"
+                                onClick={() =>
+                                  add({
+                                    position: "",
+                                    company: "",
+                                    startDate: null,
+                                    endDate: null,
+                                    description: "",
+                                  })
+                                }
+                                block
+                                icon={<PlusOutlined />}
+                              >
+                                Add Experience
+                              </Button>
+                            </Form.Item>
+                          )}
+
+                          {!isEditing && fields.length === 0 && (
+                            <Text type="secondary">
+                              No experience added yet.
+                            </Text>
+                          )}
+                        </>
+                      )}
+                    </Form.List>
+                  </Col>
+                </Row>
+
+                {/* Certificates Section */}
+                <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+                  <Col span={24}>
+                    <Title level={5}>Certificates</Title>
+                    <Divider style={{ margin: "12px 0" }} />
+                  </Col>
+                  <Col span={24}>
+                    <Form.List name="certificates">
+                      {(fields, { add, remove }) => (
+                        <>
+                          {fields.map(({ key, name, ...restField }) => (
+                            <Card
+                              key={key}
+                              style={{ marginBottom: 16 }}
+                              extra={
+                                isEditing ? (
+                                  <Button
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => remove(name)}
+                                  />
+                                ) : null
+                              }
+                            >
+                              <Row gutter={[16, 16]}>
+                                <Col span={12}>
+                                  <Form.Item
+                                    {...restField}
+                                    name={[name, "title"]}
+                                    label="Certificate Title"
+                                    rules={[
+                                      {
+                                        required: true,
+                                        message:
+                                          "Please enter certificate title",
+                                      },
+                                    ]}
+                                  >
+                                    {isEditing ? (
+                                      <Input
+                                        placeholder="e.g. AWS Certified Developer"
+                                        variant="outlined"
+                                      />
+                                    ) : (
+                                      <div>
+                                        {form.getFieldValue([
+                                          "certificates",
+                                          name,
+                                          "title",
+                                        ])}
+                                      </div>
+                                    )}
+                                  </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                  <Form.Item
+                                    {...restField}
+                                    name={[name, "issueDate"]}
+                                    label="Issue Date"
+                                  >
+                                    {isEditing ? (
+                                      <Input
+                                        type="date"
+                                        placeholder="Issue Date"
+                                        variant="outlined"
+                                      />
+                                    ) : (
+                                      <div>
+                                        {form.getFieldValue([
+                                          "certificates",
+                                          name,
+                                          "issueDate",
+                                        ]) &&
+                                          new Date(
+                                            form.getFieldValue([
+                                              "certificates",
+                                              name,
+                                              "issueDate",
+                                            ])
+                                          ).toLocaleDateString()}
+                                      </div>
+                                    )}
+                                  </Form.Item>
+                                </Col>
+                              </Row>
+                              <Form.Item
+                                {...restField}
+                                name={[name, "url"]}
+                                label="Certificate URL"
+                              >
+                                {isEditing ? (
+                                  <Input
+                                    placeholder="Link to certificate (optional)"
+                                    variant="outlined"
+                                  />
+                                ) : form.getFieldValue([
+                                    "certificates",
+                                    name,
+                                    "url",
+                                  ]) ? (
+                                  <a
+                                    href={form.getFieldValue([
+                                      "certificates",
+                                      name,
+                                      "url",
+                                    ])}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    View Certificate
+                                  </a>
+                                ) : (
+                                  <Text type="secondary">No URL provided</Text>
+                                )}
+                              </Form.Item>
+                            </Card>
+                          ))}
+
+                          {isEditing && (
+                            <Form.Item>
+                              <Button
+                                type="dashed"
+                                onClick={() =>
+                                  add({ title: "", url: "", issueDate: null })
+                                }
+                                block
+                                icon={<PlusOutlined />}
+                              >
+                                Add Certificate
+                              </Button>
+                            </Form.Item>
+                          )}
+
+                          {!isEditing && fields.length === 0 && (
+                            <Text type="secondary">
+                              No certificates added yet.
+                            </Text>
+                          )}
+                        </>
+                      )}
+                    </Form.List>
+                  </Col>
+                </Row>
 
                 {/* Submit for Review Section */}
                 <Divider />
