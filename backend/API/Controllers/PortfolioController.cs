@@ -73,5 +73,15 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+        [HttpPut("freelancer-submit")]
+        public async Task<IActionResult> SubmitPortfolio()
+        {
+            var result = await _portfolioService.SubmitPortfolioAsync();
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
+        }
     }
 }
