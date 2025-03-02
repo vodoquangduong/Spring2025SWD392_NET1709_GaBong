@@ -22,13 +22,6 @@ export const portfolioService = {
         status: 3,
       };
 
-      console.log(
-        "Sending portfolio data to API:",
-        JSON.stringify(apiData, null, 2)
-      );
-      console.log("API URL:", `${API_URL}/api/Portfolio`);
-      console.log("Token:", token.substring(0, 15) + "...");
-
       const response = await fetch(`${API_URL}/api/Portfolio`, {
         method: "POST",
         headers: {
@@ -37,13 +30,6 @@ export const portfolioService = {
         },
         body: JSON.stringify(apiData),
       });
-
-      // Log response status và headers để debug
-      console.log("API Response Status:", response.status);
-      console.log(
-        "API Response Headers:",
-        Object.fromEntries(response.headers.entries())
-      );
 
       if (!response.ok) {
         let errorMessage = "";
@@ -233,7 +219,6 @@ export const portfolioService = {
 
       // Check if the response has the expected structure
       if (data.isSuccess && data.value) {
-        console.log("Using isSuccess/value format");
         return data.value;
       }
 
@@ -436,7 +421,7 @@ export const portfolioService = {
       throw new Error("Invalid API response format");
     } catch (error: any) {
       console.error("API Error:", error);
-      throw error; // Trả về lỗi gốc thay vì tạo lỗi mới
+      throw error;
     }
   },
 };
