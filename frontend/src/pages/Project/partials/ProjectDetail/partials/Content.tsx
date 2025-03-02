@@ -15,33 +15,22 @@ import useAuthStore from "@/stores/authStore";
 export default function Content() {
   const { accountId } = useAuthStore();
   const { id: projectId } = useParams();
-  const { message } = App.useApp();
   const { data, isLoading } = useQuery<any>({
     queryKey: ["projectDetail", projectId],
     queryFn: async () => await GET(`/api/Project/${projectId}`),
   });
-  const [skills] = useQueries({
+
+  const [projectDetails, skillCategory] = useQueries({
     queries: [
       {
+        queryKey: ["projectDetail", projectId],
+        queryFn: async () => await GET(`/api/Project/${projectId}`),
+      },
+      {
         queryKey: ["skills"],
-        queryFn: async () => await GET(`/api/SkillRequired/${projectId}`),
+        queryFn: async () => await GET(`/api/SkillCategory`),
       },
     ],
-  });
-  const mutation = useMutation({
-    mutationKey: ["projects"],
-    mutationFn: async (freelancerId: string) =>
-      await PUT(`/api/Project/${projectId}/makeContract`, {
-        freelancerId,
-      }),
-    onError: () => {
-      message.destroy();
-      message.error("Choose freelancer failed");
-    },
-    onSuccess: () => {
-      message.destroy();
-      message.success("Choose freelancer successfully");
-    },
   });
 
   if (isLoading) {
@@ -56,7 +45,7 @@ export default function Content() {
         <div className="flex justify-between items-center">
           <span className="font-bold text-2xl mr-3">Project Details</span>
           <span className="font-bold mr-3">
-            Total Budget: ${data?.value?.estimateBudget} USD
+            Total Budget: ${projectDetails?.data?.value?.estimateBudget} USD
           </span>
         </div>
         <div>
@@ -64,14 +53,14 @@ export default function Content() {
             <FaClock />
             <span>
               {dayjs().isBefore(
-                dayjs(data?.value?.postDate!).add(
-                  data?.value?.availableTimeRange || 0,
+                dayjs(projectDetails?.data?.value?.postDate!).add(
+                  projectDetails?.data?.value?.availableTimeRange || 0,
                   "days"
                 )
               )
-                ? `Bidding ends in ${dayjs(data?.value?.postDate!).format(
-                    "MMM DD, YYYY"
-                  )}`
+                ? `Bidding ends in ${dayjs(
+                    projectDetails?.data?.value?.postDate!
+                  ).format("MMM DD, YYYY")}`
                 : "Bidding ended"}
             </span>
           </div>
@@ -79,13 +68,21 @@ export default function Content() {
         <Divider />
         {/* <p className="text-base my-2 whitespace-pre-line">{descriptions}</p> */}
         <p className="text-base my-2 whitespace-pre-line tracking-wide">
-          {data?.value?.projectDescription}
+          {projectDetails?.data?.value?.projectDescription}
         </p>
         <Divider />
         <div>
           <span className="font-semibold text-lg mr-3">Skills Required</span>
           <div className="mt-4">
-            <Skills items={skills?.data} />
+            <Skills
+              items={projectDetails?.data?.value?.skillIds.map(
+                (skillId: any) => {
+                  return skillCategory?.data?.find(
+                    (item: any) => item.skillId === skillId
+                  );
+                }
+              )}
+            />
           </div>
         </div>
 
@@ -104,7 +101,9 @@ export default function Content() {
         </div>
         <Divider />
       </div>
-      {data?.value?.clientId != accountId && <PlaceBid project={data?.value} />}
+      {projectDetails?.data?.value?.clientId != accountId && (
+        <PlaceBid project={data?.value} />
+      )}
     </>
   );
 }

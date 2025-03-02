@@ -36,6 +36,9 @@ import { Search, SearchFreelancer, SearchProject } from "../pages/Search";
 import { Payment } from "@/pages/Payment";
 import { MakeContract } from "@/pages/MakeContract";
 import PostProject from "@/pages/PostProject/PostProject";
+import { CategoryManagement } from "@/pages/Dashboard/EmployeeDashboard/CategoryManagement";
+import PrivateRoute from "@/components/PrivateRoute";
+import { Role } from "@/types";
 
 export default function MainRoutes() {
   return (
@@ -80,13 +83,23 @@ export default function MainRoutes() {
           <Route path="register" element={<Register />} />
           <Route path="login" element={<Login />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
-          <Route path="/" element={<DashboardLayout />}>
+          <Route
+            path="/"
+            element={
+              <PrivateRoute
+                allowedroles={[Role.ADMIN, Role.STAFF]}
+                redirectUrl="/"
+                children={<DashboardLayout />}
+              />
+            }
+          >
             <Route path="employee">
               <Route path="" element={<Navigate to="accounts" />} />
               <Route path="accounts/*" element={<AccountManagement />} />
               <Route path="services/*" element={<ServiceManagement />} />
               <Route path="reports/*" element={<ReportManagement />} />
               <Route path="freelancers/*" element={<FreelancerManagement />} />
+              <Route path="categories" element={<CategoryManagement />} />
               <Route path="projects">
                 <Route index element={<ProjectList />} />
                 <Route path=":id" element={<DashboardProjectDetail />} />

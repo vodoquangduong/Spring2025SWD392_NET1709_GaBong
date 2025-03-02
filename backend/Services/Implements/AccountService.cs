@@ -12,10 +12,12 @@ namespace Services.Implements;
 public class AccountService : IAccountService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
-    public AccountService(IUnitOfWork unitOfWork)
+    public AccountService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result<IEnumerable<AccountDTO>>> GetAllAccountAsync()
@@ -151,14 +153,51 @@ public class AccountService : IAccountService
                     break;
             }
 
+    public async Task<Result<AccountDTO>> UpdateAccountAsync(UpdateAccountDTO accountDto)
+    {
+        try
+        {
+            // if(_currentUserService.Status.Equals("Inactive"))
+            // {
+            //     return Result.Failure<AccountDTO>(new Error("Account is inactive", "Account is inactive"));
+            // }
+            if(string.IsNullOrEmpty(accountDto.Name))
+            {
+                return Result.Failure<AccountDTO>(new Error("Update account failed", "Name cannot null"));
+            }
+            if(string.IsNullOrEmpty(accountDto.Address))
+            {
+                return Result.Failure<AccountDTO>(new Error("Update account failed","Address cannot null"));
+            }
+            if(string.IsNullOrEmpty(accountDto.AvatarURL))
+            {
+                return Result.Failure<AccountDTO>(new Error("Update account failed","Avatar URL cannot null"));
+            }
+            if(string.IsNullOrEmpty(accountDto.Phone))
+            {
+                return Result.Failure<AccountDTO>(new Error("Update account failed", "Phone number cannot null"));
+            }
+            var queryOptions = new QueryBuilder<Account>()
+                .WithTracking(false) // No tracking for efficient
+                .WithPredicate(a => a.AccountId == _currentUserService.AccountId)
+                .Build();
+            var existedAccount = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryOptions);
+            existedAccount?.ToAccount(accountDto);
             await _unitOfWork.GetRepo<Account>().UpdateAsync(existedAccount!);
             await _unitOfWork.SaveChangesAsync();
             return Result.Success(existedAccount!.ToAccountDTO());
         }
+<<<<<<< HEAD
         catch (Exception e)
         {
             return Result.Failure<AccountDTO>(new Error("Update account failed", $"{e.Message}"));
         }
 
+=======
+        catch(Exception e)
+        {
+            return Result.Failure<AccountDTO>(new Error("Update account failed",$"{e.Message}"));
+        }
+>>>>>>> 7ed9454750c3cc9ccbd609032da21dab9ae3cb09
     }
 }

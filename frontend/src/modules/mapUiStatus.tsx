@@ -1,3 +1,4 @@
+import { Role } from "@/types";
 import { MilestoneStatus } from "@/types/milestone";
 import { ProjectStatus } from "@/types/project";
 import { Tag } from "antd";
@@ -32,4 +33,27 @@ export const mapMilestoneStatusToTag = (status: MilestoneStatus) => {
     case MilestoneStatus.CANCELLED:
       return <Tag color="red">Cancelled</Tag>;
   }
+};
+
+export const mapRoleToTag = (role: any) => {
+  const getRoleName = (role: Role): string => {
+    switch (role) {
+      case Role.ADMIN:
+        return "Admin";
+      case Role.STAFF:
+        return "Staff";
+      case Role.FREELANCER:
+        return "Freelancer";
+      case Role.CLIENT:
+        return "Client";
+      default:
+        return "Guest";
+    }
+  };
+
+  return (
+    <Tag color="blue" className="px-3 py-1 text-sm font-medium rounded-full">
+      {getRoleName(role)}
+    </Tag>
+  );
 };

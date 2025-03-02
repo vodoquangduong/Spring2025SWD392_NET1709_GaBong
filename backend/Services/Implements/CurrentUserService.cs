@@ -45,6 +45,15 @@ namespace Services.Implements
                     ?? throw new UnauthorizedAccessException("Role not found in token");
             }
         }
-        
+
+        public string Status
+        {
+            get
+            {
+                return _httpContextAccessor.HttpContext?.User.Claims
+                    .FirstOrDefault(c => c.Type == "status")?.Value 
+                    ?? throw new UnauthorizedAccessException("Status not found in token");
+            }
+        }
     }
 }

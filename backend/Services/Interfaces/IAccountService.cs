@@ -16,4 +16,5 @@ public interface IAccountService
     Task<Account?> ResetPasswordAsync(long id, string password);
 
     Task<Result<AccountDTO>> UpdateCredit(long AccountId, decimal amount, string transacionType);
+    Task<Result<AccountDTO>> UpdateAccountAsync(UpdateAccountDTO accountDto);
 }

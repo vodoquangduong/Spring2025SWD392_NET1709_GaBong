@@ -22,6 +22,7 @@ const useAuthStore = create<{
   role: Role;
   login: (token: string) => void;
   logout: () => void;
+  updateAccount: (data: any) => void;
 }>()(
   persist(
     (set, get) => ({
@@ -84,6 +85,12 @@ const useAuthStore = create<{
           name: "",
           avatar: "",
           role: Role.GUEST,
+        });
+      },
+      updateAccount: (data: any) => {
+        set({
+          name: data.name,
+          avatar: data.avatar,
         });
       },
     }),

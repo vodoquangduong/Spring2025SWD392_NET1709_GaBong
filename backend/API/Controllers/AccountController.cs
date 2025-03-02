@@ -4,6 +4,7 @@ using Helpers.Mappers;
 using Helpers.DTOs.Query;
 using BusinessObjects.Models;
 using Helpers.DTOs.Account;
+using Helpers.HelperClasses;
 
 namespace API.Controllers
 {
@@ -51,6 +52,16 @@ namespace API.Controllers
                 return NotFound("Account not found");
             }
             return Ok(account);
+        }
+        [HttpPut]
+        public async Task<IActionResult> UpdateAccount(UpdateAccountDTO accountDTO)
+        {
+            var result = await _accountService.UpdateAccountAsync(accountDTO);
+            if(result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
         }
     }
 }

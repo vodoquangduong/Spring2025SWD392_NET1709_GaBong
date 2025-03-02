@@ -118,6 +118,9 @@ export default function PostProject() {
             <option className="input-style" value={""}>
               Select a location
             </option>
+            <option className="input-style" value={"Anywhere"}>
+              Anywhere
+            </option>
             {countries.map((item: string) => (
               <option
                 className="input-style"

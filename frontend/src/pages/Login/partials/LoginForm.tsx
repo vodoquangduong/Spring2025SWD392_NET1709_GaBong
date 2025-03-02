@@ -2,9 +2,13 @@ import { App } from "antd";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUseCase } from "../usecases/loginUseCase";
+import useAuthStore from "@/stores/authStore";
+import { Role } from "@/types";
+import { jwtDecode } from "jwt-decode";
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const { role } = useAuthStore();
   const { message } = App.useApp();
   const [formData, setFormData] = useState({
     email: "",
@@ -44,7 +48,12 @@ const LoginForm = () => {
       console.log("Login success:", response);
       message.destroy();
       message.success("Login successful!");
-      navigate("/"); // Chuyển đến trang chủ sau khi đăng nhập
+      const decoded: any = jwtDecode(response.token);
+      if (decoded?.role == Role.ADMIN || decoded?.role == Role.STAFF) {
+        navigate("/employee");
+      } else {
+        navigate("/"); // Chuyển đến trang chủ sau khi đăng nhập
+      }
     } catch (err: any) {
       message.destroy();
       console.error("Login failed:", err);

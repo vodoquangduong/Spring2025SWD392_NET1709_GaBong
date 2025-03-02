@@ -1,3 +1,4 @@
+import type { Dayjs } from "dayjs";
 import { UserProfileData } from "../../Profile/models/types";
 
 export type TabType = "works" | "skills" | "services" | "about";
@@ -24,6 +25,52 @@ export interface WorkItem {
     likes: number;
     comments: number;
   };
+}
+
+export interface Experience {
+  position: string;
+  company: string;
+  startDate: string | null | Dayjs;
+  endDate?: string | null | Dayjs;
+  description: string;
+  isCurrentPosition?: boolean;
+}
+
+export interface Certificate {
+  title: string;
+  issueDate?: string | null | Dayjs;
+  url?: string;
+}
+
+export interface Works {
+  skills: string[];
+  experiences: Experience[];
+}
+
+export interface CreatePortfolioDTO {
+  title: string;
+  works: string;
+  certificate: string;
+  about: string;
+  content?: string;
+  status?: number;
+}
+
+export interface PortfolioDTO {
+  portfolioId: number;
+  freelancerId?: number;
+  title: string;
+  works: string;
+  certificate: string;
+  about: string;
+  content?: string;
+  status?: number;
+}
+
+export interface ApiResponse<T> {
+  isSuccess: boolean;
+  value?: T;
+  error?: string;
 }
 
 export interface SkillCategory {
