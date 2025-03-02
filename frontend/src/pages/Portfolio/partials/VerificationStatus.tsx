@@ -1,8 +1,8 @@
-import { ClockCircleOutlined } from "@ant-design/icons";
-import { Badge, Button, Card, Space, Timeline, Typography } from "antd";
+import { CheckCircleFilled, EditFilled } from "@ant-design/icons";
+import { Card, Steps, Typography } from "antd";
 import { PortfolioDTO } from "../models/types";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 // Enum PortfolioStatus
 enum PortfolioStatus {
@@ -20,131 +20,77 @@ interface VerificationStatusProps {
 const VerificationStatus: React.FC<VerificationStatusProps> = ({
   portfolio,
 }) => {
-  // Xác định trạng thái xác minh dựa trên dữ liệu portfolio
-  const getStatusInfo = () => {
-    if (!portfolio) {
-      return {
-        status: "default",
-        text: "No Portfolio",
-        color: "default",
-      };
-    }
-
-    const status =
-      portfolio.status !== undefined
-        ? portfolio.status
-        : PortfolioStatus.Modifying;
-
-    switch (status) {
-      case PortfolioStatus.Pending:
-        return {
-          status: "warning",
-          text: "Pending Verification",
-          color: "#d48806",
-        };
-      case PortfolioStatus.Verified:
-        return {
-          status: "success",
-          text: "Verified",
-          color: "#52c41a",
-        };
-      case PortfolioStatus.Rejected:
-        return {
-          status: "error",
-          text: "Rejected - Needs Revision",
-          color: "#f5222d",
-        };
-      case PortfolioStatus.Modifying:
-        return {
-          status: "processing",
-          text: "Editing",
-          color: "#1890ff",
-        };
-      default:
-        return {
-          status: "default",
-          text: "Unknown",
-          color: "default",
-        };
-    }
+  // Xác định trạng thái hiện tại
+  const getCurrentStatus = () => {
+    if (!portfolio) return PortfolioStatus.Modifying;
+    return portfolio.status !== undefined
+      ? portfolio.status
+      : PortfolioStatus.Modifying;
   };
 
-  const statusInfo = getStatusInfo();
+  const currentStatus = getCurrentStatus();
 
-  // Xác định các mục timeline dựa trên trạng thái
-  const getTimelineItems = () => {
+  // Tạo các bước trong tiến trình dựa trên status thực tế
+  const getStepsItems = () => {
     const items = [
       {
-        color:
-          portfolio && portfolio.status === PortfolioStatus.Pending
-            ? "warning"
-            : portfolio && portfolio.status === PortfolioStatus.Verified
-            ? "success"
-            : portfolio && portfolio.status === PortfolioStatus.Rejected
-            ? "error"
-            : "gray",
-        children: (
-          <Space direction="vertical" size={4}>
-            <Text strong>Document Verification</Text>
-            <Text type="secondary">
-              {portfolio && portfolio.status === PortfolioStatus.Pending
-                ? "Your documents are being reviewed by our team"
-                : portfolio && portfolio.status === PortfolioStatus.Verified
-                ? "Your documents have been verified"
-                : portfolio && portfolio.status === PortfolioStatus.Rejected
-                ? "Your documents have been rejected. Please revise and resubmit."
-                : "Waiting for document submission"}
-            </Text>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {portfolio &&
-              (portfolio.status === PortfolioStatus.Pending ||
-                portfolio.status === PortfolioStatus.Verified ||
-                portfolio.status === PortfolioStatus.Rejected)
-                ? "2 days ago"
-                : "Waiting"}
-            </Text>
-          </Space>
-        ),
+        title: "Modifying",
+        status:
+          currentStatus === PortfolioStatus.Modifying
+            ? "process"
+            : ("finish" as "process" | "finish" | "wait" | "error"),
+        icon:
+          currentStatus === PortfolioStatus.Modifying ? (
+            <div style={{ color: "#faad14" }}>
+              <EditFilled />
+            </div>
+          ) : (
+            <CheckCircleFilled />
+          ),
       },
       {
-        color:
-          portfolio && portfolio.status === PortfolioStatus.Verified
-            ? "success"
-            : "gray",
-        children: (
-          <Space direction="vertical" size={4}>
-            <Text strong>Skills Assessment</Text>
-            <Text type="secondary">
-              {portfolio && portfolio.status === PortfolioStatus.Verified
-                ? "Your skills have been verified"
-                : "Pending technical skills verification"}
-            </Text>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {portfolio && portfolio.status === PortfolioStatus.Verified
-                ? "1 day ago"
-                : "Waiting"}
-            </Text>
-          </Space>
-        ),
+        title: "Pending Verification",
+        status:
+          currentStatus === PortfolioStatus.Pending
+            ? "process"
+            : currentStatus === PortfolioStatus.Modifying
+            ? "wait"
+            : ("finish" as "process" | "finish" | "wait" | "error"),
+        icon:
+          currentStatus === PortfolioStatus.Pending ? (
+            <div style={{ color: "#faad14" }}>
+              <EditFilled />
+            </div>
+          ) : currentStatus === PortfolioStatus.Verified ||
+            currentStatus === PortfolioStatus.Rejected ? (
+            <CheckCircleFilled />
+          ) : null,
       },
     ];
 
-    // Thêm mục "Revision Required" nếu portfolio bị từ chối
-    if (portfolio && portfolio.status === PortfolioStatus.Rejected) {
+    // Thêm bước Verified hoặc Rejected dựa trên status thực tế
+    if (currentStatus === PortfolioStatus.Verified) {
       items.push({
-        color: "error",
-        children: (
-          <Space direction="vertical" size={4}>
-            <Text strong>Revision Required</Text>
-            <Text type="secondary">
-              Your portfolio needs to be revised and resubmitted for
-              verification
-            </Text>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              1 day ago
-            </Text>
-          </Space>
+        title: "Verified",
+        status: "finish" as "process" | "finish" | "wait" | "error",
+        icon: <CheckCircleFilled />,
+      });
+    } else if (currentStatus === PortfolioStatus.Rejected) {
+      items.push({
+        title: "Rejected",
+        status: "error" as "process" | "finish" | "wait" | "error",
+        icon: (
+          <div style={{ color: "#ff4d4f" }}>
+            <EditFilled />
+          </div>
         ),
+      });
+    } else if (currentStatus === PortfolioStatus.Pending) {
+      // Khi đang ở trạng thái Pending, hiển thị cả hai nhánh tiềm năng nhưng ở trạng thái wait
+      items.push({
+        title: "Verification Result",
+        status: "wait" as "process" | "finish" | "wait" | "error",
+        icon: null,
       });
     }
 
@@ -153,44 +99,21 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
 
   return (
     <Card className="bg-white dark:bg-[#27272a]">
-      <div style={{ marginBottom: 24 }}>
-        <Space direction="vertical" size={4}>
-          <Title level={4} style={{ margin: 0 }}>
-            Verification Status
-          </Title>
-          <Text type="secondary">
-            {portfolio && portfolio.status === PortfolioStatus.Verified
-              ? "Your portfolio is verified and publicly visible"
-              : "Get your portfolio verified to increase visibility"}
-          </Text>
-        </Space>
-        <div style={{ marginTop: 16 }}>
-          <Badge
-            status={statusInfo.status as any}
-            text={
-              <Text style={{ color: statusInfo.color }}>{statusInfo.text}</Text>
-            }
-          />
-        </div>
-      </div>
+      <Title level={4} style={{ margin: "0 0 20px 0" }}>
+        Verification Status
+      </Title>
 
-      <Space
+      <Steps
+        current={
+          currentStatus === PortfolioStatus.Modifying
+            ? 0
+            : currentStatus === PortfolioStatus.Pending
+            ? 1
+            : 2
+        }
         direction="vertical"
-        size="middle"
-        style={{ width: "100%", marginBottom: 24 }}
-      >
-        <Timeline items={getTimelineItems()} />
-      </Space>
-
-      <Button
-        type="primary"
-        block
-        style={{ backgroundColor: "#10b981" }}
-        icon={<ClockCircleOutlined />}
-        disabled={!portfolio || portfolio.status === PortfolioStatus.Modifying}
-      >
-        Track Verification Progress
-      </Button>
+        items={getStepsItems()}
+      />
     </Card>
   );
 };
