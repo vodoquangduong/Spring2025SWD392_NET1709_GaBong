@@ -15,5 +15,7 @@ namespace Services.Interfaces
         Task<Result<PortfolioDTO>> VerifyPortfolioAsync(long  portfolioId, VerifyPortfolioDTO verifyPortfolioDto);
         Task<Result<PortfolioDTO>> SubmitPortfolioAsync();
         Task<Result<PublicPortfolioDTO>> GetPublicPortfolioByFreelancerIdAsync(long id);
+        Task<Result<PaginatedResult<PublicPortfolioDTO>>> GetPublicPortfolioPendingList(int pageNumber, int pageSize);
+        Task<Result<PaginatedResult<PublicPortfolioDTO>>> GetPublicPortfolioVerifiedList(int pageNumber, int pageSize);
     }
 }

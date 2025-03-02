@@ -36,7 +36,11 @@ export default function Sidebar({ clientId }: { clientId: any }) {
             <div className="flex gap-1 items-center font-semibold">
               {data?.value?.name ? (
                 <>
-                  <FaUser size={14} />
+                  <FaUser
+                    size={14}
+                    color="green"
+                    className="text-emerald-500"
+                  />
                   {data?.value?.name}
                 </>
               ) : (
