@@ -6,7 +6,7 @@ const { Title, Text } = Typography;
 // Component VerificationStatus
 const VerificationStatus: React.FC = () => {
   return (
-    <Card>
+    <Card className="bg-white dark:bg-[#27272a]">
       <div style={{ marginBottom: 24 }}>
         <Space direction="vertical" size={4}>
           <Title level={4} style={{ margin: 0 }}>

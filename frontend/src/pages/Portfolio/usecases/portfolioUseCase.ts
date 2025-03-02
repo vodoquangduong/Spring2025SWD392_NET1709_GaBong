@@ -11,16 +11,16 @@ export const portfolioUseCase = {
         throw new Error("Title is required");
       }
 
-      if (portfolioData.title.length > 20) {
-        throw new Error("Title must be less than 20 characters");
+      if (portfolioData.title.length > 50) {
+        throw new Error("Title must be less than 50 characters");
       }
 
       if (!portfolioData.about) {
         throw new Error("About information is required");
       }
 
-      if (portfolioData.about.length > 100) {
-        throw new Error("About must be less than 100 characters");
+      if (portfolioData.about.length > 500) {
+        throw new Error("About must be less than 500 characters");
       }
 
       // Đảm bảo trường status được đặt
@@ -159,16 +159,16 @@ export const portfolioUseCase = {
         throw new Error("Title is required");
       }
 
-      if (portfolioData.title.length > 20) {
-        throw new Error("Title must be less than 20 characters");
+      if (portfolioData.title.length > 50) {
+        throw new Error("Title must be less than 50 characters");
       }
 
       if (!portfolioData.about) {
         throw new Error("About information is required");
       }
 
-      if (portfolioData.about.length > 100) {
-        throw new Error("About must be less than 100 characters");
+      if (portfolioData.about.length > 500) {
+        throw new Error("About must be less than 500 characters");
       }
 
       // Đảm bảo trường status được đặt

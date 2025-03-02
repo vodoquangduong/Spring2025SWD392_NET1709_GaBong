@@ -1,4 +1,5 @@
 import axios from "axios";
+const API_URL = import.meta.env.VITE_SERVER_URL;
 
 export interface Skill {
   skillId: number;
@@ -8,9 +9,7 @@ export interface Skill {
 export const skillService = {
   getSkills: async (): Promise<Skill[]> => {
     try {
-      const response = await axios.get(
-        "http://localhost:7273/api/SkillCategory"
-      );
+      const response = await axios.get(`${API_URL}/api/SkillCategory`);
       return response.data;
     } catch (error) {
       console.error("Error fetching skills:", error);

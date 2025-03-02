@@ -34,7 +34,7 @@ import { skillService } from "../services/skillService";
 import PortfolioTips from "./PortfolioTips";
 import VerificationStatus from "./VerificationStatus";
 
-const { Title, Text, Paragraph } = Typography;
+const { Text } = Typography;
 const { TextArea } = Input;
 
 interface PortfolioFormProps {
@@ -61,8 +61,6 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
   handleCancel,
   handleSubmitForReview,
   handleSubmit,
-  id,
-  accountId,
 }) => {
   // State để lưu trữ danh sách skills từ API
   const [skillOptions, setSkillOptions] = useState<
@@ -112,6 +110,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                     </Button>
                   </Space>
                 }
+                className="bg-white dark:bg-[#27272a]"
               >
                 <Space
                   direction="vertical"
@@ -130,14 +129,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                     rules={[
                       { required: true, message: "Please enter a title" },
                       {
-                        max: 20,
-                        message: "Title must be less than 20 characters",
+                        max: 50,
+                        message: "Title must be less than 50 characters",
                       },
                     ]}
                   >
                     <Input
                       placeholder="Enter your professional title"
-                      maxLength={20}
+                      maxLength={50}
+                      className="bg-white dark:bg-[#27272a]"
                     />
                   </Form.Item>
 
@@ -162,6 +162,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                       style={{ width: "100%" }}
                       options={skillOptions}
                       loading={loading}
+                      className="bg-white dark:bg-[#27272a]"
                     />
                   </Form.Item>
 
@@ -183,15 +184,16 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                           message: "Please enter a description",
                         },
                         {
-                          max: 100,
-                          message: "About must be less than 100 characters",
+                          max: 500,
+                          message: "About must be less than 500 characters",
                         },
                       ]}
                     >
                       <TextArea
                         placeholder="Tell clients about your background, skills, and work experience"
                         autoSize={{ minRows: 4, maxRows: 8 }}
-                        maxLength={100}
+                        maxLength={500}
+                        className="bg-white dark:bg-[#27272a]"
                       />
                     </Form.Item>
                   </div>
@@ -222,6 +224,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   size="small"
                                 />
                               }
+                              className="bg-white dark:bg-[#27272a]"
                             >
                               <Row gutter={[16, 16]}>
                                 <Col xs={24} md={12}>
@@ -236,7 +239,10 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       },
                                     ]}
                                   >
-                                    <Input placeholder="e.g. Software Engineer" />
+                                    <Input
+                                      placeholder="e.g. Software Engineer"
+                                      className="bg-white dark:bg-[#27272a]"
+                                    />
                                   </Form.Item>
                                 </Col>
                                 <Col xs={24} md={12}>
@@ -251,7 +257,10 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       },
                                     ]}
                                   >
-                                    <Input placeholder="e.g. Google" />
+                                    <Input
+                                      placeholder="e.g. Google"
+                                      className="bg-white dark:bg-[#27272a]"
+                                    />
                                   </Form.Item>
                                 </Col>
                                 <Col xs={24} md={12}>
@@ -264,6 +273,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       type="date"
                                       placeholder="Start Date"
                                       style={{ width: "100%" }}
+                                      className="bg-white dark:bg-[#27272a]"
                                     />
                                   </Form.Item>
                                 </Col>
@@ -277,6 +287,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       type="date"
                                       placeholder="End Date (leave empty if current)"
                                       style={{ width: "100%" }}
+                                      className="bg-white dark:bg-[#27272a]"
                                     />
                                   </Form.Item>
                                 </Col>
@@ -295,6 +306,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 <TextArea
                                   placeholder="Describe your responsibilities and achievements"
                                   rows={4}
+                                  className="bg-white dark:bg-[#27272a]"
                                 />
                               </Form.Item>
                             </Card>
@@ -349,6 +361,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   size="small"
                                 />
                               }
+                              className="bg-white dark:bg-[#27272a]"
                             >
                               <Row gutter={[16, 16]}>
                                 <Col xs={24} md={12}>
@@ -364,7 +377,10 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       },
                                     ]}
                                   >
-                                    <Input placeholder="e.g. AWS Certified Developer" />
+                                    <Input
+                                      placeholder="e.g. AWS Certified Developer"
+                                      className="bg-white dark:bg-[#27272a]"
+                                    />
                                   </Form.Item>
                                 </Col>
                                 <Col xs={24} md={12}>
@@ -377,6 +393,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       type="date"
                                       placeholder="Issue Date"
                                       style={{ width: "100%" }}
+                                      className="bg-white dark:bg-[#27272a]"
                                     />
                                   </Form.Item>
                                 </Col>
@@ -386,7 +403,10 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 name={[name, "url"]}
                                 label="Certificate URL"
                               >
-                                <Input placeholder="Link to certificate (optional)" />
+                                <Input
+                                  placeholder="Link to certificate (optional)"
+                                  className="bg-white dark:bg-[#27272a]"
+                                />
                               </Form.Item>
                             </Card>
                           ))}
@@ -454,6 +474,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                   </Button>
                 )
               }
+              className="bg-white dark:bg-[#27272a]"
             >
               <Space
                 direction="vertical"
@@ -472,15 +493,16 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                   rules={[
                     { required: true, message: "Please enter a title" },
                     {
-                      max: 20,
-                      message: "Title must be less than 20 characters",
+                      max: 50,
+                      message: "Title must be less than 50 characters",
                     },
                   ]}
                 >
                   {isEditing ? (
                     <Input
                       placeholder="Enter your professional title"
-                      maxLength={20}
+                      maxLength={50}
+                      className="bg-white dark:bg-[#27272a]"
                     />
                   ) : (
                     <Typography.Title level={4}>
@@ -511,6 +533,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                       style={{ width: "100%" }}
                       options={skillOptions}
                       loading={loading}
+                      className="bg-white dark:bg-[#27272a]"
                     />
                   ) : (
                     <div>
@@ -563,6 +586,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                       <TextArea
                         placeholder="Tell clients about your background, skills, and work experience"
                         autoSize={{ minRows: 4, maxRows: 8 }}
+                        className="bg-white dark:bg-[#27272a]"
                       />
                     ) : (
                       <Typography.Paragraph>
@@ -600,6 +624,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 />
                               ) : null
                             }
+                            className="bg-white dark:bg-[#27272a]"
                           >
                             <Row gutter={[16, 16]}>
                               <Col xs={24} md={12}>
@@ -615,7 +640,10 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   ]}
                                 >
                                   {isEditing ? (
-                                    <Input placeholder="e.g. Software Engineer" />
+                                    <Input
+                                      placeholder="e.g. Software Engineer"
+                                      className="bg-white dark:bg-[#27272a]"
+                                    />
                                   ) : (
                                     <Typography.Text strong>
                                       {form.getFieldValue([
@@ -640,7 +668,10 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   ]}
                                 >
                                   {isEditing ? (
-                                    <Input placeholder="e.g. Google" />
+                                    <Input
+                                      placeholder="e.g. Google"
+                                      className="bg-white dark:bg-[#27272a]"
+                                    />
                                   ) : (
                                     <Typography.Text>
                                       {form.getFieldValue([
@@ -663,6 +694,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       type="date"
                                       placeholder="Start Date"
                                       style={{ width: "100%" }}
+                                      className="bg-white dark:bg-[#27272a]"
                                     />
                                   ) : (
                                     <div>
@@ -693,6 +725,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       type="date"
                                       placeholder="End Date (leave empty if current)"
                                       style={{ width: "100%" }}
+                                      className="bg-white dark:bg-[#27272a]"
                                     />
                                   ) : (
                                     <div>
@@ -729,6 +762,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 <TextArea
                                   placeholder="Describe your responsibilities and achievements"
                                   rows={4}
+                                  className="bg-white dark:bg-[#27272a]"
                                 />
                               ) : (
                                 <Typography.Paragraph>
@@ -800,6 +834,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 />
                               ) : null
                             }
+                            className="bg-white dark:bg-[#27272a]"
                           >
                             <Row gutter={[16, 16]}>
                               <Col xs={24} md={12}>
@@ -815,7 +850,10 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   ]}
                                 >
                                   {isEditing ? (
-                                    <Input placeholder="e.g. AWS Certified Developer" />
+                                    <Input
+                                      placeholder="e.g. AWS Certified Developer"
+                                      className="bg-white dark:bg-[#27272a]"
+                                    />
                                   ) : (
                                     <Typography.Text strong>
                                       {form.getFieldValue([
@@ -838,6 +876,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       type="date"
                                       placeholder="Issue Date"
                                       style={{ width: "100%" }}
+                                      className="bg-white dark:bg-[#27272a]"
                                     />
                                   ) : (
                                     <div>
@@ -864,7 +903,10 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                               label="Certificate URL"
                             >
                               {isEditing ? (
-                                <Input placeholder="Link to certificate (optional)" />
+                                <Input
+                                  placeholder="Link to certificate (optional)"
+                                  className="bg-white dark:bg-[#27272a]"
+                                />
                               ) : form.getFieldValue([
                                   "certificates",
                                   name,

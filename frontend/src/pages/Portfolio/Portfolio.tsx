@@ -1,15 +1,4 @@
-import { ClockCircleOutlined } from "@ant-design/icons";
-import {
-  Badge,
-  Button,
-  Card,
-  Form,
-  Input,
-  message,
-  Space,
-  Timeline,
-  Typography,
-} from "antd";
+import { Form, message } from "antd";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useAuthStore from "../../stores/authStore";
@@ -19,81 +8,6 @@ import LoadingState from "./partials/LoadingState";
 import PortfolioForm from "./partials/PortfolioForm";
 import { portfolioService } from "./services/portfolioService";
 import { portfolioUseCase } from "./usecases/portfolioUseCase";
-
-const { Title, Text } = Typography;
-const { TextArea } = Input;
-
-// Component VerificationStatus
-const VerificationStatus = () => {
-  return (
-    <Card>
-      <div style={{ marginBottom: 24 }}>
-        <Space direction="vertical" size={4}>
-          <Title level={4} style={{ margin: 0 }}>
-            Verification Status
-          </Title>
-          <Text type="secondary">
-            Get your portfolio verified to increase visibility
-          </Text>
-        </Space>
-        <div style={{ marginTop: 16 }}>
-          <Badge
-            status="warning"
-            text={<Text style={{ color: "#d48806" }}>Pending Review</Text>}
-          />
-        </div>
-      </div>
-
-      <Space
-        direction="vertical"
-        size="middle"
-        style={{ width: "100%", marginBottom: 24 }}
-      >
-        <Timeline
-          items={[
-            {
-              color: "warning",
-              children: (
-                <Space direction="vertical" size={4}>
-                  <Text strong>Document Verification</Text>
-                  <Text type="secondary">
-                    Your documents are being reviewed by our team
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    2 days ago
-                  </Text>
-                </Space>
-              ),
-            },
-            {
-              color: "gray",
-              children: (
-                <Space direction="vertical" size={4}>
-                  <Text strong>Skills Assessment</Text>
-                  <Text type="secondary">
-                    Pending technical skills verification
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    Waiting
-                  </Text>
-                </Space>
-              ),
-            },
-          ]}
-        />
-      </Space>
-
-      <Button
-        type="primary"
-        block
-        style={{ backgroundColor: "#10b981" }}
-        icon={<ClockCircleOutlined />}
-      >
-        Track Verification Progress
-      </Button>
-    </Card>
-  );
-};
 
 const Portfolio: React.FC = () => {
   const [form] = Form.useForm();
@@ -157,20 +71,17 @@ const Portfolio: React.FC = () => {
           certificates: parsedData.certificates,
         });
       } catch (error: any) {
-        // Chỉ hiển thị lỗi nếu không phải là lỗi "không tìm thấy portfolio"
+        // Xử lý lỗi 400 hoặc 404 (không tìm thấy portfolio) một cách thân thiện
         if (
           error.message &&
-          !(
+          (error.message.includes("400") ||
             error.message.includes("404") ||
             error.message.includes("not found") ||
-            error.message.includes("No portfolio")
-          )
+            error.message.includes("No portfolio"))
         ) {
-          console.error("Error fetching portfolio:", error);
-          message.error(error.message || "Failed to load portfolio");
-        } else {
-          // Nếu là lỗi "không tìm thấy portfolio", xử lý như trường hợp không có portfolio
-          console.log("No portfolio found, showing create form");
+          console.log(
+            "No portfolio found or not accessible, showing create form"
+          );
           setPortfolio(null);
           // Nếu là người dùng hiện tại (không phải xem portfolio của người khác)
           if (!id || parseInt(id) === accountId) {
@@ -184,6 +95,12 @@ const Portfolio: React.FC = () => {
               certificates: [],
             });
           }
+        } else {
+          // Hiển thị lỗi khác (không phải lỗi không tìm thấy portfolio)
+          console.error("Error fetching portfolio:", error);
+          message.error(
+            "An error occurred while loading the portfolio. Please try again later."
+          );
         }
       } finally {
         setLoading(false);
@@ -220,14 +137,14 @@ const Portfolio: React.FC = () => {
       console.log("Form values before processing:", values);
 
       // Validate title and about length
-      if (values.title && values.title.length > 20) {
-        message.error("Title must be less than 20 characters");
+      if (values.title && values.title.length > 50) {
+        message.error("Title must be less than 50 characters");
         setSubmitting(false);
         return;
       }
 
-      if (values.description && values.description.length > 100) {
-        message.error("About must be less than 100 characters");
+      if (values.description && values.description.length > 500) {
+        message.error("About must be less than 500 characters");
         setSubmitting(false);
         return;
       }
@@ -325,7 +242,13 @@ const Portfolio: React.FC = () => {
 
   // If no portfolio data found and not in editing mode
   if (!portfolio && !isEditing) {
-    return <EmptyState onCreateClick={() => setIsEditing(true)} />;
+    const isOwnProfile = !id || parseInt(id) === accountId;
+    return (
+      <EmptyState
+        onCreateClick={() => setIsEditing(true)}
+        isOwnProfile={isOwnProfile}
+      />
+    );
   }
 
   // Render portfolio form for both create and edit modes
