@@ -21,7 +21,9 @@ const NotificationItem = ({ notification }: any) => {
       <div className="text-sm">
         <div
           className={
-            notification.status == NotificationStatus.UNREAD ? "font-bold" : ""
+            notification.status == NotificationStatus.UNREAD
+              ? "font-semibold"
+              : ""
           }
         >
           {notification?.content}
