@@ -122,12 +122,31 @@ namespace Services.Implements
             }
         }
 
+        public async Task<Result<PaginatedResult<PublicPortfolioDTO>>> GetPublicPortfolioPendingList(int pageNumber, int pageSize)
+        {
+            try
+            {
+                var queryOptions = new QueryBuilder<Portfolio>()
+                .WithTracking(false)
+                .WithInclude(p => p.Account)
+                .WithPredicate(p => p.Status == PortfolioStatus.Pending)
+                .Build();
+                var query = _unitOfWork.GetRepo<Portfolio>().Get(queryOptions);
+                var paginatedPortfolios = await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize, portfolio => portfolio.ToPublicPortfolioDTO());
+                return Result.Success(paginatedPortfolios);
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<PaginatedResult<PublicPortfolioDTO>>(new Error("View public porfolio pending list failed", $"{e.Message}"));
+            }
+        }
+
         public async Task<Result<PublicPortfolioDTO>> GetPublicPortfolioByFreelancerIdAsync(long id)
         {
             try
             {
                 var queryOptions = new QueryBuilder<Portfolio>()
-                    .WithPredicate(p => p.FreelancerId == id)
+                    .WithPredicate(p => p.FreelancerId == id && p.Status == PortfolioStatus.Pending)
                     .WithInclude(p => p.Account)
                     .WithTracking(false)
                     .Build();
@@ -234,6 +253,25 @@ namespace Services.Implements
             catch (Exception e)
             {
                 return Result.Failure<PortfolioDTO>(new Error("Verify portfolio failed", $"{e.Message}"));
+            }
+        }
+
+        public async Task<Result<PaginatedResult<PublicPortfolioDTO>>> GetPublicPortfolioVerifiedList(int pageNumber, int pageSize)
+        {
+            try
+            {
+                var queryOptions = new QueryBuilder<Portfolio>()
+                .WithTracking(false)
+                .WithInclude(p => p.Account)
+                .WithPredicate(p => p.Status == PortfolioStatus.Verified)
+                .Build();
+                var query = _unitOfWork.GetRepo<Portfolio>().Get(queryOptions);
+                var paginatedPortfolios = await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize, portfolio => portfolio.ToPublicPortfolioDTO());
+                return Result.Success(paginatedPortfolios);
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<PaginatedResult<PublicPortfolioDTO>>(new Error("View public porfolio list failed", $"{e.Message}"));
             }
         }
     }
