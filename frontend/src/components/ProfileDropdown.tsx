@@ -1,4 +1,4 @@
-import { BiLogOut } from "react-icons/bi";
+import { BiLogOut, BiSolidCategory } from "react-icons/bi";
 import { IoPieChart } from "react-icons/io5";
 import { FaHeart, FaUserCircle } from "react-icons/fa";
 import { FaLock } from "react-icons/fa";
@@ -8,23 +8,29 @@ import { defaultAvatar } from "../modules/default";
 import useAuthStore from "../stores/authStore";
 import { setCookie } from "../modules/cookie";
 import useChatStore from "./ChatPopup/stores/chatStore";
+import { Role } from "@/types";
 
 const ProfileDropdown = () => {
-  const { logout, email, name, avatar } = useAuthStore();
+  const { logout, email, name, avatar, role } = useAuthStore();
   const { setCurrentRoom } = useChatStore();
   // const userInfor = localStorage.getItem("auth");
   // const userInforString = userInfor ? JSON.parse(userInfor) : null;
   const navigate = useNavigate();
   const items = [
-    {
-      key: "0",
-      label: (
-        <Link to="/employee" className="flex font-semibold gap-2 items-center">
-          <IoPieChart />
-          Dashboard
-        </Link>
-      ),
-    },
+    role == Role.ADMIN || role == Role.STAFF
+      ? {
+          key: "0",
+          label: (
+            <Link
+              to="/employee"
+              className="flex font-semibold gap-2 items-center"
+            >
+              <BiSolidCategory />
+              Dashboard
+            </Link>
+          ),
+        }
+      : null,
     {
       key: "-1",
       label: (

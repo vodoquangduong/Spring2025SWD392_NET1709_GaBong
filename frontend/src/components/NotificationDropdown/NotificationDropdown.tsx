@@ -5,78 +5,82 @@ import { Link } from "react-router-dom";
 import { useQueries } from "@tanstack/react-query";
 import { GET } from "@/modules/request";
 import useChatStore from "../ChatPopup/stores/chatStore";
-import { NotificationType } from "@/types/notification";
+import { NotificationStatus, NotificationType } from "@/types/notification";
+import { formatTimeAgo } from "@/modules/formatTimeAgo";
 
-const NotificationItem = () => {
+const NotificationItem = ({ notification }: any) => {
+  console.log(notification);
   return (
-    <div className="w-96 flex items-start gap-4 p-1">
-      <img
-        className="h-16 aspect-square mt-1 border"
-        src={"https://robohash.org/mohamed"}
-      />
-      <div className="text-base">
-        <div>
-          <span className="font-bold">Muhamed</span> has completed the project.
-          Please provide your feedback to Muhamed about the project.
+    <Link
+      to={"/manage/notifications"}
+      className="w-80 flex items-start gap-4 p-1"
+      // onClick={() => {
+      //   notification.status = NotificationStatus.READ;
+      // }}
+    >
+      <div className="text-sm">
+        <div
+          className={
+            notification.status == NotificationStatus.UNREAD
+              ? "font-semibold"
+              : ""
+          }
+        >
+          {notification?.content}
         </div>
         <div className="mt-1 text-zinc-500">
-          {getRandomInt(10, 60)} minutes ago
+          {formatTimeAgo(notification?.time)}
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
-
-const items: MenuProps["items"] = [
-  {
-    label: <NotificationItem />,
-    key: "0",
-  },
-  {
-    label: <NotificationItem />,
-    key: "1",
-  },
-  {
-    label: <NotificationItem />,
-    key: "2",
-  },
-  {
-    label: <NotificationItem />,
-    key: "3",
-  },
-  {
-    label: <NotificationItem />,
-    key: "4",
-  },
-  {
-    label: (
-      <Link to={"/manage/notifications"} className="flex justify-center">
-        View all
-      </Link>
-    ),
-    key: "-1",
-  },
-];
 
 export default function NotificationDropdown() {
   const { hasNewGlobalNotification, readNotification } = useChatStore();
   const [notifications] = useQueries({
     queries: [
       {
-        queryKey: ["notifications"],
+        queryKey: ["notifications", hasNewGlobalNotification],
         queryFn: async () =>
           await GET(`/api/Notification?pageNumber=${1}&pageSize=${5}`),
       },
     ],
   });
-  console.log(notifications?.data);
+
+  console.log(notifications?.data?.items);
 
   return (
     <Dropdown
       onOpenChange={(open) => {
-        readNotification(NotificationType.GLOBAL);
+        readNotification(NotificationType.GENERAL_ANNOUNCEMENT);
       }}
-      menu={{ items }}
+      menu={{
+        items: [
+          ...(notifications?.data?.items?.map(
+            (notification: any, index: number) => ({
+              label: (
+                <NotificationItem
+                  notification={notification}
+                  key={notification?.notificationId + index}
+                />
+              ),
+              key: notification?.notificationId + index + "noti",
+            })
+          ) || []),
+          {
+            label: (
+              <Link
+                to={"/manage/notifications"}
+                className="flex justify-center"
+              >
+                View all
+              </Link>
+            ),
+            key: "view-all-noti",
+          },
+        ],
+      }}
       trigger={["click"]}
       placement="bottom"
       className="flex justify-between items-center mr-2"

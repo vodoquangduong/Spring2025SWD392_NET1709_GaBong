@@ -10,7 +10,6 @@ namespace Services.Interfaces.Portfolio
         public string Works { get; set; } = string.Empty;
         public string Certificate { get; set; } = string.Empty;
         public string About { get; set; } = string.Empty;
-        public string Content { get; set; } = string.Empty;
         public PortfolioStatus Status { get; set; }
     }
 }

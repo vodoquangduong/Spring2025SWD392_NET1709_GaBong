@@ -104,7 +104,7 @@ export default function Content() {
         </div>
         <Divider />
       </div>
-      {data?.value?.clientId != accountId && <PlaceBid />}
+      {data?.value?.clientId != accountId && <PlaceBid project={data?.value} />}
     </>
   );
 }

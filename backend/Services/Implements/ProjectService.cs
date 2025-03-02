@@ -170,7 +170,6 @@ namespace Services.Implements
 
                 await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
                 await _unitOfWork.SaveChangesAsync();
-
                 return Result.Success(project.ToProjectDTO());
             }
             catch (Exception e)

@@ -103,7 +103,7 @@ export default function Header() {
                   <MdOutlineEmail
                     className="text-2xl text-zinc-200 cursor-pointer"
                     onClick={() => {
-                      readNotification(NotificationType.CHAT);
+                      readNotification(NotificationType.NEW_MESSAGE);
                       toogleChatPopup();
                     }}
                   />

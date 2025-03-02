@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
 import { isTokenExpired } from "../modules/jwtUtil";
+import { Role } from "@/types";
 
 export default function PrivateRoute({
   children,
@@ -9,7 +10,7 @@ export default function PrivateRoute({
 }: {
   children: any;
   redirectUrl: string;
-  allowedroles: string[];
+  allowedroles: Role[];
 }) {
   const auth = useAuthStore((state) => state);
 

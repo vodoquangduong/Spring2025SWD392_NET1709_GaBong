@@ -1,5 +1,8 @@
 import { FaCamera } from "react-icons/fa";
 import { UserProfileData } from "../models/types";
+import UploadImage from "@/components/UploadImage";
+import { useState } from "react";
+import { UploadFile } from "antd";
 
 interface EditAboutProps {
   profile: UserProfileData;
@@ -26,6 +29,9 @@ const EditAbout: React.FC<EditAboutProps> = ({ profile, onUpdate }) => {
           <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-not-allowed rounded-lg">
             <FaCamera className="w-8 h-8 text-white" />
           </div>
+        </div>
+        <div>
+          <UploadImage />
         </div>
       </div>
 

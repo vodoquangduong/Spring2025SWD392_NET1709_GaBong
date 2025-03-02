@@ -13,4 +13,5 @@ public interface IAccountService
     Task<Account> GetAccountByEmailAsync(string email);
     Task<Account> CreateAccount(RegisterDTO registerDto);
     Task<Account?> ResetPasswordAsync(long id, string password);
+    Task<Result<AccountDTO>> UpdateAccountAsync(UpdateAccountDTO accountDto);
 }

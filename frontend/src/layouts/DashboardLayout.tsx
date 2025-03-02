@@ -5,6 +5,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import DashboardHeader from "../components/DashboardHeader";
 import Logo from "../components/Logo";
 import { Role } from "../types";
+import { BiSolidCategory } from "react-icons/bi";
 
 export default function DashboardLayout() {
   const location = useLocation();
@@ -18,15 +19,23 @@ export default function DashboardLayout() {
       icon: <FaBox />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.GUEST],
+      allowedroles: [Role.STAFF, Role.ADMIN],
     },
     {
-      label: "Projects",
+      label: "Project",
       key: "/employee/projects",
       icon: <FaRegCalendarAlt />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.GUEST],
+      allowedroles: [Role.STAFF, Role.ADMIN],
+    },
+    {
+      label: "Category",
+      key: "/employee/categories",
+      icon: <BiSolidCategory />,
+      className:
+        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
+      allowedroles: [Role.STAFF, Role.ADMIN],
     },
     {
       label: "Freelancers",
@@ -65,7 +74,7 @@ export default function DashboardLayout() {
           className="!bg-zinc-800 pt-4"
           width={250}
         >
-          <Logo />
+          <Logo collapsed={collapsed} />
           <Menu
             className="mt-4 px-2 bg-zinc-800"
             theme={"dark"}
