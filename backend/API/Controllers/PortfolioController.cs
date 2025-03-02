@@ -1,4 +1,5 @@
 using Helpers.DTOs.Portfolio;
+using Helpers.DTOs.Query;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -93,6 +94,25 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
-        
+        [HttpGet("pending")]
+        public async Task<IActionResult> GetPublicPortfolioPendingList([FromQuery] Query query)
+        {
+            var response = await _portfolioService.GetPublicPortfolioPendingList(query.PageNumber, query.PageSize);
+            if (response.IsFailure)
+            {
+                return BadRequest(response.Error);
+            }
+            return Ok(response);
+        }
+        [HttpGet("verified")]
+        public async Task<IActionResult> GetPublicPortfolioVerifiedList([FromQuery] Query query)
+        {
+            var response = await _portfolioService.GetPublicPortfolioVerifiedList(query.PageNumber, query.PageSize);
+            if (response.IsFailure)
+            {
+                return BadRequest(response.Error);
+            }
+            return Ok(response);
+        }
     }
 }
