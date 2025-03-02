@@ -1,11 +1,11 @@
+using Helpers.DTOs.PayPal.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using backend.Payment_src.core.Payment.Service.Paypal;
-using backend.Payment_src.core.Payment.Service.Paypal.Model;
 
-namespace backend.Payment_src.core.Payment.Service.Paypal.Request
+
+namespace Helpers.DTOs.PayPal.Request
 {
     public sealed class CreateOrderRequest
 	{

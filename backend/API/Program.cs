@@ -10,12 +10,8 @@ using AutoMapper;
 using Serilog;
 using System.Text;
 using System.Reflection;
-<<<<<<< HEAD
-using API.Chat;
-using backend.Payment_src.core.Payment.Service.Paypal.Model;
-=======
 using Helpers.SignalR;
->>>>>>> 9a88bb52cfe749800fa1719ac442364465982a7f
+using Helpers.DTOs.PayPal.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,11 +75,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddAutoMapper(typeof(ProjectMapper));
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddSingleton(x => new PaypalClient(
-              builder.Configuration["PaypalOptions:Mode"],
-              builder.Configuration["PaypalOptions:ClientId"],
-              builder.Configuration["PaypalOptions:ClientSecret"]
-          ));
+var mode = builder.Configuration["PaypalOptions:Mode"];
+var clientId = builder.Configuration["PaypalOptions:ClientId"];
+var clientSecret = builder.Configuration["PaypalOptions:ClientSecret"];
+
+if (string.IsNullOrEmpty(mode) || string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(clientSecret))
+{
+    throw new InvalidOperationException("PayPal configuration is missing required values.");
+}
+
+builder.Services.AddSingleton(x => new PayPalClient(mode, clientId, clientSecret));
 
 // Repository
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -107,7 +108,6 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<ISkillRequiredService, SkillRequiredService>();
 builder.Services.AddScoped<ISeedService, SeedService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-
 builder.Services.AddSignalR();
 
 var app = builder.Build();

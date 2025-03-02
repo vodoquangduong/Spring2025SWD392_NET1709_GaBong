@@ -7,6 +7,24 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { POST, PUT } from "@/modules/request";
 import useAuthStore from "@/stores/authStore";
 
+async function createOrder(amount: number) {
+  const response = await fetch('/api/paypal/create-order', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ amount })
+  });
+  const data = await response.json();
+  window.location.href = data.approvalUrl;
+}
+async function captureOrder(orderId: number, accountId: number, amount: number) {
+  const response = await fetch('/api/paypal/capture-order', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orderId, accountId, amount })
+  });
+  const data = await response.text();
+  alert(data);
+}
 
 export default function Payment() {
   const [message, setMessage] = useState<string>("");
@@ -106,110 +124,116 @@ export default function Payment() {
                 Confirm and pay {Math.floor(amount * 1.1)} USD
               </Button>
               <PayPalScriptProvider options={initialOptions}>
-                    <PayPalButtons
-                      className="hover:scale-105 py-4 flex items-center justify-center w-full h-0 mt-4"
-                      style={{
-                        shape: "rect",
-                        layout: "horizontal",
-                        color: "white",
-                        label: "paypal",
-                        disableMaxWidth: true,
-                        tagline: false,
-                      }}
-                      createOrder={async (): Promise<string> => {
-                        try {
-                            console.log("Bat dau tao transaction");
-                            console.log("amount: ", amount);
-                            console.log("accountId: ", useAuthStore.getState().accountId);
-                            const transactionResponse = await POST(
-                              "/api/Transaction",
-                              {
-                                accountId: useAuthStore.getState().accountId,
-                                amount: amount,
-                                status: 0,
-                                type: 0,       
-                              }
-                            );
-                            console.log("transactionResponse: ",transactionResponse);
-                            console.log(transactionResponse?.transactionId);
-                        } catch (error) {
-                          console.error(error);
-                          setMessage(`Could not initiate PayPal Checkout...${error}`);
-                          throw error;
-                        }
-                        return "Transaction creation failed";
-                      }}
-                      onApprove={async (data, actions) => {
-                        try {
-                          console.log("Bat dau Approve");
-                          console.log("data: ", data);
-                          const response = await POST(
-                            "/api/Transaction/capture-Paypal",
-                            {
-                              transactionId: data.orderID,
-                            }
-                          );
-                          console.log("Ket qua tra ve: ", response);
-                          console.log(
-                            "TransactionId: " +
-                              response?.purchase_units[0].reference_id
-                          );
-                          const reference_id =
-                            response?.purchase_units[0].reference_id;
-                          const updatePart = reference_id.split("-");
-                          const orderId = updatePart[0].substring(3);
-                          const orderData = response?.data;
-                          console.log("orderData: ", orderData);
-                          // Three cases to handle:
-                          //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-                          //   (2) Other non-recoverable errors -> Show a failure message
-                          //   (3) Successful transaction -> Show confirmation or thank you message
+                <PayPalButtons
+                  className="hover:scale-105 py-4 flex items-center justify-center w-full h-0 mt-4"
+                  style={{
+                    shape: "rect",
+                    layout: "horizontal",
+                    color: "white",
+                    label: "paypal",
+                    disableMaxWidth: true,
+                    tagline: false,
+                  }}
+                  //Tạo Tạo transaction, gửi giao dịch lên PayPal
+                  createOrder={async (): Promise<string> => {
+                    try {
 
-                          const errorDetail = orderData?.details?.[0];
+                      console.log("Bắt đầu tạo transaction với số tiền: ", amount);
+                      // Gửi yêu cầu tạo transaction lên backend
+                      const transactionResponse = await POST("/api/Transaction", {
+                        accountId: useAuthStore.getState().accountId,
+                        amount: amount,
+                        status: 0,
+                        type: 0,
+                      });
+                      console.log("transactionResponse: ", transactionResponse.transactionId);
+                      if (!transactionResponse?.transactionId) {
+                        throw new Error("Không lấy được transactionId");
+                      }
 
-                          if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
-                            // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-                            // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
-                            return actions.restart();
-                          } else if (errorDetail) {
-                            // (2) Other non-recoverable errors -> Show a failure message
-                            throw new Error(
-                              `${errorDetail.description} (${orderData.debug_id})`
-                            );
-                          } else {
-                            // (3) Successful transaction -> Show confirmation or thank you message
-                            // Or go to another URL:  actions.redirect('thank_you.html');
-                            if (response?.status == "COMPLETED") {
-                              console.log("Ahihi");
-                              const completePaymentTransactionResponse =
-                                await PUT(
-                                  "/api/Transactions/completePayment/" +
-                                    reference_id,
-                                  {}
-                                );
-                              const completePaymentOrderResponse = await PUT(
-                                "/api/Order/completePayment/" + orderId,
-                                {}
-                              );
-                              console.log(
-                                "completePaymentTransactionResponse: ",
-                                completePaymentTransactionResponse
-                              );
-                              console.log(
-                                "completePaymentOrderResponse: ",
-                                completePaymentOrderResponse
-                              );
-                              location.href = "/";
-                            }
-                            console.log("Thanh cong");
-                          }
-                        } catch (error) {
-                          console.error(error);
-                        setMessage(`Sorry, your transaction could not be processed...$error}`);
+                      // Gọi API của backend để tạo order trên PayPal
+                      const orderResponse = await POST("/api/PayPal/create-order", {
+                        transactionId: transactionResponse.transactionId,
+                      });
+                      console.log("orderResponse: ", orderResponse);
+                      if (!orderResponse?.id) {
+                        throw new Error("Không lấy được orderID từ PayPal");
+                      }
+                      console.log("Order Response: ", orderResponse);
+                      return orderResponse.id;
+                    } catch (error) {
+                      console.error("Lỗi tạo order PayPal:", error);
+                      setMessage(`Không thể khởi tạo thanh toán PayPal: ${error}`);
+                      throw error;
+                    }
+                  }}
+
+                  //Tiep nhận phản hồi từ PayPal, gửi giao dịch lên backend
+                  onApprove={async (data, actions) => {
+                    try {
+                      console.log("Thanh toán được chấp nhận, OrderID: ", data.orderID);
+                      const orderID = data.orderID;
+
+                      // Gọi PayPal để xác nhận thanh toán
+                      const response = await POST(
+                        "/api/PayPal/capture-order",
+                        {
+                          orderID: orderID,
                         }
-                      }}
-                    />
-                  </PayPalScriptProvider>
+                      );
+                      console.log("Ket qua tra ve: ", response);
+                      const orderData = response ?.data ?.[0];
+                      console.log("orderData: ", orderData);
+
+                      // Three cases to handle:
+                      //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                      //   (2) Other non-recoverable errors -> Show a failure message
+                      //   (3) Successful transaction -> Show confirmation or thank you message
+
+                      const errorDetail = orderData?.details?.[0];
+
+                      if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
+                        // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                        // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
+                        return actions.restart();
+                      } else if (errorDetail) {
+                        // (2) Other non-recoverable errors -> Show a failure message
+                        throw new Error(
+                          `${errorDetail.description} (${orderData.debug_id})`
+                        );
+                      } else {
+                        // (3) Successful transaction -> Show confirmation or thank you message
+                        // Or go to another URL:  actions.redirect('thank_you.html');
+                        if (response?.status == "COMPLETED") {
+                          console.log("Ahihi");
+                          // const completePaymentTransactionResponse =
+                          //   await PUT(
+                          //     "/api/PayPal/completePayment/" +
+                          //     // transactionResponse.transactionId,
+                          //     {}
+                          //   );
+
+                          // console.log(
+                          //   "completePaymentTransactionResponse: ",
+                          //   completePaymentTransactionResponse
+                          // );
+                          // console.log(
+                          //   "completePaymentOrderResponse: ",
+                          //   completePaymentOrderResponse
+                          // );
+                          // location.href = "/account/order-history";
+                        }
+                        console.log("Thanh cong");
+                      }
+                    } catch (error) {
+                      console.error(error);
+                      setMessage(
+                        `Sorry, your transaction could not be processed...${error}`
+                      );
+                    }
+                  }}
+                />
+              </PayPalScriptProvider>
               <div className="text-sm py-2">
                 You agree to authorize the use of your card for this deposit and
                 future payments, and agree to be bound to the{" "}

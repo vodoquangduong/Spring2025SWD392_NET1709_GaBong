@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace backend.Payment_src.core.Payment.Service.Paypal.Model
+namespace Helpers.DTOs.PayPal.Model
 {
     public sealed class PaymentSource
 	{

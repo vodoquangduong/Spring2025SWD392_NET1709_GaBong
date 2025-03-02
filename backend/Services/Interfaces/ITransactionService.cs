@@ -11,6 +11,10 @@ namespace Services.Interfaces
     {
         Task<Result<IEnumerable<TransactionDTO>>> GetAllTransactionAsync();
         Task<Result<TransactionDTO>> GetTransactionByAccountIdAsync(long id);
+        Task<TransactionDTO> GetTransactionByIdAsync(long id);
         Task<Result<TransactionDTO>> CreateTransactionAsync(CreateTransactionDTO createTransactionDTO);
+        Task<TransactionDTO> FinishPaymentAsync(long id);
+
+
     }
 }

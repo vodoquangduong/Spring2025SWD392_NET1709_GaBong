@@ -1,3 +1,4 @@
+using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Account;
 using Helpers.DTOs.Authentication;
@@ -13,4 +14,6 @@ public interface IAccountService
     Task<Account> GetAccountByEmailAsync(string email);
     Task<Account> CreateAccount(RegisterDTO registerDto);
     Task<Account?> ResetPasswordAsync(long id, string password);
+
+    Task<Result<AccountDTO>> UpdateCredit(long AccountId, decimal amount, string transacionType);
 }

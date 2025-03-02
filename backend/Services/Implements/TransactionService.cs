@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using BusinessObjects.Models;
 using Helpers.DTOs.Transaction;
@@ -58,6 +59,27 @@ namespace Services.Implements
             }
         }
 
+        public async Task<TransactionDTO> FinishPaymentAsync(long id)
+        {
+            var transactionQueryOptions = new QueryBuilder<Transaction>()
+                .WithTracking(false)
+                .WithPredicate(t => t.TransactionId == id)
+                .Build();
+            var transaction = await _unitOfWork.GetRepo<Transaction>().GetSingleAsync(transactionQueryOptions);
+            var accountQueryOptions = new QueryBuilder<Account>()
+                .WithTracking(false)
+                .WithPredicate(a => a.AccountId == transaction.AccountId)
+                .Build();
+            var account  = await _unitOfWork.GetRepo<Account>().GetSingleAsync(accountQueryOptions);
+            transaction.Status = BusinessObjects.Enums.TransactionStatus.Completed;
+            account.TotalCredit += transaction.Amount;
+
+            await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transaction);
+            await _unitOfWork.GetRepo<Account>().UpdateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
+            return transaction.ToTransactionDTO();
+        }
+
         public async Task<Result<IEnumerable<TransactionDTO>>> GetAllTransactionAsync()
         {
             try
@@ -91,5 +113,21 @@ namespace Services.Implements
                 return Result.Failure<TransactionDTO>(new Error("Get transaction by account id failed", $"{e.Message}"));
             }
         }
+
+        public async Task<TransactionDTO> GetTransactionByIdAsync(long id)
+        {
+            var queryOptions = new QueryBuilder<Transaction>()
+            .WithTracking(false)
+            .WithPredicate(t => t.TransactionId == id)
+            .Build();
+            var transaction = await _unitOfWork.GetRepo<Transaction>().GetSingleAsync(queryOptions);
+            if (transaction == null)
+            {
+                throw new KeyNotFoundException($"Transaction with ID {id} not found.");
+            }
+            return transaction.ToTransactionDTO();
+        }
+
+
     }
 }

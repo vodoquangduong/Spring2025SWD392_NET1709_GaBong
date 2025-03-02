@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using backend.Payment_src.core.Payment.Service.Paypal.Model;
 using Helpers.DTOs.Transaction;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -14,12 +13,10 @@ namespace API.Controllers
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
-        private readonly PaypalClient _paypalClient;
 
-        public TransactionController(ITransactionService transactionService, PaypalClient paypalClient)
+        public TransactionController(ITransactionService transactionService)
         {
             _transactionService = transactionService;
-            _paypalClient = paypalClient;
         }
         [HttpGet]
         public async Task<IActionResult> GetAllTransactions()
@@ -50,24 +47,6 @@ namespace API.Controllers
                 return BadRequest(result.Error);
             }
             return Ok(result.Value);
-        }
-
-        [HttpPost("capture-Paypal")]
-        public async Task<ActionResult> CapturePaypalOrder(
-            CancellationToken cancellationToken,
-            string transactionId
-        )
-        {
-            try
-            {
-                var response = await _paypalClient.CaptureOrder(transactionId);
-                return Ok(response);
-            }
-            catch (Exception e)
-            {
-                var error = new { e.GetBaseException().Message };
-                return BadRequest(error);
-            }
         }
     }
 }

@@ -10,6 +10,7 @@
 	  <PackageReference Include="Bogus" Version="35.6.2" />
 	  <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
 	  <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.4.0" />
+	  <PackageReference Include="PayPalCheckoutSdk" Version="1.0.4" />
 	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.4.0" />
   </ItemGroup>
 
