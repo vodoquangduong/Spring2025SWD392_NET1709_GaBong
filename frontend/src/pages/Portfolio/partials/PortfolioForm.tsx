@@ -48,6 +48,7 @@ interface PortfolioFormProps {
   form: FormInstance;
   isEditing: boolean;
   submitting: boolean;
+  submittingForVerification: boolean;
   portfolio: PortfolioDTO | null;
   handleSave: () => Promise<void>;
   handleEdit: () => void;
@@ -62,6 +63,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
   form,
   isEditing,
   submitting,
+  submittingForVerification,
   portfolio,
   handleSave,
   handleEdit,
@@ -1000,9 +1002,11 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                       (portfolio &&
                         portfolio.status !== undefined &&
                         portfolio.status !== 3 &&
-                        portfolio.status !== 2)
+                        portfolio.status !== 2) ||
+                      submittingForVerification
                     }
                     icon={<CheckOutlined />}
+                    loading={submittingForVerification}
                     block
                     className="bg-[#10b981] hover:bg-[#0d9668] border-[#10b981]"
                   >

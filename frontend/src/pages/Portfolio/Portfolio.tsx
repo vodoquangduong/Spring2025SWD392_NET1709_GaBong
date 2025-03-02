@@ -17,6 +17,8 @@ const Portfolio: React.FC = () => {
   const [portfolio, setPortfolio] = useState<PortfolioDTO | null>(null);
   const { accountId } = useAuthStore();
   const { id } = useParams<{ id: string }>();
+  const [submittingForVerification, setSubmittingForVerification] =
+    useState(false);
 
   // Fetch portfolio data on component mount
   useEffect(() => {
@@ -125,42 +127,58 @@ const Portfolio: React.FC = () => {
       const values = await form.validateFields();
       console.log("Submit for review:", values);
 
-      // Gọi API gửi portfolio để xác minh
-      const result = await portfolioUseCase.submitPortfolioForVerification();
+      // Set loading state to true
+      setSubmittingForVerification(true);
 
-      if (result) {
+      try {
+        // Gọi API gửi portfolio để xác minh
+        await portfolioUseCase.submitPortfolioForVerification();
+
+        // Luôn hiển thị thông báo thành công nếu không có lỗi
         message.success(
           "Portfolio has been successfully submitted for verification"
         );
 
         // Refresh the data
         if (accountId) {
-          const refreshedData =
-            await portfolioUseCase.getPortfolioByFreelancerId(accountId);
-          setPortfolio(refreshedData);
+          try {
+            const refreshedData =
+              await portfolioUseCase.getPortfolioByFreelancerId(accountId);
 
-          // Sử dụng hàm parsePortfolioData để phân tích dữ liệu
-          const parsedData = portfolioUseCase.parsePortfolioData(refreshedData);
+            if (refreshedData) {
+              setPortfolio(refreshedData);
 
-          // Cập nhật form với dữ liệu mới
-          form.setFieldsValue({
-            title: parsedData.title,
-            description: parsedData.about,
-            skills: parsedData.skills,
-            experiences: parsedData.experiences,
-            certificates: parsedData.certificates,
-          });
+              // Sử dụng hàm parsePortfolioData để phân tích dữ liệu
+              const parsedData =
+                portfolioUseCase.parsePortfolioData(refreshedData);
+
+              // Cập nhật form với dữ liệu mới
+              form.setFieldsValue({
+                title: parsedData.title,
+                description: parsedData.about,
+                skills: parsedData.skills,
+                experiences: parsedData.experiences,
+                certificates: parsedData.certificates,
+              });
+            }
+          } catch (refreshError) {
+            console.error("Error refreshing portfolio data:", refreshError);
+            // Không hiển thị lỗi cho người dùng vì submission đã thành công
+          }
         }
-      } else {
+      } catch (error: any) {
+        console.error("Error submitting portfolio for verification:", error);
         message.error(
-          "Unable to submit portfolio for verification. Please try again later."
+          error.message ||
+            "Unable to submit portfolio for verification. Please try again later."
         );
       }
-    } catch (error: any) {
-      console.error("Error submitting portfolio for verification:", error);
-      message.error(
-        error.message || "Please complete all required fields before submitting"
-      );
+    } catch (formError: any) {
+      console.error("Form validation error:", formError);
+      message.error("Please complete all required fields before submitting");
+    } finally {
+      // Set loading state back to false
+      setSubmittingForVerification(false);
     }
   };
 
@@ -291,6 +309,7 @@ const Portfolio: React.FC = () => {
       form={form}
       isEditing={isEditing}
       submitting={submitting}
+      submittingForVerification={submittingForVerification}
       portfolio={portfolio}
       handleSave={handleSave}
       handleEdit={handleEdit}
