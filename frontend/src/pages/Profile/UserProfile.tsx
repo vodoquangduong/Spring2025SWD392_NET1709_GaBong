@@ -18,6 +18,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { UserProfileData } from "./models/types";
 import { profileUseCase } from "./usecases/profileUseCase";
+import { mapRoleToTag } from "@/modules/mapUiStatus";
 
 const { Title } = Typography;
 
@@ -137,7 +138,7 @@ const UserProfile = () => {
               <div className="relative mb-4">
                 <Avatar
                   size={160}
-                  src={avatar || defaultAvatar}
+                  src={profile.avatarURL || defaultAvatar}
                   className="border-4 border-white shadow-lg"
                 />
                 <Button
@@ -159,12 +160,7 @@ const UserProfile = () => {
                 >
                   {getStatusName(profile.status)}
                 </Tag>
-                <Tag
-                  color="blue"
-                  className="px-3 py-1 text-sm font-medium rounded-full"
-                >
-                  {getRoleName(profile.role)}
-                </Tag>
+                {mapRoleToTag(profile.role)}
               </div>
 
               <div className="flex gap-2 w-full mb-6">

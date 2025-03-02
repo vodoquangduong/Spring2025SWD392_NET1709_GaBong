@@ -12,8 +12,7 @@ const getBase64 = (file: FileType): Promise<string> =>
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = (error) => reject(error);
   });
-const UploadImage = () => {
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+const UploadImage = ({ fileList, setFileList }: any) => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
 
@@ -41,7 +40,7 @@ const UploadImage = () => {
   return (
     <>
       <Upload
-        className="w-full"
+        style={{ width: 200 }}
         listType="picture-card"
         fileList={fileList}
         onPreview={handlePreview}

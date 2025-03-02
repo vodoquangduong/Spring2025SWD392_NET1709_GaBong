@@ -11,21 +11,6 @@ import { formatTimeAgo } from "@/modules/formatTimeAgo";
 import useQueryParams from "@/hooks/useQueryParams";
 import dayjs from "dayjs";
 
-const items = [
-  "PHP",
-  "HTML",
-  "CSS",
-  "JavaScript",
-  "SQL",
-  "React",
-  "Angular",
-  "Node.js",
-  "Python",
-  "C#",
-  "C++",
-  "Java",
-];
-
 const ListingItem = ({
   project,
   skillCategory,
