@@ -1,452 +1,410 @@
-import { Avatar, Card, Rate, Select, Space, Tabs, Tag, Typography } from "antd";
-import { motion } from "framer-motion";
-import React, { useState } from "react";
 import {
-  FaBriefcase,
-  FaCalendar,
+  Avatar,
+  Breadcrumb,
+  Button,
+  Card,
+  message,
+  Modal,
+  Spin,
+  Timeline,
+  Typography,
+} from "antd";
+import React, { useEffect, useState } from "react";
+import {
   FaCertificate,
+  FaCheck,
   FaClock,
   FaEnvelope,
   FaExternalLinkAlt,
-  FaGraduationCap,
-  FaImages,
+  FaFlag,
   FaPhone,
+  FaTimes,
   FaUser,
 } from "react-icons/fa";
-import { useParams } from "react-router-dom";
-import { PAGE_ANIMATION } from "../../../../../modules/constants";
-import { FreelancerDetail as IFreelancerDetail } from "../models/types";
+import { HiIdentification } from "react-icons/hi2";
+import { MdPlace } from "react-icons/md";
+import { RiShieldCheckFill } from "react-icons/ri";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  PendingPortfolio,
+  portfolioService,
+} from "../services/portfolioService";
 
-const { Title, Text, Paragraph } = Typography;
-const { TabPane } = Tabs;
-
-const mockFreelancerDetail: IFreelancerDetail = {
-  id: "FL001",
-  name: "John Doe",
-  avatar:
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcazeHuAcZDzv4_61fPLT-S00XnaKXch2YWQ&s",
-  email: "john.doe@example.com",
-  phone: "+1234567890",
-  skills: ["React", "Node.js", "TypeScript", "MongoDB", "AWS"],
-  rating: 4.8,
-  totalProjects: 25,
-  completedProjects: 23,
-  status: "active",
-  joinDate: "2023-01-15",
-  lastActive: "2024-02-03",
-  description:
-    "Full-stack developer with 5+ years of experience in web development. Specialized in React and Node.js development with a strong focus on building scalable applications.",
-  portfolio: [
-    {
-      id: "PF001",
-      title: "E-commerce Platform",
-      description: "A full-stack e-commerce platform built with MERN stack",
-      imageUrl:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvE8WLPuEvB6WN5Tfiw7E85blWY-WnR1Q4Kw&s",
-      link: "https://example.com/project1",
-    },
-  ],
-  education: [
-    {
-      id: "ED001",
-      school: "University of Technology",
-      degree: "Bachelor's Degree",
-      field: "Computer Science",
-      from: "2018",
-      to: "2022",
-    },
-  ],
-  experience: [
-    {
-      id: "EX001",
-      company: "Tech Solutions Inc.",
-      position: "Senior Developer",
-      description:
-        "Led a team of developers in building enterprise applications",
-      from: "2022",
-      to: "Present",
-    },
-  ],
-  certificates: [
-    {
-      id: "CT001",
-      name: "AWS Certified Developer",
-      issuer: "Amazon Web Services",
-      issueDate: "2023-05",
-      expiryDate: "2026-05",
-      credentialUrl: "https://example.com/cert1",
-    },
-  ],
-  reviews: [
-    {
-      id: "RV001",
-      rating: 5,
-      comment: "Excellent work and communication. Highly recommended!",
-      projectId: "PJ001",
-      projectName: "Website Redesign",
-      reviewerId: "CL001",
-      reviewerName: "Alice Johnson",
-      reviewerAvatar: "https://www.webiconio.com/_upload/255/image_255.svg",
-      createdAt: "2024-01-15",
-    },
-  ],
-};
+const { Text } = Typography;
 
 const FreelancerDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [selectedStatus, setSelectedStatus] = useState<
-    "active" | "inactive" | "banned"
-  >(mockFreelancerDetail.status);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [portfolio, setPortfolio] = useState<PendingPortfolio | null>(null);
+  const [approving, setApproving] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<
+    "approve" | "reject" | null
+  >(null);
 
-  const handleUpdateStatus = () => {
-    // Handle status update
-  };
+  useEffect(() => {
+    const fetchPortfolioDetails = async () => {
+      if (!id) return;
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "success";
-      case "inactive":
-        return "warning";
-      case "banned":
-        return "error";
-      default:
-        return "default";
+      try {
+        setLoading(true);
+        const portfolioId = parseInt(id);
+        const data = await portfolioService.getPortfolioById(portfolioId);
+
+        // Kiểm tra dữ liệu kết hợp
+        if (!data.name || !data.email) {
+          message.warning("Một số thông tin cá nhân có thể không đầy đủ");
+        }
+
+        setPortfolio(data);
+        console.log("Combined portfolio data:", data);
+      } catch (error: any) {
+        message.error(error.message || "Failed to fetch portfolio details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPortfolioDetails();
+  }, [id]);
+
+  const handleApprove = async () => {
+    if (!portfolio) return;
+
+    try {
+      setApproving(true);
+      await portfolioService.approvePortfolio(portfolio.portfolioId);
+      message.success("Portfolio has been approved successfully");
+      navigate(-1);
+    } catch (error: any) {
+      message.error(error.message || "Failed to approve portfolio");
+    } finally {
+      setApproving(false);
+      setConfirmModalVisible(false);
     }
   };
 
+  const handleReject = async () => {
+    if (!portfolio) return;
+
+    try {
+      setRejecting(true);
+      await portfolioService.rejectPortfolio(portfolio.portfolioId);
+      message.success("Portfolio has been rejected");
+      navigate(-1);
+    } catch (error: any) {
+      message.error(error.message || "Failed to reject portfolio");
+    } finally {
+      setRejecting(false);
+      setConfirmModalVisible(false);
+    }
+  };
+
+  const showConfirmModal = (action: "approve" | "reject") => {
+    setConfirmAction(action);
+    setConfirmModalVisible(true);
+  };
+
+  const getGenderText = (gender: number) => {
+    switch (gender) {
+      case 0:
+        return "Male";
+      case 1:
+        return "Female";
+      default:
+        return "Other";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (!portfolio) {
+    return <div className="p-6">Portfolio not found</div>;
+  }
+
+  // Parse JSON data
+  const worksData = JSON.parse(portfolio.works || "{}");
+  const skills = worksData.skills || [];
+  const experiences = worksData.experiences || [];
+  const certificates = JSON.parse(portfolio.certificate || "[]");
+
+  // Format birthday if available
+  const formattedBirthday =
+    portfolio.birthday && portfolio.birthday !== "0001-01-01T00:00:00"
+      ? new Date(portfolio.birthday).toLocaleDateString()
+      : "Not specified";
+
+  // Đảm bảo các trường dữ liệu cần thiết
+  const displayName = portfolio.name || "Không có tên";
+  const displayEmail = portfolio.email || "Không có email";
+  const displayPhone = portfolio.phone || "No phone";
+  const displayAddress = portfolio.address || "No address";
+  const displayNationality = portfolio.nationality || "Not specified";
+  const displayReputationPoint = portfolio.reputationPoint || 0;
+  const displayGender = portfolio.gender !== undefined ? portfolio.gender : 2;
+
+  const breadcrumbItems = [
+    {
+      title: (
+        <Link to="/dashboard/freelancer-management">Pending Portfolios</Link>
+      ),
+    },
+    {
+      title: displayName,
+    },
+  ];
+
   return (
-    <motion.div {...PAGE_ANIMATION} className="p-6">
-      <Card className="mb-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          <Avatar
-            size={96}
-            src={mockFreelancerDetail.avatar}
-            alt={mockFreelancerDetail.name}
+    <div>
+      <div className="w-full">
+        <div className="border-b dark:border-gray-500 p-6">
+          <Breadcrumb
+            className="pt-4 capitalize font-bold text-base"
+            items={breadcrumbItems}
           />
-          <div className="flex-1">
-            <div className="flex items-center gap-4 mb-4">
-              <Title level={3} style={{ margin: 0 }}>
-                {mockFreelancerDetail.name}
-              </Title>
-              <Tag color={getStatusColor(mockFreelancerDetail.status)}>
-                {mockFreelancerDetail.status.charAt(0).toUpperCase() +
-                  mockFreelancerDetail.status.slice(1)}
-              </Tag>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-              <div className="flex items-center gap-2">
-                <FaEnvelope className="text-gray-400" />
-                <Text>{mockFreelancerDetail.email}</Text>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaPhone className="text-gray-400" />
-                <Text>{mockFreelancerDetail.phone}</Text>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaCalendar className="text-gray-400" />
-                <Text>Joined {mockFreelancerDetail.joinDate}</Text>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaClock className="text-gray-400" />
-                <Text>Last active {mockFreelancerDetail.lastActive}</Text>
-              </div>
-            </div>
-
-            <Space wrap className="mb-4">
-              {mockFreelancerDetail.skills.map((skill) => (
-                <Tag key={skill} color="blue">
-                  {skill}
-                </Tag>
-              ))}
-            </Space>
-
-            <div className="flex flex-wrap gap-8">
-              <div className="flex items-center gap-2">
-                <Rate
-                  disabled
-                  defaultValue={mockFreelancerDetail.rating}
-                  allowHalf
-                />
-                <Text strong className="ml-2">
-                  {mockFreelancerDetail.rating}
-                </Text>
-              </div>
-              <div className="flex items-center gap-2">
-                <Text strong className="text-xl text-emerald-500">
-                  {mockFreelancerDetail.completedProjects}
-                </Text>
-                <Text type="secondary" className="text-lg">
-                  /{mockFreelancerDetail.totalProjects}
-                </Text>
-                <Text type="secondary" className="ml-1">
-                  Projects
-                </Text>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-4 mt-6 pt-6 border-t">
-          <Select
-            value={selectedStatus}
-            onChange={setSelectedStatus}
-            style={{ width: 120 }}
-          >
-            <Select.Option value="active">Active</Select.Option>
-            <Select.Option value="inactive">Inactive</Select.Option>
-            <Select.Option value="banned">Banned</Select.Option>
-          </Select>
-          <button
-            onClick={handleUpdateStatus}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md transition-colors"
-          >
-            Update Status
-          </button>
-        </div>
-      </Card>
-
-      <Tabs defaultActiveKey="overview">
-        <TabPane
-          tab={
-            <Space>
-              <FaUser />
-              Overview
-            </Space>
-          }
-          key="overview"
-        >
-          <Card className="bg-white dark:bg-zinc-800">
-            <Title level={4} className="dark:text-gray-200">
-              About
-            </Title>
-            <Paragraph className="dark:text-gray-300">
-              {mockFreelancerDetail.description}
-            </Paragraph>
-
-            <Title level={4} className="mt-8 mb-4 dark:text-gray-200">
-              Reviews
-            </Title>
-            <div className="space-y-4">
-              {mockFreelancerDetail.reviews.map((review) => (
-                <Card
-                  key={review.id}
-                  size="small"
-                  className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-gray-700"
-                >
-                  <div className="flex items-start gap-4">
-                    <Avatar
-                      src={review.reviewerAvatar}
-                      alt={review.reviewerName}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <Text strong className="dark:text-gray-200">
-                          {review.reviewerName}
-                        </Text>
-                        <Rate disabled defaultValue={review.rating} />
-                      </div>
-                      <Text
-                        type="secondary"
-                        className="block mb-2 dark:text-gray-400"
-                      >
-                        {review.projectName}
-                      </Text>
-                      <Paragraph className="mb-2 dark:text-gray-300">
-                        {review.comment}
-                      </Paragraph>
-                      <Text
-                        type="secondary"
-                        className="text-xs dark:text-gray-500"
-                      >
-                        {review.createdAt}
-                      </Text>
-                    </div>
+          <div>
+            <div className="flex justify-between items-start my-8">
+              <div className="text-3xl font-semibold flex gap-4 items-start">
+                <Avatar size={80} src={portfolio.avatarURL} alt={displayName}>
+                  {displayName ? displayName.charAt(0).toUpperCase() : "U"}
+                </Avatar>
+                <div className="text-sm">
+                  <div className="flex gap-2 items-center">
+                    <div className="text-2xl leading-none">{displayName}</div>
+                    {portfolio.status === 0 && (
+                      <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                        Pending
+                      </span>
+                    )}
                   </div>
-                </Card>
-              ))}
-            </div>
-          </Card>
-        </TabPane>
-
-        <TabPane
-          tab={
-            <Space>
-              <FaImages />
-              Portfolio
-            </Space>
-          }
-          key="portfolio"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockFreelancerDetail.portfolio.map((item) => (
-              <Card
-                key={item.id}
-                hoverable
-                cover={
-                  item.imageUrl ? (
-                    <img
-                      alt={item.title}
-                      src={item.imageUrl}
-                      className="h-48 w-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-48 bg-gray-100 flex items-center justify-center">
-                      <FaImages className="w-8 h-8 text-gray-400" />
-                    </div>
-                  )
-                }
-                actions={[
-                  <a
-                    href={item.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-emerald-600 hover:text-emerald-700"
+                  <div className="mt-2">{portfolio.title}</div>
+                  <div className="flex gap-2 items-center mt-1">
+                    <MdPlace size={18} />
+                    {displayAddress}
+                    {displayNationality !== "Not specified" &&
+                      ` • ${displayNationality}`}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 items-end">
+                <div className="flex gap-3 items-center">
+                  <Button
+                    type="primary"
+                    icon={<FaCheck />}
+                    onClick={() => showConfirmModal("approve")}
+                    loading={approving}
+                    style={{
+                      backgroundColor: "#52c41a",
+                      borderColor: "#52c41a",
+                    }}
                   >
-                    <Space>
-                      <FaExternalLinkAlt />
-                      View Project
-                    </Space>
-                  </a>,
-                ]}
-              >
-                <Card.Meta title={item.title} description={item.description} />
-              </Card>
-            ))}
-          </div>
-        </TabPane>
-
-        <TabPane
-          tab={
-            <Space>
-              <FaGraduationCap />
-              Education
-            </Space>
-          }
-          key="education"
-        >
-          <div className="space-y-4">
-            {mockFreelancerDetail.education.map((edu) => (
-              <Card
-                key={edu.id}
-                className="bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-gray-700"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
-                    <FaGraduationCap className="text-emerald-600 dark:text-emerald-400 text-xl" />
-                  </div>
-                  <div>
-                    <Text strong className="text-lg block dark:text-gray-200">
-                      {edu.school}
-                    </Text>
-                    <Text className="text-gray-600 dark:text-gray-400 block">
-                      {edu.degree} in {edu.field}
-                    </Text>
-                    <Text type="secondary" className="dark:text-gray-500">
-                      {edu.from} - {edu.to}
-                    </Text>
-                  </div>
+                    Approve Portfolio
+                  </Button>
+                  <Button
+                    danger
+                    icon={<FaTimes />}
+                    onClick={() => showConfirmModal("reject")}
+                    loading={rejecting}
+                  >
+                    Reject Portfolio
+                  </Button>
                 </div>
-              </Card>
-            ))}
+              </div>
+            </div>
           </div>
-        </TabPane>
+        </div>
+      </div>
 
-        <TabPane
-          tab={
-            <Space>
-              <FaBriefcase />
-              Experience
-            </Space>
-          }
-          key="experience"
-        >
-          <div className="space-y-4">
-            {mockFreelancerDetail.experience.map((exp) => (
-              <Card
-                key={exp.id}
-                className="bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-gray-700"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                    <FaBriefcase className="text-blue-600 dark:text-blue-400 text-xl" />
+      <div className="my-6 gap-8 grid grid-cols-12 p-6">
+        <div className="col-span-3 border-r dark:border-gray-500">
+          {/* Sidebar */}
+          <div className="">
+            <div className="font-bold mb-8 text-lg">Freelancer's Profile</div>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3 items-center">
+                <FaEnvelope />
+                {displayEmail}
+              </div>
+              <div className="flex gap-3 items-center">
+                <FaPhone />
+                {displayPhone}
+              </div>
+              <div className="flex gap-3 items-center">
+                <MdPlace />
+                {displayAddress}
+              </div>
+              <div className="flex gap-3 items-center">
+                <FaFlag />
+                {displayNationality}
+              </div>
+              <div className="flex gap-3 items-center">
+                <FaClock />
+                Birthday: {formattedBirthday}
+              </div>
+              <div className="flex gap-3 items-center">
+                <FaUser />
+                Gender: {getGenderText(displayGender)}
+              </div>
+              <div className="flex gap-3 items-center">
+                <RiShieldCheckFill />
+                Reputation Points: {displayReputationPoint}
+              </div>
+            </div>
+            <div>
+              <div className="text-lg font-bold mt-8 mb-4">Skills</div>
+              <div className="flex flex-wrap gap-2">
+                {skills.map((skill: any, index: number) => (
+                  <div
+                    key={index}
+                    className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-full text-sm"
+                  >
+                    {skill.name}
                   </div>
-                  <div>
-                    <Text strong className="text-lg block dark:text-gray-200">
-                      {exp.position}
-                    </Text>
-                    <Text className="text-gray-600 dark:text-gray-400 block">
-                      {exp.company}
-                    </Text>
-                    <Text
-                      type="secondary"
-                      className="block mb-2 dark:text-gray-500"
+                ))}
+                {skills.length === 0 && (
+                  <Text type="secondary">No skills specified</Text>
+                )}
+              </div>
+            </div>
+            <div className="font-bold mt-8 mb-2 text-lg">Portfolio Status</div>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3 items-center">
+                <HiIdentification
+                  color={portfolio.status === 0 ? "orange" : "green"}
+                />
+                {portfolio.status === 0 ? "Pending Verification" : "Verified"}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-span-9">
+          {/* Content */}
+          <div>
+            <div>
+              <div className="text-2xl font-bold mb-8">About</div>
+              <p className="text-base my-2 whitespace-pre-line tracking-wide">
+                {portfolio.about}
+              </p>
+            </div>
+
+            {experiences.length > 0 && (
+              <div>
+                <div className="text-2xl font-bold mt-12 mb-8">Experiences</div>
+                <div>
+                  <Timeline
+                    items={experiences.map((exp: any, index: number) => ({
+                      children: (
+                        <div key={index}>
+                          <div className="text-xl font-semibold">
+                            {exp.position} | {exp.company}
+                          </div>
+                          <div className="my-2">
+                            {exp.startDate} -{" "}
+                            {exp.isCurrentPosition ? "Present" : exp.endDate}
+                          </div>
+                          <div className="text-base pb-8">
+                            {exp.description}
+                          </div>
+                        </div>
+                      ),
+                    }))}
+                  />
+                </div>
+              </div>
+            )}
+
+            {certificates.length > 0 && (
+              <div>
+                <div className="text-2xl font-bold mt-12 mb-8">
+                  Certificates
+                </div>
+                <div className="space-y-4">
+                  {certificates.map((cert: any, index: number) => (
+                    <Card
+                      key={index}
+                      className="bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-gray-700"
                     >
-                      {exp.from} - {exp.to}
-                    </Text>
-                    <Text type="secondary" className="dark:text-gray-500">
-                      {exp.description}
-                    </Text>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </TabPane>
-
-        <TabPane
-          tab={
-            <Space>
-              <FaCertificate />
-              Certificates
-            </Space>
-          }
-          key="certificates"
-        >
-          <div className="space-y-4">
-            {mockFreelancerDetail.certificates.map((cert) => (
-              <Card
-                key={cert.id}
-                className="bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-gray-700"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-                    <FaCertificate className="text-yellow-600 dark:text-yellow-400 text-xl" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <Text
-                          strong
-                          className="text-lg block dark:text-gray-200"
-                        >
-                          {cert.name}
-                        </Text>
-                        <Text className="text-gray-600 dark:text-gray-400 block">
-                          {cert.issuer}
-                        </Text>
+                      <div className="flex items-start gap-4">
+                        <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                          <FaCertificate className="text-yellow-600 dark:text-yellow-400 text-xl" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <Text
+                                strong
+                                className="text-lg block dark:text-gray-200"
+                              >
+                                {cert.title}
+                              </Text>
+                              {cert.issueDate && (
+                                <Text
+                                  type="secondary"
+                                  className="dark:text-gray-500"
+                                >
+                                  Issued: {cert.issueDate}
+                                </Text>
+                              )}
+                            </div>
+                            {cert.url && (
+                              <a
+                                href={cert.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+                              >
+                                <FaExternalLinkAlt />
+                              </a>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <a
-                        href={cert.credentialUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
-                      >
-                        <FaExternalLinkAlt />
-                      </a>
-                    </div>
-                    <Text type="secondary" className="dark:text-gray-500">
-                      Issued: {cert.issueDate} • Expires: {cert.expiryDate}
-                    </Text>
-                  </div>
+                    </Card>
+                  ))}
                 </div>
-              </Card>
-            ))}
+              </div>
+            )}
           </div>
-        </TabPane>
-      </Tabs>
-    </motion.div>
+        </div>
+      </div>
+
+      <Modal
+        title={
+          confirmAction === "approve" ? "Approve Portfolio" : "Reject Portfolio"
+        }
+        open={confirmModalVisible}
+        onCancel={() => setConfirmModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setConfirmModalVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="confirm"
+            type={confirmAction === "approve" ? "primary" : "default"}
+            danger={confirmAction === "reject"}
+            loading={confirmAction === "approve" ? approving : rejecting}
+            onClick={confirmAction === "approve" ? handleApprove : handleReject}
+          >
+            {confirmAction === "approve" ? "Approve" : "Reject"}
+          </Button>,
+        ]}
+      >
+        <p>
+          Are you sure you want to{" "}
+          {confirmAction === "approve" ? "approve" : "reject"} this portfolio?
+          {confirmAction === "reject" &&
+            " This action will require the freelancer to revise their portfolio."}
+        </p>
+      </Modal>
+    </div>
   );
 };
 
