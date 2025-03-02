@@ -7,7 +7,6 @@ import {
   SaveOutlined,
 } from "@ant-design/icons";
 import {
-  Alert,
   Button,
   Card,
   Col,
@@ -33,6 +32,14 @@ import { PortfolioDTO } from "../models/types";
 import { skillService } from "../services/skillService";
 import PortfolioTips from "./PortfolioTips";
 import VerificationStatus from "./VerificationStatus";
+
+// Import PortfolioStatus enum
+enum PortfolioStatus {
+  Pending = 0,
+  Verified = 1,
+  Rejected = 2,
+  Modifying = 3,
+}
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -440,9 +447,9 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
   }
 
   return (
-    <div className="container">
-      <div className="p-8">
-        <Typography.Title level={2}>Portfolio</Typography.Title>
+    <div className="container mx-auto">
+      <div className="p-5">
+        <Typography.Title level={1}>Portfolio</Typography.Title>
       </div>
 
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
@@ -954,33 +961,58 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                     )}
                   </Form.List>
                 </div>
-
-                {/* Submit for Review Section */}
-                <Divider />
-                <Alert
-                  message="Submit for Staff Review"
-                  description="Submit your portfolio for staff review to get verified status."
-                  type="info"
-                  action={
-                    <Button
-                      type="primary"
-                      onClick={handleSubmitForReview}
-                      disabled={
-                        isEditing ||
-                        (portfolio ? Number(portfolio.status) === 3 : false)
-                      }
-                      icon={<CheckOutlined />}
-                    >
-                      Submit for Review
-                    </Button>
-                  }
-                  showIcon
-                />
               </Space>
             </Card>
           </Col>
           <Col xs={24} md={6}>
-            <VerificationStatus />
+            <VerificationStatus portfolio={portfolio} />
+
+            {/* Submit for Review Section - Moved here */}
+            <div style={{ marginTop: 16 }}>
+              <Card className="bg-[#f0f5ff] border-[#d6e4ff] dark:bg-[#111827] dark:border-[#111827]">
+                <Space
+                  direction="vertical"
+                  size="middle"
+                  style={{ width: "100%" }}
+                >
+                  <div>
+                    <Typography.Title
+                      level={5}
+                      style={{ margin: 0 }}
+                      className="text-[#1890ff] dark:text-white"
+                    >
+                      Submit for Verification
+                    </Typography.Title>
+                    <Typography.Paragraph className="text-gray-600 dark:text-gray-300">
+                      {portfolio &&
+                      portfolio.status === PortfolioStatus.Rejected
+                        ? "Your portfolio has been rejected. Please revise and resubmit for verification."
+                        : "Submit your portfolio for staff review to get verified status."}
+                    </Typography.Paragraph>
+                  </div>
+
+                  <Button
+                    type="primary"
+                    onClick={handleSubmitForReview}
+                    disabled={
+                      isEditing ||
+                      !portfolio ||
+                      (portfolio &&
+                        portfolio.status !== undefined &&
+                        portfolio.status !== 3 &&
+                        portfolio.status !== 2)
+                    }
+                    icon={<CheckOutlined />}
+                    block
+                    className="bg-[#10b981] hover:bg-[#0d9668] border-[#10b981]"
+                  >
+                    {portfolio && portfolio.status === PortfolioStatus.Rejected
+                      ? "Resubmit for Verification"
+                      : "Submit for Verification"}
+                  </Button>
+                </Space>
+              </Card>
+            </div>
           </Col>
         </Row>
       </Form>

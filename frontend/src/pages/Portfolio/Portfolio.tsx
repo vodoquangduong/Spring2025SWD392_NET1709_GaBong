@@ -124,9 +124,43 @@ const Portfolio: React.FC = () => {
     try {
       const values = await form.validateFields();
       console.log("Submit for review:", values);
-      message.success("Portfolio submitted for staff review");
-    } catch (error) {
-      message.error("Please complete all required fields before submitting");
+
+      // Gọi API gửi portfolio để xác minh
+      const result = await portfolioUseCase.submitPortfolioForVerification();
+
+      if (result) {
+        message.success(
+          "Portfolio has been successfully submitted for verification"
+        );
+
+        // Refresh the data
+        if (accountId) {
+          const refreshedData =
+            await portfolioUseCase.getPortfolioByFreelancerId(accountId);
+          setPortfolio(refreshedData);
+
+          // Sử dụng hàm parsePortfolioData để phân tích dữ liệu
+          const parsedData = portfolioUseCase.parsePortfolioData(refreshedData);
+
+          // Cập nhật form với dữ liệu mới
+          form.setFieldsValue({
+            title: parsedData.title,
+            description: parsedData.about,
+            skills: parsedData.skills,
+            experiences: parsedData.experiences,
+            certificates: parsedData.certificates,
+          });
+        }
+      } else {
+        message.error(
+          "Unable to submit portfolio for verification. Please try again later."
+        );
+      }
+    } catch (error: any) {
+      console.error("Error submitting portfolio for verification:", error);
+      message.error(
+        error.message || "Please complete all required fields before submitting"
+      );
     }
   };
 

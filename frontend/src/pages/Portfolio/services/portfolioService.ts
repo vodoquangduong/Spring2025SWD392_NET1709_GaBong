@@ -424,4 +424,84 @@ export const portfolioService = {
       throw error;
     }
   },
+
+  // Phương thức gửi portfolio để xác minh
+  submitPortfolioForVerification: async (): Promise<boolean> => {
+    try {
+      const token = getCookie("accessToken");
+      if (!token) {
+        throw new Error("Authentication required. Please login.");
+      }
+
+      console.log("Submitting portfolio for verification");
+
+      const response = await fetch(
+        `${API_URL}/api/Portfolio/freelancer-submit`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        let errorMessage = "";
+
+        try {
+          // Try to parse as JSON first
+          const errorData = await response.json();
+          console.error("API error response:", errorData);
+
+          if (errorData) {
+            if (errorData.message) {
+              errorMessage = errorData.message;
+            } else if (errorData.error) {
+              errorMessage = errorData.error;
+            } else if (errorData.errors) {
+              const errorMessages = Object.values(errorData.errors).flat();
+              errorMessage = errorMessages.join(", ");
+            } else if (typeof errorData === "string") {
+              errorMessage = errorData;
+            } else {
+              errorMessage = JSON.stringify(errorData);
+            }
+          }
+        } catch (jsonError) {
+          // If not JSON, try to get text
+          try {
+            const errorText = await response.text();
+            if (errorText) {
+              errorMessage = errorText;
+            }
+            console.error("API error response (text):", errorText);
+          } catch (textError) {
+            console.error("Could not parse error response as text");
+            errorMessage = "Unknown error";
+          }
+        }
+
+        if (!errorMessage) {
+          errorMessage = `API Error (${response.status})`;
+        }
+
+        console.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("API Response:", data);
+
+      // Kiểm tra kết quả từ API
+      if (data.isSuccess) {
+        return true;
+      }
+
+      return false;
+    } catch (error: any) {
+      console.error("API Error:", error);
+      throw error;
+    }
+  },
 };
