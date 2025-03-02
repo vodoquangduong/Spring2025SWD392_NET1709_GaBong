@@ -1,76 +1,119 @@
-import { ClockCircleOutlined } from "@ant-design/icons";
-import { Badge, Button, Card, Space, Timeline, Typography } from "antd";
+import { CheckCircleFilled, EditFilled } from "@ant-design/icons";
+import { Card, Steps, Typography } from "antd";
+import { PortfolioDTO } from "../models/types";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
+
+// Enum PortfolioStatus
+enum PortfolioStatus {
+  Pending = 0,
+  Verified = 1,
+  Rejected = 2,
+  Modifying = 3,
+}
+
+interface VerificationStatusProps {
+  portfolio?: PortfolioDTO | null;
+}
 
 // Component VerificationStatus
-const VerificationStatus: React.FC = () => {
+const VerificationStatus: React.FC<VerificationStatusProps> = ({
+  portfolio,
+}) => {
+  // Xác định trạng thái hiện tại
+  const getCurrentStatus = () => {
+    if (!portfolio) return PortfolioStatus.Modifying;
+    return portfolio.status !== undefined
+      ? portfolio.status
+      : PortfolioStatus.Modifying;
+  };
+
+  const currentStatus = getCurrentStatus();
+
+  // Tạo các bước trong tiến trình dựa trên status thực tế
+  const getStepsItems = () => {
+    const items = [
+      {
+        title: "Modifying",
+        status:
+          currentStatus === PortfolioStatus.Modifying
+            ? "process"
+            : ("finish" as "process" | "finish" | "wait" | "error"),
+        icon:
+          currentStatus === PortfolioStatus.Modifying ? (
+            <div style={{ color: "#faad14" }}>
+              <EditFilled />
+            </div>
+          ) : (
+            <CheckCircleFilled />
+          ),
+      },
+      {
+        title: "Pending Verification",
+        status:
+          currentStatus === PortfolioStatus.Pending
+            ? "process"
+            : currentStatus === PortfolioStatus.Modifying
+            ? "wait"
+            : ("finish" as "process" | "finish" | "wait" | "error"),
+        icon:
+          currentStatus === PortfolioStatus.Pending ? (
+            <div style={{ color: "#faad14" }}>
+              <EditFilled />
+            </div>
+          ) : currentStatus === PortfolioStatus.Verified ||
+            currentStatus === PortfolioStatus.Rejected ? (
+            <CheckCircleFilled />
+          ) : null,
+      },
+    ];
+
+    // Thêm bước Verified hoặc Rejected dựa trên status thực tế
+    if (currentStatus === PortfolioStatus.Verified) {
+      items.push({
+        title: "Verified",
+        status: "finish" as "process" | "finish" | "wait" | "error",
+        icon: <CheckCircleFilled />,
+      });
+    } else if (currentStatus === PortfolioStatus.Rejected) {
+      items.push({
+        title: "Rejected",
+        status: "error" as "process" | "finish" | "wait" | "error",
+        icon: (
+          <div style={{ color: "#ff4d4f" }}>
+            <EditFilled />
+          </div>
+        ),
+      });
+    } else if (currentStatus === PortfolioStatus.Pending) {
+      // Khi đang ở trạng thái Pending, hiển thị cả hai nhánh tiềm năng nhưng ở trạng thái wait
+      items.push({
+        title: "Verification Result",
+        status: "wait" as "process" | "finish" | "wait" | "error",
+        icon: null,
+      });
+    }
+
+    return items;
+  };
+
   return (
     <Card className="bg-white dark:bg-[#27272a]">
-      <div style={{ marginBottom: 24 }}>
-        <Space direction="vertical" size={4}>
-          <Title level={4} style={{ margin: 0 }}>
-            Verification Status
-          </Title>
-          <Text type="secondary">
-            Get your portfolio verified to increase visibility
-          </Text>
-        </Space>
-        <div style={{ marginTop: 16 }}>
-          <Badge
-            status="warning"
-            text={<Text style={{ color: "#d48806" }}>Pending Review</Text>}
-          />
-        </div>
-      </div>
+      <Title level={4} style={{ margin: "0 0 20px 0" }}>
+        Verification Status
+      </Title>
 
-      <Space
+      <Steps
+        current={
+          currentStatus === PortfolioStatus.Modifying
+            ? 0
+            : currentStatus === PortfolioStatus.Pending
+            ? 1
+            : 2
+        }
         direction="vertical"
-        size="middle"
-        style={{ width: "100%", marginBottom: 24 }}
-      >
-        <Timeline
-          items={[
-            {
-              color: "warning",
-              children: (
-                <Space direction="vertical" size={4}>
-                  <Text strong>Document Verification</Text>
-                  <Text type="secondary">
-                    Your documents are being reviewed by our team
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    2 days ago
-                  </Text>
-                </Space>
-              ),
-            },
-            {
-              color: "gray",
-              children: (
-                <Space direction="vertical" size={4}>
-                  <Text strong>Skills Assessment</Text>
-                  <Text type="secondary">
-                    Pending technical skills verification
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    Waiting
-                  </Text>
-                </Space>
-              ),
-            },
-          ]}
-        />
-      </Space>
-
-      <Button
-        type="primary"
-        block
-        style={{ backgroundColor: "#10b981" }}
-        icon={<ClockCircleOutlined />}
-      >
-        Track Verification Progress
-      </Button>
+        items={getStepsItems()}
+      />
     </Card>
   );
 };

@@ -13,7 +13,6 @@ export const portfolioService = {
         throw new Error("Authentication required. Please login.");
       }
 
-      // Đảm bảo dữ liệu đúng định dạng theo mẫu đã test thành công
       const apiData = {
         title: portfolioData.title,
         works: portfolioData.works,
@@ -32,73 +31,30 @@ export const portfolioService = {
       });
 
       if (!response.ok) {
-        let errorMessage = "";
-
-        // Xử lý riêng cho lỗi 405 Method Not Allowed
-        if (response.status === 405) {
-          errorMessage =
-            "Method Not Allowed (405): The API endpoint does not support this operation.";
-          console.error(errorMessage);
-          throw new Error(errorMessage);
-        }
-
+        let errorMessage;
         try {
-          // Try to parse as JSON first
           const errorData = await response.json();
-          console.error("API error response:", errorData);
-
-          if (errorData) {
-            if (errorData.message) {
-              errorMessage = errorData.message;
-            } else if (errorData.error) {
-              errorMessage = errorData.error;
-            } else if (errorData.errors) {
-              const errorMessages = Object.values(errorData.errors).flat();
-              errorMessage = errorMessages.join(", ");
-            } else if (typeof errorData === "string") {
-              errorMessage = errorData;
-            } else {
-              errorMessage = JSON.stringify(errorData);
-            }
-          }
-        } catch (jsonError) {
-          // If not JSON, try to get text
+          errorMessage =
+            errorData.message ||
+            errorData.error ||
+            "Failed to create portfolio";
+        } catch {
           try {
-            const errorText = await response.text();
-            if (errorText) {
-              errorMessage = errorText;
-            }
-            console.error("API error response (text):", errorText);
-          } catch (textError) {
-            console.error("Could not parse error response as text");
-            errorMessage = "Unknown error";
+            errorMessage = await response.text();
+          } catch {
+            errorMessage =
+              response.status >= 500
+                ? "Server error. Please try again later."
+                : "Failed to create portfolio";
           }
         }
-
-        if (!errorMessage) {
-          errorMessage = `API Error (${response.status})`;
-        }
-
-        console.error(errorMessage);
         throw new Error(errorMessage);
       }
 
       const data = await response.json();
-      console.log("API Response:", data);
-
-      if (data.isSuccess && data.value) {
-        return data.value;
-      }
-
-      // Nếu response trả về trực tiếp đối tượng portfolio
-      if (data.portfolioId !== undefined) {
-        return data;
-      }
-
-      throw new Error("Invalid API response format");
+      return data.value || data;
     } catch (error: any) {
-      console.error("API Error:", error);
-      throw error; // Trả về lỗi gốc thay vì tạo lỗi mới
+      throw error;
     }
   },
 
@@ -117,20 +73,28 @@ export const portfolioService = {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Failed to get portfolio");
+        let errorMessage;
+        try {
+          const errorData = await response.json();
+          errorMessage =
+            errorData.message || errorData.error || "Failed to get portfolio";
+        } catch {
+          try {
+            errorMessage = await response.text();
+          } catch {
+            errorMessage =
+              response.status >= 500
+                ? "Server error. Please try again later."
+                : "Failed to get portfolio";
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
-
-      if (data.isSuccess && data.value) {
-        return data.value;
-      }
-
-      throw new Error("Invalid API response format");
+      return data.value || data;
     } catch (error: any) {
-      console.error("API Error:", error);
-      throw new Error(error.message || "Failed to get portfolio");
+      throw error;
     }
   },
 
@@ -143,8 +107,6 @@ export const portfolioService = {
         throw new Error("Authentication required. Please login.");
       }
 
-      console.log(`Fetching portfolio for freelancer ID: ${freelancerId}`);
-
       const response = await fetch(
         `${API_URL}/api/Portfolio/freelancer/${freelancerId}`,
         {
@@ -155,59 +117,33 @@ export const portfolioService = {
         }
       );
 
-      // Nếu không tìm thấy portfolio (404), trả về null thay vì throw error
+      // Nếu không tìm thấy portfolio (404), trả về null
       if (response.status === 404) {
-        console.log(
-          `No portfolio found for freelancer ID: ${freelancerId}. This is normal for new users.`
-        );
-        return null as any; // Trả về null mà không hiển thị lỗi
+        return null as any;
       }
 
       if (!response.ok) {
-        let errorMessage = `API Error (${response.status}): `;
-        let errorData = null;
-
+        let errorMessage;
         try {
-          // Try to parse as JSON first
-          errorData = await response.json();
-          console.error("API error response:", errorData);
-
-          if (errorData) {
-            if (errorData.message) {
-              errorMessage += errorData.message;
-            } else if (errorData.error) {
-              errorMessage += errorData.error;
-            } else if (errorData.errors) {
-              const errorMessages = Object.values(errorData.errors).flat();
-              errorMessage += errorMessages.join(", ");
-            } else if (typeof errorData === "string") {
-              errorMessage += errorData;
-            } else {
-              errorMessage += JSON.stringify(errorData);
-            }
-          }
-        } catch (jsonError) {
-          // If not JSON, try to get text
+          const errorData = await response.json();
+          errorMessage =
+            errorData.message || errorData.error || "Failed to get portfolio";
+        } catch {
           try {
-            const errorText = await response.text();
-            if (errorText) {
-              errorMessage += errorText;
-            }
-            console.error("API error response (text):", errorText);
-          } catch (textError) {
-            console.error("Could not parse error response as text");
-            errorMessage += "Unknown error";
+            errorMessage = await response.text();
+          } catch {
+            errorMessage =
+              response.status >= 500
+                ? "Server error. Please try again later."
+                : "Failed to get portfolio";
           }
         }
 
-        // Nếu lỗi liên quan đến "không tìm thấy portfolio", trả về null mà không throw error
+        // Nếu lỗi liên quan đến "không tìm thấy portfolio", trả về null
         if (
           errorMessage.includes("not found") ||
           errorMessage.includes("No portfolio")
         ) {
-          console.log(
-            `Portfolio not found for freelancer ID: ${freelancerId}. This is normal for new users.`
-          );
           return null as any;
         }
 
@@ -215,44 +151,17 @@ export const portfolioService = {
       }
 
       const data = await response.json();
-      console.log("Raw API response:", data);
-
-      // Check if the response has the expected structure
-      if (data.isSuccess && data.value) {
-        return data.value;
-      }
-
-      // If the response is directly the portfolio object
-      if (data.portfolioId !== undefined) {
-        console.log("Using direct portfolio object format");
-        return data;
-      }
-
-      // Nếu không có dữ liệu, trả về null
-      if (!data || Object.keys(data).length === 0) {
-        console.log(
-          `Empty response for freelancer ID: ${freelancerId}. User may not have a portfolio yet.`
-        );
-        return null as any;
-      }
-
-      console.error("Unexpected API response format:", data);
-      throw new Error("Invalid API response format");
+      return data.value || data;
     } catch (error: any) {
-      // Nếu lỗi là 404 hoặc liên quan đến "not found", trả về null mà không throw error
+      // Nếu lỗi là 404 hoặc liên quan đến "not found", trả về null
       if (
         error.message &&
         (error.message.includes("404") ||
           error.message.includes("not found") ||
           error.message.includes("No portfolio"))
       ) {
-        console.log(
-          `Portfolio not found for freelancer ID: ${freelancerId}. This is normal for new users.`
-        );
         return null as any;
       }
-
-      console.error("API Error:", error);
       throw error;
     }
   },
@@ -320,21 +229,14 @@ export const portfolioService = {
         throw new Error("Authentication required. Please login.");
       }
 
-      // Đảm bảo dữ liệu đúng định dạng theo mẫu đã test thành công
       const apiData = {
+        portfolioId: portfolioId,
         title: portfolioData.title,
         works: portfolioData.works,
         certificate: portfolioData.certificate,
         about: portfolioData.about,
         status: 3,
       };
-
-      console.log(
-        `Updating portfolio ID ${portfolioId} with data:`,
-        JSON.stringify(apiData, null, 2)
-      );
-      console.log("API URL:", `${API_URL}/api/Portfolio`);
-      console.log("Token:", token.substring(0, 15) + "...");
 
       const response = await fetch(`${API_URL}/api/Portfolio`, {
         method: "PUT",
@@ -345,82 +247,85 @@ export const portfolioService = {
         body: JSON.stringify(apiData),
       });
 
-      // Log response status và headers để debug
-      console.log("API Response Status:", response.status);
-      console.log(
-        "API Response Headers:",
-        Object.fromEntries(response.headers.entries())
-      );
-
       if (!response.ok) {
-        let errorMessage = "";
-
-        // Xử lý riêng cho lỗi 405 Method Not Allowed
-        if (response.status === 405) {
-          errorMessage =
-            "Method Not Allowed (405): The API endpoint does not support this operation.";
-          console.error(errorMessage);
-          throw new Error(errorMessage);
-        }
-
+        let errorMessage;
         try {
-          // Try to parse as JSON first
           const errorData = await response.json();
-          console.error("API error response:", errorData);
-
-          if (errorData) {
-            if (errorData.message) {
-              errorMessage = errorData.message;
-            } else if (errorData.error) {
-              errorMessage = errorData.error;
-            } else if (errorData.errors) {
-              const errorMessages = Object.values(errorData.errors).flat();
-              errorMessage = errorMessages.join(", ");
-            } else if (typeof errorData === "string") {
-              errorMessage = errorData;
-            } else {
-              errorMessage = JSON.stringify(errorData);
-            }
-          }
-        } catch (jsonError) {
-          // If not JSON, try to get text
+          errorMessage =
+            errorData.message ||
+            errorData.error ||
+            "Failed to update portfolio";
+        } catch {
           try {
-            const errorText = await response.text();
-            if (errorText) {
-              errorMessage = errorText;
-            }
-            console.error("API error response (text):", errorText);
-          } catch (textError) {
-            console.error("Could not parse error response as text");
-            errorMessage = "Unknown error";
+            errorMessage = await response.text();
+          } catch {
+            errorMessage =
+              response.status >= 500
+                ? "Server error. Please try again later."
+                : "Failed to update portfolio";
           }
         }
-
-        if (!errorMessage) {
-          errorMessage = `API Error (${response.status})`;
-        }
-
-        console.error(errorMessage);
         throw new Error(errorMessage);
       }
 
       const data = await response.json();
-      console.log("API Response:", data);
-
-      // Check if the response has the expected structure
-      if (data.isSuccess && data.value) {
-        return data.value;
-      }
-
-      // If the response is directly the portfolio object
-      if (data.portfolioId !== undefined) {
-        return data;
-      }
-
-      console.error("Unexpected API response format:", data);
-      throw new Error("Invalid API response format");
+      return data.value || data;
     } catch (error: any) {
-      console.error("API Error:", error);
+      throw error;
+    }
+  },
+
+  // Phương thức gửi portfolio để xác minh
+  submitPortfolioForVerification: async (): Promise<boolean> => {
+    try {
+      const token = getCookie("accessToken");
+      if (!token) {
+        throw new Error("Authentication required. Please login.");
+      }
+
+      const response = await fetch(
+        `${API_URL}/api/Portfolio/freelancer-submit`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Nếu status code là 2xx, coi như thành công
+      if (response.ok) {
+        try {
+          const data = await response.json();
+          return data.isSuccess !== undefined ? data.isSuccess : true;
+        } catch {
+          // Nếu không parse được JSON, vẫn coi là thành công
+          return true;
+        }
+      }
+
+      // Xử lý trường hợp lỗi
+      let errorMessage;
+      try {
+        const errorData = await response.json();
+        errorMessage =
+          errorData.message ||
+          errorData.error ||
+          "Failed to submit portfolio for verification";
+      } catch {
+        try {
+          errorMessage = await response.text();
+        } catch {
+          errorMessage =
+            response.status >= 500
+              ? "Server error. Please try again later."
+              : "Failed to submit portfolio for verification";
+        }
+      }
+
+      throw new Error(errorMessage);
+    } catch (error: any) {
       throw error;
     }
   },

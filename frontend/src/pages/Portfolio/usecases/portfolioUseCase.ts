@@ -198,4 +198,16 @@ export const portfolioUseCase = {
       throw error;
     }
   },
+
+  // Phương thức gửi portfolio để xác minh
+  submitPortfolioForVerification: async (): Promise<boolean> => {
+    try {
+      // Gọi API gửi portfolio để xác minh
+      const result = await portfolioService.submitPortfolioForVerification();
+      return result;
+    } catch (error: any) {
+      console.error("Error submitting portfolio for verification:", error);
+      throw error;
+    }
+  },
 };
