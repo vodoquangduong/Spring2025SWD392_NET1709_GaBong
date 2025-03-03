@@ -9,9 +9,11 @@ namespace Services.Interfaces
 {
     public interface IFeedbackService
     {
-        Task<Result<PaginatedResult<FeedbackDTO>>> GetAllReportsAsync(int pageNumber, int pageSize);
-        Task<Result<IEnumerable<FeedbackDTO>>> GetReportsByProjectIdAsync(long projectId, int pageNumber, int pageSize);
-        Task<Result<IEnumerable<FeedbackDTO>>> GetReportsByFreelancerIdAsync(long freelancerId);
-        // Task<Result<FeedbackDTO>> CreateFeedbackAsync(CreateFeedbackDTO feedbackDTO);
+        Task<Result<IEnumerable<FeedbackDTO>>> GetAllFeedbacksAsync();
+        Task<Result<FeedbackDTO>> GetFeedbackByProjectIdAsync(long projectId);
+        Task<Result<IEnumerable<FeedbackDTO>>> GetFeedbacksByFreelancerIdAsync(long freelancerId);
+        Task<Result<FeedbackDTO>> CreateFeedbackAsync(CreateFeedbackDTO feedbackDTO);
+        Task<Result<FeedbackDTO>> UpdateFeedback(UpdateFeedbackDTO updateDTO);
+        Task<Result> DeleteFeedback(long projectId);
     }
 }

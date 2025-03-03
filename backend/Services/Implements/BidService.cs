@@ -86,10 +86,6 @@ namespace Services.Implements
                .WithPredicate(bid => bid.ProjectId == projectId)
                .Build();
                 var bids = _unitOfWork.GetRepo<Bid>().Get(queryOptions);
-                if (bids.Count() == 0)
-                {
-                    return Result.Failure<PaginatedResult<BidDTO>>(new Error("No bids found", "No bids found"));
-                }
                 var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, bid => bid.ToBidDTO());
                 return Result.Success(paginatedBids);
             }

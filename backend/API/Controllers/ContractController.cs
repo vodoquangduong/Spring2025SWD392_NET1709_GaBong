@@ -36,7 +36,7 @@ namespace API.Controllers
             {
                 return BadRequest(result.Error);
             }
-            return Ok(result);
+            return Ok(result.Value);
         }
         [HttpGet("{contractId}")]
         public async Task<IActionResult> GetContractById([FromRoute] long contractId)
