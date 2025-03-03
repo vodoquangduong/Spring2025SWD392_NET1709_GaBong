@@ -132,11 +132,11 @@ const HeroSection = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 2, ease: "easeInOut" }}
                     >
-                      Best Job
+                      Best Gigs
                     </motion.div>
                   </span>{" "}
                   <br />
-                  Offers for you.
+                  for your needs.
                 </motion.div>
 
                 <motion.p

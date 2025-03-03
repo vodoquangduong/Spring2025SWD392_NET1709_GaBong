@@ -124,13 +124,13 @@ export default function Header() {
               <>
                 <Link
                   to={"/login"}
-                  className="font-bold hover:text-emerald-500 text-white"
+                  className="font-semibold hover:text-emerald-500 text-white"
                 >
                   Login
                 </Link>
                 <Link
                   to={"/register"}
-                  className="font-bold hover:text-emerald-500 text-white mx-4"
+                  className="font-semibold hover:text-emerald-500 text-white mx-4"
                 >
                   Register
                 </Link>

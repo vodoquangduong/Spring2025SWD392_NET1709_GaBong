@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function Logo({ collapsed }: { collapsed: boolean }) {
+export default function Logo({ collapsed }: { collapsed?: boolean }) {
   return (
     <Link to="/" className={`flex items-center justify-center p-4}`}>
       <div
