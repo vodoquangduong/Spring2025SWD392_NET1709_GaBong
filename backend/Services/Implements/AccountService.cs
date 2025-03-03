@@ -113,45 +113,45 @@ public class AccountService : IAccountService
         }
     }
 
-    public async Task<Result<AccountDTO>> UpdateCredit(long accountId, decimal amount, string transacionType)
-    {
-        try
-        {
-            var queryOptions = new QueryBuilder<Account>()
-                .WithTracking(false) // No tracking for efficient
-                .WithPredicate(a => a.AccountId == accountId)
-                .Build();
-            var existedAccount = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryOptions);
-            var account_result = existedAccount?.ToAccountDTO();
+    //public async Task<Result<AccountDTO>> UpdateCredit(long accountId, decimal amount, string transacionType)
+    //{
+    //    try
+    //    {
+    //        var queryOptions = new QueryBuilder<Account>()
+    //            .WithTracking(false) // No tracking for efficient
+    //            .WithPredicate(a => a.AccountId == accountId)
+    //            .Build();
+    //        var existedAccount = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryOptions);
+    //        var account_result = existedAccount?.ToAccountDTO();
 
-            switch (transacionType)
-            {
-                case "Deposit":
-                    existedAccount.TotalCredit += amount;
-                    break;
-                case "Withdrawal": 
-                    existedAccount.TotalCredit -= amount;
-                    break ;
-                case "Transfer":
-                    existedAccount.TotalCredit -= amount;
-                    existedAccount.LockCredit -= amount;
-                    break ;
-                case "Payment":
-                    existedAccount.TotalCredit += amount;
-                    break;
-                case "Refund":
-                    existedAccount.TotalCredit += amount;
-                    break ;
-                case "Fee":
-                    existedAccount.TotalCredit -= amount;
-                    break ;
-                case "Other":
-                    existedAccount.TotalCredit += amount;
-                    break;
-                default:
-                    existedAccount.TotalCredit += amount;
-                    break;
-            }
+    //        switch (transacionType)
+    //        {
+    //            case "Deposit":
+    //                existedAccount.TotalCredit += amount;
+    //                break;
+    //            case "Withdrawal": 
+    //                existedAccount.TotalCredit -= amount;
+    //                break ;
+    //            case "Transfer":
+    //                existedAccount.TotalCredit -= amount;
+    //                existedAccount.LockCredit -= amount;
+    //                break ;
+    //            case "Payment":
+    //                existedAccount.TotalCredit += amount;
+    //                break;
+    //            case "Refund":
+    //                existedAccount.TotalCredit += amount;
+    //                break ;
+    //            case "Fee":
+    //                existedAccount.TotalCredit -= amount;
+    //                break ;
+    //            case "Other":
+    //                existedAccount.TotalCredit += amount;
+    //                break;
+    //            default:
+    //                existedAccount.TotalCredit += amount;
+    //                break;
+    //        }
 
     public async Task<Result<AccountDTO>> UpdateAccountAsync(UpdateAccountDTO accountDto)
     {
@@ -187,17 +187,15 @@ public class AccountService : IAccountService
             await _unitOfWork.SaveChangesAsync();
             return Result.Success(existedAccount!.ToAccountDTO());
         }
-<<<<<<< HEAD
         catch (Exception e)
         {
             return Result.Failure<AccountDTO>(new Error("Update account failed", $"{e.Message}"));
         }
 
-=======
-        catch(Exception e)
-        {
-            return Result.Failure<AccountDTO>(new Error("Update account failed",$"{e.Message}"));
-        }
->>>>>>> 7ed9454750c3cc9ccbd609032da21dab9ae3cb09
+    }
+
+    public Task<Result<AccountDTO>> UpdateCredit(long AccountId, decimal amount, string transacionType)
+    {
+        throw new NotImplementedException();
     }
 }
