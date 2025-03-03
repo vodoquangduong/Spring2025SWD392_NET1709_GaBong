@@ -147,7 +147,10 @@ export const portfolioService = {
     }
   },
 
-  approvePortfolio: async (portfolioId: number): Promise<boolean> => {
+  verifyPortfolio: async (
+    portfolioId: number,
+    status: number
+  ): Promise<boolean> => {
     try {
       const token = getCookie("accessToken");
       if (!token) {
@@ -155,13 +158,14 @@ export const portfolioService = {
       }
 
       const response = await fetch(
-        `${API_URL}/api/Portfolio/approve/${portfolioId}`,
+        `${API_URL}/api/Portfolio/verify/${portfolioId}`,
         {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({ status }),
         }
       );
 
@@ -172,53 +176,12 @@ export const portfolioService = {
           errorMessage =
             errorData.message ||
             errorData.error ||
-            "Failed to approve portfolio";
+            "Failed to verify portfolio";
         } catch {
           errorMessage =
             response.status >= 500
               ? "Server error. Please try again later."
-              : "Failed to approve portfolio";
-        }
-        throw new Error(errorMessage);
-      }
-
-      return true;
-    } catch (error: any) {
-      throw error;
-    }
-  },
-
-  rejectPortfolio: async (portfolioId: number): Promise<boolean> => {
-    try {
-      const token = getCookie("accessToken");
-      if (!token) {
-        throw new Error("Authentication required. Please login.");
-      }
-
-      const response = await fetch(
-        `${API_URL}/api/Portfolio/reject/${portfolioId}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        let errorMessage;
-        try {
-          const errorData = await response.json();
-          errorMessage =
-            errorData.message ||
-            errorData.error ||
-            "Failed to reject portfolio";
-        } catch {
-          errorMessage =
-            response.status >= 500
-              ? "Server error. Please try again later."
-              : "Failed to reject portfolio";
+              : "Failed to verify portfolio";
         }
         throw new Error(errorMessage);
       }

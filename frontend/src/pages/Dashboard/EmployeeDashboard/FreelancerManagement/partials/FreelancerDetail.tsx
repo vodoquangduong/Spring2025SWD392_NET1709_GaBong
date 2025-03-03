@@ -25,6 +25,7 @@ import { HiIdentification } from "react-icons/hi2";
 import { MdPlace } from "react-icons/md";
 import { RiShieldCheckFill } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import useAuthStore from "../../../../../stores/authStore";
 import {
   PendingPortfolio,
   portfolioService,
@@ -35,6 +36,7 @@ const { Text } = Typography;
 const FreelancerDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { name: userName } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [portfolio, setPortfolio] = useState<PendingPortfolio | null>(null);
   const [approving, setApproving] = useState(false);
@@ -75,8 +77,16 @@ const FreelancerDetail: React.FC = () => {
 
     try {
       setApproving(true);
-      await portfolioService.approvePortfolio(portfolio.portfolioId);
+      await portfolioService.verifyPortfolio(portfolio.portfolioId, 1); // 1 = Verified
       message.success("Portfolio has been approved successfully");
+
+      // Ghi log người duyệt
+      console.log(
+        `Portfolio ${portfolio.portfolioId} approved by ${
+          userName || "unknown user"
+        }`
+      );
+
       navigate(-1);
     } catch (error: any) {
       message.error(error.message || "Failed to approve portfolio");
@@ -91,8 +101,16 @@ const FreelancerDetail: React.FC = () => {
 
     try {
       setRejecting(true);
-      await portfolioService.rejectPortfolio(portfolio.portfolioId);
+      await portfolioService.verifyPortfolio(portfolio.portfolioId, 2); // 2 = Rejected
       message.success("Portfolio has been rejected");
+
+      // Ghi log người từ chối
+      console.log(
+        `Portfolio ${portfolio.portfolioId} rejected by ${
+          userName || "unknown user"
+        }`
+      );
+
       navigate(-1);
     } catch (error: any) {
       message.error(error.message || "Failed to reject portfolio");
@@ -153,9 +171,7 @@ const FreelancerDetail: React.FC = () => {
 
   const breadcrumbItems = [
     {
-      title: (
-        <Link to="/dashboard/freelancer-management">Pending Portfolios</Link>
-      ),
+      title: <Link to="/employee/freelancers">Pending Portfolios</Link>,
     },
     {
       title: displayName,
@@ -202,8 +218,8 @@ const FreelancerDetail: React.FC = () => {
                     onClick={() => showConfirmModal("approve")}
                     loading={approving}
                     style={{
-                      backgroundColor: "#52c41a",
-                      borderColor: "#52c41a",
+                      backgroundColor: "72e478",
+                      borderColor: "72e478",
                     }}
                   >
                     Approve Portfolio
@@ -264,7 +280,7 @@ const FreelancerDetail: React.FC = () => {
                 {skills.map((skill: any, index: number) => (
                   <div
                     key={index}
-                    className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-full text-sm"
+                    className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-lg text-sm"
                   >
                     {skill.name}
                   </div>
@@ -278,9 +294,19 @@ const FreelancerDetail: React.FC = () => {
             <div className="flex flex-col gap-3">
               <div className="flex gap-3 items-center">
                 <HiIdentification
-                  color={portfolio.status === 0 ? "orange" : "green"}
+                  color={
+                    portfolio.status === 0
+                      ? "orange"
+                      : portfolio.status === 1
+                      ? "green"
+                      : "red"
+                  }
                 />
-                {portfolio.status === 0 ? "Pending Verification" : "Verified"}
+                {portfolio.status === 0
+                  ? "Pending Verification"
+                  : portfolio.status === 1
+                  ? "Verified"
+                  : "Rejected"}
               </div>
             </div>
           </div>
