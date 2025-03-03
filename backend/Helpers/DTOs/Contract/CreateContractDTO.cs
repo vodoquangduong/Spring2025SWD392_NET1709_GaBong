@@ -9,6 +9,7 @@ namespace Helpers.DTOs.Contract
     public class CreateContractDTO
     {
         public long ProjectId { get; set; }
+        public long freelancerId { get; set; }
         public string ContractPolicy { get; set; } = string.Empty;
     }
 }

@@ -4,30 +4,11 @@ import { Button } from "antd";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { POST, PUT } from "@/modules/request";
+import { POST} from "@/modules/request";
 import useAuthStore from "@/stores/authStore";
 
-async function createOrder(amount: number) {
-  const response = await fetch('/api/paypal/create-order', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ amount })
-  });
-  const data = await response.json();
-  window.location.href = data.approvalUrl;
-}
-async function captureOrder(orderId: number, accountId: number, amount: number) {
-  const response = await fetch('/api/paypal/capture-order', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ orderId, accountId, amount })
-  });
-  const data = await response.text();
-  alert(data);
-}
-
 export default function Payment() {
-  const [message, setMessage] = useState<string>("");
+  const [, setMessage] = useState<string>("");
 
   const initialOptions = {
     clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,

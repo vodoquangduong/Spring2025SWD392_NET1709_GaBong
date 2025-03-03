@@ -14,7 +14,8 @@ namespace Services.Interfaces
         Task<TransactionDTO> GetTransactionByIdAsync(long id);
         Task<Result<TransactionDTO>> CreateTransactionAsync(CreateTransactionDTO createTransactionDTO);
         Task<TransactionDTO> FinishPaymentAsync(long id);
-
-
+        Task<TransactionDTO> FinishMilestoneAsync(long milestoneId);
+        Task<TransactionDTO> CreateProjectPaymentAsync(long projectId);
+        Task<TransactionDTO> CreateBidAsync(long bidId);
     }
 }
