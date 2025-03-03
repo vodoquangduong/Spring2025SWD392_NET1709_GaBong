@@ -8,6 +8,6 @@ namespace Services.Interfaces
     {
         Task<Result<ReportDTO>> CreateReportAsync(CreateReportDTO createReportDTO);
         Task<Result<ReportDTO>> GetReportByIdAsync(long reportId);
-        Task<Result<IEnumerable<ReportDTO>>> GetAllReportsAsync();
+        Task<Result<PaginatedResult<ReportDTO>>> GetAllReportsAsync(int pageNumber, int pageSize);
     }
 }

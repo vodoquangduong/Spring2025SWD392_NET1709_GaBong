@@ -69,16 +69,17 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<IEnumerable<PortfolioDTO>>> GetAllPortfolioAsync()
+        public async Task<Result<PaginatedResult<PortfolioDTO>>> GetAllPortfolioAsync(int pageNumber, int pageSize)
         {
             try
             {
-                var portfolios = await _unitOfWork.GetRepo<Portfolio>().GetAllAsync(new QueryOptions<Portfolio>());
-                return Result.Success(portfolios.Select(portfolio => portfolio.ToPortfolioDTO()));
+                var portfolios = _unitOfWork.GetRepo<Portfolio>().Get(new QueryOptions<Portfolio>());
+                var paginatedPortfolios = await Pagination.ApplyPaginationAsync(portfolios, pageNumber, pageSize, portfolio => portfolio.ToPortfolioDTO());
+                return Result.Success(paginatedPortfolios);
             }
             catch (Exception e)
             {
-                return Result.Failure<IEnumerable<PortfolioDTO>>(new Error("Get all portfolio failed", $"{e.Message}"));
+                return Result.Failure<PaginatedResult<PortfolioDTO>>(new Error("Get all portfolio failed", $"{e.Message}"));
             }
         }
 
