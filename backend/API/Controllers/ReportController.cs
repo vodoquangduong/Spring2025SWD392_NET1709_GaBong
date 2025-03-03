@@ -1,3 +1,4 @@
+using Helpers.DTOs.Query;
 using Helpers.DTOs.Report;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -24,9 +25,9 @@ namespace API.Controllers
             return Ok(result.Value);
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllReportsAsync()
+        public async Task<IActionResult> GetAllReportsAsync([FromQuery] Query query)
         {
-            var result = await _reportService.GetAllReportsAsync();
+            var result = await _reportService.GetAllReportsAsync(query.PageNumber, query.PageSize);
             if (result.IsFailure)
             {
                 return BadRequest(result.Error);

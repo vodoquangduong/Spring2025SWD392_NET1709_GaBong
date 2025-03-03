@@ -25,9 +25,9 @@ namespace API.Controllers
             return Ok(result.Value);
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllPortfolio()
+        public async Task<IActionResult> GetAllPortfolio([FromQuery] Query query)
         {
-            var result = await _portfolioService.GetAllPortfolioAsync();
+            var result = await _portfolioService.GetAllPortfolioAsync(query.PageNumber, query.PageSize);
             if (result.IsFailure)
             {
                 return BadRequest(result.Error);

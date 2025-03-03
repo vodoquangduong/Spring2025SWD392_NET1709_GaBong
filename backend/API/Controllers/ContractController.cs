@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Helpers.DTOs.Contract;
+using Helpers.DTOs.Query;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -28,9 +29,9 @@ namespace API.Controllers
             return Ok(result);
         }
         [HttpGet()]
-        public async Task<IActionResult> GetAllContracts()
+        public async Task<IActionResult> GetAllContracts([FromQuery] Query query)
         {
-            var result = await _contractService.GetAllContractAsync();
+            var result = await _contractService.GetAllContractAsync(query.PageNumber, query.PageSize);
             if(!result.IsSuccess)
             {
                 return BadRequest(result.Error);

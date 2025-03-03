@@ -147,7 +147,7 @@ namespace Services.Implements
             try
             {
                 var queryOptions = new QueryBuilder<Portfolio>()
-                    .WithPredicate(p => p.FreelancerId == id && p.Status == PortfolioStatus.Pending)
+                    .WithPredicate(p => p.FreelancerId == id)
                     .WithInclude(p => p.Account)
                     .WithTracking(false)
                     .Build();

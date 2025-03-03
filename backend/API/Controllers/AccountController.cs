@@ -21,9 +21,9 @@ namespace API.Controllers
 
 
        [HttpGet("get-all-account")]
-       public async Task<IActionResult> GetAllAccount()
+       public async Task<IActionResult> GetAllAccount([FromQuery] Query query)
        {
-        var result = await _accountService.GetAllAccountAsync();
+        var result = await _accountService.GetAllAccountAsync(query.PageNumber, query.PageSize);
         if (result.IsFailure)
         {
             return BadRequest(result.Error);
