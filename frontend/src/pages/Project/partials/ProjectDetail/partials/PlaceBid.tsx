@@ -48,7 +48,7 @@ export default function PlaceBid({ project }: { project: any }) {
         accountId: project?.clientId,
         notificationType: NotificationType.GENERAL_ANNOUNCEMENT,
         status: NotificationStatus.UNREAD,
-        content: `${name} has bidded on your project ${project?.projectName} (#${project?.projectId})}`,
+        content: `${name} has bidded on your project ${project?.projectName} (#${project?.projectId})`,
         time: new Date().toISOString(),
       });
       notifyService?.sendNotification(
@@ -65,15 +65,18 @@ export default function PlaceBid({ project }: { project: any }) {
     const res = await GET(`/api/Bid/freelancer/${accountId}`, false);
     console.log(res);
 
-    if (
-      res?.some(
-        (item: any) => item.bidOwnerId == accountId && item.projectId == id
-      )
-    ) {
-      message.error("You have already placed a bid");
-      navigate(`/projects/${id}/proposals`);
-      return;
-    }
+    try {
+      if (
+        res?.some(
+          (item: any) => item.bidOwnerId == accountId && item.projectId == id
+        )
+      ) {
+        message.error("You have already placed a bid");
+        navigate(`/projects/${id}/proposals`);
+        return;
+      }
+    } catch (error) {}
+
     formData.projectId = id;
     message.open({
       type: "loading",

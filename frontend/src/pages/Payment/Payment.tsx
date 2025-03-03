@@ -1,33 +1,86 @@
 import Back from "@/components/Back";
 import Logo from "@/components/Logo";
-import { Button } from "antd";
+import { App, Button, Skeleton } from "antd";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { POST, PUT } from "@/modules/request";
+import { GET, POST, PUT } from "@/modules/request";
 import useAuthStore from "@/stores/authStore";
+import dayjs from "dayjs";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueries } from "@tanstack/react-query";
+import PaymentSuccess from "./partials/PaymentSuccess";
 
 async function createOrder(amount: number) {
-  const response = await fetch('/api/paypal/create-order', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ amount })
+  const response = await fetch("/api/paypal/create-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ amount }),
   });
   const data = await response.json();
   window.location.href = data.approvalUrl;
 }
-async function captureOrder(orderId: number, accountId: number, amount: number) {
-  const response = await fetch('/api/paypal/capture-order', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ orderId, accountId, amount })
+async function captureOrder(
+  orderId: number,
+  accountId: number,
+  amount: number
+) {
+  const response = await fetch("/api/paypal/capture-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderId, accountId, amount }),
   });
   const data = await response.text();
   alert(data);
 }
 
+const schema = z.object({
+  amount: z.coerce
+    .number()
+    .min(10, "Minimum amount is $10")
+    .max(1000000, "Maximum amount is $1,000,000")
+    .refine(
+      (val) => {
+        const strVal = String(val);
+        return val === 0 || !strVal.startsWith("0");
+      },
+      {
+        message: "Number cannot have leading zeros",
+      }
+    ),
+});
+
 export default function Payment() {
-  const [message, setMessage] = useState<string>("");
+  const { message } = App.useApp();
+  const [agree, setAgree] = useState(false);
+  const { accountId, name } = useAuthStore();
+
+  const [profileDetail] = useQueries({
+    queries: [
+      {
+        queryKey: ["profile"],
+        queryFn: async () => GET(`/api/Account/${accountId}`),
+      },
+    ],
+  });
+
+  let transactionId = 0;
+
+  const {
+    watch,
+    register,
+    getValues,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      amount: "",
+    },
+    resolver: zodResolver(schema),
+  });
 
   const initialOptions = {
     clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
@@ -36,96 +89,113 @@ export default function Payment() {
     components: "buttons",
     "data-sdk-integration-source": "developer-studio",
   };
-  const [amount, setAmount] = useState(0);
+
+  const amount = watch("amount");
+
   return (
-    <div className="h-screen w-screen mx-container flex justify-center">
+    <div className="h-screen w-screen flex justify-center">
       <Back />
-      <div className="w-2/3">
-        <div className="flex justify-end py-4">
-          <Logo />
-        </div>
-        <div className=" grid grid-cols-2 gap-10 text-lg">
-          <div>
-            <div className="rounded-2xl bg-zinc-200 dark:bg-white/10">
-              <div className="font-bold justify-between p-4 border-b border-zinc-400 dark:border-zinc-600">
-                <div>Enter your card information</div>
-              </div>
-              <div className="space-y-4 p-4">
-                <div className="grid grid-cols-12 gap-x-2 gap-y-4 text-base ">
-                  <div className="col-span-8">
-                    <div>Card number:</div>
-                    <input
-                      className="mt-1 h-10 input-style no-ring"
-                      type="number"
-                    />
-                  </div>
-                  <div className="col-span-4">
-                    <div>Expiry date:</div>
-                    <input
-                      className="mt-1 h-10 input-style no-ring"
-                      type="date"
-                    />
-                  </div>
-                  <div className="col-span-8">
-                    <div>Cardholder name:</div>
-                    <input
-                      className="mt-1 h-10 input-style no-ring"
-                      type="number"
-                    />
-                  </div>
-                  <div className="col-span-4">
-                    <div>CVC/CVV:</div>
-                    <input
-                      className="mt-1 h-10 input-style no-ring"
-                      type="number"
-                    />
-                  </div>
-                </div>
-                <CardImages />
-              </div>
+      <div className="grid grid-cols-3 text-lg">
+        <div></div>
+        <div className="mt-36 col-span-1">
+          {/* <div className="flex justify-end py-4">
+            <Logo />
+          </div> */}
+          <div className="geist">
+            <div className="font-semibold text-3xl ">Complete your payment</div>
+            <div className="text-base">Review your order and pay.</div>
+          </div>
+          <div className="mt-4 flex justify-between gap-y-4">
+            <div>
+              <div className="font-semibold">User Information</div>
+              <div>{name}</div>
+            </div>
+            <div>
+              <div className="font-semibold">Transaction date</div>
+              <div>{dayjs().format("MMMM DD, YYYY")}</div>
             </div>
           </div>
-          <div className="rounded-2xl bg-zinc-200 dark:bg-white/10">
-            <div className="font-bold flex justify-between p-4 border-b border-zinc-400 dark:border-zinc-600">
-              <div>Select amount</div>
-              <div>USD</div>
-            </div>
-            <div className="space-y-4 p-4">
+          <div className="rounded-2xl py-4">
+            <div className="space-y-8">
               <div className="flex items-center justify-between gap-10">
                 <div className="min-w-28 ">Amount</div>
-                <div className="sm-input-style flex gap-2 py-2 mt-2">
-                  <div className="px-1">$</div>
+                <div>
                   <input
-                    className="no-ring grow"
+                    {...register("amount")}
+                    className="input-style no-ring py-2"
                     type="number"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setAmount(parseInt(e.target.value, 10))
-                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Remove leading zeros and convert to number, falling back to empty string if empty
+                      const cleanedValue = value.replace(/^0+(?!$)/, "") || "";
+                      setValue("amount", cleanedValue, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                    }}
                   />
-                  <div className="px-2">USD</div>
+                  {errors.amount && (
+                    <div className="error-msg">{errors.amount.message}</div>
+                  )}
                 </div>
               </div>
               <div className="flex justify-between">
-                <div className="">Total due</div>
-                <div>{amount} USD</div>
-              </div>
-              <div className="flex justify-between border-b pb-4 border-zinc-400 dark:border-zinc-600">
-                <div className="">Processing fee</div>
-                <div>{Math.floor(amount * 0.1)} USD</div>
+                <div className="">Total amount</div>
+                <div className="font-bold text-xl chivo flex items-center gap-2">
+                  <div>${Number(amount)?.toLocaleString() || 0}</div>
+                  <span className="text-zinc-500 text-sm">USD</span>
+                </div>
               </div>
               <div className="flex justify-between">
-                <div className="">Payment due</div>
-                <div>{Math.floor(amount * 1.1)} USD</div>
+                <div className="">Current balance</div>
+                <div className="font-bold text-xl chivo flex items-center gap-2">
+                  <div>
+                    $
+                    {profileDetail.isLoading ? (
+                      <Skeleton.Input className="mx-1" active />
+                    ) : (
+                      (
+                        profileDetail?.data?.value?.totalCredit -
+                        profileDetail?.data?.value?.lockCredit
+                      ).toLocaleString()
+                    )}
+                  </div>
+                  <span className="text-zinc-500 text-sm">USD</span>
+                </div>
               </div>
-              <Button
-                type="primary"
-                className="my-4 py-8 w-full text-xl font-semibold"
-              >
-                Confirm and pay {Math.floor(amount * 1.1)} USD
-              </Button>
+              <div className="flex justify-between border-t pt-4">
+                <div className="mb-2">Balance after payment</div>
+                <div className="font-bold text-4xl chivo flex items-center gap-2">
+                  <div>
+                    $
+                    {profileDetail.isLoading ? (
+                      <Skeleton.Input className="mx-1" active />
+                    ) : (
+                      (
+                        profileDetail?.data?.value?.totalCredit -
+                        profileDetail?.data?.value?.lockCredit +
+                        Number(amount)
+                      ).toLocaleString()
+                    )}
+                  </div>
+                  <span className="text-zinc-500 text-sm">USD</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="agree"
+                  onChange={() => setAgree((prev) => !prev)}
+                />
+                <label htmlFor="agree" className="text-sm">
+                  I agree to the terms and conditions
+                </label>
+              </div>
               <PayPalScriptProvider options={initialOptions}>
                 <PayPalButtons
-                  className="hover:scale-105 py-4 flex items-center justify-center w-full h-0 mt-4"
+                  className={`transition-all hover:scale-105 py-4 flex items-center justify-center w-full h-0 mt-4 ${
+                    agree ? "" : "hidden"
+                  }`}
                   style={{
                     shape: "rect",
                     layout: "horizontal",
@@ -137,24 +207,36 @@ export default function Payment() {
                   //Tạo Tạo transaction, gửi giao dịch lên PayPal
                   createOrder={async (): Promise<string> => {
                     try {
-
-                      console.log("Bắt đầu tạo transaction với số tiền: ", amount);
+                      console.log(
+                        "Bắt đầu tạo transaction với số tiền: ",
+                        amount
+                      );
                       // Gửi yêu cầu tạo transaction lên backend
-                      const transactionResponse = await POST("/api/Transaction", {
-                        accountId: useAuthStore.getState().accountId,
-                        amount: amount,
-                        status: 0,
-                        type: 0,
-                      });
-                      console.log("transactionResponse: ", transactionResponse.transactionId);
+                      const transactionResponse = await POST(
+                        "/api/Transaction",
+                        {
+                          accountId: useAuthStore.getState().accountId,
+                          amount: amount,
+                          status: 0,
+                          type: 0,
+                        }
+                      );
+                      console.log(
+                        "transactionResponse: ",
+                        transactionResponse.transactionId
+                      );
                       if (!transactionResponse?.transactionId) {
                         throw new Error("Không lấy được transactionId");
                       }
+                      transactionId = transactionResponse.transactionId;
 
                       // Gọi API của backend để tạo order trên PayPal
-                      const orderResponse = await POST("/api/PayPal/create-order", {
-                        transactionId: transactionResponse.transactionId,
-                      });
+                      const orderResponse = await POST(
+                        "/api/PayPal/create-order",
+                        {
+                          transactionId: transactionResponse.transactionId,
+                        }
+                      );
                       console.log("orderResponse: ", orderResponse);
                       if (!orderResponse?.id) {
                         throw new Error("Không lấy được orderID từ PayPal");
@@ -162,27 +244,27 @@ export default function Payment() {
                       console.log("Order Response: ", orderResponse);
                       return orderResponse.id;
                     } catch (error) {
-                      console.error("Lỗi tạo order PayPal:", error);
-                      setMessage(`Không thể khởi tạo thanh toán PayPal: ${error}`);
+                      message.error(
+                        `Sorry, your transaction could not be processed...`
+                      );
                       throw error;
                     }
                   }}
-
                   //Tiep nhận phản hồi từ PayPal, gửi giao dịch lên backend
                   onApprove={async (data, actions) => {
                     try {
-                      console.log("Thanh toán được chấp nhận, OrderID: ", data.orderID);
+                      console.log(
+                        "Thanh toán được chấp nhận, OrderID: ",
+                        data.orderID
+                      );
                       const orderID = data.orderID;
 
                       // Gọi PayPal để xác nhận thanh toán
-                      const response = await POST(
-                        "/api/PayPal/capture-order",
-                        {
-                          orderID: orderID,
-                        }
-                      );
+                      const response = await POST("/api/PayPal/capture-order", {
+                        orderID: orderID,
+                      });
                       console.log("Ket qua tra ve: ", response);
-                      const orderData = response ?.data ?.[0];
+                      const orderData = response?.data?.[0];
                       console.log("orderData: ", orderData);
 
                       // Three cases to handle:
@@ -206,12 +288,10 @@ export default function Payment() {
                         // Or go to another URL:  actions.redirect('thank_you.html');
                         if (response?.status == "COMPLETED") {
                           console.log("Ahihi");
-                          // const completePaymentTransactionResponse =
-                          //   await PUT(
-                          //     "/api/PayPal/completePayment/" +
-                          //     // transactionResponse.transactionId,
-                          //     {}
-                          //   );
+                          const completePaymentTransactionResponse = await PUT(
+                            "/api/PayPal/completePayment/" + transactionId,
+                            {}
+                          );
 
                           // console.log(
                           //   "completePaymentTransactionResponse: ",
@@ -221,13 +301,14 @@ export default function Payment() {
                           //   "completePaymentOrderResponse: ",
                           //   completePaymentOrderResponse
                           // );
-                          // location.href = "/account/order-history";
+
+                          location.href = "/payment-success";
                         }
                         console.log("Thanh cong");
                       }
                     } catch (error) {
                       console.error(error);
-                      setMessage(
+                      message.error(
                         `Sorry, your transaction could not be processed...${error}`
                       );
                     }

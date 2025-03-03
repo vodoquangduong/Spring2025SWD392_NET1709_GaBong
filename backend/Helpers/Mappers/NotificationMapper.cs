@@ -15,13 +15,14 @@ namespace Helpers.Mappers
             return new NotificationDTO
             {
                 AccountId = notification.AccountId,
+                NotificationId = notification.NotificationId,
                 Content = notification.Content,
                 NotificationType = notification.Type,
                 Status = notification.Status,
-                Time = notification.Time
+                Time = notification.Time,
             };
         }
-        
+
         public static Notification ToNotification(this CreateNotificationDTO notificationDTO)
         {
             return new Notification
@@ -30,7 +31,7 @@ namespace Helpers.Mappers
                 Content = notificationDTO.Content,
                 Type = notificationDTO.NotificationType,
                 Status = notificationDTO.Status,
-                Time = DateTime.UtcNow
+                Time = DateTime.UtcNow,
             };
         }
     }

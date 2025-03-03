@@ -33,7 +33,7 @@ import {
 } from "../pages/Project";
 import Register from "../pages/Register";
 import { Search, SearchFreelancer, SearchProject } from "../pages/Search";
-import { Payment } from "@/pages/Payment";
+import { Payment, PaymentSuccess } from "@/pages/Payment";
 import { MakeContract } from "@/pages/MakeContract";
 import PostProject from "@/pages/PostProject/PostProject";
 import { CategoryManagement } from "@/pages/Dashboard/EmployeeDashboard/CategoryManagement";
@@ -79,6 +79,7 @@ export default function MainRoutes() {
           </Route>
           <Route path="post-project" element={<PostProject />} />
           <Route path="payment" element={<Payment />} />
+          <Route path="payment-success" element={<PaymentSuccess />} />
           <Route path="make-contract" element={<MakeContract />} />
           <Route path="register" element={<Register />} />
           <Route path="login" element={<Login />} />

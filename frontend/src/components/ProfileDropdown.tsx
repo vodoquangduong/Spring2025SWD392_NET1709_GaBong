@@ -9,6 +9,7 @@ import useAuthStore from "../stores/authStore";
 import { setCookie } from "../modules/cookie";
 import useChatStore from "./ChatPopup/stores/chatStore";
 import { Role } from "@/types";
+import { MdOutlinePayment } from "react-icons/md";
 
 const ProfileDropdown = () => {
   const { logout, email, name, avatar, role } = useAuthStore();
@@ -52,15 +53,13 @@ const ProfileDropdown = () => {
         </Link>
       ),
     },
+
     {
       key: "2",
       label: (
-        <Link
-          to={`/profile/change-password`}
-          className="flex font-semibold gap-2 items-center"
-        >
-          <FaLock />
-          Change password
+        <Link to={`/payment`} className="flex font-semibold gap-2 items-center">
+          <MdOutlinePayment />
+          Payment
         </Link>
       ),
     },

@@ -15,8 +15,8 @@ export const tableColumns = () => {
       render: (text: string) => text,
     },
     {
-      title: "Id",
-      dataIndex: "projectId",
+      title: "Notification",
+      dataIndex: "content",
       key: "1",
       render: (text: string) => text,
     },
