@@ -2,9 +2,11 @@ using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Project;
+using Helpers.DTOs.Transaction;
 using Helpers.HelperClasses;
 using Helpers.SignalR;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -15,11 +17,7 @@ namespace Services.Implements
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUserService;
 
-        public ProjectService(
-            IUnitOfWork unitOfWork,
-            IMapper mapper,
-            ICurrentUserService currentUserService
-        )
+        public ProjectService(IUnitOfWork unitOfWork,ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
             _currentUserService = currentUserService;
@@ -29,15 +27,31 @@ namespace Services.Implements
         {
             try
             {
-                if (projectDto.EstimateBudget <= 0)
+                //<==Get client account==>
+                var queryOption = new QueryBuilder<Account>()
+                    .WithTracking(false)
+                    .WithPredicate(a => a.AccountId == _currentUserService.AccountId)
+                    .Build();
+                var client = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryOption);
+
+                //<==Create new project==>
+                //<========Validation========>
+                if (projectDto.EstimateBudget <= 100)
                 {
                     return Result.Failure<ProjectDTO>(
-                        new Error("Create project failed", "Estimate budget must be greater than 0")
+                        new Error("Create project failed", "Estimate budget must be greater than 100")
                     );
                 }
+                if (client.TotalCredit-client.LockCredit <  projectDto.EstimateBudget)
+                {
+                    return Result.Failure<ProjectDTO>(
+                        new Error("Create project failed", "Your total credit not enough to paid Estimate budget")
+                        );
+                }
+                //<========Create========>
                 var project = new Project()
                 {
-                    ClientId = _currentUserService.AccountId,
+                    ClientId = client.AccountId,
                     ProjectName = projectDto.ProjectName,
                     ProjectDescription = projectDto.ProjectDescription,
                     AvailableTimeRange = projectDto.AvailableTimeRange,
@@ -50,7 +64,8 @@ namespace Services.Implements
 
                 var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
                 await _unitOfWork.SaveChangesAsync();
-
+                
+                //<==Create Milestone==>
                 var milestones = projectDto
                     .Milestones.Select(m => new Milestone
                     {
@@ -62,8 +77,14 @@ namespace Services.Implements
                         Status = MilestoneStatus.NotStarted,
                     })
                     .ToList();
-
                 await _unitOfWork.GetRepo<Milestone>().CreateAllAsync(milestones);
+
+
+                //<==Lock credit==>
+                client.LockCredit = createProject.EstimateBudget;
+                await _unitOfWork.GetRepo<Account>().UpdateAsync(client);
+
+                //<==Save change==>
                 await _unitOfWork.SaveChangesAsync();
 
                 return Result.Success(createProject.ToProjectDTO());

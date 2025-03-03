@@ -16,7 +16,6 @@ import PaymentSuccess from "./partials/PaymentSuccess";
 async function createOrder(amount: number) {
   const response = await fetch("/api/paypal/create-order", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ amount }),
   });
   const data = await response.json();
