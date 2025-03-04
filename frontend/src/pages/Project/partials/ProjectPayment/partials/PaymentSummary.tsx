@@ -1,3 +1,4 @@
+import { MilestoneStatus } from "@/types/milestone";
 import { Tag } from "antd";
 import { GoDownload, GoQuestion } from "react-icons/go";
 
@@ -16,32 +17,49 @@ export default function PaymentSummary({ project }: { project: any }) {
       <div className="grid grid-cols-3 gap-4 mt-8">
         <div>
           <div className="text-lg font-semibold flex gap-2 items-center mb-1">
-            Total budget
+            Negotiate Budget
             <GoQuestion />
           </div>
           <div className="text-lg">
-            $
-            {
-              project?.bids?.find(
-                (bid: any) => bid.bidOwnerId == project?.freelancerId
-              )?.bidOffer
-            }{" "}
-            USD
+            ${project?.estimateBudget.toLocaleString()} USD
           </div>
         </div>
         <div className="place-self-center">
           <div className="text-lg font-semibold flex gap-2 items-center mb-1">
-            In progress
+            Released
             <GoQuestion />
           </div>
-          <div className="text-lg">$10,000 USD</div>
+          <div className="text-lg">
+            $
+            {project?.milestones
+              ?.reduce((a: any, b: any) => {
+                if (b.status == MilestoneStatus.COMPLETED) {
+                  return a + b.payAmount * project?.estimateBudget;
+                }
+                return a;
+              }, 0)
+              .toLocaleString()}{" "}
+            USD
+          </div>
         </div>
         <div className="place-self-end">
           <div className="text-lg font-semibold flex gap-2 items-center mb-1">
-            Released to freelancer
+            Remain
             <GoQuestion />
           </div>
-          <div className="text-lg">$10,000 USD</div>
+          <div className="text-lg">
+            $
+            {(
+              project?.estimateBudget -
+              project?.milestones?.reduce((a: any, b: any) => {
+                if (b.status == MilestoneStatus.COMPLETED) {
+                  return a + b.payAmount * project?.estimateBudget;
+                }
+                return a;
+              }, 0)
+            ).toLocaleString()}{" "}
+            USD
+          </div>
         </div>
       </div>
     </div>

@@ -113,6 +113,12 @@
   .mx-container {
     @apply mx-auto w-[80%];
   }
+
+  .border,
+  .border-b,
+  .border-t {
+    @apply dark:border-zinc-700;
+  }
 }
 
 ::selection {

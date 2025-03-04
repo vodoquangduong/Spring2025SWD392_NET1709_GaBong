@@ -20,7 +20,8 @@ export const schema = () => {
   });
 };
 
-export const tableColumns = (milestones: any) => {
+export const tableColumns = (project: any) => {
+  const milestones = project?.milestones;
   const { message } = App.useApp();
   const { role } = useAuthStore();
   const { requestRevalidate } = useUiStore();
@@ -74,11 +75,26 @@ export const tableColumns = (milestones: any) => {
       },
     },
     {
-      title: "Amount",
+      title: "Percentage",
       dataIndex: "payAmount",
       key: "amount",
       render: (amount: number) => {
-        return <div>{amount}%</div>;
+        return <div>{Number(amount).toLocaleString()}%</div>;
+      },
+    },
+    {
+      title: "Budget Amount",
+      dataIndex: "Budget Amount",
+      key: "amount",
+      render: (amount: number, record: any) => {
+        return (
+          <div>
+            {Number(
+              (project?.estimateBudget * record?.payAmount) / 100
+            ).toLocaleString()}{" "}
+            USD
+          </div>
+        );
       },
     },
     {

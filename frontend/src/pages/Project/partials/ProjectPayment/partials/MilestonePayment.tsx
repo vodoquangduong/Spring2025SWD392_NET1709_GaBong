@@ -30,7 +30,7 @@ export default function MilestonePayment() {
       <div className="dark:bg-white/5 p-6 w-full mb-8 rounded-md shadow-md">
         <div className="text-2xl font-semibold flex justify-between items-center gap-4">
           Milestone Payments
-          <CreateModal
+          {/* <CreateModal
             icon={<FaPlus />}
             children="Create Milestone"
             type="primary"
@@ -38,7 +38,7 @@ export default function MilestonePayment() {
             form={(
               setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
             ) => <CreateMilestoneForm setIsModalOpen={setIsModalOpen} />}
-          />
+          /> */}
         </div>
         <div className="text-lg font-semibold flex gap-2 items-center mt-8 mb-1">
           Created Milestones
@@ -48,12 +48,12 @@ export default function MilestonePayment() {
           <Table
             loading={projectDetail.isLoading || projectDetail.isRefetching}
             className="mt-4"
-            dataSource={projectDetail?.data?.value?.miletones.sort(
+            dataSource={projectDetail?.data?.value?.milestones.sort(
               (a: any, b: any) => {
                 return a.deadlineDate.localeCompare(b.deadlineDate);
               }
             )}
-            columns={tableColumns(projectDetail?.data?.value?.miletones)}
+            columns={tableColumns(projectDetail?.data?.value)}
             rowKey={(record: any) => record.milestoneId}
           />
         </div>

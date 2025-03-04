@@ -127,7 +127,7 @@ const HeroSection = () => {
                   Find the
                   <span className="parallax1 ml-10 before:block before:absolute shadow-2xl p-2 px-4 rounded-lg bg-emerald-600 relative inline-block">
                     <motion.div
-                      className="text-secondary font-bold dark:text-black"
+                      className="text-secondary font-bold dark:text-white"
                       initial={{ opacity: 0, y: 75 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 2, ease: "easeInOut" }}

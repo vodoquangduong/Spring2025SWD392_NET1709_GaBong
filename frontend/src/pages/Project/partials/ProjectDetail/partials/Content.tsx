@@ -74,15 +74,7 @@ export default function Content() {
         <div>
           <span className="font-semibold text-lg mr-3">Skills Required</span>
           <div className="mt-4">
-            <Skills
-              items={projectDetails?.data?.value?.skillIds.map(
-                (skillId: any) => {
-                  return skillCategory?.data?.find(
-                    (item: any) => item.skillId === skillId
-                  );
-                }
-              )}
-            />
+            <Skills items={projectDetails?.data?.value?.skills} />
           </div>
         </div>
 
