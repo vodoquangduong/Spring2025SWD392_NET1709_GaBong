@@ -2,7 +2,7 @@ import { Avatar, Button, Pagination, Space, Spin } from "antd";
 import { FaCheckCircle } from "react-icons/fa";
 import { FaChartLine, FaEye, FaGlobe, FaLocationDot } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import { VerifiedPortfolio } from "../services/freelancersService";
+import { VerifiedPortfolio } from "../models/searchFreelancerModel";
 
 interface FreelancerListingProps {
   portfolios: VerifiedPortfolio[];
@@ -54,7 +54,7 @@ const FreelancerItem = ({ portfolio }: { portfolio: VerifiedPortfolio }) => {
           <Button
             type="primary"
             icon={<FaEye />}
-            onClick={() => navigate(`/freelancers/${portfolio.portfolioId}`)}
+            onClick={() => navigate(`/freelancers/${portfolio.freelancerId}`)}
           >
             View Portfolio
           </Button>

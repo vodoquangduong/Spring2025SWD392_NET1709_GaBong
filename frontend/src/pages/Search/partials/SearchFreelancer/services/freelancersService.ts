@@ -2,19 +2,6 @@ import { getCookie } from "../../../../../modules/cookie";
 
 const API_URL = import.meta.env.VITE_SERVER_URL;
 
-export interface VerifiedPortfolio {
-  portfolioId: number;
-  title: string;
-  about: string;
-  name: string;
-  email: string;
-  avatarURL: string;
-  nationality: string;
-  reputationPoint: number;
-  works: string;
-  address?: string;
-}
-
 export const portfolioService = {
   getVerifiedPortfolios: async (
     pageNumber: number = 1,
