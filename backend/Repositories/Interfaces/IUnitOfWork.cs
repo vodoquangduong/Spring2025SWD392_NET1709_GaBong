@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Repositories.Implements;
 using Repositories.Interfaces;
 
 public interface IUnitOfWork : IDisposable

@@ -31,6 +31,11 @@ namespace Services.Implements
                 {
                     Predicate = p => p.ProjectId == bidDto.ProjectId
                 });
+                if (project == null)
+                {
+                    return Result.Failure<BidDTO>(new Error("Project not found", $"Project with project id {bidDto.ProjectId}"));
+                }
+
                 var freelancer = await _unitOfWork.GetRepo<Account>().GetSingleAsync(new QueryOptions<Account>
                 {
                     Predicate = f => f.AccountId == freelancerId
@@ -38,10 +43,6 @@ namespace Services.Implements
                 if (freelancer == null)
                 {
                     return Result.Failure<BidDTO>(new Error("Freelancer not found", $"Freelancer with id {freelancerId}"));
-                }
-                if (project == null)
-                {
-                    return Result.Failure<BidDTO>(new Error("Project not found", $"Project with project id {bidDto.ProjectId}"));
                 }
 
                 decimal bidFee;

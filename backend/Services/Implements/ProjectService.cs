@@ -82,7 +82,7 @@ namespace Services.Implements
 
 
                 //<==Lock credit==>
-                client.LockCredit = createProject.EstimateBudget;
+                client.LockCredit += createProject.EstimateBudget;
                 await _unitOfWork.GetRepo<Account>().UpdateAsync(client);
 
                 //<==Save change==>
