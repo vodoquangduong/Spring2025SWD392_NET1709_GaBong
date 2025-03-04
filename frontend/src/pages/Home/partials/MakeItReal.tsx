@@ -37,7 +37,7 @@ export default function MakeItReal() {
         <div className="col-span-6">
           <div className="font-bold text-5xl">
             <div className="text-emerald-600 mb-2">Make it real</div>
-            <div>with Freelancer</div>
+            <div>with GigsHub</div>
           </div>
           <div className="grid grid-cols-2 gap-4 mt-12">
             {items.map((item) => (

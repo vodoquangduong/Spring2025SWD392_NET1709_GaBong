@@ -56,6 +56,7 @@ namespace Services.Implements
                     ProjectDescription = projectDto.ProjectDescription,
                     AvailableTimeRange = projectDto.AvailableTimeRange,
                     EstimateBudget = projectDto.EstimateBudget,
+                    Location = projectDto.Location,
                     Status = ProjectStatus.Pending,
                     SkillRequired = projectDto
                         .SkillIds.Select(skillId => new SkillRequired { SkillId = skillId })
