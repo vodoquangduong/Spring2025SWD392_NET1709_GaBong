@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BusinessObjects.Models
@@ -28,6 +29,7 @@ namespace BusinessObjects.Models
         
         // Navigation properties
         [ForeignKey("BidOwnerId")]
+        [JsonIgnore]
         public Account BidOwner { get; set; } = null!;
         [ForeignKey("ProjectId")]
         public Project Project { get; set; } = null!;

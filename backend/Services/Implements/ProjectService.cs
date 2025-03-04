@@ -1,9 +1,12 @@
 using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using Helpers.DTOs.Bid;
+using Helpers.DTOs.Milestone;
 using Helpers.DTOs.Project;
 using Helpers.DTOs.Transaction;
 using Helpers.HelperClasses;
+using Helpers.Mappers;
 using Helpers.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +20,7 @@ namespace Services.Implements
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUserService;
 
-        public ProjectService(IUnitOfWork unitOfWork,ICurrentUserService currentUserService)
+        public ProjectService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
             _currentUserService = currentUserService;
@@ -42,7 +45,7 @@ namespace Services.Implements
                         new Error("Create project failed", "Estimate budget must be greater than 100")
                     );
                 }
-                if (client.TotalCredit-client.LockCredit <  projectDto.EstimateBudget)
+                if (client.TotalCredit - client.LockCredit < projectDto.EstimateBudget)
                 {
                     return Result.Failure<ProjectDTO>(
                         new Error("Create project failed", "Your total credit not enough to paid Estimate budget")
@@ -65,7 +68,7 @@ namespace Services.Implements
 
                 var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
                 await _unitOfWork.SaveChangesAsync();
-                
+
                 //<==Create Milestone==>
                 var milestones = projectDto
                     .Milestones.Select(m => new Milestone
@@ -155,8 +158,38 @@ namespace Services.Implements
                     )
                     .Build();
 
+                var bidQueryOptions = new QueryBuilder<Bid>()
+                    .WithTracking(false)
+                    .WithInclude(b => b.BidOwner)
+                    .WithPredicate(b => b.ProjectId == projectId)
+                    .Build();
+
+                var bids = await _unitOfWork.GetRepo<Bid>().GetAllAsync(bidQueryOptions);
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
-                return Result.Success(project.ToProjectDTO());
+                
+                if (project == null)
+                {
+                    return Result.Failure<ProjectDTO>(new Error("Get project failed", "Project not found"));
+                }
+                var result = new ProjectDTO()
+                {
+                    ProjectId = projectId,
+                    ClientId=project.ClientId,
+                    FreelancerId = project.FreelancerId,
+                    VerifyStaffId = project.VerifyStaffId,
+                    PostDate=project.PostDate.ToString("dd-MM-yyyy"),
+                    AvailableTimeRange = project.AvailableTimeRange,
+                    ProjectName = project.ProjectName,
+                    ProjectDescription = project.ProjectDescription,
+                    Location = project.Location,
+                    EstimateBudget = project.EstimateBudget,
+                    Status = project.Status,
+                    SkillIds = project.SkillRequired?.Select(sr => sr.SkillId).ToList() ?? new List<long>(),
+                    Miletones =(List<Milestone>) project.Milestones,
+                    Bids = bids.Select(b => b.ToBidDTO()).ToList() ?? new List<BidDTO>()
+
+                };
+                return Result.Success(result);
             }
             catch (Exception e)
             {
