@@ -1,7 +1,7 @@
 import Back from "@/components/Back";
 import Logo from "@/components/Logo";
 import { GET, POST, PUT } from "@/modules/request";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import { App, Button, Popconfirm, Skeleton, Table } from "antd";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -19,6 +19,26 @@ export default function MakeContract() {
   const { accountId } = useAuthStore();
   const { message } = App.useApp();
   const { freelancerId, projectId, bidTotal } = useContractStore();
+
+  const mutation = useMutation({
+    mutationKey: ["projects"],
+    mutationFn: async (data: any) => {
+      const res = await POST(`/api/Contract`, data);
+      if (res.code) throw new Error();
+      return res;
+    },
+    onError: () => {
+      message.destroy();
+      message.error("Choose you dont have enough money");
+    },
+
+    onSuccess: () => {
+      message.destroy();
+      message.success("Make contract successfully");
+      navigate(`/projects/${projectId}/milestones`);
+    },
+  });
+
   const [freelancer, client, project] = useQueries({
     queries: [
       {
@@ -94,7 +114,7 @@ export default function MakeContract() {
                 <Table
                   className="pt-4"
                   pagination={false}
-                  dataSource={project?.data?.value?.miletones}
+                  dataSource={project?.data?.value?.milestones}
                   columns={tableColumns(project?.data?.value?.estimateBudget)}
                 />
                 <div className="font-bold justify-between p-4 pl-0 border-b chivo">
@@ -141,7 +161,7 @@ export default function MakeContract() {
                 <div className="mb-2">Negotiate Budget:</div>
                 <div className="font-bold text-xl chivo flex items-center gap-2">
                   <div>
-                    $ {project.isLoading ? <Skeleton.Input active /> : 1}
+                    $ {project.isLoading ? <Skeleton.Input active /> : bidTotal}
                   </div>
                   <span className="text-zinc-500 text-sm">USD</span>
                 </div>
@@ -150,7 +170,12 @@ export default function MakeContract() {
                 <div className="mb-2">System fee</div>
                 <div className="font-bold text-xl chivo flex items-center gap-2">
                   <div>
-                    $ {project.isLoading ? <Skeleton.Input active /> : 1}
+                    ${" "}
+                    {project.isLoading ? (
+                      <Skeleton.Input active />
+                    ) : (
+                      (bidTotal * 0.1).toLocaleString()
+                    )}
                   </div>
                   <span className="text-zinc-500 text-sm">USD</span>
                 </div>
@@ -159,7 +184,37 @@ export default function MakeContract() {
                 <div className="mb-2 text-2xl chivo">Total fee</div>
                 <div className="font-bold text-3xl chivo flex items-center gap-2">
                   <div>
-                    $ {project.isLoading ? <Skeleton.Input active /> : 1}
+                    ${" "}
+                    {project.isLoading ? (
+                      <Skeleton.Input active />
+                    ) : (
+                      (bidTotal * 1.1).toLocaleString()
+                    )}
+                  </div>
+                  <span className="text-zinc-500 text-sm">USD</span>
+                </div>
+              </div>
+              <div className="flex justify-between pt-4">
+                <div className="mb-2 text-xl chivo">Current balance</div>
+                <div className="font-bold text-2xl chivo flex items-center gap-2">
+                  <div
+                    className={`${
+                      client?.data?.value?.totalCredit +
+                        client?.data?.value?.lockCredit <
+                      bidTotal
+                        ? "text-red-500"
+                        : "text-green-500"
+                    }`}
+                  >
+                    ${" "}
+                    {client.isLoading ? (
+                      <Skeleton.Input active />
+                    ) : (
+                      (
+                        client?.data?.value?.totalCredit +
+                        client?.data?.value?.lockCredit
+                      ).toLocaleString()
+                    )}
                   </div>
                   <span className="text-zinc-500 text-sm">USD</span>
                 </div>
@@ -174,25 +229,13 @@ export default function MakeContract() {
                       content: "Creating contract ...",
                       duration: 0,
                     });
-                    const response = await PUT(
-                      "/api/Project/choose-freelancer",
-                      {
-                        freelancerId,
-                        projectId,
-                      }
-                    );
-
                     const contractPolicy = (
                       document.querySelector(
                         "#contractPolicy"
                       ) as HTMLInputElement
                     )?.value;
-                    let data = { projectId, contractPolicy };
-
-                    const response2 = await POST("/api/Contract", data);
-                    message.destroy();
-                    message.success("Contract created successfully");
-                    navigate("/");
+                    let data = { freelancerId, projectId, contractPolicy };
+                    mutation.mutate(data);
                   }}
                 >
                   <Button

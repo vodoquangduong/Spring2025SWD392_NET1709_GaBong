@@ -46,10 +46,19 @@ export default function Project() {
       name: "Proposals",
       path: `/projects/${projectId}/proposals`,
     },
+    {
+      name:
+        data?.value?.clientId == accountId ||
+        data?.value?.freelancerId == accountId
+          ? "Milestones"
+          : "",
+      path: `/projects/${projectId}/milestones`,
+    },
+    {
+      name: data?.value?.freelancerId ? "Contract" : "",
+      path: `/projects/${projectId}/contract`,
+    },
   ];
-
-  console.log(data?.value?.miletones);
-  console.log(data?.value);
 
   return (
     <div>
@@ -117,18 +126,11 @@ export default function Project() {
             </div>
             <div className="flex justify-between items-center gap-4 mt-4">
               <div className="flex gap-1 mt-4">
-                {tabItems.map((item) => (
-                  <TabItem key={item?.path} item={item} />
-                ))}
-                {(data?.value?.clientId == accountId ||
-                  data?.value?.freelancerId == accountId) && (
-                  <TabItem
-                    item={{
-                      name: "Milestones",
-                      path: `/projects/${projectId}/milestones`,
-                    }}
-                  />
-                )}
+                {tabItems
+                  .filter((item) => item?.name != "")
+                  .map((item) => (
+                    <TabItem key={item?.path} item={item} />
+                  ))}
               </div>
               <div className="flex gap-2 items-center">
                 <span className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-600 rounded-full cursor-pointer">

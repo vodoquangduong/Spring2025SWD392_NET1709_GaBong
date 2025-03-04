@@ -10,7 +10,7 @@ import Back from "@/components/Back";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { FaPlus } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 dayjs.extend(utc);
 
@@ -62,11 +62,21 @@ export default function PostProject() {
 
   const mutation = useMutation({
     mutationKey: ["projects"],
-    mutationFn: async (formData: any) =>
-      await POST("/api/Project/post-project", formData),
+    mutationFn: async (formData: any) => {
+      const res = await POST("/api/Project/post-project", formData);
+      if (res.code) throw new Error();
+      return res;
+    },
     onError: () => {
       message.destroy();
-      message.error("Create Failed");
+      message.error(
+        <div>
+          You dont have enough balance to create the project{" "}
+          <Link to="/payment" className="underline hover:underline">
+            Add funds now?
+          </Link>
+        </div>
+      );
     },
     onSuccess: () => {
       message.destroy();

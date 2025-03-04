@@ -39,6 +39,7 @@ import PostProject from "@/pages/PostProject/PostProject";
 import { CategoryManagement } from "@/pages/Dashboard/EmployeeDashboard/CategoryManagement";
 import PrivateRoute from "@/components/PrivateRoute";
 import { Role } from "@/types";
+import ProjectContract from "@/pages/Project/partials/ProjectContract/ProjectContract";
 
 export default function MainRoutes() {
   return (
@@ -58,6 +59,7 @@ export default function MainRoutes() {
                 <Route path="details" element={<ProjectDetail />} />
                 <Route path="proposals" element={<ProjectProposal />} />
                 <Route path="milestones" element={<ProjectPayment />} />
+                <Route path="contract" element={<ProjectContract />} />
               </Route>
             </Route>
             <Route path="freelancers">

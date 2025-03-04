@@ -14,10 +14,12 @@ namespace API.Controllers
     public class ContractController : ControllerBase
     {
         private readonly IContractService _contractService;
+
         public ContractController(IContractService contractService)
         {
             _contractService = contractService;
         }
+
         [HttpPost()]
         public async Task<IActionResult> CreateContract([FromBody] CreateContractDTO contract)
         {
@@ -28,31 +30,37 @@ namespace API.Controllers
             }
             return Ok(result);
         }
+
         [HttpGet()]
         public async Task<IActionResult> GetAllContracts([FromQuery] Query query)
         {
-            var result = await _contractService.GetAllContractAsync(query.PageNumber, query.PageSize);
-            if(!result.IsSuccess)
+            var result = await _contractService.GetAllContractAsync(
+                query.PageNumber,
+                query.PageSize
+            );
+            if (!result.IsSuccess)
             {
                 return Ok(result.Error);
             }
             return Ok(result.Value);
         }
+
         [HttpGet("{contractId}")]
         public async Task<IActionResult> GetContractById([FromRoute] long contractId)
         {
             var result = await _contractService.GetContractByIdAsync(contractId);
-            if(!result.IsSuccess)
+            if (!result.IsSuccess)
             {
                 return Ok(result.Error);
             }
             return Ok(result.Value);
         }
+
         [HttpGet("project/{projectId}")]
         public async Task<IActionResult> GetContractByProjectId([FromRoute] long projectId)
         {
             var result = await _contractService.GetContractByIdAsync(projectId);
-            if(!result.IsSuccess)
+            if (!result.IsSuccess)
             {
                 return Ok(result.Error);
             }

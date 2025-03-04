@@ -2,7 +2,7 @@ import { App, Button, Popconfirm } from "antd";
 import { bidFormSchema } from "../schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { GET, POST } from "@/modules/request";
 import useAuthStore from "@/stores/authStore";
@@ -38,7 +38,17 @@ export default function PlaceBid({ project }: { project: any }) {
     mutationFn: async (formData: any) => await POST("/api/Bid", formData),
     onError: () => {
       message.destroy();
-      message.error("You dont have enough balance to place this bid");
+      message.error(
+        <div>
+          You dont have enough balance to place this bid{" "}
+          <Link
+            to="/payment"
+            className="underline hover:underline text-blue-500"
+          >
+            Add funds now?
+          </Link>
+        </div>
+      );
     },
     onSuccess: async () => {
       message.destroy();

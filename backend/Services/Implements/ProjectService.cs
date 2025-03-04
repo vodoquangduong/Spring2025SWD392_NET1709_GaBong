@@ -40,17 +40,23 @@ namespace Services.Implements
 
                 //<==Create new project==>
                 //<========Validation========>
-                if (projectDto.EstimateBudget <= 100)
+                if (projectDto.EstimateBudget < 100)
                 {
                     return Result.Failure<ProjectDTO>(
-                        new Error("Create project failed", "Estimate budget must be greater than 100")
+                        new Error(
+                            "Create project failed",
+                            "Estimate budget must be greater than 100"
+                        )
                     );
                 }
                 if (client.TotalCredit - client.LockCredit < projectDto.EstimateBudget)
                 {
                     return Result.Failure<ProjectDTO>(
-                        new Error("Create project failed", "Your total credit not enough to paid Estimate budget")
-                        );
+                        new Error(
+                            "Create project failed",
+                            "Your total credit not enough to paid Estimate budget"
+                        )
+                    );
                 }
                 //<========Create========>
                 var project = new Project()
@@ -83,7 +89,6 @@ namespace Services.Implements
                     })
                     .ToList();
                 await _unitOfWork.GetRepo<Milestone>().CreateAllAsync(milestones);
-
 
                 //<==Lock credit==>
                 client.LockCredit += createProject.EstimateBudget;
@@ -165,7 +170,6 @@ namespace Services.Implements
                     .WithPredicate(b => b.ProjectId == projectId)
                     .Build();
 
-
                 var bids = await _unitOfWork.GetRepo<Bid>().GetAllAsync(bidQueryOptions);
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
                 var skillQuerry = new QueryBuilder<SkillRequired>()
@@ -174,34 +178,37 @@ namespace Services.Implements
                     .WithPredicate(s => s.ProjectId == projectId)
                     .Build();
                 var skill = await _unitOfWork.GetRepo<SkillRequired>().GetAllAsync(skillQuerry);
-                
+
                 if (project == null)
                 {
-                    return Result.Failure<ProjectDetailDTO>(new Error("Get project failed", "Project not found"));
+                    return Result.Failure<ProjectDetailDTO>(
+                        new Error("Get project failed", "Project not found")
+                    );
                 }
                 var result = new ProjectDetailDTO()
                 {
                     ProjectId = projectId,
-                    ClientId=project.ClientId,
+                    ClientId = project.ClientId,
                     FreelancerId = project.FreelancerId,
                     VerifyStaffId = project.VerifyStaffId,
-                    PostDate=project.PostDate.ToString("dd-MM-yyyy"),
+                    PostDate = project.PostDate.ToString("dd-MM-yyyy"),
                     AvailableTimeRange = project.AvailableTimeRange,
                     ProjectName = project.ProjectName,
                     ProjectDescription = project.ProjectDescription,
                     Location = project.Location,
                     EstimateBudget = project.EstimateBudget,
                     Status = project.Status,
-                    Skills = skill.Select(s => s.SkillCategory.ToSkillCategoryDTO()).ToList(),  
-                    Milestones =(List<Milestone>) project.Milestones,
-                    Bids = bids.Select(b => b.ToBidDTO()).ToList() ?? new List<BidDTO>()
-
+                    Skills = skill.Select(s => s.SkillCategory.ToSkillCategoryDTO()).ToList(),
+                    Milestones = (List<Milestone>)project.Milestones,
+                    Bids = bids.Select(b => b.ToBidDTO()).ToList() ?? new List<BidDTO>(),
                 };
                 return Result.Success(result);
             }
             catch (Exception e)
             {
-                return Result.Failure<ProjectDetailDTO>(new Error("Get project failed", $"{e.Message}"));
+                return Result.Failure<ProjectDetailDTO>(
+                    new Error("Get project failed", $"{e.Message}")
+                );
             }
         }
 

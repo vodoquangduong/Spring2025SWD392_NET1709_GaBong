@@ -1,12 +1,12 @@
+using System.Net;
 using BusinessObjects.Models;
 using Helpers.DTOs;
 using Helpers.DTOs.Contract;
 using Helpers.HelperClasses;
-using Repositories.Queries;
-using Services.Interfaces;
 using Helpers.Mappers;
 using Microsoft.Extensions.Configuration;
-using System.Net;
+using Repositories.Queries;
+using Services.Interfaces;
 
 namespace Services.Implements
 {
@@ -14,36 +14,51 @@ namespace Services.Implements
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
+
         public ContractService(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
         }
-        public async Task<Result<ContractDTO>> CreateContractAsync(CreateContractDTO createContractDTO)
+
+        public async Task<Result<ContractDTO>> CreateContractAsync(
+            CreateContractDTO createContractDTO
+        )
         {
             try
-            {  
+            {
                 //<==Query Project==>
                 var queryProject = new QueryBuilder<Project>()
                     .WithTracking(false)
                     .WithPredicate(p => p.ProjectId == createContractDTO.ProjectId)
                     .Build();
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryProject);
-                if(project == null)
+                if (project == null)
                 {
                     Console.WriteLine("Project not found");
-                    return Result.Failure<ContractDTO>(new Error("Project.NotFound", $"Project with id {createContractDTO.ProjectId} not found"));
+                    return Result.Failure<ContractDTO>(
+                        new Error(
+                            "Project.NotFound",
+                            $"Project with id {createContractDTO.ProjectId} not found"
+                        )
+                    );
                 }
 
                 //<==Query Bid==>
-                var queryBid = new QueryBuilder<Bid>().WithTracking(false)
-                    .WithPredicate(b => b.BidOwnerId == createContractDTO.freelancerId 
-                                    && b.ProjectId == createContractDTO.ProjectId)
+                var queryBid = new QueryBuilder<Bid>()
+                    .WithTracking(false)
+                    .WithPredicate(b =>
+                        b.BidOwnerId == createContractDTO.freelancerId
+                        && b.ProjectId == createContractDTO.ProjectId
+                    )
                     .Build();
                 var choosenBid = await _unitOfWork.GetRepo<Bid>().GetSingleAsync(queryBid);
 
                 //<==Query client==>
-                var queryClient = new QueryBuilder<Account>().WithTracking(false).WithPredicate(a => a.AccountId == project.ClientId).Build();
+                var queryClient = new QueryBuilder<Account>()
+                    .WithTracking(false)
+                    .WithPredicate(a => a.AccountId == project.ClientId)
+                    .Build();
                 var client = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryClient);
 
                 //<==Check client credit enough for project or not==>
@@ -55,28 +70,34 @@ namespace Services.Implements
                 {
                     projectFee = 0.1m;
                 }
-                if (clientAvailable < choosenBid.BidOffer*projectFee)
+                if (clientAvailable < choosenBid.BidOffer * projectFee)
                 {
                     Console.WriteLine("Project not found");
-                    return Result.Failure<ContractDTO>(new Error("Creadit not available", "Client credit not available for this offer"));
+                    return Result.Failure<ContractDTO>(
+                        new Error(
+                            "Credit not available",
+                            "Client credit not available for this offer"
+                        )
+                    );
                 }
-                
+
                 //<==Start create contract==>
                 await _unitOfWork.BeginTransactionAsync();
+
                 //<======Transaction for project fee(10% project amount)=======>
                 var transactionProjectFee = new Transaction()
                 {
                     AccountId = client.AccountId,
-                    Amount = choosenBid.BidOffer*projectFee,
+                    Amount = choosenBid.BidOffer * projectFee,
                     Status = BusinessObjects.Enums.TransactionStatus.Pending,
                     CreatedAt = DateTime.UtcNow,
                     Type = BusinessObjects.Enums.TransactionType.Fee,
                 };
                 await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionProjectFee);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync(); // Save to generate TransactionId
 
                 //<======Apply for client credit======>
-                client.TotalCredit -= choosenBid.BidOffer*projectFee;
+                client.TotalCredit -= choosenBid.BidOffer * projectFee;
                 client.LockCredit += choosenBid.BidOffer;
                 await _unitOfWork.GetRepo<Account>().UpdateAsync(client);
                 await _unitOfWork.SaveChangesAsync();
@@ -114,17 +135,27 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<PaginatedResult<ContractDTO>>> GetAllContractAsync(int pageNumber, int pageSize)
+        public async Task<Result<PaginatedResult<ContractDTO>>> GetAllContractAsync(
+            int pageNumber,
+            int pageSize
+        )
         {
             try
             {
                 var contracts = _unitOfWork.GetRepo<Contract>().Get(new QueryOptions<Contract>());
-                var paginatedContracts = await Pagination.ApplyPaginationAsync(contracts, pageNumber, pageSize, contract => contract.ToContractDTO());
+                var paginatedContracts = await Pagination.ApplyPaginationAsync(
+                    contracts,
+                    pageNumber,
+                    pageSize,
+                    contract => contract.ToContractDTO()
+                );
                 return Result.Success(paginatedContracts);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                return Result.Failure<PaginatedResult<ContractDTO>>(new Error("Contract.GetFailed", e.Message));
+                return Result.Failure<PaginatedResult<ContractDTO>>(
+                    new Error("Contract.GetFailed", e.Message)
+                );
             }
         }
 
@@ -132,13 +163,16 @@ namespace Services.Implements
         {
             try
             {
-                var contract = await _unitOfWork.GetRepo<Contract>().GetSingleAsync(new QueryOptions<Contract>
-                {
-                    Predicate = c => c.ContractId == contractId
-                });
+                var contract = await _unitOfWork
+                    .GetRepo<Contract>()
+                    .GetSingleAsync(
+                        new QueryOptions<Contract> { Predicate = c => c.ContractId == contractId }
+                    );
                 if (contract == null)
                 {
-                    return Result.Failure<ContractDTO>(new Error("Contract.NotFound", $"Contract with id {contractId} not found"));
+                    return Result.Failure<ContractDTO>(
+                        new Error("Contract.NotFound", $"Contract with id {contractId} not found")
+                    );
                 }
                 return Result.Success(contract.ToContractDTO());
             }
@@ -147,17 +181,24 @@ namespace Services.Implements
                 return Result.Failure<ContractDTO>(new Error("Contract.GetFailed", e.Message));
             }
         }
+
         public async Task<Result<ContractDTO>> GetContractByProjectIdAsync(long projectId)
         {
             try
             {
-                var contract = await _unitOfWork.GetRepo<Contract>().GetSingleAsync(new QueryOptions<Contract>
-                {
-                    Predicate = c => c.ProjectId == projectId
-                });
+                var contract = await _unitOfWork
+                    .GetRepo<Contract>()
+                    .GetSingleAsync(
+                        new QueryOptions<Contract> { Predicate = c => c.ProjectId == projectId }
+                    );
                 if (contract == null)
                 {
-                    return Result.Failure<ContractDTO>(new Error("Contract.NotFound", $"Contract with project id {projectId} not found"));
+                    return Result.Failure<ContractDTO>(
+                        new Error(
+                            "Contract.NotFound",
+                            $"Contract with project id {projectId} not found"
+                        )
+                    );
                 }
                 return Result.Success(contract.ToContractDTO());
             }
