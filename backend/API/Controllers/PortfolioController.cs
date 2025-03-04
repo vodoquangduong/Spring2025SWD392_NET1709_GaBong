@@ -85,10 +85,20 @@ namespace API.Controllers
             return Ok(result.Value);
         }
         [HttpGet("public/{freelancerId}")]
-        public async Task<IActionResult> GetPublicPortfolioByFreelancerId([FromRoute] long freelancerId)
+        public async Task<IActionResult> GetVerifiedPublicPortfolioByFreelancerId([FromRoute] long freelancerId)
         {
-            var result = await _portfolioService.GetPublicPortfolioByFreelancerIdAsync(freelancerId);
+            var result = await _portfolioService.GetVerifiedPublicPortfolioByFreelancerIdAsync(freelancerId);
             if (result.IsFailure)
+            {
+                return Ok(result.Error);
+            }
+            return Ok(result.Value);
+        }
+        [HttpGet("pending/{freelancerId}")]
+        public async Task<IActionResult> GetPendingPublicPortfolioByFreelancerId([FromRoute] long freelancerId)
+        {
+            var result = await _portfolioService.GetPendingPublicPortfolioByFreelancerIdAsync(freelancerId);
+            if(result.IsFailure)
             {
                 return Ok(result.Error);
             }
