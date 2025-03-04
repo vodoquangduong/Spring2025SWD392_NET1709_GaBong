@@ -1,5 +1,6 @@
 ﻿using Helpers.DTOs.Bid;
 using Helpers.DTOs.Project;
+using Helpers.DTOs.Query;
 using Helpers.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Services.Implements;
@@ -23,23 +24,23 @@ namespace API.Controllers
         }
 
         [HttpGet("project/{projectId}")]
-        public async Task<IActionResult> GetAllBidsByProjectId([FromRoute] long projectId)
+        public async Task<IActionResult> GetAllBidsByProjectId([FromRoute] long projectId, [FromQuery] Query query)
         {
-            var result = await _bidService.GetAllBidsByProjectIdAsync(projectId);
+            var result = await _bidService.GetAllBidsByProjectIdAsync(projectId, query.PageNumber, query.PageSize);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
 
         [HttpGet("freelancer/{freelancerId}")]
-        public async Task<IActionResult> GetAllBidsByFreelancerId([FromRoute] long freelancerId)
+        public async Task<IActionResult> GetAllBidsByFreelancerId([FromRoute] long freelancerId, [FromQuery] Query query)
         {
-            var result = await _bidService.GetAllBidsByFreelancerIdAsync(freelancerId);
+            var result = await _bidService.GetAllBidsByFreelancerIdAsync(freelancerId, query.PageNumber, query.PageSize);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }

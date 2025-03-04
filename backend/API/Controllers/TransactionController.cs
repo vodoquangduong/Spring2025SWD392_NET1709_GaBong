@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Helpers.DTOs.Query;
 using Helpers.DTOs.Transaction;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -19,12 +20,12 @@ namespace API.Controllers
             _transactionService = transactionService;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllTransactions()
+        public async Task<IActionResult> GetAllTransactions([FromQuery] Query query)
         {
-            var result = await _transactionService.GetAllTransactionAsync();
+            var result = await _transactionService.GetAllTransactionAsync(query.PageNumber, query.PageSize);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -34,7 +35,7 @@ namespace API.Controllers
             var result = await _transactionService.CreateTransactionAsync(createTransactionDTO);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -44,7 +45,7 @@ namespace API.Controllers
             var result = await _transactionService.GetTransactionByAccountIdAsync(id);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }

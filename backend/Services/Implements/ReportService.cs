@@ -67,19 +67,20 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<IEnumerable<ReportDTO>>> GetAllReportsAsync()
+        public async Task<Result<PaginatedResult<ReportDTO>>> GetAllReportsAsync(int pageNumber, int pageSize)
         {
             try
             {
                 var queryOptions = new QueryBuilder<Report>()
                 .WithTracking(false)
                 .Build();
-                var reports = await _unitOfWork.GetRepo<Report>().GetAllAsync(queryOptions);
-                return Result.Success(reports.Select(report => report.ToReportDTO()));
+                var reports = _unitOfWork.GetRepo<Report>().Get(queryOptions);
+                var paginatedReports = await Pagination.ApplyPaginationAsync(reports, pageNumber, pageSize, report => report.ToReportDTO());
+                return Result.Success(paginatedReports);
             }
             catch (Exception e)
             {
-                return Result.Failure<IEnumerable<ReportDTO>>(new Error("Get all reports failed", e.Message));
+                return Result.Failure<PaginatedResult<ReportDTO>>(new Error("Get all reports failed", e.Message));
             }
         }
 

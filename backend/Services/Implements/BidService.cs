@@ -88,39 +88,45 @@ namespace Services.Implements
                 return Result.Failure<BidDTO>(new Error("Create bid failed", $"{e.Message}"));
             }
         }
-
-        public Task<Result<bool>> DeleteBidAsync(long id)
+        public async Task<Result<PaginatedResult<BidDTO>>> GetAllBidsByFreelancerIdAsync(long freelancerId, int pageNumber, int pageSize)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var queryOptions = new QueryBuilder<Bid>()
+                  .WithTracking(false) // No tracking for efficient
+                  .WithPredicate(bid => bid.BidOwnerId == freelancerId)
+                  .Build();
+                var bids = _unitOfWork.GetRepo<Bid>().Get(queryOptions);
+                if (bids.Count() == 0)
+                {
+                    return Result.Failure<PaginatedResult<BidDTO>>(new Error("No bids found", "No bids found"));
+                }
+                var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, bid => bid.ToBidDTO());
+                return Result.Success(paginatedBids);
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<PaginatedResult<BidDTO>>(new Error("View bids failed", $"{e.Message}"));
+            }
         }
 
-        public async Task<Result<IEnumerable<BidDTO>>> GetAllBidsByFreelancerIdAsync(long freelancerId)
+        public async Task<Result<PaginatedResult<BidDTO>>> GetAllBidsByProjectIdAsync(long projectId, int pageNumber, int pageSize)
         {
-            var queryOptions = new QueryBuilder<Bid>()
-          .WithTracking(false) // No tracking for efficient
-          .WithPredicate(bid => bid.BidOwnerId == freelancerId)
-          .Build();
-            var contracts = await _unitOfWork.GetRepo<Bid>().GetAllAsync(queryOptions);
-            if (contracts.Count() == 0)
+            try
             {
-                return Result.Failure<IEnumerable<BidDTO>>(new Error("No bids found", "No bids found"));
+                var queryOptions = new QueryBuilder<Bid>()
+               .WithInclude(bid => bid.BidOwner)
+               .WithTracking(false) // No tracking for efficient
+               .WithPredicate(bid => bid.ProjectId == projectId)
+               .Build();
+                var bids = _unitOfWork.GetRepo<Bid>().Get(queryOptions);
+                var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, bid => bid.ToBidDTO());
+                return Result.Success(paginatedBids);
             }
-            return Result.Success(contracts.Select(contract => contract.ToBidDTO()));
-        }
-
-        public async Task<Result<IEnumerable<BidDTO>>> GetAllBidsByProjectIdAsync(long projectId)
-        {
-            var queryOptions = new QueryBuilder<Bid>()
-           .WithInclude(bid => bid.BidOwner)
-           .WithTracking(false) // No tracking for efficient
-           .WithPredicate(bid => bid.ProjectId == projectId)
-           .Build();
-            var bids = await _unitOfWork.GetRepo<Bid>().GetAllAsync(queryOptions);
-            if (bids.Count() == 0)
+            catch (Exception e)
             {
-                return Result.Failure<IEnumerable<BidDTO>>(new Error("No bids found", "No bids found"));
+                return Result.Failure<PaginatedResult<BidDTO>>(new Error("View bids failed", $"{e.Message}"));
             }
-            return Result.Success(bids.Select(bid => bid.ToBidDTO()));
         }
 
         public Task<Result<BidDTO>> GetBidByIdAsync(long id)
