@@ -116,16 +116,17 @@ namespace Services.Implements
             return transaction.ToTransactionDTO();
         }
 
-        public async Task<Result<IEnumerable<TransactionDTO>>> GetAllTransactionAsync()
+        public async Task<Result<PaginatedResult<TransactionDTO>>> GetAllTransactionAsync(int pageNumber, int pageSize)
         {
             try
             {
-                var transactions = await _unitOfWork.GetRepo<Transaction>().GetAllAsync(new QueryOptions<Transaction>());
-                return Result.Success(transactions.Select(t => t.ToTransactionDTO()));
+                var transactions = _unitOfWork.GetRepo<Transaction>().Get(new QueryOptions<Transaction>());
+                var paginatedTransactions = await Pagination.ApplyPaginationAsync(transactions, pageNumber, pageSize, transaction => transaction.ToTransactionDTO());
+                return Result.Success(paginatedTransactions);
             }
             catch (Exception e)
             {
-                return Result.Failure<IEnumerable<TransactionDTO>>(new Error("Get all transaction failed", $"{e.Message}"));
+                return Result.Failure<PaginatedResult<TransactionDTO>>(new Error("Get all transaction failed", $"{e.Message}"));
             }
         }
 

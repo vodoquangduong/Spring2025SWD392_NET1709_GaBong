@@ -108,6 +108,7 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<ISkillRequiredService, SkillRequiredService>();
 builder.Services.AddScoped<ISeedService, SeedService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddSignalR();
 
 var app = builder.Build();

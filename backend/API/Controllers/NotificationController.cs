@@ -32,7 +32,7 @@ namespace API.Controllers
             var result = await _notificationService.CreateNotificationAsync(notificationDto);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -51,7 +51,7 @@ namespace API.Controllers
             var result = await _notificationService.GetAllNotificationAsync(pageNumber, pageSize);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }

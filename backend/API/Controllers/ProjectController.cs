@@ -30,7 +30,7 @@ namespace API.Controllers
             var response = await _projectService.GetAllProjectsAsync();
             if (response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Ok(response.Error);
             }
             return Ok(response);
         }
@@ -41,7 +41,7 @@ namespace API.Controllers
             var response = await _projectService.GetAllProjectsVerifiedAsync(query.PageNumber, query.PageSize);
             if(response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Ok(response.Error);
             }
             return Ok(response);
         }
@@ -52,7 +52,7 @@ namespace API.Controllers
             var response = await _projectService.GetAllProjectsPendingAsync(query.PageNumber, query.PageSize);
             if (response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Ok(response.Error);
             }
             return Ok(response);
         }
@@ -63,7 +63,7 @@ namespace API.Controllers
             var result = await _projectService.CreateProjectAsync(project);
             if(result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -97,7 +97,7 @@ namespace API.Controllers
             var result = await _projectService.VerifyProjectAsync(verify);
             if(result.Value == null)
             {
-                return BadRequest("Project not found");
+                return Ok("Project not found");
             }
             return Ok("Project verified");
         }
@@ -115,7 +115,7 @@ namespace API.Controllers
             var result = await _projectService.UpdateProjectAsync(updateProjectDTO, id);
             if (result.Value == null)
             {
-                return BadRequest("Project not found");
+                return Ok("Project not found");
             }
             return Ok("Update project success");
         }

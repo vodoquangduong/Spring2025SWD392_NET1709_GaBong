@@ -110,16 +110,17 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<IEnumerable<ContractDTO>>> GetAllContractAsync()
+        public async Task<Result<PaginatedResult<ContractDTO>>> GetAllContractAsync(int pageNumber, int pageSize)
         {
             try
             {
-                var contracts = await _unitOfWork.GetRepo<Contract>().GetAllAsync(new QueryOptions<Contract>());
-                return Result.Success(contracts.Select(contract => contract.ToContractDTO()));
+                var contracts = _unitOfWork.GetRepo<Contract>().Get(new QueryOptions<Contract>());
+                var paginatedContracts = await Pagination.ApplyPaginationAsync(contracts, pageNumber, pageSize, contract => contract.ToContractDTO());
+                return Result.Success(paginatedContracts);
             }
             catch(Exception e)
             {
-                return Result.Failure<IEnumerable<ContractDTO>>(new Error("Contract.GetFailed", e.Message));
+                return Result.Failure<PaginatedResult<ContractDTO>>(new Error("Contract.GetFailed", e.Message));
             }
         }
 

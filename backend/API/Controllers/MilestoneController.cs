@@ -24,7 +24,7 @@ namespace API.Controllers
             var result = await _milestoneService.CreateMilestoneAsync(milestoneDto);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -34,7 +34,7 @@ namespace API.Controllers
             var result = await _milestoneService.GetAllMilestoneAsync();
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -44,7 +44,7 @@ namespace API.Controllers
             var result = await _milestoneService.GetMilestoneByProjectIdAsync(id);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -56,7 +56,7 @@ namespace API.Controllers
             var result = await _milestoneService.UpdateMilestoneAsync(updateMilestoneDTO, mileStoneId);
             if (result.Value == null)
             {
-                return BadRequest("milestone not found");
+                return Ok("milestone not found");
             }
             return Ok("update milestone success");
         }

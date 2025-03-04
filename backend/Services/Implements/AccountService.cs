@@ -3,7 +3,6 @@ using Helpers.DTOs.Account;
 using Helpers.DTOs.Authentication;
 using Helpers.HelperClasses;
 using Helpers.Mappers;
-using Microsoft.EntityFrameworkCore;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -20,19 +19,20 @@ public class AccountService : IAccountService
         _currentUserService = currentUserService;
     }
 
-    public async Task<Result<IEnumerable<AccountDTO>>> GetAllAccountAsync()
+    public async Task<Result<PaginatedResult<AccountDTO>>> GetAllAccountAsync(int pageNumber, int pageSize)
     {
         try
         {
         var queryOptions = new QueryBuilder<Account>()
             .WithTracking(false) // No tracking for efficient
             .Build();
-            var accounts = await _unitOfWork.GetRepo<Account>().GetAllAsync(queryOptions);
-            return Result.Success(accounts.Select(account  => account.ToAccountDTO()));
+            var accounts = _unitOfWork.GetRepo<Account>().Get(queryOptions);
+            var paginatedAccounts = await Pagination.ApplyPaginationAsync(accounts, pageNumber, pageSize, account => account.ToAccountDTO());
+            return Result.Success(paginatedAccounts);
         }
         catch (Exception e)
         {
-            return Result.Failure<IEnumerable<AccountDTO>>(new Error("Get all account failed", $"{e.Message}"));
+            return Result.Failure<PaginatedResult<AccountDTO>>(new Error("Get all account failed", $"{e.Message}"));
         }
     }
 

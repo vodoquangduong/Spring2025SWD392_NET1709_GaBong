@@ -1,103 +1,143 @@
 import React from "react";
-import { ResponsiveLine } from "@nivo/line";
-import data from "./data.json";
+import EarningChart from "./partials/EarningChart";
+import { Progress } from "antd";
+import BidSummaryChart from "./partials/BidSummaryChart";
 
 const Dashboard = () => {
   return (
-    <>
-      <div className="w-[1000px] h-[400px]">
-        <ResponsiveLine
-          data={data}
-          margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-          xScale={{ type: "point" }}
-          yScale={{
-            type: "linear",
-            min: "auto",
-            max: "auto",
-            stacked: true,
-            reverse: false,
-          }}
-          yFormat=" >-.2f"
-          axisTop={null}
-          axisRight={null}
-          axisBottom={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            legend: "transportation",
-            legendOffset: 36,
-            legendPosition: "middle",
-            truncateTickAt: 0,
-          }}
-          axisLeft={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            legend: "count",
-            legendOffset: -40,
-            legendPosition: "middle",
-            truncateTickAt: 0,
-          }}
-          pointSize={10}
-          pointColor={{ theme: "background" }}
-          pointBorderWidth={2}
-          pointBorderColor={{ from: "serieColor" }}
-          pointLabel="data.yFormatted"
-          pointLabelYOffset={-12}
-          enableTouchCrosshair={true}
-          useMesh={true}
-          legends={[
-            {
-              anchor: "bottom-right",
-              direction: "column",
-              justify: false,
-              translateX: 100,
-              translateY: 0,
-              itemsSpacing: 0,
-              itemDirection: "left-to-right",
-              itemWidth: 80,
-              itemHeight: 20,
-              itemOpacity: 0.75,
-              symbolSize: 12,
-              symbolShape: "circle",
-              symbolBorderColor: "rgba(0, 0, 0, .5)",
-              effects: [
-                {
-                  on: "hover",
-                  style: {
-                    itemBackground: "rgba(0, 0, 0, .03)",
-                    itemOpacity: 1,
-                  },
-                },
-              ],
-            },
-          ]}
-        />
-      </div>
-      <div className="w-1/2">
-        <div className="flex flex-col items-center mt-4">
-          <div className="text-xl font-bold mb-2">Dashboard Overview</div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
-              <div className="text-lg font-semibold">Total Projects</div>
-              <div className="text-2xl">45</div>
+    <div className="geist min-h-screen py-8">
+      <div>
+        <div className="text-3xl font-bold">Dashboard</div>
+        <div className="grid grid-cols-5 gap-4 mt-4">
+          <div className="bg-white shadow rounded-lg p-4">
+            <div className="text-sm font-semibold text-gray-500">
+              Total Projects
             </div>
-            <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
-              <div className="text-lg font-semibold">Active Users</div>
-              <div className="text-2xl">128</div>
+            <div className="text-2xl font-bold">120</div>
+          </div>
+          <div className="bg-white shadow rounded-lg p-4">
+            <div className="text-sm font-semibold text-gray-500">
+              Completed Milestones
             </div>
-            <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
-              <div className="text-lg font-semibold">Pending Tasks</div>
-              <div className="text-2xl">12</div>
+            <div className="text-2xl font-bold">340</div>
+          </div>
+          <div className="bg-white shadow rounded-lg p-4">
+            <div className="text-sm font-semibold text-gray-500">
+              Pending Approvals
             </div>
-            <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
-              <div className="text-lg font-semibold">New Messages</div>
-              <div className="text-2xl">56</div>
+            <div className="text-2xl font-bold">15</div>
+          </div>
+          <div className="bg-white shadow rounded-lg p-4">
+            <div className="text-sm font-semibold text-gray-500">
+              New Messages
             </div>
+            <div className="text-2xl font-bold">8</div>
+          </div>
+          <div className="bg-white shadow rounded-lg p-4">
+            <div className="text-sm font-semibold text-gray-500">
+              Upcoming Deadlines
+            </div>
+            <div className="text-2xl font-bold">5</div>
           </div>
         </div>
       </div>
-    </>
+      <div className="w-full grid grid-cols-3 gap-6 mt-8">
+        <div className="col-span-2 border p-4">
+          <EarningChart />
+        </div>
+        <div className="border">
+          <div className="text-start font-semibold text-xl p-4 border-b">
+            Total earnings
+          </div>
+          <div className="grid grid-rows-2 gap-y-0 h-[400px]">
+            <div className="border-b flex flex-col items-center justify-center gap-4">
+              <div className="text-4xl font-bold text-emerald-600">
+                3,000
+                <span className="text-sm text-zinc-500 pl-1">USD</span>
+              </div>
+              <div>Your total earnings since joining Freelancer</div>
+            </div>
+            <div className="flex flex-col items-center justify-center gap-4">
+              <div className="text-4xl font-bold text-emerald-600">
+                1,200
+                <span className="text-sm text-zinc-500 pl-1">USD</span>
+              </div>
+              <div>Your total earnings since last 30 days</div>
+            </div>
+          </div>
+        </div>
+        <div className="border">
+          <div className="text-start font-semibold text-xl p-4 border-b">
+            Job proficiency
+          </div>
+          <div className="flex flex-col gap-y-4 h-full p-4 uppercase">
+            <div>
+              <div>Completed Jobs</div>
+              <Progress
+                className="mt-4"
+                size={["100%", 20]}
+                strokeLinecap="butt"
+                percent={75}
+              />
+            </div>
+            <div>
+              <div>On-going Jobs</div>
+              <Progress
+                className="mt-4"
+                size={["100%", 20]}
+                strokeLinecap="butt"
+                percent={75}
+              />
+            </div>
+            <div>
+              <div>Pending Jobs</div>
+              <Progress
+                className="mt-4"
+                size={["100%", 20]}
+                strokeLinecap="butt"
+                percent={75}
+              />
+            </div>
+            <div>
+              <div>Cancelled Jobs</div>
+              <Progress
+                className="mt-4"
+                size={["100%", 20]}
+                strokeLinecap="butt"
+                percent={75}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="border">
+          <div className="text-start font-semibold text-xl p-4 border-b">
+            Bid conversion
+          </div>
+          <div className="grid grid-rows-2 gap-y-0 h-[400px]">
+            <div className="border-b flex flex-col items-center justify-center gap-4">
+              <div className="text-4xl font-bold text-emerald-600">
+                3,000
+                <span className="text-sm text-zinc-500 pl-1">USD</span>
+              </div>
+              <div>Your total earnings since joining Freelancer</div>
+            </div>
+            <div className="flex flex-col items-center justify-center gap-4">
+              <div className="text-4xl font-bold text-emerald-600">
+                1,200
+                <span className="text-sm text-zinc-500 pl-1">USD</span>
+              </div>
+              <div>Your total earnings since last 30 days</div>
+            </div>
+          </div>
+        </div>
+        <div className="border">
+          <div className="text-start font-semibold text-xl p-4 border-b">
+            Bid summary
+          </div>
+          <BidSummaryChart />
+        </div>
+      </div>
+    </div>
   );
 };
 export default Dashboard;

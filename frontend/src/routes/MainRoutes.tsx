@@ -65,7 +65,7 @@ export default function MainRoutes() {
               <Route path=":id" element={<Freelancer />} />
             </Route>
             <Route path="manage" element={<Manage />}>
-              <Route path="" element={<Navigate to="/manage/projects" />} />
+              <Route path="" element={<Navigate to="/manage/dashboard" />} />
               <Route path="dashboard" element={<UserDashboard />} />
               <Route path="projects" element={<MyProject />} />
               <Route path="bookmarks" element={<Bookmark />} />

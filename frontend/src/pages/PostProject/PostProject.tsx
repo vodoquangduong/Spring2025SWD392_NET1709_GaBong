@@ -77,6 +77,8 @@ export default function PostProject() {
   });
 
   const onSubmit = async (formData: any) => {
+    // console.log(formData);
+    // return;
     message.open({
       type: "loading",
       content: "Creating project ...",
@@ -341,6 +343,7 @@ export default function PostProject() {
           />
           <div className="flex justify-end py-4">
             <Button
+              disabled={mutation.isPending}
               type="primary"
               htmlType="submit"
               className="font-bold"

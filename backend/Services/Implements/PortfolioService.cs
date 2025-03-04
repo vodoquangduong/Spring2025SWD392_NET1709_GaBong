@@ -69,16 +69,17 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<IEnumerable<PortfolioDTO>>> GetAllPortfolioAsync()
+        public async Task<Result<PaginatedResult<PortfolioDTO>>> GetAllPortfolioAsync(int pageNumber, int pageSize)
         {
             try
             {
-                var portfolios = await _unitOfWork.GetRepo<Portfolio>().GetAllAsync(new QueryOptions<Portfolio>());
-                return Result.Success(portfolios.Select(portfolio => portfolio.ToPortfolioDTO()));
+                var portfolios = _unitOfWork.GetRepo<Portfolio>().Get(new QueryOptions<Portfolio>());
+                var paginatedPortfolios = await Pagination.ApplyPaginationAsync(portfolios, pageNumber, pageSize, portfolio => portfolio.ToPortfolioDTO());
+                return Result.Success(paginatedPortfolios);
             }
             catch (Exception e)
             {
-                return Result.Failure<IEnumerable<PortfolioDTO>>(new Error("Get all portfolio failed", $"{e.Message}"));
+                return Result.Failure<PaginatedResult<PortfolioDTO>>(new Error("Get all portfolio failed", $"{e.Message}"));
             }
         }
 
@@ -141,19 +142,19 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<PublicPortfolioDTO>> GetPublicPortfolioByFreelancerIdAsync(long id)
+        public async Task<Result<PublicPortfolioDTO>> GetVerifiedPublicPortfolioByFreelancerIdAsync(long id)
         {
             try
             {
                 var queryOptions = new QueryBuilder<Portfolio>()
-                    .WithPredicate(p => p.FreelancerId == id && p.Status == PortfolioStatus.Pending)
+                    .WithPredicate(p => p.FreelancerId == id && p.Status == PortfolioStatus.Verified)
                     .WithInclude(p => p.Account)
                     .WithTracking(false)
                     .Build();
                 var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(queryOptions);
                 if (portfolio == null)
                 {
-                    return Result.Failure<PublicPortfolioDTO>(new Error("Portfolio not found", $"Portfolio with Freelancer Id {id}"));
+                    return Result.Failure<PublicPortfolioDTO>(new Error("Portfolio not found", $"Portfolio with Freelancer Id {id} not found"));
                 }
 
                 return Result.Success(portfolio.ToPublicPortfolioDTO());
@@ -272,6 +273,29 @@ namespace Services.Implements
             catch (Exception e)
             {
                 return Result.Failure<PaginatedResult<PublicPortfolioDTO>>(new Error("View public porfolio list failed", $"{e.Message}"));
+            }
+        }
+
+        public async Task<Result<PublicPortfolioDTO>> GetPendingPublicPortfolioByFreelancerIdAsync(long id)
+        {
+            try
+            {
+                var queryOptions = new QueryBuilder<Portfolio>()
+                    .WithPredicate(p => p.FreelancerId == id && p.Status == PortfolioStatus.Pending)
+                    .WithInclude(p => p.Account)
+                    .WithTracking(false)
+                    .Build();
+                var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(queryOptions);
+                if (portfolio == null)
+                {
+                    return Result.Failure<PublicPortfolioDTO>(new Error("Portfolio not found", $"Portfolio with Freelancer Id {id} not found"));
+                }
+
+                return Result.Success(portfolio.ToPublicPortfolioDTO());
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<PublicPortfolioDTO>(new Error("Get public portfolio by id failed", $"{e.Message}"));
             }
         }
     }
