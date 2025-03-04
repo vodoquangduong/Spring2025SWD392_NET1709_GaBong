@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 import useAuthStore from "@/stores/authStore";
 import { ProjectStatus } from "@/types/project";
 import { mapProjectStatusToTag } from "@/modules/mapUiStatus";
+import { FaLocationDot } from "react-icons/fa6";
 
 export default function Project() {
   const { id: projectId } = useParams();
@@ -103,9 +104,15 @@ export default function Project() {
               {isLoading ? (
                 <Skeleton.Input active style={{ width: 200 }} />
               ) : (
-                `Posted ${formatTimeAgo(
-                  dayjs(data?.value?.postDate, "DD-MM-YYYY").toISOString()
-                )}`
+                <div>
+                  <div className={"py-2 flex gap-2 items-center"}>
+                    <FaLocationDot className="text-emerald-500" />
+                    {data?.value?.location}
+                  </div>
+                  {`Posted ${formatTimeAgo(
+                    dayjs(data?.value?.postDate, "DD-MM-YYYY").toISOString()
+                  )}`}
+                </div>
               )}
             </div>
             <div className="flex justify-between items-center gap-4 mt-4">
