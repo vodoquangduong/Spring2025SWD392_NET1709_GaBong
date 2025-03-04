@@ -65,7 +65,7 @@ namespace Services.Implements
                 };
                 await _unitOfWork.GetRepo<Transaction>().CreateAsync(transaction);
 
-                freelancer.LockCredit += bidFee;
+                freelancer.TotalCredit -= bidFee;
                 await _unitOfWork.GetRepo<Account>().UpdateAsync(freelancer);
                 await _unitOfWork.SaveChangesAsync();
 

@@ -73,15 +73,18 @@ namespace Services.Implements
                     Type = BusinessObjects.Enums.TransactionType.Fee,
                 };
                 await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionProjectFee);
+                await _unitOfWork.SaveChangesAsync();
 
                 //<======Apply for client credit======>
                 client.TotalCredit -= choosenBid.BidOffer*projectFee;
                 client.LockCredit += choosenBid.BidOffer;
                 await _unitOfWork.GetRepo<Account>().UpdateAsync(client);
+                await _unitOfWork.SaveChangesAsync();
 
                 //<======Complete transaction======>
                 transactionProjectFee.Status = BusinessObjects.Enums.TransactionStatus.Completed;
                 await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transactionProjectFee);
+                await _unitOfWork.SaveChangesAsync();
 
                 //<======Create Contract======>
                 var contract = new Contract()
@@ -91,6 +94,7 @@ namespace Services.Implements
                     StartDate = DateTime.UtcNow,
                 };
                 await _unitOfWork.GetRepo<Contract>().CreateAsync(contract);
+                await _unitOfWork.SaveChangesAsync();
 
                 //<======Update project======>
                 project.FreelancerId = createContractDTO.freelancerId;
