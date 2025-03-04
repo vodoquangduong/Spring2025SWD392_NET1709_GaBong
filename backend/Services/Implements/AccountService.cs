@@ -3,7 +3,6 @@ using Helpers.DTOs.Account;
 using Helpers.DTOs.Authentication;
 using Helpers.HelperClasses;
 using Helpers.Mappers;
-using Microsoft.EntityFrameworkCore;
 using Repositories.Queries;
 using Services.Interfaces;
 

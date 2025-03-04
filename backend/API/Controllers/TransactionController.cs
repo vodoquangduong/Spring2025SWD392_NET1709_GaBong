@@ -25,7 +25,7 @@ namespace API.Controllers
             var result = await _transactionService.GetAllTransactionAsync(query.PageNumber, query.PageSize);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -35,7 +35,7 @@ namespace API.Controllers
             var result = await _transactionService.CreateTransactionAsync(createTransactionDTO);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -45,7 +45,7 @@ namespace API.Controllers
             var result = await _transactionService.GetTransactionByAccountIdAsync(id);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }

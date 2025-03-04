@@ -20,7 +20,7 @@ namespace API.Controllers
             var result = await _reportService.CreateReportAsync(createReportDTO);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -30,7 +30,7 @@ namespace API.Controllers
             var result = await _reportService.GetAllReportsAsync(query.PageNumber, query.PageSize);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -40,7 +40,7 @@ namespace API.Controllers
             var result = await _reportService.GetReportByIdAsync(reportId);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }

@@ -23,7 +23,7 @@ namespace API.Controllers
             var result = await _feedbackService.GetAllFeedbacksAsync();
             if(result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -33,7 +33,7 @@ namespace API.Controllers
             var result = await _feedbackService.GetFeedbacksByFreelancerIdAsync(freelancerId);
             if(result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -43,7 +43,7 @@ namespace API.Controllers
             var result = await _feedbackService.GetFeedbackByProjectIdAsync(projectId);
             if(result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -53,7 +53,7 @@ namespace API.Controllers
             var result = await _feedbackService.CreateFeedbackAsync(createDTO);
             if(result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -63,7 +63,7 @@ namespace API.Controllers
             var result = await _feedbackService.UpdateFeedback(updateDTO);
             if(result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -73,7 +73,7 @@ namespace API.Controllers
             var result = await _feedbackService.DeleteFeedback(projectId);
             if(result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok("Delete success");
         }

@@ -20,7 +20,7 @@ namespace API.Controllers
             var result = await _portfolioService.CreatePortfolioAsync(portfolioDto);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -30,7 +30,7 @@ namespace API.Controllers
             var result = await _portfolioService.GetAllPortfolioAsync(query.PageNumber, query.PageSize);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -40,7 +40,7 @@ namespace API.Controllers
             var result = await _portfolioService.GetPortfolioByIdAsync(id);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -50,7 +50,7 @@ namespace API.Controllers
             var result = await _portfolioService.GetPortfolioByFreelancerIdAsync(freelancerId);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -60,7 +60,7 @@ namespace API.Controllers
             var result = await _portfolioService.UpdatePortfolioAsync(updatePortfolioDto);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -70,7 +70,7 @@ namespace API.Controllers
             var result = await _portfolioService.VerifyPortfolioAsync(portfolioId, verifyPortfolioDto);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -80,7 +80,7 @@ namespace API.Controllers
             var result = await _portfolioService.SubmitPortfolioAsync();
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -90,7 +90,7 @@ namespace API.Controllers
             var result = await _portfolioService.GetPublicPortfolioByFreelancerIdAsync(freelancerId);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -100,7 +100,7 @@ namespace API.Controllers
             var response = await _portfolioService.GetPublicPortfolioPendingList(query.PageNumber, query.PageSize);
             if (response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Ok(response.Error);
             }
             return Ok(response);
         }
@@ -110,7 +110,7 @@ namespace API.Controllers
             var response = await _portfolioService.GetPublicPortfolioVerifiedList(query.PageNumber, query.PageSize);
             if (response.IsFailure)
             {
-                return BadRequest(response.Error);
+                return Ok(response.Error);
             }
             return Ok(response);
         }

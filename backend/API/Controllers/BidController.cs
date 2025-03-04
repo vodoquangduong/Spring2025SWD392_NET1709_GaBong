@@ -29,7 +29,7 @@ namespace API.Controllers
             var result = await _bidService.GetAllBidsByProjectIdAsync(projectId, query.PageNumber, query.PageSize);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -40,7 +40,7 @@ namespace API.Controllers
             var result = await _bidService.GetAllBidsByFreelancerIdAsync(freelancerId, query.PageNumber, query.PageSize);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }

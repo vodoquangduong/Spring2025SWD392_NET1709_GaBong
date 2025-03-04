@@ -24,7 +24,7 @@ namespace API.Controllers
             var result = await _contractService.CreateContractAsync(contract);
             if (!result.IsSuccess)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result);
         }
@@ -34,7 +34,7 @@ namespace API.Controllers
             var result = await _contractService.GetAllContractAsync(query.PageNumber, query.PageSize);
             if(!result.IsSuccess)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -44,7 +44,7 @@ namespace API.Controllers
             var result = await _contractService.GetContractByIdAsync(contractId);
             if(!result.IsSuccess)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -54,7 +54,7 @@ namespace API.Controllers
             var result = await _contractService.GetContractByIdAsync(projectId);
             if(!result.IsSuccess)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }

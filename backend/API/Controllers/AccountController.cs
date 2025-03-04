@@ -26,7 +26,7 @@ namespace API.Controllers
         var result = await _accountService.GetAllAccountAsync(query.PageNumber, query.PageSize);
         if (result.IsFailure)
         {
-            return BadRequest(result.Error);
+            return Ok(result.Error);
         }
         return Ok(result.Value);
        }
@@ -37,7 +37,7 @@ namespace API.Controllers
             var result = await _accountService.GetAllFreeLancerAsync(query.PageSize, query.PageNumber);
             if (result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
@@ -59,7 +59,7 @@ namespace API.Controllers
             var result = await _accountService.UpdateAccountAsync(accountDTO);
             if(result.IsFailure)
             {
-                return BadRequest(result.Error);
+                return Ok(result.Error);
             }
             return Ok(result.Value);
         }
