@@ -22,7 +22,7 @@ public static class ProjectMapper
             ProjectDescription = project.ProjectDescription,
             Status = project.Status,
             SkillIds = project.SkillRequired?.Select(sr => sr.SkillId).ToList() ?? new List<long>(),
-            Miletones = (List<Milestone>) project.Milestones,
+            Milestones = (List<Milestone>) project.Milestones,
             Bids = project.Bids?.Select(b => b.ToBidDTO()).ToList() ?? new List<BidDTO>()
         };
     }

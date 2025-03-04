@@ -24,5 +24,7 @@ namespace Helpers.Mappers
             };
             return skillCategory;
         }
+
+        
     }
 }

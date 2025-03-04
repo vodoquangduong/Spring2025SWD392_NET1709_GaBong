@@ -10,6 +10,7 @@ using Helpers.Mappers;
 using Helpers.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using PayPalCheckoutSdk.Orders;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -142,7 +143,7 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<ProjectDTO>> GetProjectByIdAsync(long projectId)
+        public async Task<Result<ProjectDetailDTO>> GetProjectByIdAsync(long projectId)
         {
             try
             {
@@ -164,14 +165,21 @@ namespace Services.Implements
                     .WithPredicate(b => b.ProjectId == projectId)
                     .Build();
 
+
                 var bids = await _unitOfWork.GetRepo<Bid>().GetAllAsync(bidQueryOptions);
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
+                var skillQuerry = new QueryBuilder<SkillRequired>()
+                    .WithTracking(false)
+                    .WithInclude(s => s.SkillCategory)
+                    .WithPredicate(s => s.ProjectId == projectId)
+                    .Build();
+                var skill = await _unitOfWork.GetRepo<SkillRequired>().GetAllAsync(skillQuerry);
                 
                 if (project == null)
                 {
-                    return Result.Failure<ProjectDTO>(new Error("Get project failed", "Project not found"));
+                    return Result.Failure<ProjectDetailDTO>(new Error("Get project failed", "Project not found"));
                 }
-                var result = new ProjectDTO()
+                var result = new ProjectDetailDTO()
                 {
                     ProjectId = projectId,
                     ClientId=project.ClientId,
@@ -184,8 +192,8 @@ namespace Services.Implements
                     Location = project.Location,
                     EstimateBudget = project.EstimateBudget,
                     Status = project.Status,
-                    SkillIds = project.SkillRequired?.Select(sr => sr.SkillId).ToList() ?? new List<long>(),
-                    Miletones =(List<Milestone>) project.Milestones,
+                    Skills = skill.Select(s => s.SkillCategory.ToSkillCategoryDTO()).ToList(),  
+                    Milestones =(List<Milestone>) project.Milestones,
                     Bids = bids.Select(b => b.ToBidDTO()).ToList() ?? new List<BidDTO>()
 
                 };
@@ -193,7 +201,7 @@ namespace Services.Implements
             }
             catch (Exception e)
             {
-                return Result.Failure<ProjectDTO>(new Error("Get project failed", $"{e.Message}"));
+                return Result.Failure<ProjectDetailDTO>(new Error("Get project failed", $"{e.Message}"));
             }
         }
 

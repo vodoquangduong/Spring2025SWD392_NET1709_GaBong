@@ -72,6 +72,38 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
+        public async Task<Result<MilestoneDTO>> FinishMileStone(long milestoneId)
+        {
+            try
+            {
+                var queryOptions = new QueryBuilder<Milestone>()
+                .WithTracking(true)
+                .WithInclude(m=>m.Project)
+                .WithPredicate(a => a.MilestoneId == milestoneId) // Filter by ID
+                .Build();
+                var milestone = await _unitOfWork.GetRepo<Milestone>().GetSingleAsync(queryOptions);
+                if (milestone == null)
+                {
+                    return Result.Failure<MilestoneDTO>(new Error("Milestone not found", $"Milestone with id {milestoneId}"));
+                }
+                var clientQueryOptions = new QueryBuilder<Account>()
+                    .WithTracking(false)
+                    .WithPredicate(p => p.AccountId == milestone.Project.ClientId)
+                    .Build();
+                var project = await _unitOfWork.GetRepo<Account>().GetSingleAsync(clientQueryOptions);
+
+
+               
+                await _unitOfWork.GetRepo<Milestone>().UpdateAsync(milestone);
+                await _unitOfWork.SaveChangesAsync();
+                return milestone.ToMilestoneDTO();
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<MilestoneDTO>(new Error("Update milestone failed", $"{e.Message}"));
+            }
+        }
+
         public async Task<Result<IEnumerable<MilestoneDTO>>> GetAllMilestoneAsync()
         {
             try

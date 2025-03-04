@@ -20,6 +20,6 @@ public class ProjectDTO
 
     public ProjectStatus Status { get; set; }
     public List<long> SkillIds { get; set; } = new List<long>();
-    public List<Milestone> Miletones { get; set; } = new List<Milestone>();
+    public List<Milestone> Milestones { get; set; } = new List<Milestone>();
     public List<BidDTO> Bids { get; set; } = new List<BidDTO>();
 }
