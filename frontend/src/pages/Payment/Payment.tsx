@@ -164,7 +164,7 @@ export default function Payment() {
               </div>
               <div className="flex justify-between border-t pt-4">
                 <div className="mb-2">Balance after payment</div>
-                <div className="font-bold text-4xl chivo flex items-center gap-2">
+                <div className="font-bold text-3xl chivo flex items-center gap-2">
                   <div>
                     $
                     {profileDetail.isLoading ? (
@@ -182,6 +182,7 @@ export default function Payment() {
               </div>
               <div className="flex items-center gap-2">
                 <input
+                  disabled={Number(amount) == 0}
                   type="checkbox"
                   id="agree"
                   onChange={() => setAgree((prev) => !prev)}
@@ -314,12 +315,16 @@ export default function Payment() {
                   }}
                 />
               </PayPalScriptProvider>
-              <div className="text-sm py-2">
+              <div className="text-sm pt-2">
                 You agree to authorize the use of your card for this deposit and
                 future payments, and agree to be bound to the{" "}
                 <Link to={"/policy"} className="font-semibold text-emerald-500">
                   Terms & Conditions
                 </Link>
+              </div>
+              <div className="flex justify-between">
+                <Logo />
+                <CardImages />
               </div>
             </div>
           </div>
@@ -331,7 +336,7 @@ export default function Payment() {
 
 const CardImages = () => {
   return (
-    <div className="flex gap-2 pt-6 pb-4">
+    <div className="flex gap-2 pt-2 pb-4">
       <img
         className="w-14"
         src="https://www.f-cdn.com/assets/main/en/assets/payments/cc/visa.svg"

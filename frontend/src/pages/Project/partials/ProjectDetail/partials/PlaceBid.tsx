@@ -38,7 +38,7 @@ export default function PlaceBid({ project }: { project: any }) {
     mutationFn: async (formData: any) => await POST("/api/Bid", formData),
     onError: () => {
       message.destroy();
-      message.error("Place bid failed");
+      message.error("You dont have enough balance to place this bid");
     },
     onSuccess: async () => {
       message.destroy();
@@ -63,8 +63,6 @@ export default function PlaceBid({ project }: { project: any }) {
 
   const onSubmit = async (formData: any) => {
     const res = await GET(`/api/Bid/freelancer/${accountId}`, false);
-    console.log(res);
-
     try {
       if (
         res?.some(
@@ -117,20 +115,6 @@ export default function PlaceBid({ project }: { project: any }) {
               <div className="error-msg">{errors.bidOffer.message}</div>
             )}
           </div>
-          {/* <div className="col-span-5">
-            <label htmlFor="checkbox" className="my-1 font-bold">
-              This project will be delivered in
-            </label>
-            <div className="input-style flex gap-2 py-2 mt-2">
-              <input
-                className="no-ring grow"
-                type="number"
-                name="checkbox"
-                id="checkbox"
-              />
-              <div className="px-2">Days</div>
-            </div>
-          </div> */}
         </div>
         <div>Paid to you: $200.00 - $20.00 fee = $180.00</div>
         <div>

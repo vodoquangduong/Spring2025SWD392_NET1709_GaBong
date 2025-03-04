@@ -79,14 +79,14 @@ export default function Header() {
                   Hire freelancers
                 </HeaderLinkItem>
               )}
-              {role != Role.CLIENT && (
-                <HeaderLinkItem
-                  href={"/search/projects"}
-                  // subMenu={true}
-                >
-                  Find works
-                </HeaderLinkItem>
-              )}
+              {/* {role != Role.CLIENT && ( */}
+              <HeaderLinkItem
+                href={"/search/projects"}
+                // subMenu={true}
+              >
+                Find works
+              </HeaderLinkItem>
+              {/* )} */}
 
               {/* <HeaderLinkItem href={"/news"}>News</HeaderLinkItem> */}
               {/* <HeaderLinkItem href={"/about"}>About</HeaderLinkItem> */}
@@ -134,13 +134,15 @@ export default function Header() {
                 >
                   Register
                 </Link>
-                <Button
-                  type="primary"
-                  onClick={() => navigate("/login")}
-                  className="font-bold py-4"
-                >
-                  Post a project
-                </Button>
+                {role == Role.CLIENT && (
+                  <Button
+                    type="primary"
+                    onClick={() => navigate("/login")}
+                    className="font-bold py-4"
+                  >
+                    Post a project
+                  </Button>
+                )}
               </>
             )}
             <button

@@ -31,8 +31,7 @@ export default function ProjectProposal() {
 
   return (
     <>
-      {/* {!bids?.data?.code && */}
-      {bids?.data?.map((item: Bid) => (
+      {bids?.data?.items?.map((item: Bid) => (
         <ProposalItem
           key={item.bidId}
           item={item}

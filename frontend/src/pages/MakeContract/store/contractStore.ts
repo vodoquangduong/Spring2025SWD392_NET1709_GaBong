@@ -10,9 +10,9 @@ const useContractStore = create<{
     bidTotal: number
   ) => void;
 }>()((set, get) => ({
-  freelancerId: 0,
-  projectId: 0,
-  bidTotal: 0,
+  freelancerId: 1,
+  projectId: 1,
+  bidTotal: 1,
   setSelected: (freelancerId: number, projectId: number, bidTotal: number) =>
     set({
       freelancerId,

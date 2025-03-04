@@ -23,6 +23,7 @@ import useAuthStore from "@/stores/authStore";
 import { Role } from "@/types";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
 import { NotificationType } from "@/types/notification";
+import { defaultAvatar } from "@/modules/default";
 
 export default function ProposalItem({
   item,
@@ -101,9 +102,11 @@ export default function ProposalItem({
           onClick={() => navigate("/freelancers/1")}
         >
           <div
-            className="h-16 aspect-square rounded-full bg-center bg-no-repeat bg-cover bg-white border border-black"
+            className="h-16 aspect-square rounded-full bg-center bg-no-repeat bg-cover bg-white border"
             style={{
-              backgroundImage: `url(${item?.bidOwner?.avatarURL})`,
+              backgroundImage: `url(${
+                item?.bidOwner?.avatarURL || defaultAvatar
+              })`,
               // backgroundImage: `url(https://robohash.org/${item?.bidOwnerId})`,
             }}
           ></div>

@@ -10,7 +10,7 @@ export default function SearchFreelancer() {
     queryFn: async () => {
       try {
         const response = await portfolioService.getVerifiedPortfolios();
-        return response.value;
+        return response?.value;
       } catch (error: any) {
         message.error(error.message || "Failed to fetch verified portfolios");
         throw error;
