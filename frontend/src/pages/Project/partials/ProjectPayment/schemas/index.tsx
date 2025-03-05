@@ -9,7 +9,7 @@ import { App, Button, Dropdown, Popconfirm, Select } from "antd";
 import dayjs from "dayjs";
 import { z } from "zod";
 import { FaPen } from "react-icons/fa";
-import CreateMilestoneForm from "../forms/CreateMilestoneForm";
+import CreateMilestoneForm from "../forms/CreateMileStoneForm";
 import InvoiceModal from "@/pages/Project/partials/ProjectPayment/partials/InvoiceModal";
 
 export const schema = () => {
