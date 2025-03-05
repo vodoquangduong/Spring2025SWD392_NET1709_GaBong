@@ -147,7 +147,7 @@ export default function ProposalItem({
           disabled
           character={<FaStar size={16} />}
         />
-        <div className="space-x-4">
+        {/* <div className="space-x-4">
           <CreateModal
             icon={<FaFlag />}
             children="Report Freelancer"
@@ -157,7 +157,7 @@ export default function ProposalItem({
               setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
             ) => <CreateReportFreelancerForm setIsModalOpen={setIsModalOpen} />}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );

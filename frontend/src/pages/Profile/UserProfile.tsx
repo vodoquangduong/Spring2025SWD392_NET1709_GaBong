@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { UserProfileData } from "./models/types";
 import { profileUseCase } from "./usecases/profileUseCase";
 import { mapRoleToTag } from "@/modules/mapUiStatus";
+import { Role } from "@/types";
 
 const { Title } = Typography;
 
@@ -27,7 +28,7 @@ const UserProfile = () => {
   const { message } = App.useApp();
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
-  const { avatar } = useAuthStore();
+  const { avatar, role } = useAuthStore();
 
   useEffect(() => {
     loadProfile();
@@ -160,7 +161,7 @@ const UserProfile = () => {
                 >
                   {getStatusName(profile.status)}
                 </Tag>
-                {mapRoleToTag(profile.role)}
+                {mapRoleToTag(role)}
               </div>
 
               <div className="flex gap-2 w-full mb-6">
@@ -208,12 +209,15 @@ const UserProfile = () => {
                       Available Credits
                     </div>
                     <div className="text-xl font-semibold text-blue-500">
-                      ${profile.totalCredit.toLocaleString()}
+                      $
+                      {(
+                        profile.totalCredit - profile.lockCredit
+                      ).toLocaleString()}
                     </div>
                   </div>
                 </div>
 
-                {profile.role === 2 && (
+                {role == Role.CLIENT && (
                   <div className="flex items-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800">
                     <div className="p-2 bg-red-100 dark:bg-red-800 rounded-lg mr-3">
                       <FaCreditCard className="text-2xl text-red-500" />

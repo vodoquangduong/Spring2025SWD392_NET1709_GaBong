@@ -87,6 +87,12 @@ export default function PostProject() {
   });
 
   const onSubmit = async (formData: any) => {
+    if (skills.length == 0) {
+      setError("root.skillError", {
+        message: "Please select at least one skill",
+      });
+      return;
+    }
     // console.log(formData);
     // return;
     message.open({
@@ -203,6 +209,9 @@ export default function PostProject() {
             }))}
             onChange={setSkills}
           />
+          {errors.root?.skillError && (
+            <div className="error-msg">{errors.root?.skillError?.message}</div>
+          )}
         </div>
         <div className="col-span-2">
           <div className="font-semibold text-base pb-2">Description</div>

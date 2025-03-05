@@ -8,7 +8,7 @@ import {
   Popover,
   Tag,
 } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { z } from "zod";
@@ -20,6 +20,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { POST, PUT } from "@/modules/request";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
 import { NotificationStatus, NotificationType } from "@/types/notification";
+import { FaEye } from "react-icons/fa";
 
 // export const formSchema = () => {
 //   return z.object({
@@ -30,6 +31,7 @@ import { NotificationStatus, NotificationType } from "@/types/notification";
 
 export const projectColumns = () => {
   const { message } = App.useApp();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { notifyService } = useChatStore();
   const mutation = useMutation({
@@ -86,29 +88,35 @@ export const projectColumns = () => {
       ),
     },
     {
-      title: "Client Id",
-      dataIndex: "clientId",
-      key: "clientId",
+      title: "Project Description",
+      dataIndex: "projectDescription",
+      key: "projectDescription",
+      render: (_: string, record: any) => (
+        <div>
+          <div className="font-semibold text-lg">{record?.projectName}</div>
+          <div className="line-clamp-4">{record?.projectDescription}</div>
+        </div>
+      ),
+    },
+    {
+      title: "View",
+      dataIndex: "projectId",
+      key: "id",
       render: (text: string) => (
-        <Link
-          to={`/employee/users/${text}`}
-          className="text-xs"
-        >{`#${text}`}</Link>
+        <div
+          className="cursor-pointer hover:text-emerald-500"
+          onClick={() => navigate(`/projects/${text}/details`)}
+        >
+          <FaEye size={20} />
+        </div>
       ),
     },
     {
       title: "Post Date",
       dataIndex: "postDate",
       key: "postDate",
-      render: (text: string) => dayjs(text).format("DD/MM/YYYY - HH:mm"),
+      render: (text: string) => dayjs(text).format("DD-MM-YYYY"),
     },
-    {
-      title: "Project Description",
-      dataIndex: "projectDescription",
-      key: "projectDescription",
-      render: (text: string) => <div className="line-clamp-4">{text}</div>,
-    },
-
     {
       title: "Status",
       dataIndex: "status",

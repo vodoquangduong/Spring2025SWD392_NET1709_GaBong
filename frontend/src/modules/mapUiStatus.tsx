@@ -36,6 +36,7 @@ export const mapMilestoneStatusToTag = (status: MilestoneStatus) => {
 };
 
 export const mapRoleToTag = (role: any) => {
+  console.log("🚀 ~ mapRoleToTag ~ role:", role);
   const getRoleName = (role: Role): string => {
     switch (role) {
       case Role.ADMIN:

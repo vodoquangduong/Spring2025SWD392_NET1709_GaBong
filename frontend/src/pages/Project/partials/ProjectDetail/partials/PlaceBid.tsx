@@ -1,5 +1,4 @@
 import { App, Button, Popconfirm } from "antd";
-import { bidFormSchema } from "../schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -8,6 +7,7 @@ import { GET, POST } from "@/modules/request";
 import useAuthStore from "@/stores/authStore";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
 import { NotificationStatus, NotificationType } from "@/types/notification";
+import { z } from "zod";
 
 export default function PlaceBid({ project }: { project: any }) {
   const { message } = App.useApp();
@@ -15,6 +15,23 @@ export default function PlaceBid({ project }: { project: any }) {
   const { notifyService } = useChatStore();
   let { id } = useParams();
   let navigate = useNavigate();
+
+  const bidFormSchema = () => {
+    return z.object({
+      projectId: z.string().optional(),
+      bidOffer: z.coerce
+        .number()
+        .min(
+          project?.estimateBudget * 0.8,
+          "Bid must be greater than the 80% of the project budget"
+        )
+        .max(10000000, "Bid must be less than 1,000,000 USD"),
+      bidDescription: z
+        .string()
+        .min(10, "Description must be at least 10 characters")
+        .max(100, "Description must be less than 100 characters"),
+    });
+  };
 
   const {
     handleSubmit,
@@ -103,10 +120,7 @@ export default function PlaceBid({ project }: { project: any }) {
         </span>
       </div>
       <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          You will be able to edit your bid until the project is awarded to
-          someone.
-        </div>
+        <div>You must have a minimum of $2 USD to place a bid.</div>
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-8">
             <label htmlFor="checkbox" className="my-1 font-bold">
@@ -126,7 +140,7 @@ export default function PlaceBid({ project }: { project: any }) {
             )}
           </div>
         </div>
-        <div>Paid to you: $200.00 - $20.00 fee = $180.00</div>
+        {/* <div>Paid to you: $200.00 - $20.00 fee = $180.00</div> */}
         <div>
           <div className="flex justify-between items-center">
             <div className="font-bold">
