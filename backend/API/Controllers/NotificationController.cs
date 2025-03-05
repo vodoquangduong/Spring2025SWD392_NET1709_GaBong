@@ -55,5 +55,17 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+        [HttpPut]
+        public async Task<IActionResult> UpdateStatusNotification(
+            [FromBody] UpdateStatusNotificationDTO updateDTO
+        )
+        {
+            var result = await _notificationService.UpdateStatusNotificationAsync(updateDTO);
+            if (result.IsFailure)
+            {
+                return Ok(result.Error);
+            }
+            return Ok(result.Value);
+        }
     }
 }

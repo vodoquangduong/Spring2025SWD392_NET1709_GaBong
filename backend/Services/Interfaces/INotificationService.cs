@@ -9,5 +9,6 @@ namespace Services.Interfaces
     {
      public Task<Result<NotificationDTO>> CreateNotificationAsync(CreateNotificationDTO notificationDto);
      public Task<Result<PaginatedResult<NotificationDTO>>> GetAllNotificationAsync(int pageNumber, int pageSize);   
+     public Task<Result<NotificationDTO>> UpdateStatusNotificationAsync(UpdateStatusNotificationDTO updateDTO);
     }
 }
