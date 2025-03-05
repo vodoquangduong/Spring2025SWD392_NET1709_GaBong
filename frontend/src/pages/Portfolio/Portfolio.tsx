@@ -25,6 +25,7 @@ const Portfolio: React.FC = () => {
     const fetchPortfolio = async () => {
       try {
         setLoading(true);
+        // Use the ID from URL params if available, otherwise use the logged-in user's ID
         const freelancerId = id ? parseInt(id) : accountId;
 
         if (!freelancerId) {
@@ -97,6 +98,8 @@ const Portfolio: React.FC = () => {
             });
           }
         } else {
+          // Hiển thị lỗi khác (không phải lỗi không tìm thấy portfolio)
+          console.error("Error fetching portfolio:", error);
           message.error(
             "An error occurred while loading the portfolio. Please try again later."
           );
@@ -122,97 +125,59 @@ const Portfolio: React.FC = () => {
   const handleSubmitForReview = async () => {
     try {
       const values = await form.validateFields();
+      console.log("Submit for review:", values);
+
+      // Set loading state to true
       setSubmittingForVerification(true);
 
-      // Validate title and about length
-      if (values.title && values.title.length > 50) {
-        message.error("Title must be less than 50 characters");
-        setSubmittingForVerification(false);
-        return;
-      }
-
-      if (values.description && values.description.length > 500) {
-        message.error("About must be less than 500 characters");
-        setSubmittingForVerification(false);
-        return;
-      }
-
-      // Sử dụng các hàm tiện ích từ portfolioService để chuyển đổi dữ liệu
-      const worksString = portfolioService.parseWorks(
-        values.skills || [],
-        values.experiences || []
-      );
-
-      const certificatesString = portfolioService.parseCertificates(
-        values.certificates || []
-      );
-
-      // Đảm bảo dữ liệu không bị null hoặc undefined và đúng thứ tự
-      const portfolioData: CreatePortfolioDTO = {
-        title: values.title || "",
-        works: worksString,
-        certificate: certificatesString,
-        about: values.description || "",
-        status: 1, // 1 = Pending for review
-      };
-
       try {
-        // Create or update portfolio
-        let result;
-        if (portfolio && portfolio.portfolioId) {
-          // Update existing portfolio
-          result = await portfolioUseCase.updatePortfolio(
-            portfolio.portfolioId,
-            portfolioData
-          );
-          console.log("Portfolio updated successfully:", result);
-          message.success("Portfolio submitted for review successfully");
-        } else {
-          // Create new portfolio
-          result = await portfolioUseCase.createPortfolio(portfolioData);
-          console.log("Portfolio created successfully:", result);
-          message.success("Portfolio submitted for review successfully");
-        }
+        // Gọi API gửi portfolio để xác minh
+        await portfolioUseCase.submitPortfolioForVerification();
 
-        setIsEditing(false);
+        // Luôn hiển thị thông báo thành công nếu không có lỗi
+        message.success(
+          "Portfolio has been successfully submitted for verification"
+        );
 
         // Refresh the data
         if (accountId) {
-          const refreshedData =
-            await portfolioUseCase.getPortfolioByFreelancerId(accountId);
-          setPortfolio(refreshedData);
+          try {
+            const refreshedData =
+              await portfolioUseCase.getPortfolioByFreelancerId(accountId);
 
-          // Sử dụng hàm parsePortfolioData để phân tích dữ liệu
-          const parsedData = portfolioUseCase.parsePortfolioData(refreshedData);
+            if (refreshedData) {
+              setPortfolio(refreshedData);
 
-          // Cập nhật form với dữ liệu mới
-          form.setFieldsValue({
-            title: parsedData.title,
-            description: parsedData.about,
-            skills: parsedData.skills,
-            experiences: parsedData.experiences,
-            certificates: parsedData.certificates,
-          });
+              // Sử dụng hàm parsePortfolioData để phân tích dữ liệu
+              const parsedData =
+                portfolioUseCase.parsePortfolioData(refreshedData);
+
+              // Cập nhật form với dữ liệu mới
+              form.setFieldsValue({
+                title: parsedData.title,
+                description: parsedData.about,
+                skills: parsedData.skills,
+                experiences: parsedData.experiences,
+                certificates: parsedData.certificates,
+              });
+            }
+          } catch (refreshError) {
+            console.error("Error refreshing portfolio data:", refreshError);
+            // Không hiển thị lỗi cho người dùng vì submission đã thành công
+          }
         }
       } catch (error: any) {
-        console.error("API Error:", error);
-        if (error?.message) {
-          if (error.message.includes("System.InvalidOperationException")) {
-            message.error("Remote database return 500 again 😥");
-          } else {
-            const errorMessage = error.message.replace("Error: ", "");
-            message.error(errorMessage);
-          }
-        } else {
-          message.error(
-            "Failed to submit portfolio for review. Please try again later."
-          );
-        }
+        console.error("Error submitting portfolio for verification:", error);
+        message.error(
+          error.message ||
+            "Unable to submit portfolio for verification. Please try again later."
+        );
       }
     } catch (formError: any) {
       console.error("Form validation error:", formError);
       message.error("Please complete all required fields before submitting");
     } finally {
+      // Set loading state back to false
       setSubmittingForVerification(false);
     }
   };
@@ -296,15 +261,12 @@ const Portfolio: React.FC = () => {
             certificates: parsedData.certificates,
           });
         }
-      } catch (error: any) {
-        console.error("API Error:", error);
-        if (error?.message) {
-          if (error.message.includes("System.InvalidOperationException")) {
-            message.error("Remote database return 500 again 😥");
-          } else {
-            const errorMessage = error.message.replace("Error: ", "");
-            message.error(errorMessage);
-          }
+      } catch (apiError: any) {
+        console.error("API Error:", apiError);
+
+        // Hiển thị thông báo lỗi chi tiết từ backend
+        if (apiError.message) {
+          message.error(apiError.message);
         } else {
           message.error("Failed to save portfolio. Please try again later.");
         }
