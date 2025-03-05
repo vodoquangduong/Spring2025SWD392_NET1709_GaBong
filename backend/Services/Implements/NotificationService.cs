@@ -59,5 +59,27 @@ namespace Services.Implements
                 return Result.Failure<PaginatedResult<NotificationDTO>>(new Error("Get all notification failed", e.Message));
             }
         }
+
+        public async Task<Result<NotificationDTO>> UpdateStatusNotificationAsync(UpdateStatusNotificationDTO updateDTO)
+        {
+            try
+            {
+                var notification = await _unitOfWork.GetRepo<Notification>().GetSingleAsync(new QueryOptions<Notification>
+                {
+                    Predicate = n => n.NotificationId == updateDTO.NotificationId
+                });
+                if(notification == null)
+                {
+                    return Result.Failure<NotificationDTO>(new Error("Notification not found", $"Notification with id {updateDTO.NotificationId}"));
+                }
+                notification.ToNotification(updateDTO);
+                await _unitOfWork.SaveChangesAsync();
+                return Result.Success(notification.ToNotificationDTO());
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<NotificationDTO>(new Error("Update status notification failed", e.Message));
+            }
+        }
     }
 }
