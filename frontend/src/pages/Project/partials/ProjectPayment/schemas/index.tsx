@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import { z } from "zod";
 import { FaPen } from "react-icons/fa";
 import CreateMilestoneForm from "../forms/CreateMilestoneForm";
+import InvoiceModal from "@/pages/Project/partials/ProjectPayment/partials/InvoiceModal";
 
 export const schema = () => {
   return z.object({
@@ -44,6 +45,12 @@ export const tableColumns = (project: any) => {
   )[0];
 
   return [
+    {
+      title: "No.",
+      dataIndex: "index",
+      key: "description",
+      render: (text: string, _: any, index: number) => index + 1,
+    },
     {
       title: "Description",
       dataIndex: "description",
@@ -216,7 +223,7 @@ export const tableColumns = (project: any) => {
               )}
 
             {record?.status == MilestoneStatus.COMPLETED && (
-              <Button>View invoice</Button>
+              <InvoiceModal project={project} milestone={record} />
             )}
           </>
         );

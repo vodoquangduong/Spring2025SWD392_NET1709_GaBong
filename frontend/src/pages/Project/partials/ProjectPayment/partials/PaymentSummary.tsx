@@ -1,5 +1,5 @@
 import { MilestoneStatus } from "@/types/milestone";
-import { Tag } from "antd";
+import { Skeleton, Tag } from "antd";
 import { GoDownload, GoQuestion } from "react-icons/go";
 
 export default function PaymentSummary({ project }: { project: any }) {
@@ -14,55 +14,61 @@ export default function PaymentSummary({ project }: { project: any }) {
           Invoice Summary
         </Tag>
       </div>
-      <div className="grid grid-cols-3 gap-4 mt-8">
+      {!project?.estimateBudget ? (
         <div>
-          <div className="text-base font-semibold flex gap-2 items-center mb-1">
-            Negotiate Budget
-            <GoQuestion />
+          <Skeleton.Input className="mt-4" active style={{ width: 300 }} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-4 mt-8">
+          <div>
+            <div className="text-base font-semibold flex gap-2 items-center mb-1">
+              Negotiate Budget
+              <GoQuestion />
+            </div>
+            <div className="font-bold text-2xl chivo flex items-center gap-2">
+              ${project?.estimateBudget.toLocaleString()}
+              <span className="text-zinc-500 text-sm">USD</span>
+            </div>
           </div>
-          <div className="font-bold text-2xl chivo flex items-center gap-2">
-            ${project?.estimateBudget.toLocaleString()}
-            <span className="text-zinc-500 text-sm">USD</span>
+          <div className="place-self-center">
+            <div className="text-base font-semibold flex gap-2 items-center mb-1">
+              Released
+              <GoQuestion />
+            </div>
+            <div className="font-bold text-2xl chivo flex items-center gap-2">
+              $
+              {project?.milestones
+                ?.reduce((a: any, b: any) => {
+                  if (b.status == MilestoneStatus.COMPLETED) {
+                    return a + (b.payAmount / 100) * project?.estimateBudget;
+                  }
+                  return a;
+                }, 0)
+                .toLocaleString()}{" "}
+              <span className="text-zinc-500 text-sm">USD</span>
+            </div>
+          </div>
+          <div className="place-self-end">
+            <div className="text-base font-semibold flex gap-2 items-center mb-1">
+              Remain
+              <GoQuestion />
+            </div>
+            <div className="font-bold text-2xl chivo flex items-center gap-2">
+              $
+              {(
+                project?.estimateBudget -
+                project?.milestones?.reduce((a: any, b: any) => {
+                  if (b.status == MilestoneStatus.COMPLETED) {
+                    return a + (b.payAmount / 100) * project?.estimateBudget;
+                  }
+                  return a;
+                }, 0)
+              ).toLocaleString()}{" "}
+              <span className="text-zinc-500 text-sm">USD</span>
+            </div>
           </div>
         </div>
-        <div className="place-self-center">
-          <div className="text-base font-semibold flex gap-2 items-center mb-1">
-            Released
-            <GoQuestion />
-          </div>
-          <div className="font-bold text-2xl chivo flex items-center gap-2">
-            $
-            {project?.milestones
-              ?.reduce((a: any, b: any) => {
-                if (b.status == MilestoneStatus.COMPLETED) {
-                  return a + b.payAmount * project?.estimateBudget;
-                }
-                return a;
-              }, 0)
-              .toLocaleString()}{" "}
-            <span className="text-zinc-500 text-sm">USD</span>
-          </div>
-        </div>
-        <div className="place-self-end">
-          <div className="text-base font-semibold flex gap-2 items-center mb-1">
-            Remain
-            <GoQuestion />
-          </div>
-          <div className="font-bold text-2xl chivo flex items-center gap-2">
-            $
-            {(
-              project?.estimateBudget -
-              project?.milestones?.reduce((a: any, b: any) => {
-                if (b.status == MilestoneStatus.COMPLETED) {
-                  return a + b.payAmount * project?.estimateBudget;
-                }
-                return a;
-              }, 0)
-            ).toLocaleString()}{" "}
-            <span className="text-zinc-500 text-sm">USD</span>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

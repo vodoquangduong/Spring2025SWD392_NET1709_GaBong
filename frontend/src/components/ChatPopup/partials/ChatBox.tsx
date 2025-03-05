@@ -13,7 +13,11 @@ type MessageItemProps = {
   sender: string;
 };
 
-export default function ChatBox() {
+export default function ChatBox({
+  isLoadingChatRoom,
+}: {
+  isLoadingChatRoom: boolean;
+}) {
   const { currentRoom, notifyService, setNotification } = useChatStore();
   const currentRoomId = currentRoom?.chatRoomID;
   const receiverId = currentRoom?.roomDetails?.[0]?.accountId;
@@ -129,6 +133,13 @@ export default function ChatBox() {
     }
     messageInputRef.current?.focus();
   }, [messages, isLoading]);
+
+  if (!isLoadingChatRoom && !currentRoom)
+    return (
+      <div className="w-full h-full flex justify-center items-center bg-white dark:bg-zinc-800">
+        <Empty description="You currently dont have any partner to chat" />
+      </div>
+    );
 
   return (
     <div className="bg-white dark:bg-zinc-800 h-full flex flex-col">

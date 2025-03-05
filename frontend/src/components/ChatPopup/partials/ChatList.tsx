@@ -12,12 +12,12 @@ export default function ChatList({
   return (
     <div className="dark:bg-zinc-800 bg-white border-r dark:border-zinc-700">
       <div className="py-2 px-4 font-bold border-b dark:border-zinc-600 text-secondary-foreground">
-        Room List
+        Partner List
       </div>
       <div>
         {isLoading && (
           <div className="mt-10 w-full flex justify-center items-center text-zinc-500">
-            Loading room...
+            Loading partners ...
           </div>
         )}
         {roomList?.map((item: any, index: number) => (
@@ -26,7 +26,7 @@ export default function ChatList({
           </div>
         ))}
         {!isLoading && roomList.length == 0 && (
-          <Empty className="mt-10" description="No room found" />
+          <Empty className="mt-10" description="No partner found" />
         )}
       </div>
     </div>

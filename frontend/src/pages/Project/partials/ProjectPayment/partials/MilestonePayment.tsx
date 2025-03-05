@@ -40,14 +40,14 @@ export default function MilestonePayment() {
             ) => <CreateMilestoneForm setIsModalOpen={setIsModalOpen} />}
           /> */}
         </div>
-        <div className="text-lg font-semibold flex gap-2 items-center mt-8 mb-1">
+        {/* <div className="text-lg font-semibold flex gap-2 items-center mt-8 mb-1">
           Created Milestones
           <GoQuestion />
-        </div>
+        </div> */}
         <div className="">
           <Table
             loading={projectDetail.isLoading || projectDetail.isRefetching}
-            className="mt-4"
+            className="pt-10"
             dataSource={projectDetail?.data?.value?.milestones.sort(
               (a: any, b: any) => {
                 return a.deadlineDate.localeCompare(b.deadlineDate);

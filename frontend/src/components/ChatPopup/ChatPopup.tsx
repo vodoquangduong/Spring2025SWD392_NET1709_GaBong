@@ -80,7 +80,7 @@ export default function ChatPopup() {
       >
         <ChatList roomList={data} isLoading={isLoading} />
         <div className="col-span-2">
-          <ChatBox />
+          <ChatBox isLoadingChatRoom={isLoading} />
         </div>
         <div
           onClick={toogleChatPopup}

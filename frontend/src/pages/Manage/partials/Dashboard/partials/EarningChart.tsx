@@ -1,3 +1,4 @@
+import useConfigStore from "@/stores/configStore";
 import { ApexOptions } from "apexcharts";
 import React from "react";
 import Chart from "react-apexcharts";
@@ -60,6 +61,7 @@ var options = {
 };
 
 export default function EarningChart() {
+  const { isDarkMode } = useConfigStore();
   return (
     <Chart
       options={{
@@ -67,7 +69,7 @@ export default function EarningChart() {
           text: "Earning Chart",
           align: "left",
           style: {
-            color: "green",
+            color: isDarkMode ? "white" : "black",
             fontSize: "20px",
             fontFamily: "sans-serif",
             fontWeight: "bold",

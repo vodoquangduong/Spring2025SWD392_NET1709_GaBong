@@ -9,31 +9,31 @@ const Dashboard = () => {
       <div>
         <div className="text-3xl font-bold">Dashboard</div>
         <div className="grid grid-cols-5 gap-4 mt-4">
-          <div className="bg-white shadow rounded-lg p-4">
+          <div className="dark:bg-black/20 border shadow rounded-lg p-4">
             <div className="text-sm font-semibold text-gray-500">
               Total Projects
             </div>
             <div className="text-2xl font-bold">120</div>
           </div>
-          <div className="bg-white shadow rounded-lg p-4">
+          <div className="dark:bg-black/20 border shadow rounded-lg p-4">
             <div className="text-sm font-semibold text-gray-500">
               Completed Milestones
             </div>
             <div className="text-2xl font-bold">340</div>
           </div>
-          <div className="bg-white shadow rounded-lg p-4">
+          <div className="dark:bg-black/20 border shadow rounded-lg p-4">
             <div className="text-sm font-semibold text-gray-500">
               Pending Approvals
             </div>
             <div className="text-2xl font-bold">15</div>
           </div>
-          <div className="bg-white shadow rounded-lg p-4">
+          <div className="dark:bg-black/20 border shadow rounded-lg p-4">
             <div className="text-sm font-semibold text-gray-500">
               New Messages
             </div>
             <div className="text-2xl font-bold">8</div>
           </div>
-          <div className="bg-white shadow rounded-lg p-4">
+          <div className="dark:bg-black/20 border shadow rounded-lg p-4">
             <div className="text-sm font-semibold text-gray-500">
               Upcoming Deadlines
             </div>
