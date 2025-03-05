@@ -59,6 +59,24 @@ interface PortfolioFormProps {
   accountId?: number;
 }
 
+const isPastDate = (date: string | null | undefined): boolean => {
+  if (!date) return true;
+  const selectedDate = new Date(date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return selectedDate <= today;
+};
+
+const isStartBeforeEnd = (
+  startDate: string | null | undefined,
+  endDate: string | null | undefined
+): boolean => {
+  if (!startDate || !endDate) return true;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  return start <= end;
+};
+
 const PortfolioForm: React.FC<PortfolioFormProps> = ({
   form,
   isEditing,
@@ -71,13 +89,11 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
   handleSubmitForReview,
   handleSubmit,
 }) => {
-  // State để lưu trữ danh sách skills từ API
   const [skillOptions, setSkillOptions] = useState<
     { value: string; label: string; id: number }[]
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Fetch skills từ API khi component mount
   useEffect(() => {
     const fetchSkills = async () => {
       try {
@@ -95,7 +111,28 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
     fetchSkills();
   }, []);
 
-  // Nếu không có portfolio nhưng đang ở chế độ chỉnh sửa, hiển thị form trống
+  console.log("Portfolio in PortfolioForm:", portfolio);
+  console.log("Portfolio status:", portfolio?.status);
+  console.log("isEditing:", isEditing);
+
+  const getCurrentStatus = () => {
+    if (!portfolio) return PortfolioStatus.Modifying;
+    return portfolio.status !== undefined
+      ? portfolio.status
+      : PortfolioStatus.Modifying;
+  };
+
+  const currentStatus = getCurrentStatus();
+  console.log("Current status:", currentStatus);
+  console.log("Is Modifying:", currentStatus === PortfolioStatus.Modifying);
+
+  const canEdit = () => {
+    return (
+      currentStatus === PortfolioStatus.Modifying ||
+      currentStatus === PortfolioStatus.Rejected
+    );
+  };
+
   if (!portfolio && isEditing) {
     return (
       <div className="container">
@@ -277,13 +314,70 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                     {...restField}
                                     name={[name, "startDate"]}
                                     label="Start Date"
+                                    rules={[
+                                      {
+                                        required: true,
+                                        message: "Please select start date",
+                                      },
+                                      {
+                                        validator: (_, value) => {
+                                          if (!value) return Promise.resolve();
+                                          if (!isPastDate(value)) {
+                                            return Promise.reject(
+                                              new Error(
+                                                "Start date must be in the past"
+                                              )
+                                            );
+                                          }
+
+                                          // Kiểm tra start date < end date
+                                          const endDate = form.getFieldValue([
+                                            "experiences",
+                                            name,
+                                            "endDate",
+                                          ]);
+                                          if (
+                                            endDate &&
+                                            !isStartBeforeEnd(value, endDate)
+                                          ) {
+                                            return Promise.reject(
+                                              new Error(
+                                                "Start date must be before end date"
+                                              )
+                                            );
+                                          }
+
+                                          return Promise.resolve();
+                                        },
+                                      },
+                                    ]}
                                   >
-                                    <Input
-                                      type="date"
-                                      placeholder="Start Date"
-                                      style={{ width: "100%" }}
-                                      className="bg-white dark:bg-[#27272a]"
-                                    />
+                                    {isEditing ? (
+                                      <Input
+                                        type="date"
+                                        placeholder="Start Date"
+                                        style={{ width: "100%" }}
+                                        className="bg-white dark:bg-[#27272a]"
+                                        max={
+                                          new Date().toISOString().split("T")[0]
+                                        } // Giới hạn ngày tối đa là ngày hiện tại
+                                      />
+                                    ) : (
+                                      <div>
+                                        {form.getFieldValue([
+                                          "experiences",
+                                          name,
+                                          "startDate",
+                                        ]) &&
+                                          new Date(
+                                            form.getFieldValue([
+                                              "experiences",
+                                              name,
+                                              "startDate",
+                                            ])
+                                          ).toLocaleDateString()}
+                                      </div>
+                                    )}
                                   </Form.Item>
                                 </Col>
                                 <Col xs={24} md={12}>
@@ -291,13 +385,67 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                     {...restField}
                                     name={[name, "endDate"]}
                                     label="End Date"
+                                    rules={[
+                                      {
+                                        validator: (_, value) => {
+                                          if (!value) return Promise.resolve();
+
+                                          if (!isPastDate(value)) {
+                                            return Promise.reject(
+                                              new Error(
+                                                "End date must be in the past"
+                                              )
+                                            );
+                                          }
+
+                                          const startDate = form.getFieldValue([
+                                            "experiences",
+                                            name,
+                                            "startDate",
+                                          ]);
+                                          if (
+                                            startDate &&
+                                            !isStartBeforeEnd(startDate, value)
+                                          ) {
+                                            return Promise.reject(
+                                              new Error(
+                                                "End date must be after start date"
+                                              )
+                                            );
+                                          }
+
+                                          return Promise.resolve();
+                                        },
+                                      },
+                                    ]}
                                   >
-                                    <Input
-                                      type="date"
-                                      placeholder="End Date (leave empty if current)"
-                                      style={{ width: "100%" }}
-                                      className="bg-white dark:bg-[#27272a]"
-                                    />
+                                    {isEditing ? (
+                                      <Input
+                                        type="date"
+                                        placeholder="End Date (leave empty if current)"
+                                        style={{ width: "100%" }}
+                                        className="bg-white dark:bg-[#27272a]"
+                                        max={
+                                          new Date().toISOString().split("T")[0]
+                                        }
+                                      />
+                                    ) : (
+                                      <div>
+                                        {form.getFieldValue([
+                                          "experiences",
+                                          name,
+                                          "endDate",
+                                        ])
+                                          ? new Date(
+                                              form.getFieldValue([
+                                                "experiences",
+                                                name,
+                                                "endDate",
+                                              ])
+                                            ).toLocaleDateString()
+                                          : "Present"}
+                                      </div>
+                                    )}
                                   </Form.Item>
                                 </Col>
                               </Row>
@@ -397,13 +545,48 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                     {...restField}
                                     name={[name, "issueDate"]}
                                     label="Issue Date"
+                                    rules={[
+                                      {
+                                        validator: (_, value) => {
+                                          if (!value) return Promise.resolve();
+                                          if (!isPastDate(value)) {
+                                            return Promise.reject(
+                                              new Error(
+                                                "Issue date must be in the past"
+                                              )
+                                            );
+                                          }
+                                          return Promise.resolve();
+                                        },
+                                      },
+                                    ]}
                                   >
-                                    <Input
-                                      type="date"
-                                      placeholder="Issue Date"
-                                      style={{ width: "100%" }}
-                                      className="bg-white dark:bg-[#27272a]"
-                                    />
+                                    {isEditing ? (
+                                      <Input
+                                        type="date"
+                                        placeholder="Issue Date"
+                                        style={{ width: "100%" }}
+                                        className="bg-white dark:bg-[#27272a]"
+                                        max={
+                                          new Date().toISOString().split("T")[0]
+                                        }
+                                      />
+                                    ) : (
+                                      <div>
+                                        {form.getFieldValue([
+                                          "certificates",
+                                          name,
+                                          "issueDate",
+                                        ]) &&
+                                          new Date(
+                                            form.getFieldValue([
+                                              "certificates",
+                                              name,
+                                              "issueDate",
+                                            ])
+                                          ).toLocaleDateString()}
+                                      </div>
+                                    )}
                                   </Form.Item>
                                 </Col>
                               </Row>
@@ -474,13 +657,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                     </Button>
                   </Space>
                 ) : (
-                  <Button
-                    type="primary"
-                    icon={<EditOutlined />}
-                    onClick={handleEdit}
-                  >
-                    Edit
-                  </Button>
+                  canEdit() && (
+                    <Button
+                      type="primary"
+                      icon={<EditOutlined />}
+                      onClick={handleEdit}
+                    >
+                      Edit
+                    </Button>
+                  )
                 )
               }
               className="bg-white dark:bg-[#27272a]"
@@ -697,6 +882,42 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   {...restField}
                                   name={[name, "startDate"]}
                                   label="Start Date"
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Please select start date",
+                                    },
+                                    {
+                                      validator: (_, value) => {
+                                        if (!value) return Promise.resolve();
+                                        if (!isPastDate(value)) {
+                                          return Promise.reject(
+                                            new Error(
+                                              "Start date must be in the past"
+                                            )
+                                          );
+                                        }
+
+                                        const endDate = form.getFieldValue([
+                                          "experiences",
+                                          name,
+                                          "endDate",
+                                        ]);
+                                        if (
+                                          endDate &&
+                                          !isStartBeforeEnd(value, endDate)
+                                        ) {
+                                          return Promise.reject(
+                                            new Error(
+                                              "Start date must be before end date"
+                                            )
+                                          );
+                                        }
+
+                                        return Promise.resolve();
+                                      },
+                                    },
+                                  ]}
                                 >
                                   {isEditing ? (
                                     <Input
@@ -704,6 +925,9 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       placeholder="Start Date"
                                       style={{ width: "100%" }}
                                       className="bg-white dark:bg-[#27272a]"
+                                      max={
+                                        new Date().toISOString().split("T")[0]
+                                      }
                                     />
                                   ) : (
                                     <div>
@@ -728,6 +952,40 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   {...restField}
                                   name={[name, "endDate"]}
                                   label="End Date"
+                                  rules={[
+                                    {
+                                      validator: (_, value) => {
+                                        if (!value) return Promise.resolve(); // Cho phép trống (vì có thể là vị trí hiện tại)
+
+                                        if (!isPastDate(value)) {
+                                          return Promise.reject(
+                                            new Error(
+                                              "End date must be in the past"
+                                            )
+                                          );
+                                        }
+
+                                        // Kiểm tra start date < end date
+                                        const startDate = form.getFieldValue([
+                                          "experiences",
+                                          name,
+                                          "startDate",
+                                        ]);
+                                        if (
+                                          startDate &&
+                                          !isStartBeforeEnd(startDate, value)
+                                        ) {
+                                          return Promise.reject(
+                                            new Error(
+                                              "End date must be after start date"
+                                            )
+                                          );
+                                        }
+
+                                        return Promise.resolve();
+                                      },
+                                    },
+                                  ]}
                                 >
                                   {isEditing ? (
                                     <Input
@@ -735,6 +993,9 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       placeholder="End Date (leave empty if current)"
                                       style={{ width: "100%" }}
                                       className="bg-white dark:bg-[#27272a]"
+                                      max={
+                                        new Date().toISOString().split("T")[0]
+                                      }
                                     />
                                   ) : (
                                     <div>
@@ -879,6 +1140,21 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   {...restField}
                                   name={[name, "issueDate"]}
                                   label="Issue Date"
+                                  rules={[
+                                    {
+                                      validator: (_, value) => {
+                                        if (!value) return Promise.resolve();
+                                        if (!isPastDate(value)) {
+                                          return Promise.reject(
+                                            new Error(
+                                              "Issue date must be in the past"
+                                            )
+                                          );
+                                        }
+                                        return Promise.resolve();
+                                      },
+                                    },
+                                  ]}
                                 >
                                   {isEditing ? (
                                     <Input
@@ -886,6 +1162,9 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                       placeholder="Issue Date"
                                       style={{ width: "100%" }}
                                       className="bg-white dark:bg-[#27272a]"
+                                      max={
+                                        new Date().toISOString().split("T")[0]
+                                      } // Giới hạn ngày tối đa là ngày hiện tại
                                     />
                                   ) : (
                                     <div>
@@ -969,54 +1248,54 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
           <Col xs={24} md={6}>
             <VerificationStatus portfolio={portfolio} />
 
-            {/* Submit for Review Section - Moved here */}
-            <div style={{ marginTop: 16 }}>
-              <Card className="bg-[#f0f5ff] border-[#d6e4ff] dark:bg-[#111827] dark:border-[#111827]">
-                <Space
-                  direction="vertical"
-                  size="middle"
-                  style={{ width: "100%" }}
-                >
-                  <div>
-                    <Typography.Title
-                      level={5}
-                      style={{ margin: 0 }}
-                      className="text-[#1890ff] dark:text-white"
-                    >
-                      Submit for Verification
-                    </Typography.Title>
-                    <Typography.Paragraph className="text-gray-600 dark:text-gray-300">
-                      {portfolio &&
-                      portfolio.status === PortfolioStatus.Rejected
-                        ? "Your portfolio has been rejected. Please revise and resubmit for verification."
-                        : "Submit your portfolio for staff review to get verified status."}
-                    </Typography.Paragraph>
-                  </div>
-
-                  <Button
-                    type="primary"
-                    onClick={handleSubmitForReview}
-                    disabled={
-                      isEditing ||
-                      !portfolio ||
-                      (portfolio &&
-                        portfolio.status !== undefined &&
-                        portfolio.status !== 3 &&
-                        portfolio.status !== 2) ||
-                      submittingForVerification
-                    }
-                    icon={<CheckOutlined />}
-                    loading={submittingForVerification}
-                    block
-                    className="bg-[#10b981] hover:bg-[#0d9668] border-[#10b981]"
+            {/* Submit for Review Section */}
+            {portfolio && (
+              <div style={{ marginTop: 16 }}>
+                <Card className="bg-[#f0f5ff] border-[#d6e4ff] dark:bg-[#111827] dark:border-[#111827]">
+                  <Space
+                    direction="vertical"
+                    size="middle"
+                    style={{ width: "100%" }}
                   >
-                    {portfolio && portfolio.status === PortfolioStatus.Rejected
-                      ? "Resubmit for Verification"
-                      : "Submit for Verification"}
-                  </Button>
-                </Space>
-              </Card>
-            </div>
+                    <div>
+                      <Typography.Title
+                        level={5}
+                        style={{ margin: 0 }}
+                        className="text-[#1890ff] dark:text-white"
+                      >
+                        Submit for Verification
+                      </Typography.Title>
+                      <Typography.Paragraph className="text-gray-600 dark:text-gray-300">
+                        {currentStatus === PortfolioStatus.Rejected
+                          ? "Your portfolio has been rejected. Please revise and resubmit for verification."
+                          : currentStatus === PortfolioStatus.Pending
+                          ? "Portfolio is being verified. Please wait for verification."
+                          : "Submit your portfolio for staff review to get verified status."}
+                      </Typography.Paragraph>
+                    </div>
+
+                    <Button
+                      type="primary"
+                      onClick={handleSubmitForReview}
+                      disabled={
+                        isEditing ||
+                        (currentStatus !== PortfolioStatus.Modifying &&
+                          currentStatus !== PortfolioStatus.Rejected) ||
+                        submittingForVerification
+                      }
+                      icon={<CheckOutlined />}
+                      loading={submittingForVerification}
+                      block
+                      className="bg-[#10b981] hover:bg-[#0d9668] border-[#10b981]"
+                    >
+                      {currentStatus === PortfolioStatus.Rejected
+                        ? "Resubmit for Verification"
+                        : "Submit for Verification"}
+                    </Button>
+                  </Space>
+                </Card>
+              </div>
+            )}
           </Col>
         </Row>
       </Form>

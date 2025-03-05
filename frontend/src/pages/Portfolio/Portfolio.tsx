@@ -9,6 +9,13 @@ import PortfolioForm from "./partials/PortfolioForm";
 import { portfolioService } from "./services/portfolioService";
 import { portfolioUseCase } from "./usecases/portfolioUseCase";
 
+// Thêm enum PortfolioStatus vào Portfolio.tsx nếu chưa có
+enum PortfolioStatus {
+  Pending = 0,
+  Verified = 1,
+  Rejected = 2,
+  Modifying = 3,
+}
 const Portfolio: React.FC = () => {
   const [form] = Form.useForm();
   const [isEditing, setIsEditing] = useState(false);
@@ -25,7 +32,6 @@ const Portfolio: React.FC = () => {
     const fetchPortfolio = async () => {
       try {
         setLoading(true);
-        // Use the ID from URL params if available, otherwise use the logged-in user's ID
         const freelancerId = id ? parseInt(id) : accountId;
 
         if (!freelancerId) {
@@ -39,14 +45,11 @@ const Portfolio: React.FC = () => {
         );
         console.log("Portfolio data received:", data);
 
-        // Nếu không tìm thấy portfolio, set portfolio là null và chuyển sang chế độ chỉnh sửa
         if (!data) {
           console.log(`No portfolio found for freelancer ID: ${freelancerId}`);
           setPortfolio(null);
-          // Nếu là người dùng hiện tại (không phải xem portfolio của người khác)
           if (!id || parseInt(id) === accountId) {
-            setIsEditing(true); // Tự động chuyển sang chế độ chỉnh sửa
-            // Khởi tạo form với giá trị mặc định
+            setIsEditing(true);
             form.setFieldsValue({
               title: "",
               description: "",
@@ -60,8 +63,6 @@ const Portfolio: React.FC = () => {
         }
 
         setPortfolio(data);
-
-        // Sử dụng hàm parsePortfolioData để phân tích dữ liệu
         const parsedData = portfolioUseCase.parsePortfolioData(data);
 
         // Set form values
@@ -73,37 +74,8 @@ const Portfolio: React.FC = () => {
           certificates: parsedData.certificates,
         });
       } catch (error: any) {
-        // Xử lý lỗi 400 hoặc 404 (không tìm thấy portfolio) một cách thân thiện
-        if (
-          error.message &&
-          (error.message.includes("400") ||
-            error.message.includes("404") ||
-            error.message.includes("not found") ||
-            error.message.includes("No portfolio"))
-        ) {
-          console.log(
-            "No portfolio found or not accessible, showing create form"
-          );
-          setPortfolio(null);
-          // Nếu là người dùng hiện tại (không phải xem portfolio của người khác)
-          if (!id || parseInt(id) === accountId) {
-            setIsEditing(true); // Tự động chuyển sang chế độ chỉnh sửa
-            // Khởi tạo form với giá trị mặc định
-            form.setFieldsValue({
-              title: "",
-              description: "",
-              skills: [],
-              experiences: [],
-              certificates: [],
-            });
-          }
-        } else {
-          // Hiển thị lỗi khác (không phải lỗi không tìm thấy portfolio)
-          console.error("Error fetching portfolio:", error);
-          message.error(
-            "An error occurred while loading the portfolio. Please try again later."
-          );
-        }
+        console.error("Error fetching portfolio:", error);
+        setPortfolio(null);
       } finally {
         setLoading(false);
       }
@@ -111,6 +83,18 @@ const Portfolio: React.FC = () => {
 
     fetchPortfolio();
   }, [accountId, id, form]);
+
+  useEffect(() => {
+    console.log("Portfolio in Portfolio component:", portfolio);
+    console.log("Portfolio status:", portfolio?.status);
+  }, [portfolio]);
+
+  const getCurrentStatus = () => {
+    if (!portfolio) return PortfolioStatus.Modifying;
+    return portfolio.status !== undefined
+      ? portfolio.status
+      : PortfolioStatus.Modifying;
+  };
 
   const handleSubmit = async (values: any) => {
     try {
@@ -131,15 +115,10 @@ const Portfolio: React.FC = () => {
       setSubmittingForVerification(true);
 
       try {
-        // Gọi API gửi portfolio để xác minh
         await portfolioUseCase.submitPortfolioForVerification();
-
-        // Luôn hiển thị thông báo thành công nếu không có lỗi
         message.success(
           "Portfolio has been successfully submitted for verification"
         );
-
-        // Refresh the data
         if (accountId) {
           try {
             const refreshedData =
@@ -148,11 +127,9 @@ const Portfolio: React.FC = () => {
             if (refreshedData) {
               setPortfolio(refreshedData);
 
-              // Sử dụng hàm parsePortfolioData để phân tích dữ liệu
               const parsedData =
                 portfolioUseCase.parsePortfolioData(refreshedData);
 
-              // Cập nhật form với dữ liệu mới
               form.setFieldsValue({
                 title: parsedData.title,
                 description: parsedData.about,
@@ -163,7 +140,6 @@ const Portfolio: React.FC = () => {
             }
           } catch (refreshError) {
             console.error("Error refreshing portfolio data:", refreshError);
-            // Không hiển thị lỗi cho người dùng vì submission đã thành công
           }
         }
       } catch (error: any) {
@@ -201,7 +177,82 @@ const Portfolio: React.FC = () => {
         return;
       }
 
-      // Sử dụng các hàm tiện ích từ portfolioService để chuyển đổi dữ liệu
+      // Validate dates
+      let hasDateError = false;
+
+      if (values.experiences && values.experiences.length > 0) {
+        for (let i = 0; i < values.experiences.length; i++) {
+          const exp = values.experiences[i];
+
+          if (exp.startDate) {
+            const startDate = new Date(exp.startDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (startDate > today) {
+              message.error(
+                `Experience ${i + 1}: Start date must be in the past`
+              );
+              hasDateError = true;
+              break;
+            }
+          }
+
+          if (exp.endDate) {
+            const endDate = new Date(exp.endDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (endDate > today) {
+              message.error(
+                `Experience ${i + 1}: End date must be in the past`
+              );
+              hasDateError = true;
+              break;
+            }
+
+            if (exp.startDate) {
+              const startDate = new Date(exp.startDate);
+              if (startDate > endDate) {
+                message.error(
+                  `Experience ${i + 1}: Start date must be before end date`
+                );
+                hasDateError = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (
+        !hasDateError &&
+        values.certificates &&
+        values.certificates.length > 0
+      ) {
+        for (let i = 0; i < values.certificates.length; i++) {
+          const cert = values.certificates[i];
+          if (cert.issueDate) {
+            const issueDate = new Date(cert.issueDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (issueDate > today) {
+              message.error(
+                `Certificate ${i + 1}: Issue date must be in the past`
+              );
+              hasDateError = true;
+              break;
+            }
+          }
+        }
+      }
+
+      if (hasDateError) {
+        setSubmitting(false);
+        return;
+      }
+
       const worksString = portfolioService.parseWorks(
         values.skills || [],
         values.experiences || []
@@ -220,7 +271,6 @@ const Portfolio: React.FC = () => {
         status: 3,
       };
 
-      // Log dữ liệu cuối cùng sẽ gửi đến API
       console.log("Final portfolio data to send:", portfolioData);
 
       try {
@@ -249,10 +299,8 @@ const Portfolio: React.FC = () => {
             await portfolioUseCase.getPortfolioByFreelancerId(accountId);
           setPortfolio(refreshedData);
 
-          // Sử dụng hàm parsePortfolioData để phân tích dữ liệu
           const parsedData = portfolioUseCase.parsePortfolioData(refreshedData);
 
-          // Cập nhật form với dữ liệu mới
           form.setFieldsValue({
             title: parsedData.title,
             description: parsedData.about,
@@ -264,7 +312,6 @@ const Portfolio: React.FC = () => {
       } catch (apiError: any) {
         console.error("API Error:", apiError);
 
-        // Hiển thị thông báo lỗi chi tiết từ backend
         if (apiError.message) {
           message.error(apiError.message);
         } else {
@@ -280,6 +327,21 @@ const Portfolio: React.FC = () => {
   };
 
   const handleEdit = () => {
+    const currentStatus = getCurrentStatus();
+    console.log("Current status in handleEdit:", currentStatus);
+
+    if (
+      currentStatus !== PortfolioStatus.Modifying &&
+      currentStatus !== PortfolioStatus.Rejected
+    ) {
+      console.log(
+        `Cannot edit: Portfolio status is ${currentStatus}, not Modifying or Rejected`
+      );
+      message.info("Portfolio is being verified or rejected, please wait.");
+      return;
+    }
+
+    console.log("Setting isEditing to true");
     setIsEditing(true);
   };
 
