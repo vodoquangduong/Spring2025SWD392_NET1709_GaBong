@@ -130,6 +130,7 @@ namespace Services.Implements
                         p.Status == ProjectStatus.Verified
                         && p.Milestones.Any()
                         && p.SkillRequired.Any()
+                        && (string.IsNullOrEmpty(filter.ProjectName) || p.ProjectName.Contains(filter.ProjectName))
                         && (filter.MinBudget == null || p.EstimateBudget >= filter.MinBudget)
                         && (filter.MaxBudget == null || p.EstimateBudget <= filter.MaxBudget)
                         && (filter.SkillIds == null || filter.SkillIds.All(id => p.SkillRequired.Any(s => s.SkillId == id)))

@@ -7,6 +7,7 @@ namespace Helpers.DTOs.Query
 {
     public class ProjectFilter
     {
+    public string? ProjectName { get; set; }
     public decimal? MinBudget { get; set; }
     public decimal? MaxBudget { get; set; }
     public List<int>? SkillIds { get; set; }
