@@ -4,6 +4,7 @@ using BusinessObjects.Models;
 using Helpers.DTOs.Bid;
 using Helpers.DTOs.Milestone;
 using Helpers.DTOs.Project;
+using Helpers.DTOs.Query;
 using Helpers.DTOs.Transaction;
 using Helpers.HelperClasses;
 using Helpers.Mappers;
@@ -114,7 +115,8 @@ namespace Services.Implements
 
         public async Task<Result<PaginatedResult<ProjectDTO>>> GetAllProjectsVerifiedAsync(
             int pageNumber,
-            int pageSize
+            int pageSize,
+            ProjectFilter filter
         )
         {
             try
@@ -128,6 +130,10 @@ namespace Services.Implements
                         p.Status == ProjectStatus.Verified
                         && p.Milestones.Any()
                         && p.SkillRequired.Any()
+                        && (filter.MinBudget == null || p.EstimateBudget >= filter.MinBudget)
+                        && (filter.MaxBudget == null || p.EstimateBudget <= filter.MaxBudget)
+                        && (filter.SkillIds == null || filter.SkillIds.All(id => p.SkillRequired.Any(s => s.SkillId == id)))
+                        && (string.IsNullOrEmpty(filter.Location) || p.Location.Contains(filter.Location))
                     )
                     .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
                     .Build();

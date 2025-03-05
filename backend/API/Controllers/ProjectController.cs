@@ -36,9 +36,9 @@ namespace API.Controllers
         }
 
         [HttpGet("get-all-verified-project")]
-        public async Task<IActionResult> GetAllProjectsVerifiedAsync([FromQuery]  Query query)
+        public async Task<IActionResult> GetAllProjectsVerifiedAsync([FromQuery]  Query query, [FromQuery] ProjectFilter projectFilter)
         {
-            var response = await _projectService.GetAllProjectsVerifiedAsync(query.PageNumber, query.PageSize);
+            var response = await _projectService.GetAllProjectsVerifiedAsync(query.PageNumber, query.PageSize, projectFilter);
             if(response.IsFailure)
             {
                 return Ok(response.Error);

@@ -50,15 +50,8 @@ namespace Services.Implements
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Certificate must not be empty"));
                 }
-                var portfolio = new Portfolio()
-                {
-                    FreelancerId = _currentUserService.AccountId,
-                    Title = portfolioDto.Title,
-                    Works = portfolioDto.Works,
-                    Certificate = portfolioDto.Certificate,
-                    About = portfolioDto.About,
-                    Status = PortfolioStatus.Modifying,
-                };
+                var portfolio = portfolioDto.ToPortfolio();
+                portfolio.FreelancerId =_currentUserService.AccountId;
                 var result = await _unitOfWork.GetRepo<Portfolio>().CreateAsync(portfolio);
                 await _unitOfWork.SaveChangesAsync();
                 return Result.Success(result.ToPortfolioDTO());
