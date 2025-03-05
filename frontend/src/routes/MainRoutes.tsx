@@ -32,7 +32,7 @@ import {
   ProjectProposal,
 } from "../pages/Project";
 import Register from "../pages/Register";
-import { Search, SearchFreelancer, SearchProject } from "../pages/Search";
+import { SearchFreelancer, SearchProject } from "../pages/Search";
 import { Payment, PaymentSuccess } from "@/pages/Payment";
 import { MakeContract } from "@/pages/MakeContract";
 import PostProject from "@/pages/PostProject/PostProject";
@@ -49,10 +49,11 @@ export default function MainRoutes() {
           <Route path="/" element={<NormalLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="portfolio" element={<Portfolio />} />
-            <Route path="search" element={<Search />}>
+            <Route path="search">
               <Route path="projects" element={<SearchProject />} />
               <Route path="freelancers" element={<SearchFreelancer />} />
             </Route>
+            {/* <Route path="search" element={<Search />}></Route> */}
             <Route path="projects">
               <Route path="" element={<Navigate to="/search/projects" />} />
               <Route path=":id" element={<Project />}>

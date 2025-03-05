@@ -76,7 +76,7 @@ export default function Header() {
             <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
               {role != Role.FREELANCER && (
                 <HeaderLinkItem href={"/search/freelancers"}>
-                  Hire freelancers
+                  Find freelancers
                 </HeaderLinkItem>
               )}
               {/* {role != Role.CLIENT && ( */}

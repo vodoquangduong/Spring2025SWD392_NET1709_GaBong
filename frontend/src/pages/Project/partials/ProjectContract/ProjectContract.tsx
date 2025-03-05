@@ -113,7 +113,7 @@ export default function ProjectContract() {
               </div>
             </div>
             <div className="flex items-center gap-12 border-t mt-4 pt-4">
-              <div className="mb-2 text-xl chivo">Total fee</div>
+              <div className="mb-2 text-xl chivo">Total negotiated budget</div>
               <div className="font-bold text-3xl chivo flex items-center gap-2">
                 <div>
                   ${" "}

@@ -1,4 +1,4 @@
-import { Pagination, Rate, Skeleton, Tag } from "antd";
+import { Empty, Pagination, Rate, Skeleton, Tag } from "antd";
 import { CiBookmark } from "react-icons/ci";
 import { useNavigate, useParams } from "react-router-dom";
 import { getRandomInt } from "../../../../../modules/random";
@@ -10,6 +10,83 @@ import { ProjectDetail, ProjectStatus } from "@/types/project";
 import { formatTimeAgo } from "@/modules/formatTimeAgo";
 import useQueryParams from "@/hooks/useQueryParams";
 import dayjs from "dayjs";
+import { getQueryString } from "@/modules/getQueryString";
+
+export default function ProjectListing({ query }: { query: any }) {
+  const navigate = useNavigate();
+  const [skillCategory] = useQueries({
+    queries: [
+      {
+        queryKey: ["skills", query],
+        queryFn: async () => await GET(`/api/SkillCategory`),
+      },
+    ],
+  });
+
+  const [projects] = useQueries({
+    queries: [
+      {
+        queryKey: ["publicProjects", query],
+        queryFn: async () =>
+          await GET(`/api/Project/verified?${getQueryString(query)}`, false),
+      },
+    ],
+  });
+
+  return (
+    <div className="">
+      <div className="border-b w-full p-4 flex justify-between items-center dark:border-gray-500 shadow-md">
+        <div>
+          <span className="font-semibold text-lg mr-3">Top result:</span>
+          {projects?.data?.value?.items?.length} result
+        </div>
+        <div className="flex gap-1 items-center">
+          <label htmlFor="" className="w-[100px]">
+            Sort by
+          </label>
+          <select className="input-style py-2">
+            <option value="">Newest</option>
+            <option value="">Oldest</option>
+            <option value="">Highest rate</option>
+            <option value="">Lowest rate</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        {projects?.data?.value?.items?.map((project: ProjectDetail) => (
+          // project.status == ProjectStatus.OPEN &&
+          <ListingItem
+            key={project.projectId}
+            project={project}
+            skillCategory={skillCategory?.data}
+          />
+        ))}
+        {projects.isLoading &&
+          [-1, -2, -3, -4, -5, -6, -7, -8, -9, -10].map((item, index) => (
+            <ListingItemSkeletion key={index} />
+          ))}
+        {!projects.isLoading && projects?.data?.value?.items?.length == 0 ? (
+          <Empty
+            className="mt-48"
+            description="No projects found"
+            // image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        ) : (
+          <div className="p-4 flex justify-end">
+            <Pagination
+              showTotal={(total) => `Total ${total} items`}
+              defaultCurrent={projects?.data?.value?.pageNumber}
+              total={projects?.data?.value?.totalCount}
+              onChange={(page) => {
+                navigate(`/search/projects?page=${page}`);
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const ListingItem = ({
   project,
@@ -45,7 +122,7 @@ const ListingItem = ({
       <div className="text-sm">
         Budget: {project.estimateBudget.toLocaleString()} USD
       </div>
-      <div className="mt-6">{project?.projectDescription}</div>
+      <div className="mt-6 line-clamp-3">{project?.projectDescription}</div>
       <div className="mt-4">
         <Skills
           items={project?.skillIds.map((skillId: any) => {
@@ -88,67 +165,3 @@ export const ListingItemSkeletion = () => {
     </div>
   );
 };
-
-export default function ProjectListing() {
-  const { page } = useQueryParams();
-  const navigate = useNavigate();
-  const [skillCategory] = useQueries({
-    queries: [
-      {
-        queryKey: ["skills"],
-        queryFn: async () => await GET(`/api/SkillCategory`),
-      },
-    ],
-  });
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["publicProjects", page],
-    queryFn: async () => await GET(`/api/Project/verify`, false),
-  });
-
-  return (
-    <div>
-      <div className="border-b w-full p-4 flex justify-between items-center dark:border-gray-500 shadow-md">
-        <div>
-          <span className="font-semibold text-lg mr-3">Top result:</span>
-          {data?.value?.length} result
-        </div>
-        <div className="flex gap-1 items-center">
-          <label htmlFor="" className="w-[100px]">
-            Sort by
-          </label>
-          <select className="input-style py-2">
-            <option value="">Newest</option>
-            <option value="">Oldest</option>
-            <option value="">Highest rate</option>
-            <option value="">Lowest rate</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        {data?.value?.map((project: ProjectDetail) => (
-          // project.status == ProjectStatus.OPEN &&
-          <ListingItem
-            key={project.projectId}
-            project={project}
-            skillCategory={skillCategory?.data}
-          />
-        ))}
-        {isLoading &&
-          [-1, -2, -3, -4, -5, -6, -7, -8, -9, -10].map((item, index) => (
-            <ListingItemSkeletion key={index} />
-          ))}
-      </div>
-      <div className="p-4 flex justify-end">
-        <Pagination
-          showTotal={(total) => `Total ${total} items`}
-          defaultCurrent={data?.value?.pageNumber}
-          total={data?.value?.totalCount}
-          onChange={(page) => {
-            navigate(`/search/projects?page=${page}`);
-          }}
-        />
-      </div>
-    </div>
-  );
-}

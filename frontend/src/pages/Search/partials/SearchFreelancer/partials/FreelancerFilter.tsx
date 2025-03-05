@@ -9,48 +9,10 @@ const ClearFilter = () => {
 
 export default function FreelancerFilter() {
   return (
-    <div className="p-4 rounded-md dark:bg-zinc-900 shadow-xl h-screen">
+    <div className="p-4 rounded-md dark:bg-zinc-900 shadow-xl pb-56">
       <div className="text-xl font-bold mb-8 flex gap-4 items-center">
         <LuListFilter />
         Filters
-      </div>
-      <div>
-        <div className="flex justify-between font-bold my-4">
-          Price
-          <ClearFilter />
-        </div>
-        <div>
-          <div className="">
-            <label htmlFor="checkbox" className="">
-              min
-            </label>
-            <div className="input-style flex gap-2 py-2 mt-2">
-              <div className="px-1">$</div>
-              <input
-                className="no-ring grow"
-                type="number"
-                name="checkbox"
-                id="checkbox"
-              />
-              <div className="px-2">USD</div>
-            </div>
-          </div>
-          <div className="mt-2">
-            <label htmlFor="checkbox" className="">
-              max
-            </label>
-            <div className="input-style flex gap-2 py-2 mt-2">
-              <div className="px-1">$</div>
-              <input
-                className="no-ring grow"
-                type="number"
-                name="checkbox"
-                id="checkbox"
-              />
-              <div className="px-2">USD</div>
-            </div>
-          </div>
-        </div>
       </div>
       <div>
         <div className="flex justify-between font-bold my-4">

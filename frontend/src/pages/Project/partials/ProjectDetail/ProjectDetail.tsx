@@ -11,9 +11,10 @@ import CreateReportForm from "./forms/CreateReportForm";
 import PlaceBid from "./partials/PlaceBid";
 import { ProjectStatus } from "@/types/project";
 import { tableColumns } from "@/pages/MakeContract/schemas";
+import { Role } from "@/types";
 
 export default function ProjectDetail() {
-  const { accountId } = useAuthStore();
+  const { accountId, role } = useAuthStore();
   const { id: projectId } = useParams();
 
   const [projectDetails, skillCategory] = useQueries({
@@ -44,7 +45,7 @@ export default function ProjectDetail() {
       <div className="rounded-md dark:bg-white/5 p-6 w-full mb-6 shadow-md">
         <div className="flex justify-between items-center">
           <span className="font-bold text-2xl mr-3">Project Details</span>
-          <span className="font-bold mr-3 flex-col items-end">
+          <span className="font-bold mr-3 flex flex-col items-end">
             <div className="text-end">Total Estimate Budget</div>
             <span className="text-2xl chivo font-bold ml-4 w-full text-end">
               ${projectDetails?.data?.value?.estimateBudget}
@@ -105,11 +106,11 @@ export default function ProjectDetail() {
           /> */}
         </div>
       </div>
-      {projectDetails?.data?.value?.clientId != accountId &&
+      {role != Role.CLIENT &&
         !projectDetails?.data?.value?.bids?.some(
           (bid: any) => bid.bidOwnerId == accountId
         ) &&
-        projectDetails?.data?.value?.status != ProjectStatus.VERIFIED && (
+        projectDetails?.data?.value?.status == ProjectStatus.VERIFIED && (
           <PlaceBid project={projectDetails?.data?.value} />
         )}
     </>

@@ -21,6 +21,7 @@ import { POST, PUT } from "@/modules/request";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
 import { NotificationStatus, NotificationType } from "@/types/notification";
 import { FaEye } from "react-icons/fa";
+import useUiStore from "@/stores/uiStore";
 
 // export const formSchema = () => {
 //   return z.object({
@@ -32,8 +33,9 @@ import { FaEye } from "react-icons/fa";
 export const projectColumns = () => {
   const { message } = App.useApp();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { notifyService } = useChatStore();
+  const { requestRevalidate } = useUiStore();
+
   const mutation = useMutation({
     mutationKey: ["projects"],
     mutationFn: async ({
@@ -72,7 +74,7 @@ export const projectColumns = () => {
         NotificationType.GENERAL_ANNOUNCEMENT,
         ""
       );
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      requestRevalidate();
     },
   });
   return [

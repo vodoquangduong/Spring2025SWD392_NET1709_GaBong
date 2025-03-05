@@ -18,6 +18,7 @@ import { GET } from "../../../../../modules/request";
 import { ProjectDetail } from "@/types/project";
 import { useQuery } from "@tanstack/react-query";
 import useQueryParams from "@/hooks/useQueryParams";
+import useUiStore from "@/stores/uiStore";
 
 // tôi xài component bảng này cho gọn, anh Tiến tham khảo thử, tôi thấy anh Tiến tự code bảng bằng tay cũng hơi đuối @@
 // cái component bảng này chỉ cần define những trường trong cái cột của bảng thôi, đỡ phải code tay lại nhé
@@ -25,16 +26,12 @@ import useQueryParams from "@/hooks/useQueryParams";
 export default function ProjectList() {
   const { page } = useQueryParams();
   const navigate = useNavigate();
+  const { revalidate } = useUiStore();
   const { data, isLoading, isRefetching } = useQuery({
-    queryKey: ["projects", page],
+    queryKey: ["pendingProjects", revalidate],
     queryFn: async () =>
-      await GET(
-        `/api/Project/get-all-pending-project?pageNumber=${
-          page || 1
-        }&pageSize=10`
-      ),
+      await GET(`/api/Project/pending?pageNumber=${page || 1}&pageSize=10`),
   });
-  console.log(data);
 
   return (
     <motion.div {...PAGE_ANIMATION}>

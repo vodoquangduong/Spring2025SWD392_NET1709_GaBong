@@ -35,7 +35,7 @@ export default function MakeContract() {
     onSuccess: () => {
       message.destroy();
       message.success("Make contract successfully");
-      navigate(`/projects/${projectId}/milestones`);
+      navigate(`/projects/${projectId}/contract`);
     },
   });
 

@@ -83,8 +83,8 @@ export default function Freelancer() {
   ];
 
   return (
-    <div>
-      <div className="w-full mx-auto">
+    <div className="mx-container">
+      <div className="w-full">
         <div className="border-b dark:border-gray-500 p-6">
           <Breadcrumb
             items={breadcrumbItems}

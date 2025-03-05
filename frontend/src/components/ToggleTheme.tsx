@@ -14,7 +14,7 @@ export default function ToggleTheme() {
       unCheckedChildren={
         <LuSunMedium size={12} className="anticon anticon-close" />
       }
-      className="flex justify-center items-center z-10 fixed top-64 -right-0 -rotate-90 bg-zinc-700 !hover:bg-zinc-400"
+      className="flex justify-center items-center z-20 fixed top-64 -right-0 -rotate-90 bg-zinc-700 !hover:bg-zinc-400"
       onClick={() => {
         switchTheme();
       }}
