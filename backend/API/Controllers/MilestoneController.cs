@@ -61,10 +61,15 @@ namespace API.Controllers
             return Ok("update milestone success");
         }
 
-        [HttpPut("finish-milestone/{mileStoneId}")]
-        public async Task<IActionResult> FinishMilestone([FromRoute] long mileStoneId)
+        /// <summary>
+        /// API to finish a milestone
+        /// </summary>
+        /// <param name="finishMilestoneDTO"></param>
+        /// <returns></returns>
+        [HttpPut("finish-milestone")]
+        public async Task<IActionResult> FinishMilestone([FromBody] FinishMilestoneDTO finishMilestoneDTO)
         {
-            var result = await _milestoneService.FinishMileStone(mileStoneId);
+            var result = await _milestoneService.FinishMileStone(finishMilestoneDTO);
             if (result.Value == null)
             {
                 return Ok("milestone not found");

@@ -8,6 +8,7 @@ using Helpers.DTOs.Milestone;
 using Helpers.DTOs.Project;
 using Helpers.HelperClasses;
 using Helpers.Mappers;
+using Microsoft.Extensions.Configuration;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -16,9 +17,11 @@ namespace Services.Implements
     public class MilestoneService : IMilestoneService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public MilestoneService(IUnitOfWork unitOfWork)
+        private readonly IConfiguration _configuration;
+        public MilestoneService(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
+            _configuration = configuration;
         }
         public async Task<Result<MilestoneDTO>> CreateMilestoneAsync(CreateMilestoneDTO createMilstoneDTO)
         {
@@ -72,7 +75,7 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<Result<MilestoneDTO>> FinishMileStone(long milestoneId)
+        public async Task<Result<MilestoneDTO>> FinishMileStone(FinishMilestoneDTO finishMilestoneDTO)
         {
             try
             {
@@ -80,86 +83,144 @@ namespace Services.Implements
                 var queryOptions = new QueryBuilder<Milestone>()
                 .WithTracking(true)
                 .WithInclude(m => m.Project)
-                .WithPredicate(a => a.MilestoneId == milestoneId) // Filter by ID
+                .WithPredicate(a => a.MilestoneId == finishMilestoneDTO.milestoneId) // Filter by ID
                 .Build();
                 var milestone = await _unitOfWork.GetRepo<Milestone>().GetSingleAsync(queryOptions);
                 if (milestone == null)
                 {
-                    return Result.Failure<MilestoneDTO>(new Error("Milestone not found", $"Milestone with id {milestoneId}"));
+                    return Result.Failure<MilestoneDTO>(new Error("Milestone not found", $"Milestone with id {finishMilestoneDTO.milestoneId}"));
                 }
 
-                //<===Client query===>
-                var clientQueryOptions = new QueryBuilder<Account>()
-                    .WithTracking(true)
-                    .WithPredicate(p => p.AccountId == milestone.Project.ClientId)
-                    .Build();
-                var client = await _unitOfWork.GetRepo<Account>().GetSingleAsync(clientQueryOptions);
-
-                //<===Freelancer Query===>
-                var freelancerQueryOptions = new QueryBuilder<Account>()
-                    .WithTracking(true)
-                    .WithPredicate(a => a.AccountId == milestone.Project.FreelancerId)
-                    .Build();
-                var freelancer = await _unitOfWork.GetRepo<Account>().GetSingleAsync(freelancerQueryOptions);
-
-                //<==Create transaction
-                var clientTransaction = new Transaction()
+                switch (finishMilestoneDTO.milestoneStatus)
                 {
-                    AccountId = client.AccountId,
-                    CreatedAt = DateTime.UtcNow,
-                    Amount = milestone.Project.EstimateBudget * milestone.PayAmount,
-                    Status = TransactionStatus.Pending,
-                    Type = TransactionType.Payment,
-                };
-                var freelancerTransaction = new Transaction()
-                {
-                    AccountId = freelancer.AccountId,
-                    CreatedAt = DateTime.UtcNow,
-                    Amount = milestone.Project.EstimateBudget * milestone.PayAmount,
-                    Status = TransactionStatus.Pending,
-                    Type = TransactionType.Earnings,
-                };
-                await _unitOfWork.GetRepo<Transaction>().CreateAllAsync(new List<Transaction> { freelancerTransaction, clientTransaction });
-                await _unitOfWork.SaveChangesAsync();
+                    case MilestoneStatus.Cancelled:
+                        milestone.Status = MilestoneStatus.Cancelled;
+                        await _unitOfWork.GetRepo<Milestone>().UpdateAsync(milestone);
+                        await _unitOfWork.SaveChangesAsync();
+                        break;
+                    case MilestoneStatus.Completed:
+                        //<===Client query===>
+                        var clientQueryOptions = new QueryBuilder<Account>()
+                            .WithTracking(true)
+                            .WithPredicate(p => p.AccountId == milestone.Project.ClientId)
+                            .Build();
+                        var client = await _unitOfWork.GetRepo<Account>().GetSingleAsync(clientQueryOptions);
 
-                //<==Change credit==> 
-                client.LockCredit -= milestone.Project.EstimateBudget * milestone.PayAmount;
-                client.TotalCredit -= milestone.Project.EstimateBudget * milestone.PayAmount;
+                        //<===Freelancer Query===>
+                        var freelancerQueryOptions = new QueryBuilder<Account>()
+                            .WithTracking(true)
+                            .WithPredicate(a => a.AccountId == milestone.Project.FreelancerId)
+                            .Build();
+                        var freelancer = await _unitOfWork.GetRepo<Account>().GetSingleAsync(freelancerQueryOptions);
+                        //<==Project Query==>
+                        var projectQueryOptions = new QueryBuilder<Project>()
+                            .WithTracking(true)
+                            .WithInclude(p => p.Milestones)
+                            .WithPredicate(p => p.ProjectId == milestone.Project.ProjectId)
+                            .Build();
+                        var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(projectQueryOptions);
 
-                freelancer.TotalCredit += milestone.Project.EstimateBudget * milestone.PayAmount;
-                //<===TODO: update reputation point==>
+                        //<==Create transaction==>
+                        var clientTransaction = new Transaction()
+                        {
+                            AccountId = client.AccountId,
+                            CreatedAt = DateTime.UtcNow,
+                            Amount = milestone.Project.EstimateBudget * milestone.PayAmount / 100,
+                            Status = TransactionStatus.Pending,
+                            Type = TransactionType.Payment,
+                        };
+                        var freelancerTransaction = new Transaction()
+                        {
+                            AccountId = freelancer.AccountId,
+                            CreatedAt = DateTime.UtcNow,
+                            Amount = milestone.Project.EstimateBudget * milestone.PayAmount /100,
+                            Status = TransactionStatus.Pending,
+                            Type = TransactionType.Earnings,
+                        };
+                        await _unitOfWork.GetRepo<Transaction>().CreateAllAsync(new List<Transaction> { freelancerTransaction, clientTransaction });
+                        await _unitOfWork.SaveChangesAsync();
 
-                await _unitOfWork.GetRepo<Account>().UpdateAsync(client);
-                await _unitOfWork.GetRepo<Account>().UpdateAsync(freelancer);
-                await _unitOfWork.SaveChangesAsync();
+                        //<==Change credit==> 
+                        client.LockCredit -= milestone.Project.EstimateBudget * milestone.PayAmount / 100 ;
+                        client.TotalCredit -= milestone.Project.EstimateBudget * milestone.PayAmount /100;
 
-                //<===Change Transaction status===>
-                clientTransaction.Status = TransactionStatus.Completed;
-                freelancerTransaction.Status = TransactionStatus.Completed;
-                await _unitOfWork.GetRepo<Transaction>().UpdateAsync(freelancerTransaction);
-                await _unitOfWork.GetRepo<Transaction>().UpdateAsync(clientTransaction);
-                await _unitOfWork.SaveChangesAsync();
+                        freelancer.TotalCredit += milestone.Project.EstimateBudget * milestone.PayAmount / 100;
+                        //<===TODO: update reputation point==>
+                        var checkDealine = CheckDeadlineStatus(finishMilestoneDTO.UpdateDate, milestone.DeadlineDate);
+                        int reputationPoint;
+                        switch (checkDealine)
+                        {
+                            case -1:
+                                if (!int.TryParse(_configuration["ReputationPolicy:BeforeDeadline"], out reputationPoint))
+                                {
+                                    reputationPoint = 150;
+                                }
+                                freelancer.ReputationPoint += reputationPoint;
+                                break;
+                            case 0:
+                                if (!int.TryParse(_configuration["ReputationPolicy:RightDeadline"], out reputationPoint))
+                                {
+                                    reputationPoint = 100;
+                                }
+                                freelancer.ReputationPoint += reputationPoint;
+                                break;
+                            case 1:
+                                if (!int.TryParse(_configuration["ReputationPolicy:EarlylateDeadline"], out reputationPoint))
+                                {
+                                    reputationPoint = 50;
+                                }
+                                freelancer.ReputationPoint -= reputationPoint;
+                                break;
+                            case 2:
+                                if (!int.TryParse(_configuration["ReputationPolicy:LateDeadline"], out reputationPoint))
+                                {
+                                    reputationPoint = 150;
+                                }
+                                freelancer.ReputationPoint -= reputationPoint;
+                                break;
+                            default:
+                                break;
+                        }
+                        await _unitOfWork.GetRepo<Account>().UpdateAsync(client);
+                        await _unitOfWork.GetRepo<Account>().UpdateAsync(freelancer);
+                        await _unitOfWork.SaveChangesAsync();
 
-                //<===Change Milestone status===>
-                milestone.Status = MilestoneStatus.Completed;
-                await _unitOfWork.GetRepo<Milestone>().UpdateAsync(milestone);
-                await _unitOfWork.SaveChangesAsync();
+                        //<===Change Transaction status===>
+                        clientTransaction.Status = TransactionStatus.Completed;
+                        freelancerTransaction.Status = TransactionStatus.Completed;
+                        await _unitOfWork.GetRepo<Transaction>().UpdateAsync(freelancerTransaction);
+                        await _unitOfWork.GetRepo<Transaction>().UpdateAsync(clientTransaction);
+                        await _unitOfWork.SaveChangesAsync();
 
-                //<==Check for Project==>
-                //If all mile stone is complete => update project status
-                if (isProjectComplete(milestone))
-                {
-                    milestone.Project.Status = ProjectStatus.Completed;
-                    await _unitOfWork.GetRepo<Project>().UpdateAsync(milestone.Project);
-                    await _unitOfWork.SaveChangesAsync();
+                        //<===Change Milestone status===>
+                        milestone.Status = MilestoneStatus.Completed;
+                        await _unitOfWork.GetRepo<Milestone>().UpdateAsync(milestone);
+                        await _unitOfWork.SaveChangesAsync();
 
+                        //<==Check for Project==>
+                        //If all mile stone is complete => update project status
+                        if (isProjectComplete(project))
+                        {
+                            project.Status = ProjectStatus.Completed;
+
+                            if (!int.TryParse(_configuration["ReputationPolicy:CompleteProject"], out reputationPoint))
+                            {
+                                reputationPoint = 200;
+                            }
+                            client.ReputationPoint += reputationPoint;
+                            await _unitOfWork.GetRepo<Account>().UpdateAsync(client);
+                            await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
+                            await _unitOfWork.SaveChangesAsync();
+                        }
+                        break;
+                    default:
+                        return Result.Failure<MilestoneDTO>(new Error("Status not found", $"Only Cancalled and Complete input"));
                 }
-
                 return milestone.ToMilestoneDTO();
             }
             catch (Exception e)
             {
-                return Result.Failure<MilestoneDTO>(new Error("Update milestone failed", $"{e.Message}"));
+                return Result.Failure<MilestoneDTO>(new Error("Finish milestone failed", $"{e.Message}"));
             }
         }
 
@@ -226,17 +287,23 @@ namespace Services.Implements
             }
         }
 
-        public bool isProjectComplete(Milestone milestone)
+        public bool isProjectComplete(Project project)
         {
+            return project.Milestones.All(m => m.Status == MilestoneStatus.Completed);
+        }
 
-            foreach (var mile in milestone.Project.Milestones.ToList())
-            {
-                if (!(mile.Status == MilestoneStatus.Completed))
-                {
-                    return false;
-                }
-            }
-            return true;
+        public int CheckDeadlineStatus(DateTime finishDate, DateTime deadlineDate)
+        {
+            TimeSpan difference = finishDate.Date - deadlineDate.Date;
+
+            if (difference.TotalDays < 0)
+                return -1; //early
+            else if (difference.TotalDays == 0)
+                return 0; //right deadline
+            else if (difference.TotalDays < 1)
+                return 1; //early late for deadline
+            else
+                return 2; //too late for deadline
         }
     }
 }

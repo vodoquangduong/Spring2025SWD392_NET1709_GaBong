@@ -9,7 +9,7 @@ namespace Services.Interfaces
         Task<Result<MilestoneDTO>> GetMilestoneByProjectIdAsync(long id);
         Task<Result<MilestoneDTO>> CreateMilestoneAsync(CreateMilestoneDTO createMilestoneDTO);
         Task<Result<MilestoneDTO>> UpdateMilestoneAsync(UpdateMilestoneDTO updateMilestoneDTO, long milestoneId);
-        Task<Result<MilestoneDTO>> FinishMileStone(long milestoneId);
+        Task<Result<MilestoneDTO>> FinishMileStone(FinishMilestoneDTO finishMilestoneDTO);
         Task<bool> DeleteMilestoneAsync(long id);
     }
 }

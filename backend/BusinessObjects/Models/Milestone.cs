@@ -21,6 +21,8 @@ namespace BusinessObjects.Models
         public long ProjectId { get; set; }
         [Column("deadline_date")]
         public DateTime DeadlineDate { get; set; }
+        [Column("finish_date")]
+        public DateTime? FinishDate { get; set; }
         [Column("status")]
         public MilestoneStatus Status { get; set; }
         [Column("milestone_description")]
