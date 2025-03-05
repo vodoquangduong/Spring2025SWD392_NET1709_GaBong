@@ -1,14 +1,12 @@
+import { Role } from "@/types";
 import { App } from "antd";
+import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUseCase } from "../usecases/loginUseCase";
-import useAuthStore from "@/stores/authStore";
-import { Role } from "@/types";
-import { jwtDecode } from "jwt-decode";
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const { role } = useAuthStore();
   const { message } = App.useApp();
   const [formData, setFormData] = useState({
     email: "",
@@ -52,14 +50,18 @@ const LoginForm = () => {
       if (decoded?.role == Role.ADMIN || decoded?.role == Role.STAFF) {
         navigate("/employee");
       } else {
-        navigate("/"); // Chuyển đến trang chủ sau khi đăng nhập
+        navigate("/");
       }
     } catch (err: any) {
       message.destroy();
-      console.error("Login failed:", err);
-      // Ưu tiên hiển thị message từ server
-      if (err.message && err.message !== "Failed to fetch") {
-        message.error("Remote database return 500 again 😥");
+
+      if (err?.message) {
+        if (err.message.includes("System.InvalidOperationException")) {
+          message.error("Remote database return 500 again 😥");
+        } else {
+          const errorMessage = err.message.replace("Error: ", "");
+          message.error(errorMessage);
+        }
       } else {
         message.error("Login failed. Please try again.");
       }
