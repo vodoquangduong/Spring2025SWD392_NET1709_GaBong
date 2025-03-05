@@ -2,11 +2,8 @@ import { EyeOutlined, SearchOutlined } from "@ant-design/icons";
 import { Avatar, Button, Input, Space, Spin, Table, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  PendingPortfolio,
-  portfolioService,
-} from "../services/portfolioService";
-
+import { PendingPortfolio } from "../models/types";
+import { portfolioService } from "../services/portfolioService";
 const { Search } = Input;
 
 const FreelancerList: React.FC = () => {

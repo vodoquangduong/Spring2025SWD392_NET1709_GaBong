@@ -60,7 +60,6 @@ const RegisterForm = () => {
       // Loại bỏ confirmPassword
       const { confirmPassword, ...registerData } = formData;
 
-      console.log("Register data:", registerData); // Debug log
       message.open({
         type: "loading",
         content: "Creating your account...",
@@ -73,10 +72,16 @@ const RegisterForm = () => {
       message.success("Registration successful!");
       navigate("/login");
     } catch (err: any) {
-      message.destroy(); // Đóng loading message
+      message.destroy();
       console.error("Registration failed:", err);
-      if (err.message && err.message !== "Failed to fetch") {
-        message.error(err.message);
+
+      if (err?.message) {
+        if (err.message.includes("System.InvalidOperationException")) {
+          message.error("Remote database return 500 again 😥");
+        } else {
+          const errorMessage = err.message.replace("Error: ", "");
+          message.error(errorMessage);
+        }
       } else {
         message.error("Registration failed. Please try again.");
       }

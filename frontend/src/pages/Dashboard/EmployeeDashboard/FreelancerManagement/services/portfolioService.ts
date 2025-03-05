@@ -1,35 +1,7 @@
 import { getCookie } from "../../../../../modules/cookie";
+import { PendingPortfolio, PendingPortfoliosResponse } from "../models/types";
 
 const API_URL = import.meta.env.VITE_SERVER_URL;
-
-export interface PendingPortfolio {
-  portfolioId: number;
-  freelancerId: number;
-  title: string;
-  works: string;
-  certificate: string;
-  about: string;
-  status: number;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  avatarURL: string;
-  birthday: string;
-  gender: number;
-  nationality: string;
-  reputationPoint: number;
-}
-
-export interface PendingPortfoliosResponse {
-  value: {
-    items: PendingPortfolio[];
-    totalCount: number;
-    pageSize: number;
-    currentPage: number;
-    totalPages: number;
-  };
-}
 
 export const portfolioService = {
   getPendingPortfolios: async (
@@ -82,8 +54,6 @@ export const portfolioService = {
       if (!token) {
         throw new Error("Authentication required. Please login.");
       }
-
-      // Đầu tiên, lấy thông tin portfolio từ API pending để có được freelancerId
       const pendingResponse = await fetch(`${API_URL}/api/Portfolio/pending`, {
         method: "GET",
         headers: {
@@ -105,9 +75,8 @@ export const portfolioService = {
         throw new Error("Portfolio not found");
       }
 
-      // Sau đó, sử dụng freelancerId để lấy thông tin chi tiết từ API public
       const response = await fetch(
-        `${API_URL}/api/Portfolio/public/${portfolioInfo.freelancerId}`,
+        `${API_URL}/api/Portfolio/pending/${portfolioInfo.freelancerId}`,
         {
           method: "GET",
           headers: {
@@ -135,7 +104,6 @@ export const portfolioService = {
 
       const data = await response.json();
 
-      // Kết hợp dữ liệu từ cả hai API để có thông tin đầy đủ
       const combinedData = {
         ...portfolioInfo,
         ...(data.value || data),
@@ -189,6 +157,30 @@ export const portfolioService = {
       return true;
     } catch (error: any) {
       throw error;
+    }
+  },
+
+  getPendingPortfolioByFreelancerId: async (
+    freelancerId: number
+  ): Promise<PendingPortfolio> => {
+    try {
+      const token = getCookie("accessToken");
+      const response = await fetch(
+        `${API_URL}/api/Portfolio/pending/${freelancerId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to fetch portfolio");
+      }
+      return await response.json();
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to fetch portfolio details");
     }
   },
 };
