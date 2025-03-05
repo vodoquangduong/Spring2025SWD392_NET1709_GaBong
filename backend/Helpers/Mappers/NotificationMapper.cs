@@ -34,5 +34,11 @@ namespace Helpers.Mappers
                 Time = DateTime.UtcNow,
             };
         }
+
+        public static void ToNotification(this Notification notification, UpdateStatusNotificationDTO updateDTO)
+        {
+            notification.Status = updateDTO.Status;
+
+        }
     }
 }
