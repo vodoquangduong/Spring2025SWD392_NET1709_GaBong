@@ -58,3 +58,31 @@ export interface FreelancerDetail extends Freelancer {
     createdAt: string;
   }[];
 }
+export interface PendingPortfolio {
+  portfolioId: number;
+  freelancerId: number;
+  title: string;
+  works: string;
+  certificate: string;
+  about: string;
+  status: number;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  avatarURL: string;
+  birthday: string;
+  gender: number;
+  nationality: string;
+  reputationPoint: number;
+}
+
+export interface PendingPortfoliosResponse {
+  value: {
+    items: PendingPortfolio[];
+    totalCount: number;
+    pageSize: number;
+    currentPage: number;
+    totalPages: number;
+  };
+}

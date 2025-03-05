@@ -26,10 +26,8 @@ import { MdPlace } from "react-icons/md";
 import { RiShieldCheckFill } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import useAuthStore from "../../../../../stores/authStore";
-import {
-  PendingPortfolio,
-  portfolioService,
-} from "../services/portfolioService";
+import { PendingPortfolio } from "../models/types";
+import { portfolioService } from "../services/portfolioService";
 
 const { Text } = Typography;
 
@@ -53,17 +51,38 @@ const FreelancerDetail: React.FC = () => {
       try {
         setLoading(true);
         const portfolioId = parseInt(id);
-        const data = await portfolioService.getPortfolioById(portfolioId);
 
-        // Kiểm tra dữ liệu kết hợp
+        // Đầu tiên lấy thông tin portfolio để có được freelancerId
+        const portfolioData = await portfolioService.getPortfolioById(
+          portfolioId
+        );
+
+        if (!portfolioData || !portfolioData.freelancerId) {
+          message.error("Không thể tìm thấy thông tin freelancer");
+          return;
+        }
+
+        const data = await portfolioService.getPendingPortfolioByFreelancerId(
+          portfolioData.freelancerId
+        );
+
         if (!data.name || !data.email) {
-          message.warning("Một số thông tin cá nhân có thể không đầy đủ");
+          message.warning("Some personal information may be incomplete");
         }
 
         setPortfolio(data);
-        console.log("Combined portfolio data:", data);
+        console.log("Portfolio data from new API:", data);
       } catch (error: any) {
-        message.error(error.message || "Failed to fetch portfolio details");
+        if (error?.message) {
+          if (error.message.includes("System.InvalidOperationException")) {
+            message.error("Remote database return 500 again 😥");
+          } else {
+            const errorMessage = error.message.replace("Error: ", "");
+            message.error(errorMessage);
+          }
+        } else {
+          message.error("Failed to fetch portfolio details. Please try again.");
+        }
       } finally {
         setLoading(false);
       }
@@ -89,7 +108,16 @@ const FreelancerDetail: React.FC = () => {
 
       navigate(-1);
     } catch (error: any) {
-      message.error(error.message || "Failed to approve portfolio");
+      if (error?.message) {
+        if (error.message.includes("System.InvalidOperationException")) {
+          message.error("Remote database return 500 again 😥");
+        } else {
+          const errorMessage = error.message.replace("Error: ", "");
+          message.error(errorMessage);
+        }
+      } else {
+        message.error("Failed to approve portfolio. Please try again.");
+      }
     } finally {
       setApproving(false);
       setConfirmModalVisible(false);
@@ -113,7 +141,16 @@ const FreelancerDetail: React.FC = () => {
 
       navigate(-1);
     } catch (error: any) {
-      message.error(error.message || "Failed to reject portfolio");
+      if (error?.message) {
+        if (error.message.includes("System.InvalidOperationException")) {
+          message.error("Remote database return 500 again 😥");
+        } else {
+          const errorMessage = error.message.replace("Error: ", "");
+          message.error(errorMessage);
+        }
+      } else {
+        message.error("Failed to reject portfolio. Please try again.");
+      }
     } finally {
       setRejecting(false);
       setConfirmModalVisible(false);
@@ -160,9 +197,8 @@ const FreelancerDetail: React.FC = () => {
       ? new Date(portfolio.birthday).toLocaleDateString()
       : "Not specified";
 
-  // Đảm bảo các trường dữ liệu cần thiết
-  const displayName = portfolio.name || "Không có tên";
-  const displayEmail = portfolio.email || "Không có email";
+  const displayName = portfolio.name || "No name";
+  const displayEmail = portfolio.email || "No email";
   const displayPhone = portfolio.phone || "No phone";
   const displayAddress = portfolio.address || "No address";
   const displayNationality = portfolio.nationality || "Not specified";

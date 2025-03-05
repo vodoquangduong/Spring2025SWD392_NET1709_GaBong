@@ -1,5 +1,7 @@
 import { defaultAvatar } from "@/modules/default";
+import { mapRoleToTag } from "@/modules/mapUiStatus";
 import useAuthStore from "@/stores/authStore";
+import { Role } from "@/types";
 import { App, Avatar, Button, Card, Spin, Tag, Typography } from "antd";
 import { useEffect, useState } from "react";
 import {
@@ -18,8 +20,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { UserProfileData } from "./models/types";
 import { profileUseCase } from "./usecases/profileUseCase";
-import { mapRoleToTag } from "@/modules/mapUiStatus";
-import { Role } from "@/types";
 
 const { Title } = Typography;
 
@@ -41,7 +41,16 @@ const UserProfile = () => {
       setProfile(data);
     } catch (error: any) {
       console.error("Profile error:", error);
-      message.error(error.message || "Failed to load profile");
+      if (error?.message) {
+        if (error.message.includes("System.InvalidOperationException")) {
+          message.error("Remote database return 500 again 😥");
+        } else {
+          const errorMessage = error.message.replace("Error: ", "");
+          message.error(errorMessage);
+        }
+      } else {
+        message.error("Failed to load profile. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
