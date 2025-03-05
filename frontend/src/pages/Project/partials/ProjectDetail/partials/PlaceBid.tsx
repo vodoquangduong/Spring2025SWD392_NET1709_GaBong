@@ -89,19 +89,6 @@ export default function PlaceBid({ project }: { project: any }) {
   });
 
   const onSubmit = async (formData: any) => {
-    const res = await GET(`/api/Bid/freelancer/${accountId}`, false);
-    try {
-      if (
-        res?.some(
-          (item: any) => item.bidOwnerId == accountId && item.projectId == id
-        )
-      ) {
-        message.error("You have already placed a bid");
-        navigate(`/projects/${id}/proposals`);
-        return;
-      }
-    } catch (error) {}
-
     formData.projectId = id;
     message.open({
       type: "loading",
@@ -146,7 +133,30 @@ export default function PlaceBid({ project }: { project: any }) {
             <div className="font-bold">
               Describe your proposal (minimum 100 characters)
             </div>
-            <Button type="primary" className="py-4 font-bold" htmlType="submit">
+            <Popconfirm
+              title="Approve the freelancer"
+              description="Are you sure to approve this freelancer?"
+              onConfirm={async (formData) => {
+                console.log(formData);
+
+                // message.open({
+                //   type: "loading",
+                //   content: "Creating contract ...",
+                //   duration: 0,
+                // });
+                // const contractPolicy = (
+                //   document.querySelector("#contractPolicy") as HTMLInputElement
+                // )?.value;
+                // let data = { freelancerId, projectId, contractPolicy };
+                // mutation.mutate(data);
+              }}
+            ></Popconfirm>
+            <Button
+              disabled={mutation.isPending}
+              htmlType="submit"
+              type="primary"
+              className="py-4 text-base font-bold"
+            >
               Send proposal
             </Button>
           </div>

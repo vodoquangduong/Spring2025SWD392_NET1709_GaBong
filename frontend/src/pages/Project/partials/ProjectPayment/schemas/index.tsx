@@ -180,11 +180,11 @@ export const tableColumns = (project: any) => {
                         status: record.status,
                       };
                       if (value == 1) {
-                        data.status = MilestoneStatus.COMPLETED;
-                        await PUT(
-                          `/api/Milestone/update-milestone/${record.milestoneId}`,
-                          data
-                        );
+                        await PUT(`/api/Milestone/finish-milestone`, {
+                          milestoneId: record.milestoneId,
+                          milestoneStatus: MilestoneStatus.COMPLETED,
+                          updateDate: dayjs().toISOString(),
+                        });
                       } else {
                         data.status = MilestoneStatus.IN_PROGRESS;
                         await PUT(

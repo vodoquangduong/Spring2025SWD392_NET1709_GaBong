@@ -220,7 +220,7 @@ export default function MakeContract() {
                 </div>
               </div>
               <div className="mt-4 pt-4">
-                <Popconfirm
+                {/* <Popconfirm
                   title="Approve the freelancer"
                   description="Are you sure to approve this freelancer?"
                   onConfirm={async () => {
@@ -238,13 +238,13 @@ export default function MakeContract() {
                     mutation.mutate(data);
                   }}
                 >
-                  <Button
-                    type="primary"
-                    className="py-6 text-base font-semibold w-full uppercase"
-                  >
-                    Confirm and Create
-                  </Button>
-                </Popconfirm>
+                  </Popconfirm> */}
+                <Button
+                  type="primary"
+                  className="py-6 text-base font-semibold w-full uppercase"
+                >
+                  Confirm and Create
+                </Button>
               </div>
             </div>
           </div>
