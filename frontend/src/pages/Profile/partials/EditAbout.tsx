@@ -38,7 +38,13 @@ export const formSchema = () => {
       .min(3, "Address must be at least 3 characters")
       .max(50, "Address must be less than 50 characters"),
     avatarURL: z.string().optional(),
-    birthday: z.coerce.date().min(new Date(1990, 0, 1)).max(new Date()),
+    birthday: z.coerce
+      .date()
+      .min(new Date(1950, 0, 1), "Birthday must be after 1950")
+      .max(
+        new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000),
+        "User must be at least 18 years old"
+      ),
     nationality: z.string().min(1, "Required"),
     gender: z.coerce.number().min(0, "Required"),
   });
@@ -256,6 +262,9 @@ const EditAbout = () => {
                 className="w-full p-2 input-style"
                 placeholder="+1 234 567 890"
               />
+              {errors.phone && (
+                <span className="error-msg">{errors.phone.message}</span>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Birthday</label>
@@ -264,6 +273,9 @@ const EditAbout = () => {
                 type="date"
                 className="w-full p-2 input-style"
               />
+              {errors.birthday && (
+                <span className="error-msg">{errors.birthday.message}</span>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Gender</label>
@@ -289,6 +301,9 @@ const EditAbout = () => {
                 rows={5}
                 placeholder="Enter your address"
               />
+              {errors.address && (
+                <span className="error-msg">{errors.address.message}</span>
+              )}
             </div>
           </div>
         </div>

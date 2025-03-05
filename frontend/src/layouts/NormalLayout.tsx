@@ -6,7 +6,7 @@ export default function NormalLayout() {
   return (
     <>
       <Header />
-      <div className="mt-[72px]">
+      <div className="min-h-screen mt-[72px]">
         <Outlet />
       </div>
       <Footer />

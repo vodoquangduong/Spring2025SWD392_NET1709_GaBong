@@ -57,7 +57,7 @@ export default function PlaceBid({ project }: { project: any }) {
       message.destroy();
       message.error(
         <div>
-          You dont have enough balance to place this bid{" "}
+          You dont have enough balance to send proposal{" "}
           <Link
             to="/payment"
             className="underline hover:underline text-blue-500"
@@ -116,15 +116,15 @@ export default function PlaceBid({ project }: { project: any }) {
       {/* <div className="rounded-md mt-6 mb-10"> */}
       <div className="w-full flex justify-between items-center dark:border-gray-500">
         <span className="font-semibold text-2xl mb-3">
-          Place a bid on this project
+          Place a proposal on this project
         </span>
       </div>
       <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
-        <div>You must have a minimum of $2 USD to place a bid.</div>
+        <div>You must have a minimum of $2 USD to place a proposal.</div>
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-8">
             <label htmlFor="checkbox" className="my-1 font-bold">
-              Bid Amount
+              Offer Amount
             </label>
             <div className="input-style flex gap-2 py-2 mt-2">
               <div className="px-1">$</div>
@@ -147,7 +147,7 @@ export default function PlaceBid({ project }: { project: any }) {
               Describe your proposal (minimum 100 characters)
             </div>
             <Button type="primary" className="py-4 font-bold" htmlType="submit">
-              Place Bid
+              Send proposal
             </Button>
           </div>
           <textarea

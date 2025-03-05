@@ -41,7 +41,6 @@ export default function MyProject() {
           (p: any) => p.clientId == accountId || p.freelancerId == accountId
         )}
         columns={tableColumns()}
-        // columns
       />
     </div>
   );

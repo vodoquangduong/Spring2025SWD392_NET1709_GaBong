@@ -11,7 +11,7 @@ export default function PaymentSuccess() {
         subTitle="Your payment order has successfully been completed."
         extra={[
           <Button type="primary" key="console" onClick={() => navigate(-2)}>
-            Go to Profile
+            Go back
           </Button>,
         ]}
       />
