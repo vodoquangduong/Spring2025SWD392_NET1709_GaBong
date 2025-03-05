@@ -15,7 +15,7 @@ export const bidFormSchema = () => {
     projectId: z.string().optional(),
     bidOffer: z.coerce
       .number()
-      .min(20, "Bid must be greater than 20")
+      .min(100, "Bid must be greater than 100")
       .max(10000000, "Bid must be less than 10000000"),
     bidDescription: z
       .string()

@@ -103,7 +103,7 @@ export default function ProjectListing() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["publicProjects", page],
-    queryFn: async () => await GET(`/api/Project`, false),
+    queryFn: async () => await GET(`/api/Project/verify`, false),
   });
 
   return (

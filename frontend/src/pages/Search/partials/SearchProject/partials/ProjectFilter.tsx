@@ -16,7 +16,7 @@ export default function ProjectFilter() {
       </div>
       <div>
         <div className="flex justify-between font-bold my-4">
-          Price
+          Estimated Budget
           <ClearFilter />
         </div>
         <div>
@@ -107,26 +107,6 @@ export default function ProjectFilter() {
                 name="checkbox"
                 id="checkbox"
                 placeholder="Search countries"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div className="flex justify-between font-bold my-4">
-          Languages
-          <ClearFilter />
-        </div>
-        <div>
-          <div className="">
-            <div className="input-style flex gap-2 py-2 items-center">
-              <IoSearch size={18} />
-              <input
-                className="ml-1 no-ring grow"
-                type="text"
-                name="checkbox"
-                id="checkbox"
-                placeholder="Search languages"
               />
             </div>
           </div>

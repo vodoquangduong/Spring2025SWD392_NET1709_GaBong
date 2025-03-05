@@ -4,11 +4,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 export const tableColumns = (budget: number) => {
-  const { message } = App.useApp();
-
   return [
     {
-      title: "Name",
+      title: "Description",
       dataIndex: "milestoneName",
       key: "1",
       render: (text: string, record: any) => (

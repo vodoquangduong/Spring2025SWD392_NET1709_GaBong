@@ -84,30 +84,26 @@ export default function Sidebar({ clientId }: { clientId: any }) {
             <HiIdentification color="green" />
             Identity verified
           </div>
-          <div className="flex gap-3 items-center">
+          {/* <div className="flex gap-3 items-center">
             <RiShieldCheckFill color="green" />
             Payment verified
-          </div>
-          <div className="flex gap-3 items-center">
-            <IoCard color="green" />
-            Deposit made
-          </div>
+          </div> */}
           {data?.value?.email && (
             <div className="flex gap-3 items-center">
               <IoMail color="green" />
               Email verified
             </div>
           )}
-          <div className="flex gap-3 items-center">
-            <FaUser color="green" />
-            Profile completed
-          </div>
           {data?.value?.phone && (
             <div className="flex gap-3 items-center">
               <FaPhone color="green" />
               Phone verified
             </div>
           )}
+          <div className="flex gap-3 items-center">
+            <FaUser color="green" />
+            Profile completed
+          </div>
         </div>
       ) : (
         <Skeleton className="mt-8" />

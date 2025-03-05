@@ -29,7 +29,7 @@ export default function App() {
         await noti.start();
         await noti.userConnect(Number(accountId));
         noti.onReceiveNotification((message) => {
-          console.log("message", message);
+          // console.log("message", message);
           if (message?.accountId == accountId) {
             setNotification(message.notificationType);
           }
