@@ -1,3 +1,4 @@
+using BusinessObjects.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -14,6 +15,9 @@ namespace BusinessObjects.Models
         [Column("skill_id")]
         public long SkillId { get; set; }
 
+        [Column ("level")]
+        public SkillLevel Level { get; set; } = SkillLevel.Enry;
+        
         // Navigation Properties
         [ForeignKey("AccountId")]
         public virtual Account Account { get; set; } = null!;
