@@ -47,9 +47,9 @@ export default function ProjectDetail() {
           <span className="font-bold text-2xl mr-3">Project Details</span>
           <span className="font-bold mr-3 flex flex-col items-end">
             <div className="text-end">Total Estimate Budget</div>
-            <span className="text-2xl chivo font-bold ml-4 w-full text-end">
+            <span className="text-2xl chivo font-bold ml-4 w-full text-end mt-1">
               ${projectDetails?.data?.value?.estimateBudget}
-              <span className="text-zinc-500 text-sm ml-1">USD</span>
+              <span className="text-zinc-500 text-sm ml-2">USD</span>
             </span>
           </span>
         </div>

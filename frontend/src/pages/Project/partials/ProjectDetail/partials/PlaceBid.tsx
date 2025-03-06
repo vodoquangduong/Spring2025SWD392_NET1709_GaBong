@@ -105,13 +105,13 @@ export default function PlaceBid({ project }: { project: any }) {
       scrollTo(0, 0);
       return;
     }
-    // formData.projectId = id;
-    // message.open({
-    //   type: "loading",
-    //   content: "Placing bid ...",
-    //   duration: 0,
-    // });
-    // mutation.mutate(formData);
+    formData.projectId = id;
+    message.open({
+      type: "loading",
+      content: "Placing bid ...",
+      duration: 0,
+    });
+    mutation.mutate(formData);
   };
 
   return (
@@ -149,24 +149,6 @@ export default function PlaceBid({ project }: { project: any }) {
             <div className="font-bold">
               Describe your proposal (minimum 100 characters)
             </div>
-            <Popconfirm
-              title="Approve the freelancer"
-              description="Are you sure to approve this freelancer?"
-              onConfirm={async (formData) => {
-                console.log(formData);
-
-                // message.open({
-                //   type: "loading",
-                //   content: "Creating contract ...",
-                //   duration: 0,
-                // });
-                // const contractPolicy = (
-                //   document.querySelector("#contractPolicy") as HTMLInputElement
-                // )?.value;
-                // let data = { freelancerId, projectId, contractPolicy };
-                // mutation.mutate(data);
-              }}
-            ></Popconfirm>
             <Button
               disabled={mutation.isPending}
               htmlType="submit"
