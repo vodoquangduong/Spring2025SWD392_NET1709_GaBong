@@ -23,8 +23,16 @@ export default function MakeContract() {
   const mutation = useMutation({
     mutationKey: ["projects"],
     mutationFn: async (data: any) => {
-      const res = await POST(`/api/Contract`, data);
-      if (res.code) throw new Error();
+      const check = await GET(`/api/Project/${projectId}`);
+      console.log(check);
+      if (check?.freelancerId) {
+        message.destroy();
+        message.error("This project is already contracted");
+        return;
+      }
+      let res = "";
+      // const res = await POST(`/api/Contract`, data);
+      // if (res.code) throw new Error();
       return res;
     },
     onError: () => {

@@ -99,7 +99,7 @@ export default function PlaceBid({ project }: { project: any }) {
   });
 
   const onSubmit = async (formData: any) => {
-    if (!user?.data?.value?.phone) {
+    if (!(user?.data?.value?.phone?.length != 0)) {
       message.info("Please update your profile first");
       navigate("/profile/edit");
       scrollTo(0, 0);
