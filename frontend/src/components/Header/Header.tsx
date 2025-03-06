@@ -120,7 +120,7 @@ export default function Header() {
                     type="primary"
                     className="font-semibold"
                     onClick={() => {
-                      if (!data?.value?.phone) {
+                      if (!(data?.value?.phone?.length != 0)) {
                         message.info("Please update your profile first");
                         navigate("/profile/edit");
                         return;
