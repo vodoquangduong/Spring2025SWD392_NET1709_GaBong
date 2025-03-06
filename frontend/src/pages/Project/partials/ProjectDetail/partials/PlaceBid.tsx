@@ -23,7 +23,7 @@ export default function PlaceBid({ project }: { project: any }) {
         .number()
         .min(
           project?.estimateBudget * 0.8,
-          "Bid must be greater than the 80% of the project budget"
+          "Offer must be greater than the 80% of the project budget"
         )
         .max(10000000, "Bid must be less than 1,000,000 USD"),
       bidDescription: z
