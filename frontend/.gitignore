@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 # Environment variables
 .env
+package-lock.json
