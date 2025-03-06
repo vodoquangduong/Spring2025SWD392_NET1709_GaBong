@@ -62,7 +62,8 @@ export const tableColumns = ({
       title: "Milestone Budget",
       dataIndex: state?.project ? "payAmount" : "amount",
       key: "3",
-      render: (text: number, record: any) => (text / 100) * budget + " USD",
+      render: (text: number, record: any) =>
+        Number((text / 100) * budget).toLocaleString() + " USD",
     },
     {
       title: "Deadline",

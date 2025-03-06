@@ -139,7 +139,7 @@ export default function PostProject() {
       <Back />
       <div className="grid grid-cols-2 gap-4 mb-2 col-span-6">
         <div className="font-semibold text-2xl mt-10 col-span-2">
-          Create new project
+          {!state?.project ? "Create new project" : "Edit project"}
         </div>
         <div className="col-span-1">
           <div className="font-semibold text-base pb-2">Name</div>
@@ -194,7 +194,7 @@ export default function PostProject() {
 
         <div>
           <div className="font-semibold text-base pb-2">
-            Available Time Range
+            Bidding Available Time Range
           </div>
           <div className="input-style flex gap-2 py-[10px]">
             <input
@@ -202,6 +202,7 @@ export default function PostProject() {
               className="no-ring grow no-scrollbar"
               placeholder="Enter estimated budget"
               type="number"
+              step={"1"}
             />
             <div className="px-2">days</div>
           </div>

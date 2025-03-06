@@ -4,7 +4,9 @@ import { ProjectStatus } from "@/types/project";
 import { App, Button } from "antd";
 import React from "react";
 import { FaPen } from "react-icons/fa";
+import { MdOutlineFeedback } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
+import CreateFeedbackForm from "../partials/CreateFeedbackForm";
 
 export const tableColumns = () => {
   const { message } = App.useApp();
@@ -57,20 +59,32 @@ export const tableColumns = () => {
       render: (status: ProjectStatus, record: any) => (
         <div>
           {status == ProjectStatus.COMPLETED && (
-            <Button type="link" size="small">
-              Review freelancer
-            </Button>
+            <CreateModal
+              icon={<MdOutlineFeedback />}
+              children="Feedback freelacner"
+              type="default"
+              modalTitle={"Write feedback to freelancer"}
+              form={(
+                setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+              ) => (
+                <CreateFeedbackForm
+                  record={record}
+                  setIsModalOpen={setIsModalOpen}
+                />
+              )}
+            />
           )}
           {status == ProjectStatus.REVERIFIED && (
             <Button
-              type="link"
-              size="small"
+              icon={<FaPen />}
+              className="font-semibold"
+              // type="link"
               onClick={() => {
                 navigate("/post-project", { state: { project: record } });
               }}
               // setProject(record);
             >
-              Update project information
+              Update project infor
             </Button>
           )}
         </div>

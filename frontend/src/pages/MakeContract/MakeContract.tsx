@@ -296,7 +296,7 @@ const UserItem = ({ data }: any) => {
             <div className="text-base flex gap-8"></div>
             <div className="text-base flex gap-8">
               <span>
-                Member since {dayjs(data?.createdA).format("MMMM DD, YYYY")}
+                Member since {dayjs(data?.createdAt).format("MMMM DD, YYYY")}
               </span>
             </div>
           </div>
