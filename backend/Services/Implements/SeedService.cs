@@ -144,7 +144,7 @@ namespace Services.Implements
                 LockCredit = 0,
                 CreatedAt = DateTime.UtcNow.ToUniversalTime(),
                 Status = AccountStatus.Active,
-                AvatarURL = "https://i.pravatar.cc/500",
+                AvatarURL = "https://firebasestorage.googleapis.com/v0/b/datj-diamond.appspot.com/o/images%2F07cad7d6-549b-453f-a551-df41f767ef9a?alt=media&token=1d8db5a1-d8ea-4fda-ae12-673406cf7824",
                 Nationality = faker.Address.Country()
             };
         }
@@ -179,6 +179,7 @@ namespace Services.Implements
                 ReputationPoint = 200,
                 TotalCredit = 0,
                 LockCredit = 0,
+                AvatarURL = "https://firebasestorage.googleapis.com/v0/b/datj-diamond.appspot.com/o/images%2F07cad7d6-549b-453f-a551-df41f767ef9a?alt=media&token=1d8db5a1-d8ea-4fda-ae12-673406cf7824",
                 CreatedAt = DateTime.UtcNow.ToUniversalTime(),
                 Status = AccountStatus.Active,
                 Nationality = faker.Address.Country()
@@ -196,6 +197,7 @@ namespace Services.Implements
                 ReputationPoint = 200,
                 TotalCredit = 0,
                 LockCredit = 0,
+                AvatarURL = "https://firebasestorage.googleapis.com/v0/b/datj-diamond.appspot.com/o/images%2F07cad7d6-549b-453f-a551-df41f767ef9a?alt=media&token=1d8db5a1-d8ea-4fda-ae12-673406cf7824",
                 CreatedAt = DateTime.UtcNow.ToUniversalTime(),
                 Status = AccountStatus.Active,
                 Nationality = faker.Address.Country()
@@ -213,6 +215,7 @@ namespace Services.Implements
                 ReputationPoint = 200,
                 TotalCredit = 0,
                 LockCredit = 0,
+                AvatarURL = "https://firebasestorage.googleapis.com/v0/b/datj-diamond.appspot.com/o/images%2F07cad7d6-549b-453f-a551-df41f767ef9a?alt=media&token=1d8db5a1-d8ea-4fda-ae12-673406cf7824",
                 CreatedAt = DateTime.UtcNow.ToUniversalTime(),
                 Status = AccountStatus.Active,
                 Nationality = faker.Address.Country()
@@ -230,6 +233,7 @@ namespace Services.Implements
                 ReputationPoint = 200,
                 TotalCredit = 0,
                 LockCredit = 0,
+                AvatarURL = "https://firebasestorage.googleapis.com/v0/b/datj-diamond.appspot.com/o/images%2F07cad7d6-549b-453f-a551-df41f767ef9a?alt=media&token=1d8db5a1-d8ea-4fda-ae12-673406cf7824",
                 CreatedAt = DateTime.UtcNow,
                 Status = AccountStatus.Active,
                 Nationality = faker.Address.Country()
