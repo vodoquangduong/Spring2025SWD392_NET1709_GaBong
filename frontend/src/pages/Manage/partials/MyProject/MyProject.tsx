@@ -41,6 +41,7 @@ export default function MyProject() {
           (p: any) => p.clientId == accountId || p.freelancerId == accountId
         )}
         columns={tableColumns()}
+        rowKey={(record: any) => record?.projectId + "ProjectId"}
       />
     </div>
   );

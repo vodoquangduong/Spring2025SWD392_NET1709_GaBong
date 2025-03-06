@@ -61,7 +61,7 @@ export const tableColumns = () => {
           {status == ProjectStatus.COMPLETED && (
             <CreateModal
               icon={<MdOutlineFeedback />}
-              children="Feedback freelacner"
+              children="Feedback freelancer"
               type="default"
               modalTitle={"Write feedback to freelancer"}
               form={(
