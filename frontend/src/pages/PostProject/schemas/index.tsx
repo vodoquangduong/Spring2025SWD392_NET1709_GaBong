@@ -27,7 +27,12 @@ export const formSchema = () => {
   });
 };
 
-export const tableColumns = ({ setMilestones, milestones }: any) => {
+export const tableColumns = ({
+  budget,
+  setMilestones,
+  milestones,
+  state,
+}: any) => {
   const { message } = App.useApp();
 
   return [
@@ -39,7 +44,7 @@ export const tableColumns = ({ setMilestones, milestones }: any) => {
     },
     {
       title: "Description",
-      dataIndex: "description",
+      dataIndex: state?.project ? "milestoneDescription" : "description",
       key: "2",
       render: (text: string, record: any) => (
         <Link to={`/projects/${record.projectId}/details`} className="">
@@ -49,9 +54,15 @@ export const tableColumns = ({ setMilestones, milestones }: any) => {
     },
     {
       title: "Percentage",
-      dataIndex: "amount",
+      dataIndex: state?.project ? "payAmount" : "amount",
       key: "3",
-      render: (text: string) => text + "%",
+      render: (text: string, record: any) => text + "%",
+    },
+    {
+      title: "Milestone Budget",
+      dataIndex: state?.project ? "payAmount" : "amount",
+      key: "3",
+      render: (text: number, record: any) => (text / 100) * budget + " USD",
     },
     {
       title: "Deadline",
@@ -59,25 +70,27 @@ export const tableColumns = ({ setMilestones, milestones }: any) => {
       key: "4",
       render: (text: string) => dayjs(text).format("DD-MM-YYYY HH:mm"),
     },
-    {
-      title: "",
-      dataIndex: "delete",
-      key: "5",
-      render: (text: string, record: any, index: number) => (
-        <Button
-          onClick={() => {
-            if (milestones.length == 1) {
-              message.error("Project must have at least one milestone");
-              return;
-            }
-            const newMilestones = milestones.filter(
-              (_: any, i: number) => i !== index
-            );
-            setMilestones(newMilestones);
-          }}
-          icon={<FaRegTrashAlt />}
-        ></Button>
-      ),
-    },
+    !state?.project
+      ? {
+          title: "",
+          dataIndex: "delete",
+          key: "5",
+          render: (text: string, record: any, index: number) => (
+            <Button
+              onClick={() => {
+                if (milestones.length == 1) {
+                  message.error("Project must have at least one milestone");
+                  return;
+                }
+                const newMilestones = milestones.filter(
+                  (_: any, i: number) => i !== index
+                );
+                setMilestones(newMilestones);
+              }}
+              icon={<FaRegTrashAlt />}
+            ></Button>
+          ),
+        }
+      : {},
   ];
 };

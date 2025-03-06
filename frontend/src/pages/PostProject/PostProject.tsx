@@ -1,16 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { App, Button, Select, Table } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 import { set, useForm } from "react-hook-form";
 import { formSchema, tableColumns } from "./schemas";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { GET, POST } from "@/modules/request";
+import { GET, POST, PUT } from "@/modules/request";
 import countries from "@/mocks/countries.json";
 import Back from "@/components/Back";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { FaPlus } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ProjectStatus } from "@/types/project";
 
 dayjs.extend(utc);
 
@@ -24,6 +25,7 @@ type Milestone = {
 export default function PostProject() {
   const navigate = useNavigate();
   const { message } = App.useApp();
+  const { state } = useLocation();
   const [milestones, setMilestones] = React.useState<Milestone[]>([
     {
       milestoneName: "Init milestone",
@@ -55,6 +57,14 @@ export default function PostProject() {
     resolver: zodResolver(formSchema()),
   });
 
+  useEffect(() => {
+    if (state?.project) {
+      reset(state.project);
+      setSkills(state.project.skillIds);
+      setMilestones(state.project.milestones);
+    }
+  }, []);
+
   const { data: skillCategories } = useQuery({
     queryKey: ["countries"],
     queryFn: async () => await GET("/api/SkillCategory", false),
@@ -63,9 +73,16 @@ export default function PostProject() {
   const mutation = useMutation({
     mutationKey: ["projects"],
     mutationFn: async (formData: any) => {
-      const res = await POST("/api/Project/post-project", formData);
-      if (res.code) throw new Error();
-      return res;
+      if (!state?.project) {
+        const res = await POST(`/api/Project/post-project`, formData);
+        return res;
+      } else {
+        const res = await PUT(
+          `/api/Project/update/${state?.project?.projectId}`,
+          formData
+        );
+        return res;
+      }
     },
     onError: () => {
       message.destroy();
@@ -106,8 +123,13 @@ export default function PostProject() {
     });
     formData.milestones = milestones;
     formData.skillIds = skills;
+    if (state?.project) {
+      formData.status = ProjectStatus.PENDING;
+    }
     mutation.mutate(formData);
   };
+
+  const budget = watch("estimateBudget");
 
   return (
     <form
@@ -195,6 +217,7 @@ export default function PostProject() {
             className="!py-[9px]"
             maxCount={5}
             showSearch
+            value={skills}
             suffixIcon={<span>{skills.length} / 5</span>}
             filterOption={(input, option: any) =>
               (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
@@ -226,129 +249,133 @@ export default function PostProject() {
           )}
         </div>
 
-        <div className="col-span-2">
-          <div className="font-semibold text-2xl pb-4 mt-4 col-span-2">
-            Add Milestones
-          </div>
-          {/* <div className="font-semibold text-base pb-2">Milestones</div> */}
-          <div className="gap-2 grid grid-cols-12">
-            <div className="col-span-7">
-              <div className="font-semibold text-base pb-2 col-span-8">
-                Name
-              </div>
-              <input
-                id="milestoneName"
-                className="input-style py-[10px] no-ring grow no-scrollbar"
-                placeholder="Milestone name"
-              />
+        {!state?.project ? (
+          <div className="col-span-2">
+            <div className="font-semibold text-2xl pb-4 mt-4 col-span-2">
+              Add Milestones
             </div>
-            <div className="col-span-2">
-              <div className="font-semibold text-base pb-2 col-span-8">
-                Percentage
-              </div>
-              <input
-                id="milestonePercentage"
-                className="input-style py-[10px] no-ring grow no-scrollbar"
-                placeholder="Percentage"
-                type="number"
-              />
-            </div>
-            <div className="col-span-3">
-              <div className="font-semibold text-base pb-2 col-span-8">
-                Deadline
-              </div>
-              <input
-                // min="2025-02-28T00:00"
-                min={dayjs(milestones[milestones.length - 1]?.deadline)
-                  .add(1, "day")
-                  .format("YYYY-MM-DDTHH:mm")}
-                id="milestoneDeadline"
-                className="input-style py-[10px] no-ring grow no-scrollbar"
-                placeholder="Enter estimated budget"
-                type="datetime-local"
-              />
-            </div>
-            <div className="col-span-12">
-              <div className="font-semibold text-base pb-2 col-span-8">
-                Description
-              </div>
-              <textarea
-                id="milestoneDescription"
-                rows={3}
-                className="input-style py-[10px] no-ring grow no-scrollbar"
-                placeholder="Milestone description"
-              />
-            </div>
-            <div className="col-span-12 flex justify-between">
-              {errors.root?.milestoneError ? (
-                <div className="error-msg">
-                  {errors.root?.milestoneError?.message}
+            {/* <div className="font-semibold text-base pb-2">Milestones</div> */}
+            <div className="gap-2 grid grid-cols-12">
+              <div className="col-span-7">
+                <div className="font-semibold text-base pb-2 col-span-8">
+                  Name
                 </div>
-              ) : (
-                <div></div>
-              )}
-              <Button
-                type="primary"
-                className="font-bold col-span-2 h-full px-4 py-2"
-                icon={<FaPlus />}
-                onClick={() => {
-                  const milestoneName = document.getElementById(
-                    "milestoneName"
-                  ) as HTMLInputElement;
-                  const milestoneDeadline = document.getElementById(
-                    "milestoneDeadline"
-                  ) as HTMLInputElement;
-                  const milestonePercentage = document.getElementById(
-                    "milestonePercentage"
-                  ) as HTMLInputElement;
-                  const milestoneDescription = document.getElementById(
-                    "milestoneDescription"
-                  ) as HTMLInputElement;
+                <input
+                  id="milestoneName"
+                  className="input-style py-[10px] no-ring grow no-scrollbar"
+                  placeholder="Milestone name"
+                />
+              </div>
+              <div className="col-span-2">
+                <div className="font-semibold text-base pb-2 col-span-8">
+                  Percentage
+                </div>
+                <input
+                  id="milestonePercentage"
+                  className="input-style py-[10px] no-ring grow no-scrollbar"
+                  placeholder="Percentage"
+                  type="number"
+                />
+              </div>
+              <div className="col-span-3">
+                <div className="font-semibold text-base pb-2 col-span-8">
+                  Deadline
+                </div>
+                <input
+                  // min="2025-02-28T00:00"
+                  min={dayjs(milestones[milestones.length - 1]?.deadline)
+                    .add(1, "day")
+                    .format("YYYY-MM-DDTHH:mm")}
+                  id="milestoneDeadline"
+                  className="input-style py-[10px] no-ring grow no-scrollbar"
+                  placeholder="Enter estimated budget"
+                  type="datetime-local"
+                />
+              </div>
+              <div className="col-span-12">
+                <div className="font-semibold text-base pb-2 col-span-8">
+                  Description
+                </div>
+                <textarea
+                  id="milestoneDescription"
+                  rows={3}
+                  className="input-style py-[10px] no-ring grow no-scrollbar"
+                  placeholder="Milestone description"
+                />
+              </div>
+              <div className="col-span-12 flex justify-between">
+                {errors.root?.milestoneError ? (
+                  <div className="error-msg">
+                    {errors.root?.milestoneError?.message}
+                  </div>
+                ) : (
+                  <div></div>
+                )}
+                <Button
+                  type="primary"
+                  className="font-bold col-span-2 h-full px-4 py-2"
+                  icon={<FaPlus />}
+                  onClick={() => {
+                    const milestoneName = document.getElementById(
+                      "milestoneName"
+                    ) as HTMLInputElement;
+                    const milestoneDeadline = document.getElementById(
+                      "milestoneDeadline"
+                    ) as HTMLInputElement;
+                    const milestonePercentage = document.getElementById(
+                      "milestonePercentage"
+                    ) as HTMLInputElement;
+                    const milestoneDescription = document.getElementById(
+                      "milestoneDescription"
+                    ) as HTMLInputElement;
 
-                  if (
-                    !milestoneName.value ||
-                    !milestoneDeadline.value ||
-                    !milestonePercentage.value ||
-                    !milestoneDescription.value
-                  ) {
-                    setError("root.milestoneError", {
-                      message: "Please fill in the empty fields",
-                    });
-                    return;
-                  }
+                    if (
+                      !milestoneName.value ||
+                      !milestoneDeadline.value ||
+                      !milestonePercentage.value ||
+                      !milestoneDescription.value
+                    ) {
+                      setError("root.milestoneError", {
+                        message: "Please fill in the empty fields",
+                      });
+                      return;
+                    }
 
-                  const milestone: Milestone = {
-                    milestoneName: milestoneName.value,
-                    deadline: new Date(milestoneDeadline.value).toISOString(),
-                    amount: parseInt(milestonePercentage.value),
-                    description: milestoneDescription.value,
-                  };
-                  if (
-                    milestones.reduce((a, b) => a + b.amount, 0) +
-                      milestone.amount >
-                      100 ||
-                    milestone.amount > 100
-                  ) {
-                    setError("root.milestoneError", {
-                      message: "Percentage should not exceed 100%",
-                    });
-                    return;
-                  }
+                    const milestone: Milestone = {
+                      milestoneName: milestoneName.value,
+                      deadline: new Date(milestoneDeadline.value).toISOString(),
+                      amount: parseInt(milestonePercentage.value),
+                      description: milestoneDescription.value,
+                    };
+                    if (
+                      milestones.reduce((a, b) => a + b.amount, 0) +
+                        milestone.amount >
+                        100 ||
+                      milestone.amount > 100
+                    ) {
+                      setError("root.milestoneError", {
+                        message: "Percentage should not exceed 100%",
+                      });
+                      return;
+                    }
 
-                  clearErrors("root.milestoneError");
-                  // clear input
-                  milestoneName.value = "";
-                  milestoneDeadline.value = "";
-                  milestonePercentage.value = "";
-                  milestoneDescription.value = "";
-                  setMilestones([...milestones, milestone]);
-                }}
-              >
-                Add milestone
-              </Button>
+                    clearErrors("root.milestoneError");
+                    // clear input
+                    milestoneName.value = "";
+                    milestoneDeadline.value = "";
+                    milestonePercentage.value = "";
+                    milestoneDescription.value = "";
+                    setMilestones([...milestones, milestone]);
+                  }}
+                >
+                  Add milestone
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div></div>
+        )}
       </div>
       <div className="space-y-2 col-span-6">
         <div className="sticky top-10">
@@ -358,7 +385,7 @@ export default function PostProject() {
           <Table
             pagination={false}
             dataSource={milestones}
-            columns={tableColumns({ setMilestones, milestones })}
+            columns={tableColumns({ budget, setMilestones, milestones, state })}
           />
           <div className="flex justify-end py-4">
             <Button
@@ -368,7 +395,7 @@ export default function PostProject() {
               className="font-bold"
               onClick={() => console.log(errors)}
             >
-              Create Project
+              {state?.project ? "Update" : "Create"} Project
             </Button>
           </div>
         </div>

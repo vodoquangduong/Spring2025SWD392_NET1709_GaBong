@@ -1,11 +1,14 @@
+import CreateModal from "@/components/CreateModal";
 import { mapProjectStatusToTag } from "@/modules/mapUiStatus";
 import { ProjectStatus } from "@/types/project";
-import { App } from "antd";
+import { App, Button } from "antd";
 import React from "react";
-import { Link } from "react-router-dom";
+import { FaPen } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 
 export const tableColumns = () => {
   const { message } = App.useApp();
+  const navigate = useNavigate();
 
   return [
     {
@@ -46,6 +49,32 @@ export const tableColumns = () => {
       dataIndex: "status",
       key: "5",
       render: (text: ProjectStatus) => <div>{mapProjectStatusToTag(text)}</div>,
+    },
+    {
+      title: "",
+      dataIndex: "status",
+      key: "6",
+      render: (status: ProjectStatus, record: any) => (
+        <div>
+          {status == ProjectStatus.COMPLETED && (
+            <Button type="link" size="small">
+              Review freelancer
+            </Button>
+          )}
+          {status == ProjectStatus.REVERIFIED && (
+            <Button
+              type="link"
+              size="small"
+              onClick={() => {
+                navigate("/post-project", { state: { project: record } });
+              }}
+              // setProject(record);
+            >
+              Update project information
+            </Button>
+          )}
+        </div>
+      ),
     },
   ];
 };

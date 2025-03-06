@@ -60,6 +60,12 @@ export default function Project() {
     },
   ];
 
+  const outletContext = {
+    project: data?.value,
+    isLoading,
+    accountId,
+  };
+
   return (
     <div>
       <div className="w-full">
@@ -133,12 +139,12 @@ export default function Project() {
                   ))}
               </div>
               <div className="flex gap-2 items-center">
-                <span className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-600 rounded-full cursor-pointer">
+                {/* <span className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-600 rounded-full cursor-pointer">
                   <CiBookmark size={24} strokeWidth={1} />
                 </span>
                 <span className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-600 rounded-full cursor-pointer">
                   <IoShareSocial size={24} strokeWidth={1} />
-                </span>
+                </span> */}
               </div>
             </div>
           </div>
@@ -146,7 +152,7 @@ export default function Project() {
       </div>
       <div className="mx-container my-6 gap-6 grid grid-cols-12">
         <div className="col-span-9">
-          <Outlet />
+          <Outlet context={outletContext} />
         </div>
         <div className="col-span-3 dark:bg-white/5 rounded-md">
           <Sidebar clientId={data?.value?.clientId} />

@@ -138,9 +138,9 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="h-full p-4">
-      <Card className="h-full shadow-sm">
-        <div className="flex flex-col md:flex-row">
+    <div className="h-full mx-container py-8">
+      <Card className="h-full">
+        <div className="flex flex-col md:flex-row py-4">
           {/* Left Column */}
           <div className="md:w-80 md:border-r md:dark:border-zinc-700 md:pr-6">
             {/* Avatar Section */}
@@ -293,9 +293,9 @@ const UserProfile = () => {
                     Gender
                   </div>
                   <div className="text-base font-medium">
-                    {profile.gender === 1
+                    {profile.gender == 0
                       ? "Male"
-                      : profile.gender === 2
+                      : profile.gender == 1
                       ? "Female"
                       : "Other"}
                   </div>

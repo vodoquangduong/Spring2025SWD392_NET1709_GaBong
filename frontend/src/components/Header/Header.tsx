@@ -3,7 +3,7 @@ import Logo from "../Logo";
 import React, { useState } from "react";
 import ProfileDropdown from "../ProfileDropdown";
 import useAuthStore from "../../stores/authStore";
-import { Badge, Button } from "antd";
+import { Badge, Button, message } from "antd";
 import { FaChevronDown } from "react-icons/fa";
 import CreateModal from "../CreateModal";
 import CreateProjectForm from "./forms/CreateProjectForm";
@@ -13,6 +13,8 @@ import { MdOutlineEmail } from "react-icons/md";
 import useUiStore from "@/stores/uiStore";
 import useChatStore from "../ChatPopup/stores/chatStore";
 import { NotificationType } from "@/types/notification";
+import { useQuery } from "@tanstack/react-query";
+import { GET } from "@/modules/request";
 
 const HeaderLinkItem = ({
   href,
@@ -59,7 +61,11 @@ const HeaderLinkItem = ({
 };
 
 export default function Header() {
-  const { isAuthenticated, role } = useAuthStore();
+  const { isAuthenticated, role, accountId } = useAuthStore();
+  const { data } = useQuery({
+    queryKey: ["notification"],
+    queryFn: async () => await GET(`/api/Account/${accountId}`, false),
+  });
   const { readNotification, hasNewChatNotification } = useChatStore();
   const { toogleChatPopup } = useUiStore();
   const navigate = useNavigate();
@@ -79,14 +85,14 @@ export default function Header() {
                   Find freelancers
                 </HeaderLinkItem>
               )}
-              {/* {role != Role.CLIENT && ( */}
-              <HeaderLinkItem
-                href={"/search/projects"}
-                // subMenu={true}
-              >
-                Find works
-              </HeaderLinkItem>
-              {/* )} */}
+              {role != Role.CLIENT && (
+                <HeaderLinkItem
+                  href={"/search/projects"}
+                  // subMenu={true}
+                >
+                  Find works
+                </HeaderLinkItem>
+              )}
 
               {/* <HeaderLinkItem href={"/news"}>News</HeaderLinkItem> */}
               {/* <HeaderLinkItem href={"/about"}>About</HeaderLinkItem> */}
@@ -113,7 +119,14 @@ export default function Header() {
                   <Button
                     type="primary"
                     className="font-semibold"
-                    onClick={() => navigate("/post-project")}
+                    onClick={() => {
+                      if (!data?.value?.phone) {
+                        message.info("Please update your profile first");
+                        navigate("/profile/edit");
+                        return;
+                      }
+                      navigate("/post-project");
+                    }}
                   >
                     Post a project
                   </Button>

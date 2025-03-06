@@ -5,18 +5,18 @@ import { tableColumns } from "@/pages/MakeContract/schemas";
 import useContractStore from "@/pages/MakeContract/store/contractStore";
 import useAuthStore from "@/stores/authStore";
 import { useMutation, useQueries } from "@tanstack/react-query";
-import { App, Skeleton, Table } from "antd";
+import { App, Skeleton, Spin, Table } from "antd";
 import dayjs from "dayjs";
 import React, { useState } from "react";
 import { FaFlag } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
 export default function ProjectContract() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [amount, setAmount] = useState(0);
   const { accountId } = useAuthStore();
   const { message } = App.useApp();
-  const { freelancerId, projectId, bidTotal } = useContractStore();
 
   const mutation = useMutation({
     mutationKey: ["projects"],
@@ -33,35 +33,39 @@ export default function ProjectContract() {
     onSuccess: () => {
       message.destroy();
       message.success("Make contract successfully");
-      navigate(`/projects/${projectId}/milestones`);
+      navigate(`/projects/${id}/milestones`);
     },
   });
 
-  const [freelancer, client, project] = useQueries({
+  const data = useOutletContext<any>();
+
+  // console.log(project?.data?.value?.freelancerId);
+  console.log("🚀 ~ ProjectContract ~ freelancerId:", data?.project);
+
+  const [freelancer, client] = useQueries({
     queries: [
       {
-        queryKey: ["contractFreelancer"],
-        queryFn: async () => await GET(`/api/Account/${freelancerId}`),
+        queryKey: ["contractFreelancer", data?.project?.freelancerId],
+        queryFn: async () =>
+          await GET(`/api/Account/${data?.project?.freelancerId}`),
       },
       {
-        queryKey: ["client"],
-        queryFn: async () => await GET(`/api/Account/${accountId}`),
-      },
-      {
-        queryKey: ["selectedProject"],
-        queryFn: async () => await GET(`/api/Project/${projectId}`),
+        queryKey: ["client", data?.project?.clientId],
+        queryFn: async () =>
+          await GET(`/api/Account/${data?.project?.clientId}`),
       },
     ],
   });
-  if (!freelancerId || !projectId) {
-    location.href = "/";
-  }
+
+  // if (
+  //   accountId != project?.data?.freelancerId ||
+  //   accountId != client?.data?.id
+  // ) {
+  //   location.href = "/";
+  //   // return <Spin />;
+  // }
 
   // console.log(project?.data?.value?.milestones);
-  console.log(
-    "🚀 ~ MakeContract ~ project?.data?.value?.milestones:",
-    project?.data?.value
-  );
 
   return (
     <div className="col-span-12 grid grid-cols-2 gap-10 text-lg">
@@ -89,25 +93,23 @@ export default function ProjectContract() {
                 <div className="font-semibold">
                   Project:
                   <span className="ml-2 font-bold">
-                    {project.data?.value?.projectName || (
-                      <Skeleton.Input active />
-                    )}
+                    {data?.project?.projectName || <Skeleton.Input active />}
                   </span>
                 </div>
                 <div className="font-semibold">
                   Location:{" "}
-                  {project.data?.value?.location || <Skeleton.Input active />}
+                  {data?.project?.location || <Skeleton.Input active />}
                 </div>
                 <div className="font-semibold">
                   Start date: {dayjs().format("MMMM DD, YYYY")}
                 </div>
               </div>
               <div className="col-span-12">
-                {project?.data?.value?.projectDescription}
+                {data?.project?.projectDescription}
               </div>
               <div className="font-semibold col-span-12">Required Skills</div>
               <div className="col-span-12">
-                <Skills items={project?.data?.value?.skills} />
+                <Skills items={data?.project?.skills} />
                 {/* {project?.data} */}
                 {/* {project?.data} */}
               </div>
@@ -117,10 +119,10 @@ export default function ProjectContract() {
               <div className="font-bold text-3xl chivo flex items-center gap-2">
                 <div>
                   ${" "}
-                  {project.isLoading ? (
+                  {data?.isLoading ? (
                     <Skeleton.Input active />
                   ) : (
-                    (project.data?.value?.estimateBudget).toLocaleString()
+                    (data?.project?.estimateBudget).toLocaleString()
                   )}
                 </div>
                 <span className="text-zinc-500 text-sm">USD</span>
@@ -132,8 +134,8 @@ export default function ProjectContract() {
             <Table
               className="pt-4"
               pagination={false}
-              dataSource={project?.data?.value?.milestones}
-              columns={tableColumns(project?.data?.value?.estimateBudget)}
+              dataSource={data?.project?.milestones}
+              columns={tableColumns(data?.project?.estimateBudget)}
             />
             <div className="font-bold justify-between p-4 pl-0 border-b chivo">
               <div>Contract policy</div>
