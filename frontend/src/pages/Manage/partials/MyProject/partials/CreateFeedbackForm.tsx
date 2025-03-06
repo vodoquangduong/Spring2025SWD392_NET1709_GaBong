@@ -1,9 +1,10 @@
 import { defaultAvatar } from "@/modules/default";
-import { GET } from "@/modules/request";
+import { GET, POST, PUT } from "@/modules/request";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueries } from "@tanstack/react-query";
 import { App, Button, DatePicker, Rate } from "antd";
 import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaFlag } from "react-icons/fa";
 import { z } from "zod";
@@ -43,16 +44,40 @@ const CreateFeedbackForm = ({
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (formData: any) => {
+    formData.projectId = record?.projectId;
+    message.open({
+      type: "loading",
+      content: "Sending Feedback ...",
+      duration: 0,
+    });
+    if (feedback?.data?.feedbackId) {
+      await PUT("/api/Feedback", formData);
+    } else {
+      await POST("/api/Feedback", formData);
+    }
     message.success(`${record ? "Update" : "Create"} Successfully`);
+    message.destroy();
     setIsModalOpen(false);
   };
 
-  const [freelancer] = useQueries({
+  const [freelancer, feedback] = useQueries({
     queries: [
       {
-        queryKey: ["freelancer", record?.freelancerId],
+        queryKey: ["freelancer", record?.projectId],
         queryFn: () => GET(`/api/Account/${record?.freelancerId}`),
+      },
+      {
+        queryKey: ["feedback", record?.projectId],
+        queryFn: async () => {
+          const res = await GET(`/api/Feedback/project/${record?.projectId}`);
+          console.log("res", res);
+
+          if (res?.projectId) {
+            reset(res);
+          }
+          return res;
+        },
       },
     ],
   });
@@ -67,7 +92,10 @@ const CreateFeedbackForm = ({
         <UserItem data={freelancer?.data?.value} />
         <div>
           <div className="font-semibold text-base pb-2">Rating</div>
-          <Rate onChange={(value) => setValue("rating", value)} />
+          <Rate
+            value={watch("rating")}
+            onChange={(value) => setValue("rating", value)}
+          />
           {errors.rating && (
             <div className="error-msg">{errors.rating.message}</div>
           )}
