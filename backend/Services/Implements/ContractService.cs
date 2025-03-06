@@ -43,6 +43,15 @@ namespace Services.Implements
                         )
                     );
                 }
+                if (project.FreelancerId != null){
+                     Console.WriteLine("This project is already contracted");
+                    return Result.Failure<ContractDTO>(
+                        new Error(
+                            "Contract.AlreadyContracted",
+                            $"Project with id {createContractDTO.ProjectId} is already contracted"
+                        )
+                    );
+                }
 
                 //<==Query Bid==>
                 var queryBid = new QueryBuilder<Bid>()
