@@ -209,10 +209,7 @@ namespace Services.Implements
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"About can not empty or length > 500"));
                 }
-                portfolio.Title = updatePortfolioDto.Title;
-                portfolio.Works = updatePortfolioDto.Works;
-                portfolio.Certificate = updatePortfolioDto.Certificate;
-                portfolio.About = updatePortfolioDto.About;
+                portfolio.ToPortfolio(updatePortfolioDto);
                 await _unitOfWork.GetRepo<Portfolio>().UpdateAsync(portfolio);
                 await _unitOfWork.SaveChangesAsync();
                 return Result.Success(portfolio.ToPortfolioDTO());

@@ -57,5 +57,12 @@ namespace Helpers.Mappers
                     Status = PortfolioStatus.Modifying,
             };
         }
+        public static void ToPortfolio(this Portfolio portfolio, UpdatePortfolioDTO updatePortfolioDTO)
+        {
+            portfolio.Title = updatePortfolioDTO.Title;
+            portfolio.Works = updatePortfolioDTO.Works;
+            portfolio.Certificate = updatePortfolioDTO.Certificate;
+            portfolio.About = updatePortfolioDTO.About;
+        }
     }
 }
