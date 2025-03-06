@@ -27,7 +27,7 @@ export const formSchema = () => {
     // images: z.string().min(1, "Required"),
     name: z
       .string()
-      .min(3, "Name must be at least 3 characters")
+      .min(3, "Name must be at least 8 characters")
       .max(50, "Name must be less than 50 characters"),
     phone: z
       .string()
@@ -232,6 +232,9 @@ const EditAbout = () => {
                 className="input-style w-full p-2"
                 placeholder="Enter your full name"
               />
+              {errors.name && (
+                <span className="error-msg">{errors.name.message}</span>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">
@@ -250,6 +253,9 @@ const EditAbout = () => {
                   </option>
                 ))}
               </select>
+              {errors.nationality && (
+                <span className="error-msg">{errors.nationality.message}</span>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">

@@ -87,12 +87,12 @@ const Temp = () => {
               alt=""
             />
 
-            <div className="parallax absolute flex justify-between items-center -top-6 md:-start-10 start-2 p-4 rounded-lg shadow-md dark:shadow-gray-800 bg-white w-max">
+            {/* <div className="parallax absolute flex justify-between items-center -top-6 md:-start-10 start-2 p-4 rounded-lg shadow-md dark:shadow-gray-800 bg-white w-max">
               <FaRegBell className="text-amber-500" size={24} />
               <p className="text-lg font-semibold mb-0 ms-2">
                 Freelance Job Alert
               </p>
-            </div>
+            </div> */}
           </div>
 
           <div className="absolute bottom-1/2 translate-y-1/2 start-1/2 -translate-x-1/2 z-10 ">

@@ -2,7 +2,7 @@ import { App, Button, Popconfirm } from "antd";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueries } from "@tanstack/react-query";
 import { GET, POST } from "@/modules/request";
 import useAuthStore from "@/stores/authStore";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
@@ -13,6 +13,7 @@ export default function PlaceBid({ project }: { project: any }) {
   const { message } = App.useApp();
   const { accountId, name } = useAuthStore();
   const { notifyService } = useChatStore();
+
   let { id } = useParams();
   let navigate = useNavigate();
 
@@ -32,6 +33,15 @@ export default function PlaceBid({ project }: { project: any }) {
         .max(100, "Description must be less than 100 characters"),
     });
   };
+
+  const [user] = useQueries({
+    queries: [
+      {
+        queryKey: ["user"],
+        queryFn: async () => await GET(`/api/Account/${accountId}`),
+      },
+    ],
+  });
 
   const {
     handleSubmit,
@@ -89,13 +99,19 @@ export default function PlaceBid({ project }: { project: any }) {
   });
 
   const onSubmit = async (formData: any) => {
-    formData.projectId = id;
-    message.open({
-      type: "loading",
-      content: "Placing bid ...",
-      duration: 0,
-    });
-    mutation.mutate(formData);
+    if (!user?.data?.value?.phone) {
+      message.info("Please update your profile first");
+      navigate("/profile/edit");
+      scrollTo(0, 0);
+      return;
+    }
+    // formData.projectId = id;
+    // message.open({
+    //   type: "loading",
+    //   content: "Placing bid ...",
+    //   duration: 0,
+    // });
+    // mutation.mutate(formData);
   };
 
   return (

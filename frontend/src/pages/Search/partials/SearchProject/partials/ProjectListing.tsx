@@ -1,8 +1,8 @@
 import { Empty, Pagination, Rate, Skeleton, Tag } from "antd";
-import { CiBookmark } from "react-icons/ci";
+import { CiBookmark, CiClock1, CiLock } from "react-icons/ci";
 import { useNavigate, useParams } from "react-router-dom";
 import { getRandomInt } from "../../../../../modules/random";
-import { FaStar } from "react-icons/fa6";
+import { FaLocationDot, FaStar } from "react-icons/fa6";
 import Skills from "../../../../../components/Skills";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { GET } from "@/modules/request";
@@ -11,6 +11,7 @@ import { formatTimeAgo } from "@/modules/formatTimeAgo";
 import useQueryParams from "@/hooks/useQueryParams";
 import dayjs from "dayjs";
 import { getQueryString } from "@/modules/getQueryString";
+import { FaClock } from "react-icons/fa";
 
 export default function ProjectListing({ query }: { query: any }) {
   const navigate = useNavigate();
@@ -36,12 +37,16 @@ export default function ProjectListing({ query }: { query: any }) {
   return (
     <div className="">
       <div className="border-b w-full p-4 flex justify-between items-center dark:border-gray-500 shadow-md">
-        <div>
-          <span className="font-semibold text-lg mr-3">Top result:</span>
-          {projects?.data?.value?.items?.length} result
+        <div className="flex items-center">
+          <span className="font-semibold text-lg mr-3 ">Top result:</span>
+          {!projects.isLoading && projects?.data?.value?.items?.length >= 0 ? (
+            `${projects?.data?.value?.items?.length} result`
+          ) : (
+            <Skeleton.Input active />
+          )}
         </div>
         <div className="flex gap-1 items-center">
-          <label htmlFor="" className="w-[100px]">
+          {/* <label htmlFor="" className="w-[100px]">
             Sort by
           </label>
           <select className="input-style py-2">
@@ -49,7 +54,7 @@ export default function ProjectListing({ query }: { query: any }) {
             <option value="">Oldest</option>
             <option value="">Highest rate</option>
             <option value="">Lowest rate</option>
-          </select>
+          </select> */}
         </div>
       </div>
       <div>
@@ -98,11 +103,11 @@ const ListingItem = ({
   const navigate = useNavigate();
   return (
     <div
-      className="p-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950 cursor-pointer"
+      className="p-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950 cursor-pointer transition-all"
       onClick={() => navigate(`/projects/${project?.projectId}/details`)}
     >
       <div className="flex justify-between">
-        <div className="text-xl">{project?.projectName}</div>
+        <div className="text-xl line-clamp-2">{project?.projectName}</div>
         <div className="flex gap-6">
           <div>
             {project?.bids?.length} {project?.bids?.length > 1 ? "bids" : "bid"}
@@ -119,29 +124,37 @@ const ListingItem = ({
           </div>
         </div>
       </div>
-      <div className="text-sm">
-        Budget: {project.estimateBudget.toLocaleString()} USD
+      <div className="text-sm chivo">
+        Estimate Budget:{" "}
+        <span className="ml-2 font-semibold text-xl">
+          {project.estimateBudget.toLocaleString()} USD
+        </span>
       </div>
       <div className="mt-6 line-clamp-3">{project?.projectDescription}</div>
       <div className="mt-4">
         <Skills
-          items={project?.skillIds.map((skillId: any) => {
-            return skillCategory?.find((item: any) => item.skillId === skillId);
+          items={skillCategory?.filter((skill: any) => {
+            return project?.skillIds.includes(skill.skillId);
           })}
         />
       </div>
       <div className="mt-4 flex justify-between items-center">
-        <div></div>
+        <div className={"py-2 flex gap-2 items-center geist"}>
+          <FaLocationDot className="text-emerald-500" />
+          {project?.location}
+        </div>
         {/* <Rate disabled defaultValue={getRandomInt(1, 5)} /> */}
         <div className="flex gap-4 items-center">
-          <div className="text-sm">
+          <div className="text-sm flex gap-3 items-center">
+            <FaClock size={14} />
+            Posted{" "}
             {formatTimeAgo(
               dayjs(project?.postDate, "DD-MM-YYYY").toISOString()
             )}
           </div>
-          <div className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-800 rounded-full cursor-pointer">
+          {/* <div className="p-2 hover:bg-zinc-300 dark:hover:bg-zinc-800 rounded-full cursor-pointer">
             <CiBookmark size={24} strokeWidth={1} />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

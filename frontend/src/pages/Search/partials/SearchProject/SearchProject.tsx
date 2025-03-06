@@ -3,9 +3,17 @@ import ProjectFilter from "./partials/ProjectFilter";
 import ProjectListing from "./partials/ProjectListing";
 import SearchBox from "@/components/SearchBox";
 import { Button } from "antd";
+import useAuthStore from "@/stores/authStore";
+import { Role } from "@/types";
 
 export default function SearchProject() {
   const [query, setQuery] = useState<any>({});
+  const { role } = useAuthStore();
+
+  if (role == Role.CLIENT) {
+    location.href = "/";
+  }
+
   return (
     <div>
       <div
@@ -21,10 +29,13 @@ export default function SearchProject() {
             <SearchBox
               placeholder="Search Projects ..."
               widthClass="w-full py-2"
-              className="!bg-gray-100 py-2 dark:!bg-zinc-800"
-              value={query?.keyword}
+              className="!bg-gray-100 py-2 dark:!bg-zinc-800 text-secondary-foreground"
+              value={query?.projectName}
               onChange={(e) => {
-                setQuery((prev: any) => ({ ...prev, keyword: e.target.value }));
+                setQuery((prev: any) => ({
+                  ...prev,
+                  projectName: e.target.value,
+                }));
               }}
             />
           </div>

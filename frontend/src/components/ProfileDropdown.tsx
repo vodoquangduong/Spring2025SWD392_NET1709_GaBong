@@ -59,7 +59,7 @@ const ProfileDropdown = () => {
       label: (
         <Link to={`/payment`} className="flex font-semibold gap-2 items-center">
           <MdOutlinePayment />
-          Payment
+          Add funds
         </Link>
       ),
     },

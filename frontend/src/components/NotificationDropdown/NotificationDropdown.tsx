@@ -49,6 +49,21 @@ export default function NotificationDropdown() {
   });
 
   console.log(notifications?.data?.items);
+  const items = [
+    ...(notifications?.data?.items?.map((notification: any, index: number) => ({
+      label: <NotificationItem notification={notification} key={index} />,
+      key: notification?.notificationId + "noti",
+    })) || []),
+    {
+      label: (
+        <Link to={"/manage/notifications"} className="flex justify-center">
+          View all
+        </Link>
+      ),
+      key: "view-all-noti",
+    },
+  ];
+  console.log(items);
 
   return (
     <Dropdown
@@ -56,30 +71,7 @@ export default function NotificationDropdown() {
         readNotification(NotificationType.GENERAL_ANNOUNCEMENT);
       }}
       menu={{
-        items: [
-          ...(notifications?.data?.items?.map(
-            (notification: any, index: number) => ({
-              label: (
-                <NotificationItem
-                  notification={notification}
-                  key={notification?.notificationId + index}
-                />
-              ),
-              key: notification?.notificationId + index + "noti",
-            })
-          ) || []),
-          {
-            label: (
-              <Link
-                to={"/manage/notifications"}
-                className="flex justify-center"
-              >
-                View all
-              </Link>
-            ),
-            key: "view-all-noti",
-          },
-        ],
+        items,
       }}
       trigger={["click"]}
       placement="bottom"

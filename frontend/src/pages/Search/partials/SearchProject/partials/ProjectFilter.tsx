@@ -68,7 +68,15 @@ export default function ProjectFilter({ query, setQuery }: any) {
       <div>
         <div className="flex justify-between font-bold my-4">
           Estimated Budget
-          <ClearFilter />
+          <ClearFilter
+            onClick={() =>
+              setQuery((prev: any) => ({
+                ...prev,
+                minBudget: Number.MIN_SAFE_INTEGER,
+                maxBudget: Number.MAX_SAFE_INTEGER,
+              }))
+            }
+          />
         </div>
         <div>
           <div className="">
@@ -80,6 +88,7 @@ export default function ProjectFilter({ query, setQuery }: any) {
               <input
                 className="no-ring grow"
                 type="number"
+                value={query?.minBudget < 0 ? "" : query?.minBudget}
                 onChange={(e) => {
                   setQuery((prev: any) => ({
                     ...prev,
@@ -104,6 +113,13 @@ export default function ProjectFilter({ query, setQuery }: any) {
               <input
                 className="no-ring grow"
                 type="number"
+                value={
+                  query?.maxBudget < 0
+                    ? ""
+                    : query.maxBudget == Number.MAX_SAFE_INTEGER
+                    ? ""
+                    : query?.maxBudget
+                }
                 onChange={(e) => {
                   setQuery((prev: any) => ({
                     ...prev,
@@ -124,12 +140,20 @@ export default function ProjectFilter({ query, setQuery }: any) {
       <div>
         <div className="flex justify-between font-bold mt-4 mb-0">
           Skills
-          <ClearFilter />
+          <ClearFilter
+            onClick={() =>
+              setQuery((prev: any) => ({
+                ...prev,
+                skillIds: [],
+              }))
+            }
+          />
         </div>
         <Select
           className="!py-[9px]"
           maxCount={5}
           showSearch
+          value={query?.skillIds}
           // suffixIcon={<span>{skills.length} / 5</span>}
           filterOption={(input, option: any) =>
             (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
@@ -150,7 +174,14 @@ export default function ProjectFilter({ query, setQuery }: any) {
       <div>
         <div className="flex justify-between font-bold my-4">
           Project location
-          <ClearFilter field={"location"} />
+          <ClearFilter
+            onClick={() =>
+              setQuery((prev: any) => ({
+                ...prev,
+                location: "",
+              }))
+            }
+          />
         </div>
         <select
           className="py-2 px-2 input-style"
@@ -171,15 +202,6 @@ export default function ProjectFilter({ query, setQuery }: any) {
             </option>
           ))}
         </select>
-        <div className="flex justify-end">
-          <Button
-            htmlType="submit"
-            className="mt-4 font-semibold"
-            type="primary"
-          >
-            Search
-          </Button>
-        </div>
       </div>
     </form>
   );
