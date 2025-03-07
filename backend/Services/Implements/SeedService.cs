@@ -10,6 +10,7 @@ using Bogus.DataSets;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using DAOs;
+using Microsoft.Extensions.Configuration;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -20,6 +21,7 @@ namespace Services.Implements
         private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
         private readonly Faker _faker = new Faker();
+
 
         public SeedService(ApplicationDbContext context, IUnitOfWork unitOfWork)
         {
@@ -48,7 +50,7 @@ namespace Services.Implements
             {
                 await InsertSkillCategories();
                 await InsertFakeAccounts(95);
-                await InsertProjects();
+                await InsertProjects(1000);
                 Console.WriteLine("Database seeding completed successfully!");
             }
             catch (Exception ex)
@@ -57,127 +59,51 @@ namespace Services.Implements
             }
         }
 
-        private async Task InsertTransactions()
+        private async Task InsertProjects(int numOfProject)
         {
-            var random = new Random();
-            var transactions = new List<Transaction>();
-            for (int i = 0; i < 100; i++)
-            {
-                var transaction = new Transaction
-                {
-                    Amount = random.Next(100, 10000),
-                    Account = await GetRandomUser(AccountRole.Freelancer),
-                    CreatedAt = _faker.Date.Past(30, DateTime.Now.AddYears(-18)).ToUniversalTime(),
-                    Detail = _faker.Lorem.Sentences(3),
-                    Status = Enum.TryParse<TransactionStatus>(_faker.Random.Word(), out var status)
-                        ? status
-                        : TransactionStatus.Pending,
-                    Type = Enum.TryParse<TransactionType>(_faker.Random.Word(), out var type)
-                        ? type
-                        : TransactionType.Earnings,
-                };
-                transactions.Add(transaction);
-            }
-        }
-
-        private async Task InsertMilestones(long projectId)
-        {
-            for (int i = 0; i < 10; i++)
-            {
-                var milestone = new Milestone
-                {
-                    ProjectId = projectId,
-                    MilestoneName = "Milestone " + i,
-                    Status = Enum.TryParse<MilestoneStatus>(_faker.Random.Word(), out var status)
-                        ? status
-                        : MilestoneStatus.Completed,
-                    DeadlineDate = _faker
-                        .Date.Past(30, DateTime.Now.AddYears(-18))
-                        .ToUniversalTime(),
-                    MilestoneDescription = _faker.Lorem.Sentences(3),
-                    PayAmount = _faker.Random.Decimal(100, 10000),
-                };
-                await _unitOfWork.GetRepo<Milestone>().CreateAsync(milestone);
-            }
-        }
-
-        private async Task InsertProjects()
-        {
-            var faker = new Faker();
             var projects = new List<Project>();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < numOfProject; i++)
             {
+                //<==Random user==>
                 var clientId = await GetRandomUserId(AccountRole.Client);
                 var freelancerId = await GetRandomUserId(AccountRole.Freelancer);
                 var staffId = await GetRandomUserId(AccountRole.Staff);
 
+                //<==Random skill==>
                 var skillRequireds = await GetRandomSkillIds();
+
+                //<==Create project==>
                 var project = new Project
                 {
-                    ProjectName = faker.Commerce.ProductName(),
-                    ProjectDescription = faker.Lorem.Sentences(3),
-                    AvailableTimeRange = faker.Random.Int(1, 100),
-                    // select client account from database
-                    EstimateBudget = faker.Random.Decimal(100, 10000),
-                    Location = faker.Address.Country(),
-                    PostDate = faker.Date.Past(30, DateTime.Now.AddYears(-18)).ToUniversalTime(),
-                    Status = Enum.TryParse<ProjectStatus>(faker.Random.Word(), out var status)
-                        ? status
-                        : ProjectStatus.Completed,
+                    ProjectName = _faker.Commerce.ProductName(),
+                    ProjectDescription = _faker.Lorem.Sentences(3),
+                    AvailableTimeRange = _faker.Random.Int(10, 30),
+
+                    EstimateBudget = Math.Round((decimal)_faker.Random.Decimal(100, 10000)),
+
+                    Location = _faker.Address.Country(),
+                    PostDate = _faker.Date.Past(30, DateTime.Now.AddYears(-18)).ToUniversalTime(),
+
+                    Status = _faker.PickRandom<ProjectStatus>(),
+
                     VerifyStaffId = staffId,
                     ClientId = clientId,
                     FreelancerId = freelancerId,
                 };
 
+                //<==Add random skill==>
                 foreach (var skillId in skillRequireds)
                 {
                     project.SkillRequired.Add(new SkillRequired { SkillId = skillId });
                 }
 
-                for (int j = 0; j < 10; j++)
-                {
-                    project.Milestones.Add(
-                        new Milestone
-                        {
-                            ProjectId = project.ProjectId,
-                            MilestoneName = "Milestone " + i,
-                            Status = Enum.TryParse<MilestoneStatus>(
-                                _faker.Random.Word(),
-                                out var milestoneStatus
-                            )
-                                ? milestoneStatus
-                                : MilestoneStatus.Completed,
-                            DeadlineDate = _faker
-                                .Date.Past(30, DateTime.Now.AddYears(-18))
-                                .ToUniversalTime(),
-                            MilestoneDescription = _faker.Lorem.Sentences(3),
-                            PayAmount = _faker.Random.Decimal(100, 10000),
-                        }
-                    );
-                }
+                //<==Random milestone==>
+                generateMilestones(project, _faker.Random.Int(2, 5));
 
-                for (int j = 0; j < 10; j++)
-                {
-                    try
-                    {
-                        var bidOwnerId =
-                            j == 0 ? freelancerId : await GetRandomUserId(AccountRole.Freelancer);
-                        project.Bids.Add(
-                            new Bid
-                            {
-                                ProjectId = project.ProjectId,
-                                BidOwnerId = bidOwnerId,
-                                BidOffer = faker.Random.Decimal(100, 10000),
-                                CreatedAt = faker
-                                    .Date.Past(30, DateTime.Now.AddYears(-18))
-                                    .ToUniversalTime(),
-                                BidDescription = faker.Lorem.Sentences(3),
-                            }
-                        );
-                    }
-                    catch (System.Exception) { }
-                }
+                //<==Random bid==>
+                generateBids(project, _faker.Random.Int(2, 10), freelancerId);
 
+                //<==Random contract==>
                 project.Contracts.Add(
                     new Contract
                     {
@@ -188,11 +114,49 @@ namespace Services.Implements
                             .ToUniversalTime(),
                     }
                 );
-
+                //<==Random fee transaction==>
+                var fee = new Transaction
+                    {
+                        AccountId = clientId,
+                        Amount = project.EstimateBudget * 0.1m,
+                        CreatedAt = _faker
+                            .Date.Past(30, DateTime.Now.AddYears(-18))
+                            .ToUniversalTime(),
+                        Detail = "Fee for project " + project.ProjectName,
+                        Status = TransactionStatus.Completed,
+                        Type = TransactionType.Fee,
+                    };
+                _context.Add(fee);
+                //<==Random milestone transaction==>
                 foreach (var milestone in project.Milestones)
                 {
-                    //TODO: Viet giup toi not a Duong nhe
-                }
+                    var payment = new Transaction
+                    {
+                        AccountId = clientId,
+                        Amount = project.EstimateBudget * milestone.PayAmount / 100,
+                        CreatedAt = _faker
+                            .Date.Past(30, DateTime.Now.AddYears(-18))
+                            .ToUniversalTime(),
+                        Detail = "Pay for freelancer " + freelancerId + " for finish milestone " + milestone.MilestoneName + " in project " + project.ProjectName,
+                        Status = TransactionStatus.Completed,
+                        Type = TransactionType.Payment,
+                    };
+
+                    var earning = new Transaction
+                    {
+                        AccountId = freelancerId,
+                        Amount = project.EstimateBudget * milestone.PayAmount / 100,
+                        CreatedAt = _faker
+                            .Date.Past(30, DateTime.Now.AddYears(-18))
+                            .ToUniversalTime(),
+                        Detail = "Earning from client " + clientId + " for finish milestone " + milestone.MilestoneName + " in project " + project.ProjectName,
+                        Status = TransactionStatus.Completed,
+                        Type = TransactionType.Earnings,
+                    };
+                    _context.Add(earning);
+                    _context.Add(payment);
+
+                };
 
                 projects.Add(project);
             }
@@ -711,10 +675,96 @@ namespace Services.Implements
             var skillIds = new HashSet<long>();
             while (skillIds.Count < 5)
             {
-                var skillId = random.Next(1, 11);
+                var skillId = random.Next(1, 283);
                 skillIds.Add(skillId);
             }
             return skillIds;
         }
+        private void generateMilestones(Project project, int numOfMilestone)
+        {
+            var milestones = new List<Milestone>();
+            Random rand = new Random();
+            decimal remainingBudget = 100;
+            List<decimal> payAmounts = new List<decimal>();
+
+            // Tạo danh sách PayAmount sao cho tổng = 100
+            for (int i = 0; i < numOfMilestone - 1; i++)
+            {
+                // Random payamount so that always sum of payAmount = 100
+                decimal amount = Math.Round((decimal)rand.NextDouble() * (remainingBudget - (numOfMilestone - i - 1)) + 1, 2);
+                payAmounts.Add(amount);
+                remainingBudget -= amount;
+            }
+            payAmounts.Add(Math.Round(remainingBudget, 2));
+
+            for (int j = 0; j < numOfMilestone; j++)
+            {
+                project.Milestones.Add(
+                    new Milestone
+                    {
+                        ProjectId = project.ProjectId,
+                        MilestoneName = "No. " + (j + 1) + " of Prj. " + project.ProjectName,
+                        Status = Enum.TryParse<MilestoneStatus>(
+                            _faker.Random.Word(),
+                            out var milestoneStatus
+                        )
+                            ? milestoneStatus
+                            : MilestoneStatus.Completed,
+                        DeadlineDate = _faker
+                            .Date.Past(30, DateTime.Now.AddYears(-18))
+                            .ToUniversalTime(),
+                        MilestoneDescription = _faker.Lorem.Sentences(3),
+                        PayAmount = payAmounts[j],
+                    }
+                );
+            }
+        }
+
+        private async void generateBids(Project project, int numOfBid, long freelancerId)
+        {
+            HashSet<long> usedBidOwnerIds = new HashSet<long>(); // Để đảm bảo không có ID bị trùng
+            Random rand = new Random();
+
+            for (int j = 0; j < numOfBid; j++)
+            {
+                try
+                {
+                    long bidOwnerId;
+
+                    if (j == 0)
+                    {
+                        // Bid đầu tiên sẽ có ownerId là freelancerId
+                        bidOwnerId = freelancerId;
+                    }
+                    else
+                    {
+                        // Lấy ngẫu nhiên userId, đảm bảo không trùng
+                        do
+                        {
+                            bidOwnerId = await GetRandomUserId(AccountRole.Freelancer);
+                        } while (usedBidOwnerIds.Contains(bidOwnerId));
+                    }
+
+                    // Thêm vào danh sách các ownerId đã sử dụng
+                    usedBidOwnerIds.Add(bidOwnerId);
+
+                    // Thêm bid vào danh sách của project
+                    project.Bids.Add(new Bid
+                    {
+                        ProjectId = project.ProjectId,
+                        BidOwnerId = bidOwnerId,
+                        BidOffer = Math.Round(project.EstimateBudget * _faker.Random.Decimal(80, 200) / 100, 2),
+                        CreatedAt = _faker.Date.Past(30, DateTime.Now.AddYears(-18)).ToUniversalTime(),
+                        BidDescription = _faker.Lorem.Sentences(3),
+                    });
+                    
+                }
+                catch (Exception)
+                {
+                    throw new Exception("Lỗi khi tạo bid.");
+                }
+            }
+        }
+
     }
 }

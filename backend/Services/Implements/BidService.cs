@@ -26,7 +26,6 @@ namespace Services.Implements
         {
             try
             {
-                
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(new QueryOptions<Project>
                 {
                     Predicate = p => p.ProjectId == bidDto.ProjectId
