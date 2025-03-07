@@ -69,15 +69,15 @@ namespace API.Controllers
         /// </summary>
         /// <param name="accountId"></param>
         /// <returns></returns>
-        [HttpGet("{accountId}")]
-        public async Task<IActionResult> GetTransactionByAccount([FromRoute] long accountId)
-        {
-            var result = await _transactionService.GetTransactionByAccountAsync(accountId);
-            if (result.IsFailure)
-            {
-                return Ok(result.Error);
-            }
-            return Ok(result.Value);
-        }
+        // [HttpGet("{accountId}")]
+        // public async Task<IActionResult> GetTransactionByAccount([FromRoute] long accountId)
+        // {
+        //     var result = await _transactionService.GetTransactionByAccountAsync(accountId);
+        //     if (result.IsFailure)
+        //     {
+        //         return Ok(result.Error);
+        //     }
+        //     return Ok(result.Value);
+        // }
     }
 }
