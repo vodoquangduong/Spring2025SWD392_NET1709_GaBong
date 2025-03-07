@@ -62,5 +62,22 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
+        
+        /// <summary>
+        /// Get all transaction of an account (For table list UI)
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <returns></returns>
+        // [HttpGet("{accountId}")]
+        // public async Task<IActionResult> GetTransactionByAccount([FromRoute] long accountId)
+        // {
+        //     var result = await _transactionService.GetTransactionByAccountAsync(accountId);
+        //     if (result.IsFailure)
+        //     {
+        //         return Ok(result.Error);
+        //     }
+        //     return Ok(result.Value);
+        // }
     }
 }

@@ -11,6 +11,7 @@ namespace Services.Interfaces
     {
         Task<Result<PaginatedResult<TransactionDTO>>> GetAllTransactionAsync(int pageNumber, int pageSize);
         Task<Result<List<TransactionDTO>>> GetTransactionByAccountIdAsync(long id);
+        Task<Result<List<TransactionDTO>>> GetTransactionByAccountAsync(long id);
         Task<TransactionDTO> GetTransactionByIdAsync(long id);
         Task<Result<TransactionDTO>> CreateTransactionAsync(CreateTransactionDTO createTransactionDTO);
         Task<TransactionDTO> FinishPaymentAsync(long id);

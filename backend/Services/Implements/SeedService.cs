@@ -61,7 +61,7 @@ namespace Services.Implements
         private async Task InsertProjects(int numOfProject)
         {
             var minBudget = 500;
-            var maxBudget = 2000;
+            var maxBudget = 1000;
             var projects = new List<Project>();
             for (int i = 0; i < numOfProject; i++)
             {
@@ -85,7 +85,7 @@ namespace Services.Implements
                     ),
 
                     Location = _faker.Address.Country(),
-                    PostDate = _faker.Date.Past(30, DateTime.Now.AddYears(-18)).ToUniversalTime(),
+                    PostDate = _faker.Date.Past(5, DateTime.Now.AddYears(0)).ToUniversalTime(),
 
                     Status = _faker.PickRandom<ProjectStatus>(),
 
@@ -113,7 +113,7 @@ namespace Services.Implements
                         ProjectId = project.ProjectId,
                         ContractPolicy = _faker.Lorem.Sentences(3),
                         StartDate = _faker
-                            .Date.Past(30, DateTime.Now.AddYears(-18))
+                            .Date.Past(5, DateTime.Now.AddYears(0))
                             .ToUniversalTime(),
                     }
                 );
@@ -122,7 +122,7 @@ namespace Services.Implements
                 {
                     AccountId = clientId,
                     Amount = project.EstimateBudget * 0.1m,
-                    CreatedAt = _faker.Date.Past(30, DateTime.Now.AddYears(-18)).ToUniversalTime(),
+                    CreatedAt = _faker.Date.Past(5, DateTime.Now.AddYears(0)).ToUniversalTime(),
                     Detail = "Fee for project " + project.ProjectName,
                     Status = TransactionStatus.Completed,
                     Type = TransactionType.Fee,
@@ -136,7 +136,7 @@ namespace Services.Implements
                         AccountId = clientId,
                         Amount = project.EstimateBudget * milestone.PayAmount / 100,
                         CreatedAt = _faker
-                            .Date.Past(30, DateTime.Now.AddYears(-18))
+                            .Date.Past(5, DateTime.Now.AddYears(0))
                             .ToUniversalTime(),
                         Detail =
                             "Pay for freelancer "
@@ -154,7 +154,7 @@ namespace Services.Implements
                         AccountId = freelancerId,
                         Amount = project.EstimateBudget * milestone.PayAmount / 100,
                         CreatedAt = _faker
-                            .Date.Past(30, DateTime.Now.AddYears(-18))
+                            .Date.Past(5, DateTime.Now.AddYears(0))
                             .ToUniversalTime(),
                         Detail =
                             "Earning from client "
@@ -170,6 +170,7 @@ namespace Services.Implements
                     _context.Add(payment);
                 }
                 ;
+                System.Console.WriteLine("\n\n\n\n\n\nproject: " + i + " done\n\n\n\n\n");
 
                 projects.Add(project);
             }
@@ -694,6 +695,49 @@ namespace Services.Implements
             return skillIds;
         }
 
+        // private void generateMilestones(Project project, int numOfMilestone)
+        // {
+        //     var milestones = new List<Milestone>();
+        //     Random rand = new Random();
+        //     decimal remainingBudget = 100;
+        //     List<decimal> payAmounts = new List<decimal>();
+
+        //     // Tạo danh sách PayAmount sao cho tổng = 100
+        //     for (int i = 0; i < numOfMilestone - 1; i++)
+        //     {
+        //         // Random payamount so that always sum of payAmount = 100
+        //         decimal amount = Math.Round(
+        //             (decimal)rand.NextDouble() * (remainingBudget - (numOfMilestone - i - 1)) + 1,
+        //             2
+        //         );
+        //         payAmounts.Add(amount);
+        //         remainingBudget -= amount;
+        //     }
+        //     payAmounts.Add(Math.Round(remainingBudget, 2));
+
+        //     for (int j = 0; j < numOfMilestone; j++)
+        //     {
+        //         project.Milestones.Add(
+        //             new Milestone
+        //             {
+        //                 ProjectId = project.ProjectId,
+        //                 MilestoneName = "No. " + (j + 1) + " of Prj. " + project.ProjectName,
+        //                 Status = Enum.TryParse<MilestoneStatus>(
+        //                     _faker.Random.Word(),
+        //                     out var milestoneStatus
+        //                 )
+        //                     ? milestoneStatus
+        //                     : MilestoneStatus.Completed,
+        //                 DeadlineDate = _faker
+        //                     .Date.Past(5, DateTime.Now.AddYears(0))
+        //                     .ToUniversalTime(),
+        //                 MilestoneDescription = _faker.Lorem.Sentences(3),
+        //                 PayAmount = payAmounts[j],
+        //             }
+        //         );
+        //     }
+        // }
+
         private void generateMilestones(Project project, int numOfMilestone)
         {
             var milestones = new List<Milestone>();
@@ -701,19 +745,34 @@ namespace Services.Implements
             decimal remainingBudget = 100;
             List<decimal> payAmounts = new List<decimal>();
 
-            // Tạo danh sách PayAmount sao cho tổng = 100
+            // Bước 1: Chia đều ngân sách ban đầu
+            decimal baseAmount = Math.Round(remainingBudget / numOfMilestone, 2);
+
+            // Bước 2: Tạo danh sách với giá trị ban đầu
+            for (int i = 0; i < numOfMilestone; i++)
+            {
+                payAmounts.Add(baseAmount);
+            }
+
+            // Bước 3: Điều chỉnh để tạo chênh lệch 10-20 đơn vị giữa các phần tử
             for (int i = 0; i < numOfMilestone - 1; i++)
             {
-                // Random payamount so that always sum of payAmount = 100
-                decimal amount = Math.Round(
-                    (decimal)rand.NextDouble() * (remainingBudget - (numOfMilestone - i - 1)) + 1,
-                    2
-                );
-                payAmounts.Add(amount);
-                remainingBudget -= amount;
-            }
-            payAmounts.Add(Math.Round(remainingBudget, 2));
+                decimal adjustment = rand.Next(10, 21); // Chênh lệch từ 10-20
+                if (rand.Next(0, 2) == 0) adjustment *= -1; // 50% cơ hội tăng hoặc giảm
 
+                // Đảm bảo phần tử i không nhỏ hơn 1 và phần tử i+1 không vượt quá ngân sách
+                if (payAmounts[i] + adjustment >= 1 && payAmounts[i + 1] - adjustment >= 1)
+                {
+                    payAmounts[i] += adjustment;
+                    payAmounts[i + 1] -= adjustment;
+                }
+            }
+
+            // Bước 4: Cân bằng lại phần tử cuối cùng để đảm bảo tổng vẫn bằng 100
+            decimal sum = payAmounts.Sum();
+            payAmounts[numOfMilestone - 1] += Math.Round(100 - sum, 2);
+
+            // Bước 5: Gán vào danh sách Milestone
             for (int j = 0; j < numOfMilestone; j++)
             {
                 project.Milestones.Add(
@@ -728,7 +787,7 @@ namespace Services.Implements
                             ? milestoneStatus
                             : MilestoneStatus.Completed,
                         DeadlineDate = _faker
-                            .Date.Past(30, DateTime.Now.AddYears(-18))
+                            .Date.Past(5, DateTime.Now)
                             .ToUniversalTime(),
                         MilestoneDescription = _faker.Lorem.Sentences(3),
                         PayAmount = payAmounts[j],
@@ -736,6 +795,8 @@ namespace Services.Implements
                 );
             }
         }
+
+
 
         private async void generateBids(Project project, int numOfBid, long freelancerId)
         {
@@ -776,7 +837,7 @@ namespace Services.Implements
                                 2
                             ),
                             CreatedAt = _faker
-                                .Date.Past(30, DateTime.Now.AddYears(-18))
+                                .Date.Past(5, DateTime.Now.AddYears(0))
                                 .ToUniversalTime(),
                             BidDescription = _faker.Lorem.Sentences(3),
                         }

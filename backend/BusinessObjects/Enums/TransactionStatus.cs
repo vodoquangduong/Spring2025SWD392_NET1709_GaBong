@@ -5,7 +5,6 @@ namespace BusinessObjects.Enums
         Pending,
         Completed,
         Failed,
-        Refunded,
         Cancelled,
     }
 }

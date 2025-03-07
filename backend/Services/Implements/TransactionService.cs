@@ -130,6 +130,11 @@ namespace Services.Implements
             }
         }
 
+        public Task<Result<List<TransactionDTO>>> GetTransactionByAccountAsync(long id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Result<List<TransactionDTO>>> GetTransactionByAccountIdAsync(long id)
         {
             try
