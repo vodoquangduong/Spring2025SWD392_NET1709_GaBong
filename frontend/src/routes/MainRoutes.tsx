@@ -40,6 +40,7 @@ import { CategoryManagement } from "@/pages/Dashboard/EmployeeDashboard/Category
 import PrivateRoute from "@/components/PrivateRoute";
 import { Role } from "@/types";
 import ProjectContract from "@/pages/Project/partials/ProjectContract/ProjectContract";
+import VerifyGmail from "@/pages/VerifyGmail/VerifyGmail";
 
 export default function MainRoutes() {
   return (
@@ -87,6 +88,10 @@ export default function MainRoutes() {
           <Route path="register" element={<Register />} />
           <Route path="login" element={<Login />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/authentication/verify-gmail"
+            element={<VerifyGmail />}
+          />
           <Route
             path="/"
             element={
