@@ -130,7 +130,7 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<TransactionDTO>> GetTransactionByAccountIdAsync(long id)
+        public async Task<Result<List<TransactionDTO>>> GetTransactionByAccountIdAsync(long id)
         {
             try
             {
@@ -138,16 +138,17 @@ namespace Services.Implements
                 .WithTracking(false)
                 .WithPredicate(t => t.AccountId == id)
                 .Build();
-                var transaction = await _unitOfWork.GetRepo<Transaction>().GetSingleAsync(queryOptions);
+                var transaction = await _unitOfWork.GetRepo<Transaction>().GetAllAsync(queryOptions);
                 if (transaction == null)
                 {
-                    return Result.Failure<TransactionDTO>(new Error("Transaction not found", $"Transaction with account id {id}"));
+                    return Result.Failure<List<TransactionDTO>>(new Error("Transaction not found", $"Transaction with account id {id}"));
                 }
-                return Result.Success(transaction.ToTransactionDTO());
+                var  result = transaction.Select(t => t.ToTransactionDTO()).ToList();
+                return Result.Success(result);
             }
             catch (Exception e)
             {
-                return Result.Failure<TransactionDTO>(new Error("Get transaction by account id failed", $"{e.Message}"));
+                return Result.Failure<List<TransactionDTO>>(new Error("Get transaction by account id failed", $"{e.Message}"));
             }
         }
 
