@@ -6,6 +6,6 @@ namespace BusinessObjects.Enums
         Completed,
         Failed,
         Refunded,
-        Cancelled
+        Cancelled,
     }
 }
