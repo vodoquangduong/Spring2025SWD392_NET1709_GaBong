@@ -2,8 +2,22 @@ import React from "react";
 import EarningChart from "./partials/EarningChart";
 import { Progress } from "antd";
 import BidSummaryChart from "./partials/BidSummaryChart";
+import { useQueries } from "@tanstack/react-query";
+import useAuthStore from "@/stores/authStore";
+import { GET } from "@/modules/request";
+import { Transaction } from "@/types/transaction";
 
 const Dashboard = () => {
+  const { accountId } = useAuthStore();
+  const [transactions] = useQueries({
+    queries: [
+      {
+        queryKey: ["transactions"],
+        queryFn: async (): Promise<Transaction[]> =>
+          await GET(`/api/Transaction/${accountId}`),
+      },
+    ],
+  });
   return (
     <div className="geist min-h-screen py-8">
       <div>
@@ -42,8 +56,8 @@ const Dashboard = () => {
         </div>
       </div>
       <div className="w-full grid grid-cols-3 gap-6 mt-8">
-        <div className="col-span-2 border p-4">
-          <EarningChart />
+        <div className="col-span-3 border p-4 h-[600px]">
+          <EarningChart transactions={transactions.data || []} />
         </div>
         <div className="border">
           <div className="text-start font-semibold text-xl p-4 border-b">
