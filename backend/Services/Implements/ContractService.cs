@@ -101,6 +101,7 @@ namespace Services.Implements
                     Amount = choosenBid.BidOffer * projectFee,
                     Status = BusinessObjects.Enums.TransactionStatus.Pending,
                     CreatedAt = DateTime.UtcNow,
+                    Detail = "Fee to create project "+ project.ProjectId + ": " + project.ProjectName,
                     Type = BusinessObjects.Enums.TransactionType.Fee,
                 };
                 await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionProjectFee);
@@ -251,26 +252,27 @@ namespace Services.Implements
                 {
                     bidFee = 2m;
                 }
-                //<======Transaction for project fee(10% project amount)=======>
-                var transactionProjectFee = new Transaction()
+                //<======Transaction for refund fee(2$ to bid)=======>
+                var transactionRefundFee = new Transaction()
                 {
                     AccountId = freelancer.AccountId,
                     Amount = bidFee,
                     Status = BusinessObjects.Enums.TransactionStatus.Pending,
                     CreatedAt = DateTime.UtcNow,
                     Type = BusinessObjects.Enums.TransactionType.Refund,
+                    Detail = "Refund for reject proposal of project " + project.ProjectId + ": " + project.ProjectName
                 };
-                await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionProjectFee);
+                await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionRefundFee);
                 await _unitOfWork.SaveChangesAsync(); // Save to generate TransactionId
 
                 //<=======Update freelancer balance=======>
-                freelancer.TotalCredit += transactionProjectFee.Amount;
+                freelancer.TotalCredit += transactionRefundFee.Amount;
                 await _unitOfWork.GetRepo<Account>().UpdateAsync(freelancer);
                 await _unitOfWork.SaveChangesAsync();
 
                 //<======Complete transaction=======>
-                transactionProjectFee.Status = BusinessObjects.Enums.TransactionStatus.Completed;
-                await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transactionProjectFee);
+                transactionRefundFee.Status = BusinessObjects.Enums.TransactionStatus.Completed;
+                await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transactionRefundFee);
                 await _unitOfWork.SaveChangesAsync();
             }
         }
