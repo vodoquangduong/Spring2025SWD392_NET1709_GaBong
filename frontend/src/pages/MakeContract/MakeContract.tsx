@@ -30,9 +30,9 @@ export default function MakeContract() {
         message.error("This project is already contracted");
         return;
       }
-      let res = "";
-      // const res = await POST(`/api/Contract`, data);
-      // if (res.code) throw new Error();
+      //let res = "";
+      const res = await POST(`/api/Contract`, data);
+      //if (res.code) throw new Error();
       return res;
     },
     onError: () => {
