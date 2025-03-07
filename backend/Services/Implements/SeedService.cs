@@ -22,7 +22,6 @@ namespace Services.Implements
         private readonly IUnitOfWork _unitOfWork;
         private readonly Faker _faker = new Faker();
 
-
         public SeedService(ApplicationDbContext context, IUnitOfWork unitOfWork)
         {
             _context = context;
@@ -61,6 +60,8 @@ namespace Services.Implements
 
         private async Task InsertProjects(int numOfProject)
         {
+            var minBudget = 500;
+            var maxBudget = 2000;
             var projects = new List<Project>();
             for (int i = 0; i < numOfProject; i++)
             {
@@ -79,7 +80,9 @@ namespace Services.Implements
                     ProjectDescription = _faker.Lorem.Sentences(3),
                     AvailableTimeRange = _faker.Random.Int(10, 30),
 
-                    EstimateBudget = Math.Round((decimal)_faker.Random.Decimal(100, 10000)),
+                    EstimateBudget = Math.Round(
+                        (decimal)_faker.Random.Decimal(minBudget, maxBudget)
+                    ),
 
                     Location = _faker.Address.Country(),
                     PostDate = _faker.Date.Past(30, DateTime.Now.AddYears(-18)).ToUniversalTime(),
@@ -116,16 +119,14 @@ namespace Services.Implements
                 );
                 //<==Random fee transaction==>
                 var fee = new Transaction
-                    {
-                        AccountId = clientId,
-                        Amount = project.EstimateBudget * 0.1m,
-                        CreatedAt = _faker
-                            .Date.Past(30, DateTime.Now.AddYears(-18))
-                            .ToUniversalTime(),
-                        Detail = "Fee for project " + project.ProjectName,
-                        Status = TransactionStatus.Completed,
-                        Type = TransactionType.Fee,
-                    };
+                {
+                    AccountId = clientId,
+                    Amount = project.EstimateBudget * 0.1m,
+                    CreatedAt = _faker.Date.Past(30, DateTime.Now.AddYears(-18)).ToUniversalTime(),
+                    Detail = "Fee for project " + project.ProjectName,
+                    Status = TransactionStatus.Completed,
+                    Type = TransactionType.Fee,
+                };
                 _context.Add(fee);
                 //<==Random milestone transaction==>
                 foreach (var milestone in project.Milestones)
@@ -137,7 +138,13 @@ namespace Services.Implements
                         CreatedAt = _faker
                             .Date.Past(30, DateTime.Now.AddYears(-18))
                             .ToUniversalTime(),
-                        Detail = "Pay for freelancer " + freelancerId + " for finish milestone " + milestone.MilestoneName + " in project " + project.ProjectName,
+                        Detail =
+                            "Pay for freelancer "
+                            + freelancerId
+                            + " for finish milestone "
+                            + milestone.MilestoneName
+                            + " in project "
+                            + project.ProjectName,
                         Status = TransactionStatus.Completed,
                         Type = TransactionType.Payment,
                     };
@@ -149,14 +156,20 @@ namespace Services.Implements
                         CreatedAt = _faker
                             .Date.Past(30, DateTime.Now.AddYears(-18))
                             .ToUniversalTime(),
-                        Detail = "Earning from client " + clientId + " for finish milestone " + milestone.MilestoneName + " in project " + project.ProjectName,
+                        Detail =
+                            "Earning from client "
+                            + clientId
+                            + " for finish milestone "
+                            + milestone.MilestoneName
+                            + " in project "
+                            + project.ProjectName,
                         Status = TransactionStatus.Completed,
                         Type = TransactionType.Earnings,
                     };
                     _context.Add(earning);
                     _context.Add(payment);
-
-                };
+                }
+                ;
 
                 projects.Add(project);
             }
@@ -680,6 +693,7 @@ namespace Services.Implements
             }
             return skillIds;
         }
+
         private void generateMilestones(Project project, int numOfMilestone)
         {
             var milestones = new List<Milestone>();
@@ -691,7 +705,10 @@ namespace Services.Implements
             for (int i = 0; i < numOfMilestone - 1; i++)
             {
                 // Random payamount so that always sum of payAmount = 100
-                decimal amount = Math.Round((decimal)rand.NextDouble() * (remainingBudget - (numOfMilestone - i - 1)) + 1, 2);
+                decimal amount = Math.Round(
+                    (decimal)rand.NextDouble() * (remainingBudget - (numOfMilestone - i - 1)) + 1,
+                    2
+                );
                 payAmounts.Add(amount);
                 remainingBudget -= amount;
             }
@@ -749,15 +766,21 @@ namespace Services.Implements
                     usedBidOwnerIds.Add(bidOwnerId);
 
                     // Thêm bid vào danh sách của project
-                    project.Bids.Add(new Bid
-                    {
-                        ProjectId = project.ProjectId,
-                        BidOwnerId = bidOwnerId,
-                        BidOffer = Math.Round(project.EstimateBudget * _faker.Random.Decimal(80, 200) / 100, 2),
-                        CreatedAt = _faker.Date.Past(30, DateTime.Now.AddYears(-18)).ToUniversalTime(),
-                        BidDescription = _faker.Lorem.Sentences(3),
-                    });
-                    
+                    project.Bids.Add(
+                        new Bid
+                        {
+                            ProjectId = project.ProjectId,
+                            BidOwnerId = bidOwnerId,
+                            BidOffer = Math.Round(
+                                project.EstimateBudget * _faker.Random.Decimal(80, 200) / 100,
+                                2
+                            ),
+                            CreatedAt = _faker
+                                .Date.Past(30, DateTime.Now.AddYears(-18))
+                                .ToUniversalTime(),
+                            BidDescription = _faker.Lorem.Sentences(3),
+                        }
+                    );
                 }
                 catch (Exception)
                 {
@@ -765,6 +788,5 @@ namespace Services.Implements
                 }
             }
         }
-
     }
 }

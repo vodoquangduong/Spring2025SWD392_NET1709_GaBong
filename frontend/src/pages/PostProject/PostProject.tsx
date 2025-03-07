@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { App, Button, Select, Table } from "antd";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { set, useForm } from "react-hook-form";
 import { formSchema, tableColumns } from "./schemas";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -24,9 +24,11 @@ type Milestone = {
 
 export default function PostProject() {
   const navigate = useNavigate();
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
   const { state } = useLocation();
-  const [milestones, setMilestones] = React.useState<Milestone[]>([
+  const [isEditting, setIsEditting] = useState(-1);
+
+  const [milestones, setMilestones] = useState<Milestone[]>([
     {
       milestoneName: "Init milestone",
       description: "This is the init milestone",
@@ -34,6 +36,7 @@ export default function PostProject() {
       deadline: new Date().toISOString(),
     },
   ]);
+
   const [skills, setSkills] = React.useState<string[]>([]);
   const {
     handleSubmit,
@@ -110,17 +113,37 @@ export default function PostProject() {
       });
       return;
     }
-    // console.log(formData);
-    // return;
+    if (milestones.reduce((a, b) => a + b.amount, 0) != 100) {
+      modal.confirm({
+        title: "Recalculate milestone's percentage",
+        content:
+          "Your total milestone's percentage haven't enough 100%, do you want to automatically recalculate it?",
+        okText: "Ok",
+        centered: true,
+        cancelText: "Cancel",
+        onOk: () => {
+          const totalAmount = milestones.reduce(
+            (a, b) => a + Number(b.amount),
+            0
+          );
+          const newMilestones = milestones.map((milestone: Milestone) => ({
+            ...milestone,
+            amount: (milestone.amount * 100) / totalAmount,
+          }));
+          setMilestones(newMilestones);
+          console.log("milestones", newMilestones);
+          return;
+        },
+      });
+    }
+    return;
+
     message.open({
       type: "loading",
       content: "Creating project ...",
       duration: 0,
     });
-    const totalAmount = milestones.reduce((a, b) => a + b.amount, 0);
-    milestones.forEach((milestone: Milestone) => {
-      milestone.amount = (milestone.amount * 100) / totalAmount;
-    });
+
     formData.milestones = milestones;
     formData.skillIds = skills;
     if (state?.project) {
@@ -137,22 +160,24 @@ export default function PostProject() {
       onSubmit={handleSubmit(onSubmit)}
     >
       <Back />
-      <div className="grid grid-cols-2 gap-4 mb-2 col-span-6">
+      <div
+        className={`grid grid-cols-2 gap-4 mb-2 transition-all col-span-4 resize-x`}
+      >
         <div className="font-semibold text-2xl mt-10 col-span-2">
           {!state?.project ? "Create new project" : "Edit project"}
         </div>
-        <div className="col-span-1">
+        <div className="col-span-2">
           <div className="font-semibold text-base pb-2">Name</div>
           <input
             {...register("projectName")}
             placeholder="Your project name"
-            className="input-style py-[9px] px-2 text-sm"
+            className="input-style py-[9px] px-2 text-sm resize-y"
           />
           {errors.projectName && (
             <div className="error-msg">{errors.projectName.message}</div>
           )}
         </div>
-        <div className="col-span-1">
+        <div className="col-span-2">
           <div className="font-semibold text-base pb-2">Location</div>
           <select className="py-2 px-2 input-style" {...register("location")}>
             <option className="input-style" value={""}>
@@ -175,8 +200,8 @@ export default function PostProject() {
             <div className="error-msg">{errors.location.message}</div>
           )}
         </div>
-        <div>
-          <div className="font-semibold text-base pb-2">Estimate Budget</div>
+        <div className="col-span-2">
+          <div className="font-semibold text-base pb-2">Estimate budget</div>
           <div className="input-style flex gap-2 py-[10px]">
             <div className="px-1">$</div>
             <input
@@ -190,11 +215,18 @@ export default function PostProject() {
           {errors.estimateBudget && (
             <div className="error-msg">{errors.estimateBudget.message}</div>
           )}
+          {!errors.estimateBudget && Number(watch("estimateBudget")) > 0 && (
+            <div className="info-msg">
+              Your budget will be proposed in{" "}
+              {(Number(watch("estimateBudget")) * 0.8).toLocaleString()} -{" "}
+              {Number(watch("estimateBudget")).toLocaleString()} USD
+            </div>
+          )}
         </div>
 
-        <div>
+        <div className="col-span-2">
           <div className="font-semibold text-base pb-2">
-            Bidding Available Time Range
+            Propose available timerange
           </div>
           <div className="input-style flex gap-2 py-[10px]">
             <input
@@ -206,7 +238,6 @@ export default function PostProject() {
             />
             <div className="px-2">days</div>
           </div>
-
           {errors.availableTimeRange && (
             <div className="error-msg">{errors.availableTimeRange.message}</div>
           )}
@@ -249,146 +280,54 @@ export default function PostProject() {
             <div className="error-msg">{errors.projectDescription.message}</div>
           )}
         </div>
-
-        {!state?.project ? (
-          <div className="col-span-2">
-            <div className="font-semibold text-2xl pb-4 mt-4 col-span-2">
-              Add Milestones
-            </div>
-            {/* <div className="font-semibold text-base pb-2">Milestones</div> */}
-            <div className="gap-2 grid grid-cols-12">
-              <div className="col-span-7">
-                <div className="font-semibold text-base pb-2 col-span-8">
-                  Name
-                </div>
-                <input
-                  id="milestoneName"
-                  className="input-style py-[10px] no-ring grow no-scrollbar"
-                  placeholder="Milestone name"
-                />
-              </div>
-              <div className="col-span-2">
-                <div className="font-semibold text-base pb-2 col-span-8">
-                  Percentage
-                </div>
-                <input
-                  id="milestonePercentage"
-                  className="input-style py-[10px] no-ring grow no-scrollbar"
-                  placeholder="Percentage"
-                  type="number"
-                />
-              </div>
-              <div className="col-span-3">
-                <div className="font-semibold text-base pb-2 col-span-8">
-                  Deadline
-                </div>
-                <input
-                  // min="2025-02-28T00:00"
-                  min={dayjs(milestones[milestones.length - 1]?.deadline)
-                    .add(1, "day")
-                    .format("YYYY-MM-DDTHH:mm")}
-                  id="milestoneDeadline"
-                  className="input-style py-[10px] no-ring grow no-scrollbar"
-                  placeholder="Enter estimated budget"
-                  type="datetime-local"
-                />
-              </div>
-              <div className="col-span-12">
-                <div className="font-semibold text-base pb-2 col-span-8">
-                  Description
-                </div>
-                <textarea
-                  id="milestoneDescription"
-                  rows={3}
-                  className="input-style py-[10px] no-ring grow no-scrollbar"
-                  placeholder="Milestone description"
-                />
-              </div>
-              <div className="col-span-12 flex justify-between">
-                {errors.root?.milestoneError ? (
-                  <div className="error-msg">
-                    {errors.root?.milestoneError?.message}
-                  </div>
-                ) : (
-                  <div></div>
-                )}
-                <Button
-                  type="primary"
-                  className="font-bold col-span-2 h-full px-4 py-2"
-                  icon={<FaPlus />}
-                  onClick={() => {
-                    const milestoneName = document.getElementById(
-                      "milestoneName"
-                    ) as HTMLInputElement;
-                    const milestoneDeadline = document.getElementById(
-                      "milestoneDeadline"
-                    ) as HTMLInputElement;
-                    const milestonePercentage = document.getElementById(
-                      "milestonePercentage"
-                    ) as HTMLInputElement;
-                    const milestoneDescription = document.getElementById(
-                      "milestoneDescription"
-                    ) as HTMLInputElement;
-
-                    if (
-                      !milestoneName.value ||
-                      !milestoneDeadline.value ||
-                      !milestonePercentage.value ||
-                      !milestoneDescription.value
-                    ) {
-                      setError("root.milestoneError", {
-                        message: "Please fill in the empty fields",
-                      });
-                      return;
-                    }
-
-                    const milestone: Milestone = {
-                      milestoneName: milestoneName.value,
-                      deadline: new Date(milestoneDeadline.value).toISOString(),
-                      amount: parseInt(milestonePercentage.value),
-                      description: milestoneDescription.value,
-                    };
-                    if (
-                      milestones.reduce((a, b) => a + b.amount, 0) +
-                        milestone.amount >
-                        100 ||
-                      milestone.amount > 100
-                    ) {
-                      setError("root.milestoneError", {
-                        message: "Percentage should not exceed 100%",
-                      });
-                      return;
-                    }
-
-                    clearErrors("root.milestoneError");
-                    // clear input
-                    milestoneName.value = "";
-                    milestoneDeadline.value = "";
-                    milestonePercentage.value = "";
-                    milestoneDescription.value = "";
-                    setMilestones([...milestones, milestone]);
-                  }}
-                >
-                  Add milestone
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div></div>
-        )}
       </div>
-      <div className="space-y-2 col-span-6">
+      <div className={`space-y-2 transition-all col-span-8`}>
         <div className="sticky top-10">
-          <div className="font-semibold text-2xl pb-2 mt-10 col-span-2">
+          <div className="font-semibold text-2xl pb-2 mt-10 col-span-2 flex justify-between">
             Project's Milestones
+            <Button
+              disabled={mutation.isPending}
+              type="primary"
+              // htmlType="submit"
+              className="font-bold"
+              icon={<FaPlus />}
+              onClick={() => {
+                setIsEditting(-1);
+                setMilestones([
+                  ...milestones,
+                  {
+                    milestoneName: "New milestone",
+                    description: "New milestone description",
+                    amount: 1,
+                    deadline: new Date().toISOString(),
+                  },
+                ]);
+              }}
+            >
+              Add Milestone
+            </Button>
           </div>
           <Table
             pagination={false}
-            dataSource={milestones}
-            columns={tableColumns({ budget, setMilestones, milestones, state })}
+            // sort milestones by deadline date
+            dataSource={milestones.sort((a, b) =>
+              dayjs(a.deadline).isAfter(dayjs(b.deadline)) ? 1 : -1
+            )}
+            columns={tableColumns({
+              setIsEditting,
+              isEditting,
+              budget,
+              setMilestones,
+              milestones,
+              state,
+            })}
           />
           <div className="flex justify-end py-4">
+            <div>
+              {state?.project
+                ? "When the project is approved you will be able to update it again"
+                : ""}
+            </div>
             <Button
               disabled={mutation.isPending}
               type="primary"

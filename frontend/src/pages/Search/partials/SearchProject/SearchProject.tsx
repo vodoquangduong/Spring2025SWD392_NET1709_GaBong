@@ -18,11 +18,11 @@ export default function SearchProject() {
     <div>
       <div
         className="relative w-full text-secondary dark:text-primary pb-6 h-[240px] flex items-center"
-        // style={{
-        //   backgroundImage: "url(/bg.jpg)",
-        // }}
+        style={{
+          backgroundImage: "url(/bg.jpg)",
+        }}
       >
-        <div className="absolute bg-black top-0 left-0 w-full pb-6 h-full flex items-center z-10"></div>
+        <div className="absolute bg-emerald-500/70 top-0 left-0 w-full pb-6 h-full flex items-center z-10"></div>
         <div className="mx-container space-y-4 z-10">
           <div className="text-3xl font-bold">Browse</div>
           <div className="">

@@ -19,7 +19,7 @@ namespace Helpers.Mappers
                 Amount = transaction.Amount,
                 Detail = transaction.Detail,
                 Status = transaction.Status,
-                Type = transaction.Type
+                Type = transaction.Type,
             };
         }
     }

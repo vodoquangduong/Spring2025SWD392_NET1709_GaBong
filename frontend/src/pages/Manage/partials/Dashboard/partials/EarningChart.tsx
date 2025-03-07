@@ -1,8 +1,21 @@
 import useConfigStore from "@/stores/configStore";
+import {
+  Transaction,
+  TransactionStatus,
+  TransactionType,
+} from "@/types/transaction";
 import { ApexOptions } from "apexcharts";
+import dayjs from "dayjs";
 import React from "react";
 import Chart from "react-apexcharts";
 
+// create a new type for dates
+
+type EarningMap = {
+  [key: string]: number;
+};
+
+type Earning = [string, number][];
 const dates = [
   ["2022-03-01", 100],
   ["2022-03-02", 110],
@@ -37,31 +50,94 @@ const dates = [
   ["2022-03-31", 400],
 ];
 
-var options = {
-  options: {
+export default function EarningChart({
+  transactions,
+}: {
+  transactions: Transaction[];
+}) {
+  // calculate total earnings group by createdAt
+
+  const totalEarningsMap = transactions
+    .filter((item: Transaction) => item.type == TransactionType.EARNINGS)
+    .reduce((a: EarningMap, b: Transaction) => {
+      const date = dayjs(b.createdAt, "DD-MM-YYYY").format("YYYY-DD-MM");
+      return {
+        ...a,
+        [date]: (a[date] || 0) + b.amount,
+      };
+    }, {});
+
+  console.log("totalEarningsMap", totalEarningsMap);
+  console.log("transactions", transactions.length);
+  // convert totalEarningsMap to array
+  let totalEarnings = Object.keys(totalEarningsMap).map((key) => ({
+    x: key,
+    y: totalEarningsMap[key],
+  }));
+  console.log("totalEarnings", totalEarnings);
+
+  const { isDarkMode } = useConfigStore();
+  const options: ApexOptions = {
     chart: {
       id: "basic-bar",
       // width: "100%",
       height: "100%",
     },
+    dataLabels: {
+      enabled: false,
+    },
     xaxis: {
-      categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
+      type: "datetime",
     },
-    title: {
-      text: "Stock Price Movement",
-      align: "left",
+    yaxis: {
+      labels: {
+        formatter: function (val) {
+          return (val / 1000000).toFixed(0);
+        },
+      },
+      title: {
+        text: "Price",
+      },
     },
-  },
-  series: [
-    {
-      name: "series-1",
-      data: [30, 40, 45, 50, 49, 60, 70, 91],
+    tooltip: {
+      shared: false,
+      y: {
+        formatter: function (val) {
+          return (val / 1000000).toFixed(0);
+        },
+      },
     },
-  ],
-};
+    series: [
+      {
+        name: "Income",
+        data: totalEarnings,
+      },
+    ],
+  };
 
-export default function EarningChart() {
-  const { isDarkMode } = useConfigStore();
+  const options2 = {
+    options: {
+      chart: {
+        id: "basic-bar",
+        // width: "100%",
+        height: "100%",
+      },
+      xaxis: {
+        categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
+      },
+      title: {
+        text: "Stock Price Movement",
+        align: "left",
+      },
+    },
+    series: [
+      {
+        name: "series-1",
+        data: [30, 40, 45, 50, 49, 60, 70, 91],
+      },
+    ],
+  };
+
   return (
     <Chart
       options={{
