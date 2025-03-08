@@ -33,9 +33,6 @@ export default function Project() {
       title: <Link to={`/projects/${projectId}/details`}>{projectId}</Link>,
     },
   ];
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const tabItems = [
     {
@@ -65,6 +62,10 @@ export default function Project() {
     isLoading,
     accountId,
   };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <div>

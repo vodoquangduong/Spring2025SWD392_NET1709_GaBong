@@ -1,3 +1,12 @@
+export type Notification = {
+  notificationId: number;
+  accountId: number;
+  notificationType: NotificationType;
+  status: NotificationStatus;
+  content: string;
+  createdAt: string;
+};
+
 export enum NotificationType {
   NEW_MESSAGE,
   FRIEND_REQUEST,

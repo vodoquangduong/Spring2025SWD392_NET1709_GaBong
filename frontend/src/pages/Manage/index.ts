@@ -1,7 +1,8 @@
 import Manage from "./Manage";
 import Dashboard from "./partials/Dashboard/Dashboard";
 import MyProject from "./partials/MyProject/MyProject";
-import Bookmark from "./partials/Bookmark/Bookmark";
+import Proposal from "./partials/Proposal/Proposal";
 import Notification from "./partials/Notification/Notification";
+import Feedback from "./partials/Feedback/Feedback";
 
-export { Manage, Dashboard, MyProject, Bookmark, Notification };
+export { Manage, Dashboard, MyProject, Proposal, Notification, Feedback };

@@ -3,9 +3,11 @@ import { App, Spin } from "antd";
 import { useEffect } from "react";
 import { POST } from "@/modules/request";
 import { getCookie, setCookie } from "@/modules/cookie";
+import useAuthStore from "@/stores/authStore";
 
 export default function VerifyGmail() {
   const { message } = App.useApp();
+  const { login } = useAuthStore();
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.searchParams);
   useEffect(() => {
@@ -17,10 +19,10 @@ export default function VerifyGmail() {
       try {
         setCookie("accessToken", params.get("token") || "", 7);
         const data = await POST("/api/Authentication/verify-gmail", {}, false);
-        // console.log(params.get("token"));
+        console.log("VerifyGmail response:", data);
         if (data?.token) {
-          // console.log(data.token);
           setCookie("accessToken", data?.token, 7);
+          login(data?.token);
           location.href = "/profile/edit";
         } else {
           location.href = "/";

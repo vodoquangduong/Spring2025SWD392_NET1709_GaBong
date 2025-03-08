@@ -70,7 +70,7 @@ const RegisterForm = () => {
 
       message.destroy(); // Đóng loading message
       message.success("Registration successful!");
-      navigate("/login");
+      navigate("/authentication");
     } catch (err: any) {
       message.destroy();
       console.error("Registration failed:", err);

@@ -8,11 +8,13 @@ import useAuthStore from "@/stores/authStore";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
 import { NotificationStatus, NotificationType } from "@/types/notification";
 import { z } from "zod";
+import useUiStore from "@/stores/uiStore";
 
 export default function PlaceBid({ project }: { project: any }) {
   const { message } = App.useApp();
   const { accountId, name } = useAuthStore();
   const { notifyService } = useChatStore();
+  const { revalidate } = useUiStore();
 
   let { id } = useParams();
   let navigate = useNavigate();
@@ -37,7 +39,7 @@ export default function PlaceBid({ project }: { project: any }) {
   const [user] = useQueries({
     queries: [
       {
-        queryKey: ["user"],
+        queryKey: ["user", revalidate],
         queryFn: async () => await GET(`/api/Account/${accountId}`),
       },
     ],
@@ -99,7 +101,7 @@ export default function PlaceBid({ project }: { project: any }) {
   });
 
   const onSubmit = async (formData: any) => {
-    if (!(user?.data?.value?.phone?.length != 0)) {
+    if (user?.data?.value?.phone?.trim()?.length == 0) {
       message.info("Please update your profile first");
       navigate("/profile/edit");
       scrollTo(0, 0);

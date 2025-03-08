@@ -1,7 +1,6 @@
-import { BiLogOut, BiSolidCategory } from "react-icons/bi";
+import { BiLogOut, BiMoneyWithdraw, BiSolidCategory } from "react-icons/bi";
 import { IoPieChart } from "react-icons/io5";
-import { FaHeart, FaUserCircle } from "react-icons/fa";
-import { FaLock } from "react-icons/fa";
+import { FaUserCircle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { Dropdown } from "antd";
 import { defaultAvatar } from "../modules/default";
@@ -10,28 +9,29 @@ import { setCookie } from "../modules/cookie";
 import useChatStore from "./ChatPopup/stores/chatStore";
 import { Role } from "@/types";
 import { MdOutlinePayment } from "react-icons/md";
+import { ItemType } from "antd/es/menu/interface";
 
 const ProfileDropdown = () => {
   const { logout, email, name, avatar, role } = useAuthStore();
   const { setCurrentRoom } = useChatStore();
-  // const userInfor = localStorage.getItem("auth");
-  // const userInforString = userInfor ? JSON.parse(userInfor) : null;
   const navigate = useNavigate();
-  const items = [
-    role == Role.ADMIN || role == Role.STAFF
-      ? {
-          key: "0",
-          label: (
-            <Link
-              to="/employee"
-              className="flex font-semibold gap-2 items-center"
-            >
-              <BiSolidCategory />
-              Dashboard
-            </Link>
-          ),
-        }
-      : null,
+  const items: ItemType[] = [
+    {
+      key: "0",
+      label: (
+        <Link
+          to={
+            role == Role.ADMIN || role == Role.STAFF
+              ? "/employee"
+              : "/manage/dashboard"
+          }
+          className="flex font-semibold gap-2 items-center"
+        >
+          <BiSolidCategory />
+          Dashboard
+        </Link>
+      ),
+    },
     {
       key: "-1",
       label: (
@@ -53,7 +53,6 @@ const ProfileDropdown = () => {
         </Link>
       ),
     },
-
     {
       key: "2",
       label: (
@@ -64,14 +63,11 @@ const ProfileDropdown = () => {
       ),
     },
     {
-      key: "5",
+      key: "withdraw",
       label: (
-        <Link
-          to="/profile/favorite"
-          className="flex font-semibold gap-2 items-center"
-        >
-          <FaHeart />
-          Favorite
+        <Link to={`/payment`} className="flex font-semibold gap-2 items-center">
+          <BiMoneyWithdraw />
+          Withdraw
         </Link>
       ),
     },
@@ -94,18 +90,14 @@ const ProfileDropdown = () => {
   return (
     <Dropdown
       className="flex font-bold items-center h-8 gap-3 group hover:scale-105 transition-all duration-200"
-      menu={{
-        items,
-      }}
+      menu={{ items }}
     >
       <span
         className="text-emerald-700 flex items-center cursor-pointer inter"
         onClick={() => navigate(`/profile`)}
       >
         <div
-          style={{
-            backgroundImage: `url(${avatar || defaultAvatar})`,
-          }}
+          style={{ backgroundImage: `url(${avatar || defaultAvatar})` }}
           className="h-10 aspect-square bg-cover bg-center rounded-full bg-white border border-emerald-500"
         />
         <div className="text-xs text-emerald-500">

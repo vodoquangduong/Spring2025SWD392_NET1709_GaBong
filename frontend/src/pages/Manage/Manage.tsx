@@ -5,13 +5,14 @@ import { Role } from "@/types";
 
 export default function Manage() {
   const { role } = useAuthStore();
+
   const items = [
     {
       name: "Dashboard",
       path: "/manage/dashboard",
     },
     {
-      name: role == Role.CLIENT ? "My projects" : "My working Projects",
+      name: "My projects",
       path: "/manage/projects",
     },
     {
@@ -19,13 +20,17 @@ export default function Manage() {
       path: "/manage/notifications",
     },
     {
-      name: "Bookmarks",
-      path: "/manage/bookmarks",
+      name: role == Role.FREELANCER ? "Proposals" : "",
+      path: "/manage/proposals",
+    },
+    {
+      name: role == Role.FREELANCER ? "Feedbacks" : "",
+      path: "/manage/feedbacks",
     },
   ];
 
   return (
-    <div>
+    <>
       <div className="w-full bg-black text-secondary dark:text-primary">
         <div className="mx-container pt-0">
           <div className="flex gap-1 mt-4">
@@ -38,6 +43,6 @@ export default function Manage() {
       <div className="mx-container">
         <Outlet />
       </div>
-    </div>
+    </>
   );
 }
