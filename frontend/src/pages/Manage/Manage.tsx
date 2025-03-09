@@ -1,7 +1,7 @@
-import { Outlet } from "react-router-dom";
-import { TabItem } from "../Search/Search";
 import useAuthStore from "@/stores/authStore";
 import { Role } from "@/types";
+import { Outlet } from "react-router-dom";
+import { TabItem } from "../Search/Search";
 
 export default function Manage() {
   const { role } = useAuthStore();
@@ -26,6 +26,10 @@ export default function Manage() {
     {
       name: role == Role.FREELANCER ? "Feedbacks" : "",
       path: "/manage/feedbacks",
+    },
+    {
+      name: "Transaction History",
+      path: "/manage/transaction-history",
     },
   ];
 
