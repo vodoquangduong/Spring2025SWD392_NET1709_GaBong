@@ -16,7 +16,7 @@ namespace BusinessObjects.Models
         public long SkillId { get; set; }
 
         [Column ("level")]
-        public SkillLevel Level { get; set; } = SkillLevel.Enry;
+        public SkillLevel Level { get; set; } = SkillLevel.Entry;
         
         // Navigation Properties
         [ForeignKey("AccountId")]

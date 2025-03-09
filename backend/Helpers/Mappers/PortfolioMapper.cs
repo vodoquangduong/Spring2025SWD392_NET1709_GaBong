@@ -1,13 +1,15 @@
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Portfolio;
+using Helpers.DTOs.SkillPerform;
 using Services.Interfaces.Portfolio;
+using System.Runtime.CompilerServices;
 
 namespace Helpers.Mappers
 {
     public static class PortfolioMapper
     {
-        public static PortfolioDTO ToPortfolioDTO(this Portfolio portfolio)
+        public static PortfolioDTO ToPortfolioDTO(this Portfolio portfolio, List<SkillPerform> skillPerform)
         {
             return new PortfolioDTO
             {
@@ -18,6 +20,7 @@ namespace Helpers.Mappers
                 Certificate = portfolio.Certificate,
                 About = portfolio.About,
                 Status = portfolio.Status,
+                skillPerformDTOs = skillPerform.Select(s => s.ToSkillPerformDTO()).ToList()
             };
         }
         public static PublicPortfolioDTO ToPublicPortfolioDTO(this Portfolio portfolio)

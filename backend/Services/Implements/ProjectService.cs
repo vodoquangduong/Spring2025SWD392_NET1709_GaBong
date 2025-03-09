@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using PayPalCheckoutSdk.Orders;
 using Repositories.Queries;
 using Services.Interfaces;
+using Services.Interfaces.Portfolio;
 
 namespace Services.Implements
 {
@@ -40,7 +41,11 @@ namespace Services.Implements
                 var client = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryOption);
 
                 //<==Create new project==>
-                //<========Validation========>
+                #region Validation
+                if (!_currentUserService.Role.Equals("Client"))
+                {
+                    return Result.Failure<ProjectDTO>(new Error("Create peoject failed", "Only client can create project"));
+                }
                 if (projectDto.EstimateBudget < 100)
                 {
                     return Result.Failure<ProjectDTO>(
@@ -59,6 +64,7 @@ namespace Services.Implements
                         )
                     );
                 }
+                #endregion 
                 //<========Create========>
                 var project = new Project()
                 {
@@ -108,6 +114,8 @@ namespace Services.Implements
             }
         }
 
+
+        //TODO: Not implement
         public Task<bool> DeleteProjectAsync(long id)
         {
             throw new NotImplementedException();
