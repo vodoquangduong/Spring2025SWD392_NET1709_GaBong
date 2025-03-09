@@ -145,7 +145,22 @@ namespace Services.Implements
                             || p.Location.Contains(filter.Location)
                         )
                     )
-                    .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
+                    .WithOrderBy(q =>
+                    {
+                        switch (filter.SortBy)
+                        {
+                            case "newest":
+                                return q.OrderByDescending(p => p.PostDate); // Newest
+                            case "oldest":
+                                return q.OrderBy(p => p.PostDate); // Oldest
+                            case "highest_budget":
+                                return q.OrderByDescending(p => p.EstimateBudget); // Max budget
+                            case "lowest_budget":
+                                return q.OrderBy(p => p.EstimateBudget); // Min budget
+                            default:
+                                return q.OrderByDescending(p => p.PostDate); // Default: newest
+                        }
+                    })
                     .Build();
                 var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);
                 var paginatedProjects = await Pagination.ApplyPaginationAsync(
