@@ -65,7 +65,10 @@ const ProfileDropdown = () => {
     {
       key: "withdraw",
       label: (
-        <Link to={`/payment`} className="flex font-semibold gap-2 items-center">
+        <Link
+          to={`/withdraw`}
+          className="flex font-semibold gap-2 items-center"
+        >
           <BiMoneyWithdraw />
           Withdraw
         </Link>

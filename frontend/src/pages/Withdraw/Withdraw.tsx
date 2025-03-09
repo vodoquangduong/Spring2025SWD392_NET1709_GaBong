@@ -12,28 +12,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueries } from "@tanstack/react-query";
 import PaymentSuccess from "./partials/PaymentSuccess";
-
-async function createOrder(amount: number) {
-  const response = await fetch("/api/paypal/create-order", {
-    method: "POST",
-    body: JSON.stringify({ amount }),
-  });
-  const data = await response.json();
-  window.location.href = data.approvalUrl;
-}
-async function captureOrder(
-  orderId: number,
-  accountId: number,
-  amount: number
-) {
-  const response = await fetch("/api/paypal/capture-order", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ orderId, accountId, amount }),
-  });
-  const data = await response.text();
-  alert(data);
-}
+import { AccountDetail } from "@/types/account";
+import { ResultServerResponse } from "@/types/serverResponse";
 
 const schema = z.object({
   amount: z.coerce
@@ -51,34 +31,31 @@ const schema = z.object({
     ),
 });
 
-export default function Payment() {
+export default function Withdraw() {
+  let transactionId = 0;
+  const {
+    watch,
+    register,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: { amount: "" },
+    resolver: zodResolver(schema),
+  });
   const { message } = App.useApp();
   const [agree, setAgree] = useState(false);
   const { accountId, name } = useAuthStore();
+  const amount = watch("amount");
 
   const [profileDetail] = useQueries({
     queries: [
       {
         queryKey: ["profile"],
-        queryFn: async () => GET(`/api/Account/${accountId}`),
+        queryFn: async (): Promise<ResultServerResponse<AccountDetail>> =>
+          GET(`/api/Account/${accountId}`),
       },
     ],
-  });
-
-  let transactionId = 0;
-
-  const {
-    watch,
-    register,
-    getValues,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    mode: "onChange",
-    defaultValues: {
-      amount: "",
-    },
-    resolver: zodResolver(schema),
   });
 
   const initialOptions = {
@@ -89,7 +66,12 @@ export default function Payment() {
     "data-sdk-integration-source": "developer-studio",
   };
 
-  const amount = watch("amount");
+  const getCurrentBalance = () => {
+    return profileDetail?.data
+      ? profileDetail?.data?.value?.totalCredit -
+          profileDetail?.data?.value?.lockCredit
+      : 0;
+  };
 
   return (
     <div className="h-screen w-screen flex justify-center">
@@ -97,14 +79,11 @@ export default function Payment() {
       <div className="grid grid-cols-3 text-lg">
         <div></div>
         <div className="mt-36 col-span-1">
-          {/* <div className="flex justify-end py-4">
-            <Logo />
-          </div> */}
           <div className="geist">
             <div className="font-semibold text-3xl mb-3">
-              Complete your payment
+              Withdraw your balance
             </div>
-            <div className="text-base">Review your order and pay.</div>
+            <div className="text-base">Review your request and send.</div>
           </div>
           <div className="mt-4 flex justify-between gap-y-4">
             <div>
@@ -119,7 +98,7 @@ export default function Payment() {
           <div className="rounded-2xl py-4">
             <div className="space-y-8">
               <div className="flex items-center justify-between gap-10">
-                <div className="min-w-28 ">Amount</div>
+                <div className="min-w-28">Withdraw Amount</div>
                 <div>
                   <input
                     {...register("amount")}
@@ -135,8 +114,10 @@ export default function Payment() {
                       });
                     }}
                   />
-                  {errors.amount && (
-                    <div className="error-msg">{errors.amount.message}</div>
+                  {getCurrentBalance() < Number(amount) && (
+                    <div className="error-msg">
+                      You don't have enough balance
+                    </div>
                   )}
                 </div>
               </div>
@@ -155,27 +136,23 @@ export default function Payment() {
                     {profileDetail.isLoading ? (
                       <Skeleton.Input className="mx-1" active />
                     ) : (
-                      (
-                        profileDetail?.data?.value?.totalCredit -
-                        profileDetail?.data?.value?.lockCredit
-                      ).toLocaleString()
+                      getCurrentBalance().toLocaleString()
                     )}
                   </div>
                   <span className="text-zinc-500 text-sm">USD</span>
                 </div>
               </div>
               <div className="flex justify-between border-t pt-4">
-                <div className="mb-2">Balance after payment</div>
+                <div className="mb-2">Balance after withdraw</div>
                 <div className="font-bold text-3xl chivo flex items-center gap-2">
                   <div>
                     $
                     {profileDetail.isLoading ? (
                       <Skeleton.Input className="mx-1" active />
                     ) : (
-                      (
-                        profileDetail?.data?.value?.totalCredit -
-                        profileDetail?.data?.value?.lockCredit +
-                        Number(amount)
+                      (getCurrentBalance() > Number(amount)
+                        ? getCurrentBalance() - Number(amount)
+                        : 0
                       ).toLocaleString()
                     )}
                   </div>
@@ -294,16 +271,6 @@ export default function Payment() {
                             "/api/PayPal/completePayment/" + transactionId,
                             {}
                           );
-
-                          // console.log(
-                          //   "completePaymentTransactionResponse: ",
-                          //   completePaymentTransactionResponse
-                          // );
-                          // console.log(
-                          //   "completePaymentOrderResponse: ",
-                          //   completePaymentOrderResponse
-                          // );
-
                           location.href = "/payment-success";
                         }
                         console.log("Thanh cong");

@@ -38,9 +38,11 @@ export default function Manage() {
       <div className="w-full bg-black text-secondary dark:text-primary">
         <div className="mx-container pt-0">
           <div className="flex gap-1 mt-4">
-            {items.map((item) => (
-              <TabItem key={item.path} item={item} />
-            ))}
+            {items
+              .filter((item) => item.name)
+              .map((item) => (
+                <TabItem key={item.path} item={item} />
+              ))}
           </div>
         </div>
       </div>

@@ -43,6 +43,11 @@ import {
 import Register from "../pages/Register";
 import { SearchFreelancer, SearchProject } from "../pages/Search";
 import { NotifyGmailChecking, VerifyGmail } from "@/pages/VerifyGmail";
+import { Withdraw } from "@/pages/Withdraw";
+import {
+  WithdrawDetail,
+  WithdrawList,
+} from "@/pages/Dashboard/EmployeeDashboard/WithdrawManagement";
 
 export default function MainRoutes() {
   return (
@@ -65,6 +70,8 @@ export default function MainRoutes() {
               <Route path="contract" element={<ProjectContract />} />
             </Route>
           </Route>
+          <Route path="post-project" element={<PostProject />} />
+          <Route path="make-contract" element={<MakeContract />} />
           <Route path="freelancers">
             <Route path="" element={<Navigate to="/search/freelancers" />} />
             <Route path=":id" element={<Freelancer />} />
@@ -111,16 +118,20 @@ export default function MainRoutes() {
         </Route>
         <Route path="policy" element={<Policy />} />
       </Route>
-      <Route path="post-project" element={<PostProject />} />
-      <Route path="payment" element={<Payment />} />
-      <Route path="payment-success" element={<PaymentSuccess />} />
-      <Route path="make-contract" element={<MakeContract />} />
-      <Route path="register" element={<Register />} />
-      <Route path="login" element={<Login />} />
-      <Route path="forgot-password" element={<ForgotPassword />} />
-      <Route path="authentication">
-        <Route path="" element={<NotifyGmailChecking />} />
-        <Route path="verify-gmail" element={<VerifyGmail />} />
+
+      <Route>
+        <Route path="payment" element={<Payment />} />
+        <Route path="payment-success" element={<PaymentSuccess />} />
+        <Route path="withdraw" element={<Withdraw />} />
+      </Route>
+      <Route>
+        <Route path="register" element={<Register />} />
+        <Route path="login" element={<Login />} />
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="authentication">
+          <Route path="" element={<NotifyGmailChecking />} />
+          <Route path="verify-gmail" element={<VerifyGmail />} />
+        </Route>
       </Route>
       <Route
         path="/"
@@ -142,6 +153,10 @@ export default function MainRoutes() {
           <Route path="projects">
             <Route index element={<ProjectList />} />
             <Route path=":id" element={<DashboardProjectDetail />} />
+          </Route>
+          <Route path="withdraws">
+            <Route index element={<WithdrawList />} />
+            <Route path=":id" element={<WithdrawDetail />} />
           </Route>
           <Route path="pending-services" element={<PendingServiceList />} />
         </Route>

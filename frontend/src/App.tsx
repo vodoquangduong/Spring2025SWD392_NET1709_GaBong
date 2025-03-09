@@ -7,6 +7,10 @@ import { NotifyService } from "./components/ChatPopup/services/notifyService";
 import { useEffect } from "react";
 import useAuthStore from "./stores/authStore";
 import useChatStore from "./components/ChatPopup/stores/chatStore";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export default function App() {
   const { accountId } = useAuthStore();
