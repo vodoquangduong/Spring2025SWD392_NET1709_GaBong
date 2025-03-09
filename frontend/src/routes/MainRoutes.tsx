@@ -1,16 +1,24 @@
-import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import PageNotFound from "../components/PageNotFound";
 import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
 import { AccountManagement } from "../pages/Dashboard/EmployeeDashboard/AccountManagement";
 import { FreelancerManagement } from "../pages/Dashboard/EmployeeDashboard/FreelancerManagement";
 import {
-  ProjectList,
   ProjectDetail as DashboardProjectDetail,
+  ProjectList,
 } from "../pages/Dashboard/EmployeeDashboard/ProjectManagement";
 import PendingServiceList from "../pages/Dashboard/EmployeeDashboard/ProjectManagement/partials/PendingServiceList";
 import { ReportManagement } from "../pages/Dashboard/EmployeeDashboard/ReportManagement";
 import { ServiceManagement } from "../pages/Dashboard/EmployeeDashboard/ServiceManagement";
 // import { UserDetail, UserList } from "../pages/Dashboard/UserManager";
+import PrivateRoute from "@/components/PrivateRoute";
+import { CategoryManagement } from "@/pages/Dashboard/EmployeeDashboard/CategoryManagement";
+import { MakeContract } from "@/pages/MakeContract";
+import Transaction from "@/pages/Manage/partials/TransactionHistory";
+import { Payment, PaymentSuccess } from "@/pages/Payment";
+import PostProject from "@/pages/PostProject/PostProject";
+import ProjectContract from "@/pages/Project/partials/ProjectContract/ProjectContract";
+import { Role } from "@/types";
 import ForgotPassword from "../pages/ForgotPassword";
 import { Freelancer } from "../pages/Freelancer";
 import Home from "../pages/Home";
@@ -33,14 +41,6 @@ import {
 } from "../pages/Project";
 import Register from "../pages/Register";
 import { SearchFreelancer, SearchProject } from "../pages/Search";
-import { Payment, PaymentSuccess } from "@/pages/Payment";
-import { MakeContract } from "@/pages/MakeContract";
-import PostProject from "@/pages/PostProject/PostProject";
-import { CategoryManagement } from "@/pages/Dashboard/EmployeeDashboard/CategoryManagement";
-import PrivateRoute from "@/components/PrivateRoute";
-import { Role } from "@/types";
-import ProjectContract from "@/pages/Project/partials/ProjectContract/ProjectContract";
-
 export default function MainRoutes() {
   return (
     <>
@@ -73,6 +73,7 @@ export default function MainRoutes() {
               <Route path="projects" element={<MyProject />} />
               <Route path="bookmarks" element={<Bookmark />} />
               <Route path="notifications" element={<Notification />} />
+              <Route path="transaction-history" element={<Transaction />} />
             </Route>
             <Route path="profile">
               <Route index element={<UserProfile />} />
