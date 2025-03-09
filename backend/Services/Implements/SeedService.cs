@@ -108,90 +108,121 @@ namespace Services.Implements
                     case ProjectStatus.Pending:
 
                         break;
-                    case ProjectStatus.Verified:
 
+                    case ProjectStatus.Verified:
+                        //<==Random bid==>
+                        generateBids(project, _faker.Random.Int(2, 10), freelancerId);
+                        project.VerifyStaffId = staffId;
                         break;
+
                     case ProjectStatus.ReVerify:
 
                         break;
-                    case ProjectStatus.OnGoing:
 
+                    case ProjectStatus.OnGoing:
+                        project.FreelancerId = freelancerId;
+                        project.VerifyStaffId = staffId;
+
+                        //<==Random bid==>
+                        generateBids(project, _faker.Random.Int(2, 10), freelancerId);
+                        //<==Random contract==>
+                        project.Contracts.Add(
+                            new Contract
+                            {
+                                ProjectId = project.ProjectId,
+                                ContractPolicy = _faker.Lorem.Sentences(3),
+                                StartDate = _faker
+                                    .Date.Past(5, DateTime.Now.AddYears(0))
+                                    .ToUniversalTime(),
+                            }
+                        );
+                        //<==Random fee transaction==>
+                        var fee = new Transaction
+                        {
+                            AccountId = clientId,
+                            Amount = project.EstimateBudget * 0.1m,
+                            CreatedAt = _faker.Date.Past(5, DateTime.Now.AddYears(0)).ToUniversalTime(),
+                            Detail = "Fee for project " + project.ProjectName,
+                            Status = TransactionStatus.Completed,
+                            Type = TransactionType.Fee,
+                        };
+                        _context.Add(fee);
                         break;
                     case ProjectStatus.Completed:
+                        project.FreelancerId = freelancerId;
+                        project.VerifyStaffId = staffId;
+                        //<==Random bid==>
+                        generateBids(project, _faker.Random.Int(2, 10), freelancerId);
+                        //<==Random contract==>
+                        project.Contracts.Add(
+                            new Contract
+                            {
+                                ProjectId = project.ProjectId,
+                                ContractPolicy = _faker.Lorem.Sentences(3),
+                                StartDate = _faker
+                                    .Date.Past(5, DateTime.Now.AddYears(0))
+                                    .ToUniversalTime(),
+                            }
+                        );
+                        //<==Random fee transaction==>
+                        fee = new Transaction
+                        {
+                            AccountId = clientId,
+                            Amount = project.EstimateBudget * 0.1m,
+                            CreatedAt = _faker.Date.Past(5, DateTime.Now.AddYears(0)).ToUniversalTime(),
+                            Detail = "Fee for project " + project.ProjectName,
+                            Status = TransactionStatus.Completed,
+                            Type = TransactionType.Fee,
+                        };
+                        _context.Add(fee);
 
+                        //<==Random milestone transaction==>
+                        foreach (var milestone in project.Milestones)
+                        {
+                            var payment = new Transaction
+                            {
+                                AccountId = clientId,
+                                Amount = project.EstimateBudget * milestone.PayAmount / 100,
+                                CreatedAt = _faker
+                                    .Date.Past(5, DateTime.Now.AddYears(0))
+                                    .ToUniversalTime(),
+                                Detail =
+                                    "Pay for freelancer "
+                                    + freelancerId
+                                    + " for finish milestone "
+                                    + milestone.MilestoneName
+                                    + " in project "
+                                    + project.ProjectName,
+                                Status = TransactionStatus.Completed,
+                                Type = TransactionType.Payment,
+                            };
+
+                            var earning = new Transaction
+                            {
+                                AccountId = freelancerId,
+                                Amount = project.EstimateBudget * milestone.PayAmount / 100,
+                                CreatedAt = _faker
+                                    .Date.Past(5, DateTime.Now.AddYears(0))
+                                    .ToUniversalTime(),
+                                Detail =
+                                    "Earning from client "
+                                    + clientId
+                                    + " for finish milestone "
+                                    + milestone.MilestoneName
+                                    + " in project "
+                                    + project.ProjectName,
+                                Status = TransactionStatus.Completed,
+                                Type = TransactionType.Earnings,
+                            };
+                            _context.Add(earning);
+                            _context.Add(payment);
+                        }
                         break;
                     case ProjectStatus.Closed:
-
                         break;
-                }
-
-                //<==Random bid==>
-                generateBids(project, _faker.Random.Int(2, 10), freelancerId);
-
-                //<==Random contract==>
-                project.Contracts.Add(
-                    new Contract
-                    {
-                        ProjectId = project.ProjectId,
-                        ContractPolicy = _faker.Lorem.Sentences(3),
-                        StartDate = _faker
-                            .Date.Past(5, DateTime.Now.AddYears(0))
-                            .ToUniversalTime(),
-                    }
-                );
-                //<==Random fee transaction==>
-                var fee = new Transaction
-                {
-                    AccountId = clientId,
-                    Amount = project.EstimateBudget * 0.1m,
-                    CreatedAt = _faker.Date.Past(5, DateTime.Now.AddYears(0)).ToUniversalTime(),
-                    Detail = "Fee for project " + project.ProjectName,
-                    Status = TransactionStatus.Completed,
-                    Type = TransactionType.Fee,
+                    default:
+                        break;
                 };
-                _context.Add(fee);
-                //<==Random milestone transaction==>
-                foreach (var milestone in project.Milestones)
-                {
-                    var payment = new Transaction
-                    {
-                        AccountId = clientId,
-                        Amount = project.EstimateBudget * milestone.PayAmount / 100,
-                        CreatedAt = _faker
-                            .Date.Past(5, DateTime.Now.AddYears(0))
-                            .ToUniversalTime(),
-                        Detail =
-                            "Pay for freelancer "
-                            + freelancerId
-                            + " for finish milestone "
-                            + milestone.MilestoneName
-                            + " in project "
-                            + project.ProjectName,
-                        Status = TransactionStatus.Completed,
-                        Type = TransactionType.Payment,
-                    };
-
-                    var earning = new Transaction
-                    {
-                        AccountId = freelancerId,
-                        Amount = project.EstimateBudget * milestone.PayAmount / 100,
-                        CreatedAt = _faker
-                            .Date.Past(5, DateTime.Now.AddYears(0))
-                            .ToUniversalTime(),
-                        Detail =
-                            "Earning from client "
-                            + clientId
-                            + " for finish milestone "
-                            + milestone.MilestoneName
-                            + " in project "
-                            + project.ProjectName,
-                        Status = TransactionStatus.Completed,
-                        Type = TransactionType.Earnings,
-                    };
-                    _context.Add(earning);
-                    _context.Add(payment);
-                }
-                ;
                 System.Console.WriteLine("\n\n\n\n\n\nproject: " + i + " done\n\n\n\n\n");
 
                 projects.Add(project);
