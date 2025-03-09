@@ -1,14 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProjectFilter from "./partials/ProjectFilter";
 import ProjectListing from "./partials/ProjectListing";
 import SearchBox from "@/components/SearchBox";
-import { Button } from "antd";
 import useAuthStore from "@/stores/authStore";
 import { Role } from "@/types";
 
 export default function SearchProject() {
   const [query, setQuery] = useState<any>({});
   const { role } = useAuthStore();
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const q: any = {};
+    for (const [key, value] of searchParams) {
+      q[key] = value;
+      if ("skillIds" == key) q["skillIds"] = [Number(value)];
+    }
+    setQuery(q);
+    window.scrollTo(0, 0);
+  }, [location.search]);
 
   if (role == Role.CLIENT) {
     location.href = "/";
@@ -18,11 +28,11 @@ export default function SearchProject() {
     <div>
       <div
         className="relative w-full text-secondary dark:text-primary pb-6 h-[240px] flex items-center"
-        // style={{
-        //   backgroundImage: "url(/bg.jpg)",
-        // }}
+        style={{
+          backgroundImage: "url(/bg.jpg)",
+        }}
       >
-        <div className="absolute bg-black top-0 left-0 w-full pb-6 h-full flex items-center z-10"></div>
+        <div className="absolute bg-emerald-500/70 top-0 left-0 w-full pb-6 h-full flex items-center z-10"></div>
         <div className="mx-container space-y-4 z-10">
           <div className="text-3xl font-bold">Browse</div>
           <div className="">

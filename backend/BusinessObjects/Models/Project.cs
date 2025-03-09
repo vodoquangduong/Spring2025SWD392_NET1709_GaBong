@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BusinessObjects.Enums;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using BusinessObjects.Enums;
 
 namespace BusinessObjects.Models
 {
@@ -47,19 +47,18 @@ namespace BusinessObjects.Models
         [Column("status")]
         public ProjectStatus Status { get; set; }
 
-
         // Navigation Properties
         public virtual Account Client { get; set; } = null!;
         public virtual Account? Freelancer { get; set; }
         public virtual Account? Verifier { get; set; }
         public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
+
         [JsonIgnore]
-        public virtual ICollection<SkillRequired> SkillRequired { get; set; } = new List<SkillRequired>();
+        public virtual ICollection<SkillRequired> SkillRequired { get; set; } =
+            new List<SkillRequired>();
         public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
         public virtual ICollection<Bid> Bids { get; set; } = new List<Bid>();
         public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();
         public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-
-
     }
 }

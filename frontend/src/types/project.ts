@@ -1,7 +1,6 @@
 export interface Project {
   projectId: string;
   projectName: string;
-  clientId: string;
   title: string;
   postDate: string;
   projectDescription: string;
@@ -34,6 +33,9 @@ export interface Project {
 }
 
 export interface ProjectDetail extends Project {
+  clientId: number;
+  freelancerId: number;
+  verifierId: number;
   requirements: string;
   attachments: {
     id: string;

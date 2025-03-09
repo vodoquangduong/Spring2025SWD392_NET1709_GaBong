@@ -7,14 +7,14 @@ import useAuthStore from "@/stores/authStore";
 import { useMutation, useQueries } from "@tanstack/react-query";
 import { App, Skeleton, Spin, Table } from "antd";
 import dayjs from "dayjs";
-import React, { useState } from "react";
+import { useState } from "react";
+import { BiMailSend, BiPhone } from "react-icons/bi";
 import { FaFlag } from "react-icons/fa";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
 export default function ProjectContract() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [amount, setAmount] = useState(0);
   const { accountId } = useAuthStore();
   const { message } = App.useApp();
 
@@ -65,8 +65,6 @@ export default function ProjectContract() {
   //   // return <Spin />;
   // }
 
-  // console.log(project?.data?.value?.milestones);
-
   return (
     <div className="col-span-12 grid grid-cols-2 gap-10 text-lg">
       <div className="">
@@ -110,8 +108,6 @@ export default function ProjectContract() {
               <div className="font-semibold col-span-12">Required Skills</div>
               <div className="col-span-12">
                 <Skills items={data?.project?.skills} />
-                {/* {project?.data} */}
-                {/* {project?.data} */}
               </div>
             </div>
             <div className="flex items-center gap-12 border-t mt-4 pt-4">
@@ -149,29 +145,6 @@ export default function ProjectContract() {
   );
 }
 
-const CardImages = () => {
-  return (
-    <div className="flex gap-2 pt-6 pb-4">
-      <img
-        className="w-14"
-        src="https://www.f-cdn.com/assets/main/en/assets/payments/cc/visa.svg"
-      />
-      <img
-        className="w-14"
-        src="https://www.f-cdn.com/assets/main/en/assets/payments/cc/mastercard.svg"
-      />
-      <img
-        className="w-14"
-        src="https://www.f-cdn.com/assets/main/en/assets/payments/cc/amex.svg"
-      />
-      <img
-        className="w-14"
-        src="https://www.f-cdn.com/assets/main/en/assets/payments/cc/jcb.svg"
-      />
-    </div>
-  );
-};
-
 const UserItem = ({ data }: any) => {
   return (
     <div className="space-y-4 py-4">
@@ -182,20 +155,26 @@ const UserItem = ({ data }: any) => {
         />
         <div className="flex flex-col gap-2 w-full">
           <div className="chivo">
-            <div className="text-lg flex gap-4 mb-2">
+            <div className="text-lg flex gap-4">
               <span className="font-semibold pr-3">{data?.name}</span>
               <span className="flex justify-center items-center gap-2">
                 <FaFlag size={14} className="text-emerald-500" />
                 {data?.nationality}
               </span>
             </div>
-            <div className="text-base flex gap-8">
-              <span>{data?.phone}</span>
-              <span>{data?.email}</span>
+            <div className="text-base gap-8">
+              <div className="flex items-center gap-1">
+                <BiPhone size={20} className="text-emerald-500" />
+                {data?.phone}
+              </div>
+              <div className="flex items-center gap-1">
+                <BiMailSend size={20} className="text-emerald-500" />
+                {data?.email}
+              </div>
             </div>
             <div className="text-base flex gap-8"></div>
             <div className="text-base flex gap-8">
-              <span>
+              <span className="">
                 Member since {dayjs(data?.createdA).format("MMMM DD, YYYY")}
               </span>
             </div>

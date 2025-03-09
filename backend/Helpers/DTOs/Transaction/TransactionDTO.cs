@@ -12,6 +12,7 @@ namespace Helpers.DTOs.Transaction
         public long AccountId { get; set; }
         public string CreatedAt { get; set; } = string.Empty;
         public decimal Amount { get; set; }
+        public string Detail { get; set; }
         public TransactionStatus Status { get; set; }
         public TransactionType Type { get; set; }
     }

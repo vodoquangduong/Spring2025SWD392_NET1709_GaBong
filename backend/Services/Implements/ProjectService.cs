@@ -130,11 +130,20 @@ namespace Services.Implements
                         p.Status == ProjectStatus.Verified
                         && p.Milestones.Any()
                         && p.SkillRequired.Any()
-                        && (string.IsNullOrEmpty(filter.ProjectName) || p.ProjectName.Contains(filter.ProjectName))
+                        && (
+                            string.IsNullOrEmpty(filter.ProjectName)
+                            || p.ProjectName.ToLower().Contains(filter.ProjectName.ToLower())
+                        )
                         && (filter.MinBudget == null || p.EstimateBudget >= filter.MinBudget)
                         && (filter.MaxBudget == null || p.EstimateBudget <= filter.MaxBudget)
-                        && (filter.SkillIds == null || filter.SkillIds.All(id => p.SkillRequired.Any(s => s.SkillId == id)))
-                        && (string.IsNullOrEmpty(filter.Location) || p.Location.Contains(filter.Location))
+                        && (
+                            filter.SkillIds == null
+                            || filter.SkillIds.All(id => p.SkillRequired.Any(s => s.SkillId == id))
+                        )
+                        && (
+                            string.IsNullOrEmpty(filter.Location)
+                            || p.Location.Contains(filter.Location)
+                        )
                     )
                     .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
                     .Build();
