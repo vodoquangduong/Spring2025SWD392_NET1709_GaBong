@@ -7,7 +7,7 @@ namespace BusinessObjects.Enums
 {
     public enum SkillLevel
     {
-        Enry,
+        Entry,
         Intermediate,
         Advanced
     }

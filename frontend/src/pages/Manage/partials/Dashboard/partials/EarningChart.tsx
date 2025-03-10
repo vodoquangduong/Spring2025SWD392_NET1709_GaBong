@@ -1,81 +1,73 @@
+import { ChartLineData } from "@/modules/dashboardDataHandler";
 import useConfigStore from "@/stores/configStore";
 import { ApexOptions } from "apexcharts";
-import React from "react";
+import dayjs from "dayjs";
 import Chart from "react-apexcharts";
 
-const dates = [
-  ["2022-03-01", 100],
-  ["2022-03-02", 110],
-  ["2022-03-03", 120],
-  ["2022-03-04", 130],
-  ["2022-03-05", 140],
-  ["2022-03-06", 150],
-  ["2022-03-07", 160],
-  ["2022-03-08", 170],
-  ["2022-03-09", 180],
-  ["2022-03-10", 190],
-  ["2022-03-11", 200],
-  ["2022-03-12", 210],
-  ["2022-03-13", 220],
-  ["2022-03-14", 230],
-  ["2022-03-15", 240],
-  ["2022-03-16", 250],
-  ["2022-03-17", 260],
-  ["2022-03-18", 270],
-  ["2022-03-19", 280],
-  ["2022-03-20", 290],
-  ["2022-03-21", 300],
-  ["2022-03-22", 310],
-  ["2022-03-23", 320],
-  ["2022-03-24", 330],
-  ["2022-03-25", 340],
-  ["2022-03-26", 350],
-  ["2022-03-27", 360],
-  ["2022-03-28", 370],
-  ["2022-03-29", 380],
-  ["2022-03-30", 390],
-  ["2022-03-31", 400],
-];
+export default function EarningChart({ data }: { data: ChartLineData }) {
+  // calculate total earnings group by createdAt
 
-var options = {
-  options: {
+  const { isDarkMode } = useConfigStore();
+  const options: ApexOptions = {
     chart: {
       id: "basic-bar",
-      // width: "100%",
+      width: "100%",
       height: "100%",
     },
-    xaxis: {
-      categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
+    dataLabels: {
+      enabled: false,
     },
     title: {
-      text: "Stock Price Movement",
+      text: "Earning Chart",
       align: "left",
+      style: {
+        color: isDarkMode ? "white" : "black",
+        fontSize: "20px",
+        fontFamily: "sans-serif",
+        fontWeight: "bold",
+      },
     },
-  },
-  series: [
-    {
-      name: "series-1",
-      data: [30, 40, 45, 50, 49, 60, 70, 91],
+    tooltip: {
+      shared: false,
+      x: {
+        formatter: function (val) {
+          return dayjs(val).format("DD-MM-YYYY");
+        },
+      },
+      y: {
+        formatter: function (val) {
+          return val.toLocaleString() + " USD";
+        },
+      },
     },
-  ],
-};
+    xaxis: {
+      labels: {
+        formatter: function (val) {
+          return dayjs(val).format("DD-MM-YYYY");
+        },
+      },
+    },
+    yaxis: {
+      labels: {
+        formatter: function (val: number) {
+          return val.toLocaleString() + " USD";
+        },
+      },
+      title: {
+        text: "USD",
+      },
+    },
+    series: [
+      {
+        name: "Income",
+        data: data,
+      },
+    ],
+  };
 
-export default function EarningChart() {
-  const { isDarkMode } = useConfigStore();
   return (
     <Chart
-      options={{
-        title: {
-          text: "Earning Chart",
-          align: "left",
-          style: {
-            color: isDarkMode ? "white" : "black",
-            fontSize: "20px",
-            fontFamily: "sans-serif",
-            fontWeight: "bold",
-          },
-        },
-      }}
+      options={options}
       series={options.series}
       type="area"
       width="100%"

@@ -39,10 +39,10 @@ const RoomItem = ({ data, currentRoom }: { data: any; currentRoom: any }) => {
 
   return (
     <div
-      className={`flex items-center gap-4 p-3 border-b dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 cursor-pointer ${
+      className={`flex items-center gap-4 p-3 border-b dark:border-zinc-700 cursor-pointer ${
         data?.chatRoomID == currentRoom?.chatRoomID
-          ? "bg-emerald-500 !text-white"
-          : "hover:bg-zinc-100"
+          ? "bg-emerald-500 dark:bg-emerald-500 text-white"
+          : "dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-secondary-foreground"
       }`}
     >
       <img

@@ -26,7 +26,6 @@ namespace Services.Implements
         {
             try
             {
-                
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(new QueryOptions<Project>
                 {
                     Predicate = p => p.ProjectId == bidDto.ProjectId
@@ -61,6 +60,7 @@ namespace Services.Implements
                     Amount = bidFee,
                     Status = BusinessObjects.Enums.TransactionStatus.Pending,
                     CreatedAt = DateTime.UtcNow,
+                    Detail = "Bid on project " + project.ProjectId + ": " + project.ProjectName, 
                     Type = BusinessObjects.Enums.TransactionType.Fee,
                 };
                 await _unitOfWork.GetRepo<Transaction>().CreateAsync(transaction);

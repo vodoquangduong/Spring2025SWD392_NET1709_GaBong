@@ -62,8 +62,9 @@ const HeaderLinkItem = ({
 
 export default function Header() {
   const { isAuthenticated, role, accountId } = useAuthStore();
+  const { revalidate } = useUiStore();
   const { data } = useQuery({
-    queryKey: ["notification"],
+    queryKey: ["notification", revalidate],
     queryFn: async () => await GET(`/api/Account/${accountId}`, false),
   });
   const { readNotification, hasNewChatNotification } = useChatStore();
@@ -120,7 +121,7 @@ export default function Header() {
                     type="primary"
                     className="font-semibold"
                     onClick={() => {
-                      if (!(data?.value?.phone?.length != 0)) {
+                      if (data?.value?.phone?.trim()?.length == 0) {
                         message.info("Please update your profile first");
                         navigate("/profile/edit");
                         return;
@@ -147,15 +148,6 @@ export default function Header() {
                 >
                   Register
                 </Link>
-                {role == Role.CLIENT && (
-                  <Button
-                    type="primary"
-                    onClick={() => navigate("/login")}
-                    className="font-bold py-4"
-                  >
-                    Post a project
-                  </Button>
-                )}
               </>
             )}
             <button

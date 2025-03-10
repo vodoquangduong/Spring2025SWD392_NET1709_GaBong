@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using PayPalCheckoutSdk.Orders;
 using Repositories.Queries;
 using Services.Interfaces;
+using Services.Interfaces.Portfolio;
 
 namespace Services.Implements
 {
@@ -40,7 +41,11 @@ namespace Services.Implements
                 var client = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryOption);
 
                 //<==Create new project==>
-                //<========Validation========>
+                #region Validation
+                if (!_currentUserService.Role.Equals("Client"))
+                {
+                    return Result.Failure<ProjectDTO>(new Error("Create peoject failed", "Only client can create project"));
+                }
                 if (projectDto.EstimateBudget < 100)
                 {
                     return Result.Failure<ProjectDTO>(
@@ -59,6 +64,7 @@ namespace Services.Implements
                         )
                     );
                 }
+                #endregion 
                 //<========Create========>
                 var project = new Project()
                 {
@@ -108,6 +114,8 @@ namespace Services.Implements
             }
         }
 
+
+        //TODO: Not implement
         public Task<bool> DeleteProjectAsync(long id)
         {
             throw new NotImplementedException();
@@ -130,13 +138,37 @@ namespace Services.Implements
                         p.Status == ProjectStatus.Verified
                         && p.Milestones.Any()
                         && p.SkillRequired.Any()
-                        && (string.IsNullOrEmpty(filter.ProjectName) || p.ProjectName.Contains(filter.ProjectName))
+                        && (
+                            string.IsNullOrEmpty(filter.ProjectName)
+                            || p.ProjectName.ToLower().Contains(filter.ProjectName.ToLower())
+                        )
                         && (filter.MinBudget == null || p.EstimateBudget >= filter.MinBudget)
                         && (filter.MaxBudget == null || p.EstimateBudget <= filter.MaxBudget)
-                        && (filter.SkillIds == null || filter.SkillIds.All(id => p.SkillRequired.Any(s => s.SkillId == id)))
-                        && (string.IsNullOrEmpty(filter.Location) || p.Location.Contains(filter.Location))
+                        && (
+                            filter.SkillIds == null
+                            || filter.SkillIds.All(id => p.SkillRequired.Any(s => s.SkillId == id))
+                        )
+                        && (
+                            string.IsNullOrEmpty(filter.Location)
+                            || p.Location.Contains(filter.Location)
+                        )
                     )
-                    .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
+                    .WithOrderBy(q =>
+                    {
+                        switch (filter.SortBy)
+                        {
+                            case "newest":
+                                return q.OrderByDescending(p => p.PostDate); // Newest
+                            case "oldest":
+                                return q.OrderBy(p => p.PostDate); // Oldest
+                            case "highest_budget":
+                                return q.OrderByDescending(p => p.EstimateBudget); // Max budget
+                            case "lowest_budget":
+                                return q.OrderBy(p => p.EstimateBudget); // Min budget
+                            default:
+                                return q.OrderByDescending(p => p.PostDate); // Default: newest
+                        }
+                    })
                     .Build();
                 var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);
                 var paginatedProjects = await Pagination.ApplyPaginationAsync(

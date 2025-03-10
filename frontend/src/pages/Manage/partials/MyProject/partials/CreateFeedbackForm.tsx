@@ -2,9 +2,8 @@ import { defaultAvatar } from "@/modules/default";
 import { GET, POST, PUT } from "@/modules/request";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueries } from "@tanstack/react-query";
-import { App, Button, DatePicker, Rate } from "antd";
+import { App, Button, Rate } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaFlag } from "react-icons/fa";
 import { z } from "zod";
@@ -71,8 +70,6 @@ const CreateFeedbackForm = ({
         queryKey: ["feedback", record?.projectId],
         queryFn: async () => {
           const res = await GET(`/api/Feedback/project/${record?.projectId}`);
-          console.log("res", res);
-
           if (res?.projectId) {
             reset(res);
           }
@@ -82,7 +79,6 @@ const CreateFeedbackForm = ({
     ],
   });
 
-  // const [logo, setLogo] = useState("");
   return (
     <form
       className="overflow-y-scroll small-scrollbar h-full"

@@ -101,6 +101,7 @@ namespace Services.Implements
                     Amount = choosenBid.BidOffer * projectFee,
                     Status = BusinessObjects.Enums.TransactionStatus.Pending,
                     CreatedAt = DateTime.UtcNow,
+                    Detail = "Fee to create project "+ project.ProjectId + ": " + project.ProjectName,
                     Type = BusinessObjects.Enums.TransactionType.Fee,
                 };
                 await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionProjectFee);
@@ -134,7 +135,7 @@ namespace Services.Implements
                 await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
 
                 //<======Update bid(refund money bid for freelancer)======>\
-                refundBid(project);
+                await refundBid(project);
                 
                 //<===Finish contract===>
                 await _unitOfWork.SaveChangesAsync();
@@ -221,57 +222,59 @@ namespace Services.Implements
             }
         }
 
-        public async void refundBid(Project project)
+        public async Task refundBid(Project project)
         {
             var bidquery = new QueryBuilder<Bid>()
                 .WithTracking(false)
                 .WithInclude(b => b.BidOwner)
+                .WithPredicate(b => b.ProjectId == project.ProjectId)
                 .Build();
-            var bids = _unitOfWork.GetRepo<Bid>().Get(bidquery);
+            var bids = await _unitOfWork.GetRepo<Bid>().GetAllAsync(bidquery);
             var choosenBid = project.FreelancerId;
             Account freelancer;
             foreach (var item in bids)
             {
                 //<======Check freelancer======>
-                if (item.BidOwnerId == choosenBid)
+                if (item.BidOwnerId != choosenBid)
                 {
-                    return;
+                    //<======Get freelancer who not choosen======>
+                    var options = new QueryBuilder<Account>()
+                        .WithTracking(true)
+                        .WithPredicate(a => a.AccountId == item.BidOwnerId)
+                        .Build();
+
+                    freelancer = await _unitOfWork.GetRepo<Account>().GetSingleAsync(options);
+
+                    decimal bidFee;
+                    if (!decimal.TryParse(_configuration["PaymentPolicy:BidFee"], out bidFee))
+                    {
+                        bidFee = 2m;
+                    }
+                    //<======Transaction for refund fee(2$ to bid)=======>
+                    var transactionRefundFee = new Transaction()
+                    {
+                        AccountId = freelancer.AccountId,
+                        Amount = bidFee,
+                        Status = BusinessObjects.Enums.TransactionStatus.Pending,
+                        CreatedAt = DateTime.UtcNow,
+                        Type = BusinessObjects.Enums.TransactionType.Refund,
+                        Detail = "Refund for reject proposal of project " + project.ProjectId + ": " + project.ProjectName
+                    };
+                    await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionRefundFee);
+                    await _unitOfWork.SaveChangesAsync();
+
+
+                    //<=======Update freelancer balance=======>
+                    freelancer.TotalCredit += transactionRefundFee.Amount;
+                    await _unitOfWork.GetRepo<Account>().UpdateAsync(freelancer);
+                    await _unitOfWork.SaveChangesAsync();
+
+
+                    //<======Complete transaction=======>
+                    transactionRefundFee.Status = BusinessObjects.Enums.TransactionStatus.Completed;
+                    await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transactionRefundFee);
+                    await _unitOfWork.SaveChangesAsync();
                 }
-
-                //<======Get freelancer who not choosen======>
-                var options = new QueryOptions<Account>
-                {
-                    Predicate = a => a.AccountId == item.BidOwnerId
-                };
-
-                freelancer = await _unitOfWork.GetRepo<Account>().GetSingleAsync(options);
-
-                decimal bidFee;
-                if (!decimal.TryParse(_configuration["PaymentPolicy:BidFee"], out bidFee))
-                {
-                    bidFee = 2m;
-                }
-                //<======Transaction for project fee(10% project amount)=======>
-                var transactionProjectFee = new Transaction()
-                {
-                    AccountId = freelancer.AccountId,
-                    Amount = bidFee,
-                    Status = BusinessObjects.Enums.TransactionStatus.Pending,
-                    CreatedAt = DateTime.UtcNow,
-                    Type = BusinessObjects.Enums.TransactionType.Refund,
-                };
-                await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionProjectFee);
-                await _unitOfWork.SaveChangesAsync(); // Save to generate TransactionId
-
-                //<=======Update freelancer balance=======>
-                freelancer.TotalCredit += transactionProjectFee.Amount;
-                await _unitOfWork.GetRepo<Account>().UpdateAsync(freelancer);
-                await _unitOfWork.SaveChangesAsync();
-
-                //<======Complete transaction=======>
-                transactionProjectFee.Status = BusinessObjects.Enums.TransactionStatus.Completed;
-                await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transactionProjectFee);
-                await _unitOfWork.SaveChangesAsync();
             }
         }
     }

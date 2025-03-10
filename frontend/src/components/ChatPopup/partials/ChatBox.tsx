@@ -10,7 +10,7 @@ import { defaultAvatar } from "@/modules/default";
 
 type MessageItemProps = {
   content: string;
-  sender: string;
+  senderId: string;
 };
 
 export default function ChatBox({

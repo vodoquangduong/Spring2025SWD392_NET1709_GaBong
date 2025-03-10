@@ -1,9 +1,45 @@
-import React from "react";
+import { BidSummaryData } from "@/modules/dashboardDataHandler";
+import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 
-const options = {
-  series: [44, 55, 41, 17, 15],
-  options: {
+export default function BidSummaryChart({
+  bidSumData,
+}: {
+  bidSumData: BidSummaryData;
+}) {
+  const options: ApexOptions = {
+    series: [bidSumData.unawardedBids, bidSumData.awardedBids],
+    labels: ["Unawarded Proposals", "Awarded Proposals"],
+    plotOptions: {
+      pie: {
+        donut: {
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: "Total Proposals",
+              formatter: (w) =>
+                w.globals.seriesTotals.reduce((a: any, b: any) => a + b, 0),
+            },
+            name: {
+              show: true,
+            },
+            value: {
+              show: true,
+              formatter: (w) => w,
+            },
+          },
+        },
+      },
+    },
+    tooltip: {
+      y: {
+        formatter: (val) => val.toLocaleString() + " proposals",
+      },
+      x: {
+        show: false,
+      },
+    },
     chart: {
       type: "donut",
     },
@@ -20,34 +56,7 @@ const options = {
         },
       },
     ],
-  },
-};
+  };
 
-export default function BidSummaryChart() {
-  return (
-    <Chart
-      options={{
-        plotOptions: {
-          pie: {
-            donut: {
-              labels: {
-                show: true,
-                total: {
-                  show: true,
-                  label: "Total Bids",
-                  formatter: function (w) {
-                    return w.globals.seriesTotals.reduce((a: any, b: any) => {
-                      return a + b;
-                    }, 0);
-                  },
-                },
-              },
-            },
-          },
-        },
-      }}
-      series={options.series}
-      type="donut"
-    />
-  );
+  return <Chart options={options} series={options.series} type="donut" />;
 }
