@@ -5,9 +5,12 @@ import FreelancerListing from "./partials/FreelancerListing";
 import { portfolioService } from "./services/freelancersService";
 import SearchBox from "@/components/SearchBox";
 import { useState } from "react";
+import useAuthStore from "@/stores/authStore";
+import { Role } from "@/types";
 
 export default function SearchFreelancer() {
   const [query, setQuery] = useState<any>({});
+  const { role } = useAuthStore();
   const { data, isLoading } = useQuery({
     queryKey: ["verified-portfolios"],
     queryFn: async () => {
@@ -31,6 +34,10 @@ export default function SearchFreelancer() {
       }
     },
   });
+
+  if (role == Role.FREELANCER) {
+    location.href = "/";
+  }
 
   return (
     // =================================

@@ -8,7 +8,7 @@ export const mapProjectStatusToTag = (status: ProjectStatus) => {
     case ProjectStatus.PENDING:
       return <Tag color="gold">Pending</Tag>;
     case ProjectStatus.VERIFIED:
-      return <Tag color="green">Verified</Tag>;
+      return <Tag color="orange">Verified</Tag>;
     case ProjectStatus.REVERIFIED:
       return <Tag color="red">Re verify</Tag>;
     case ProjectStatus.ON_GOING:
@@ -16,7 +16,7 @@ export const mapProjectStatusToTag = (status: ProjectStatus) => {
     case ProjectStatus.CLOSED:
       return <Tag color="red">Cancelled</Tag>;
     case ProjectStatus.COMPLETED:
-      return <Tag color="red">Completed</Tag>;
+      return <Tag color="green">Completed</Tag>;
   }
 };
 

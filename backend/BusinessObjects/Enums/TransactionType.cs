@@ -7,5 +7,6 @@ namespace BusinessObjects.Enums
         Earnings,//nhan tien tu client (for freelancer)
         Payment,//chuyen tien cho freelancer (for client)
         Fee,// phi bid, phi tao contract, phi he thong, ... 
+        Refund // hoan lai tien cho freelancer
     }
 }

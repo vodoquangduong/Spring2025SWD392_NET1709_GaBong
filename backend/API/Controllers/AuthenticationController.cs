@@ -1,6 +1,8 @@
 ﻿using Helpers.DTOs.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -10,15 +12,15 @@ namespace API.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthenticationService _authenticationService;
-        //private readonly IEmailSender _emailSender;
+        private readonly IMailSenderService _mailSender;
 
         public AuthenticationController(
-           IAuthenticationService authenticationService
-       //IEmailSender emailSender
+           IAuthenticationService authenticationService,
+       IMailSenderService emailSender
        )
         {
             _authenticationService = authenticationService;
-            //_emailSender = emailSender;
+            _mailSender = emailSender;
         }
 
         [HttpPost("login")]
@@ -46,15 +48,102 @@ namespace API.Controllers
             {
                 return Unauthorized("Email already be used");
             }
-            //var result = _emailSender.SendVerifyEmail(
-            //    registerDto.Email,
-            //    registerDto.Name,
-            //    verifyGmailToken.Token,
-            //    "[DATJ Diamond] – Email verification"
-            //);
+            var result = _mailSender.SendVerifyEmail(
+                registerDto.Email,
+                registerDto.Name,
+                verifyGmailToken.Token,
+                "[GigsHub] – Email verification"
+            );
 
-            return Ok("Registration successful");
+            return Ok(result);
         }
+
+        [HttpPost("verify-gmail")]
+        public async Task<IActionResult> VerifyGmail()
+        {
+            try
+            {
+                if (HttpContext.Request.Headers.TryGetValue("Authorization", out var headerAuth))
+                {
+                    var verifyGmailToken = headerAuth
+                        .First()
+                        .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1];
+                    Console.WriteLine("token:" + verifyGmailToken);
+                    var accessToken = await _authenticationService.VerifyGmail(verifyGmailToken);
+                    if (accessToken == null)
+                    {
+                        return Unauthorized("Email already be used");
+                    }
+                    return Ok(accessToken);
+                }
+                return BadRequest();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO resetPasswordDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var resetToken = await _authenticationService.GetResetToken(resetPasswordDto);
+            if (resetToken == null)
+            {
+                return Unauthorized("Email hasn't been registered");
+            }
+            var result = _mailSender.SendResetEmail(
+                resetPasswordDto.Email,
+                "",
+                resetToken.Token,
+                "[DATJ Diamond] – Reset password verification"
+            );
+
+            return Ok(result);
+        }
+
+        [HttpPost("confirm-password")]
+        [Authorize]
+        public async Task<IActionResult> ConfirmPassword(
+            [FromBody] UpdatePasswordDTO updatePasswordDto
+        )
+        {
+            Console.WriteLine("email: " + User.FindFirst(ClaimTypes.Email)?.Value);
+            var accessToken = await _authenticationService.ResetPassword(
+                updatePasswordDto.Email,
+                updatePasswordDto
+            );
+            if (accessToken == null)
+            {
+                return Unauthorized("Email already be used");
+            }
+            return Ok(accessToken);
+        }
+
+        //[HttpPost("login-google")]
+        //public async Task<IActionResult> LoginGoogle([FromBody] LoginGoogleDTO loginGoogleDto)
+        //{
+        //    var accessToken = await _authenticationService.LoginGoogle(loginGoogleDto);
+        //    if (accessToken == null)
+        //    {
+        //        return Unauthorized("Email not existing!");
+        //    }
+        //    return Ok(accessToken);
+        //}
+
+        //[HttpPost("register-google")]
+        //public async Task<IActionResult> RegisterGoogle([FromBody] RegisterDTO registerGoogleDto)
+        //{
+        //    var accessToken = await _authenticationService.RegisterGoogle(registerGoogleDto);
+        //    if (accessToken == null)
+        //    {
+        //        return Unauthorized("Email already be used");
+        //    }
+        //    return Ok(accessToken);
+        //}
 
     }
 }

@@ -36,7 +36,7 @@ export const profileService = {
           address: data.value.address || "",
           avatarURL: data.value.avatarURL,
           birthday: data.value.birthday || new Date().toISOString(),
-          gender: data.value.gender || 1,
+          gender: data.value.gender,
           nationality: data.value.nationality || "",
           reputationPoint: data.value.reputationPoint || 0,
           totalCredit: data.value.totalCredit || 0,

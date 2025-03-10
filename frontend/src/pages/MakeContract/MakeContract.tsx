@@ -23,8 +23,16 @@ export default function MakeContract() {
   const mutation = useMutation({
     mutationKey: ["projects"],
     mutationFn: async (data: any) => {
+      const check = await GET(`/api/Project/${projectId}`);
+      console.log(check);
+      if (check?.freelancerId) {
+        message.destroy();
+        message.error("This project is already contracted");
+        return;
+      }
+      //let res = "";
       const res = await POST(`/api/Contract`, data);
-      if (res.code) throw new Error();
+      //if (res.code) throw new Error();
       return res;
     },
     onError: () => {
@@ -199,9 +207,7 @@ export default function MakeContract() {
                 <div className="font-bold text-2xl chivo flex items-center gap-2">
                   <div
                     className={`${
-                      client?.data?.value?.totalCredit +
-                        client?.data?.value?.lockCredit <
-                      bidTotal
+                      client?.data?.value?.totalCredit < bidTotal
                         ? "text-red-500"
                         : "text-green-500"
                     }`}
@@ -210,17 +216,14 @@ export default function MakeContract() {
                     {client.isLoading ? (
                       <Skeleton.Input active />
                     ) : (
-                      (
-                        client?.data?.value?.totalCredit +
-                        client?.data?.value?.lockCredit
-                      ).toLocaleString()
+                      (client?.data?.value?.totalCredit).toLocaleString()
                     )}
                   </div>
                   <span className="text-zinc-500 text-sm">USD</span>
                 </div>
               </div>
               <div className="mt-4 pt-4">
-                {/* <Popconfirm
+                <Popconfirm
                   title="Approve the freelancer"
                   description="Are you sure to approve this freelancer?"
                   onConfirm={async () => {
@@ -238,13 +241,13 @@ export default function MakeContract() {
                     mutation.mutate(data);
                   }}
                 >
-                  </Popconfirm> */}
-                <Button
-                  type="primary"
-                  className="py-6 text-base font-semibold w-full uppercase"
-                >
-                  Confirm and Create
-                </Button>
+                  <Button
+                    type="primary"
+                    className="py-6 text-base font-semibold w-full uppercase"
+                  >
+                    Confirm and Create
+                  </Button>
+                </Popconfirm>
               </div>
             </div>
           </div>
@@ -301,7 +304,7 @@ const UserItem = ({ data }: any) => {
             <div className="text-base flex gap-8"></div>
             <div className="text-base flex gap-8">
               <span>
-                Member since {dayjs(data?.createdA).format("MMMM DD, YYYY")}
+                Member since {dayjs(data?.createdAt).format("MMMM DD, YYYY")}
               </span>
             </div>
           </div>

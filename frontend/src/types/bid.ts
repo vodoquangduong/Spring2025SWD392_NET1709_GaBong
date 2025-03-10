@@ -1,12 +1,12 @@
 import { Account } from "@/pages/Dashboard/EmployeeDashboard/AccountManagement/models/types";
 
 export interface Bid {
-  bidId: number;
-  bidOwnerId: string;
-  bidOffer: number;
   bidDescription: string;
-  bidStatus: string;
-  bidCreatedAt: string;
-  bidUpdatedAt: string;
+  bidId: number;
+  bidOffer: number;
   bidOwner: Account;
+  bidOwnerId: string;
+  bidStatus: string;
+  projectId: string;
+  createdAt: string;
 }

@@ -84,8 +84,15 @@ export default function ProposalItem({
               freelancerId: item?.bidOwnerId,
               chatRoomName: `${accountId}-${item?.bidOwnerId}`,
             });
+            let res2 = await POST("/api/ChatRoom", {
+              clientId: accountId,
+              freelancerId: item?.bidOwnerId,
+              chatRoomName: `${accountId}-${item?.bidOwnerId}`,
+            });
+            // console.log();
+
             toogleChatPopup();
-            setCurrentRoom(res);
+            setCurrentRoom(res2);
           }}
         >
           Start chatting

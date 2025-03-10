@@ -131,7 +131,7 @@ export default function CreateProjectForm({
 
         <div>
           <div className="font-semibold text-base pb-2">
-            Available Time Range
+            Bidding Available Time Range
           </div>
           <div className="input-style flex gap-2 py-[10px]">
             <input

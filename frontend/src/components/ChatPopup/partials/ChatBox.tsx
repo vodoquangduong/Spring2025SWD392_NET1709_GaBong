@@ -4,13 +4,13 @@ import useAuthStore from "@/stores/authStore";
 import { GET, POST } from "@/modules/request";
 import axios from "axios";
 import { Empty, Skeleton } from "antd";
-import { data } from "react-router-dom";
 import useChatStore from "../stores/chatStore";
 import { NotificationType } from "@/types/notification";
+import { defaultAvatar } from "@/modules/default";
 
 type MessageItemProps = {
   content: string;
-  sender: string;
+  senderId: string;
 };
 
 export default function ChatBox({
@@ -21,9 +21,8 @@ export default function ChatBox({
   const { currentRoom, notifyService, setNotification } = useChatStore();
   const currentRoomId = currentRoom?.chatRoomID;
   const receiverId = currentRoom?.roomDetails?.[0]?.accountId;
-
   const chatService = new ChatService();
-  const { accountId: currentUserId } = useAuthStore();
+  const { accountId: currentUserId, avatar } = useAuthStore();
   const [messages, setMessages] = useState<MessageItemProps[]>([]);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
@@ -146,9 +145,9 @@ export default function ChatBox({
       <div className="p-4 flex gap-4 border-b dark:border-zinc-700">
         {currentRoomId ? (
           <img
-            src={`https://robohash.org/${
-              currentRoom.chatRoomName || "placeholder"
-            }`}
+            src={
+              currentRoom.roomDetails[0]?.account?.avatarURL || defaultAvatar
+            }
             className="h-12 aspect-square rounded-full object-cover object-center bg-white"
           />
         ) : (
@@ -184,13 +183,32 @@ export default function ChatBox({
               />
             ) : (
               <>
-                {messages.map((message: any, index: number) => (
-                  <MessageItem
-                    key={index}
-                    data={message}
-                    currentUserId={currentUserId}
-                  />
-                ))}
+                {messages.map((message: any, index: number) => {
+                  if (
+                    messages?.[index]?.senderId !=
+                    messages?.[index + 1]?.senderId
+                  ) {
+                    return (
+                      <AvatarMessageItem
+                        key={index}
+                        data={message}
+                        currentUserId={currentUserId}
+                        avatarURL={
+                          message?.senderId == currentUserId
+                            ? avatar
+                            : currentRoom.roomDetails[0]?.account?.avatarURL
+                        }
+                      />
+                    );
+                  }
+                  return (
+                    <MessageItem
+                      key={index}
+                      data={message}
+                      currentUserId={currentUserId}
+                    />
+                  );
+                })}
               </>
             )
           }
@@ -245,6 +263,44 @@ const MessageItem = ({
       <p
         className={`min-w-14 whitespace-pre-wrap m-0.5 py-2 px-3 text-[16px] rounded-2xl text-start ${
           data.senderId == currentUserId
+            ? "justify-end bg-emerald-600 dark:bg-emerald-600 text-white mr-14"
+            : "justify-start bg-zinc-100 ml-14"
+        }`}
+        style={{
+          wordWrap: "break-word",
+          maxWidth: "80%",
+        }}
+      >
+        {data?.messageContent}
+      </p>
+    </div>
+  );
+};
+
+const AvatarMessageItem = ({
+  data,
+  currentUserId,
+  avatarURL,
+}: {
+  data: any;
+  currentUserId: number;
+  avatarURL: string;
+}) => {
+  return (
+    <div
+      className={`flex gap-2 ${
+        data.senderId == currentUserId ? "justify-end" : ""
+      }`}
+    >
+      {data.senderId != currentUserId && (
+        <img
+          src={avatarURL || defaultAvatar}
+          className="h-12 w-12 rounded-full"
+        />
+      )}
+      <p
+        className={`min-w-14 whitespace-pre-wrap m-0.5 py-2 px-3 text-[16px] rounded-2xl text-start ${
+          data.senderId == currentUserId
             ? "justify-end bg-emerald-600 dark:bg-emerald-600 text-white"
             : "justify-start bg-zinc-100"
         }`}
@@ -255,6 +311,12 @@ const MessageItem = ({
       >
         {data?.messageContent}
       </p>
+      {data.senderId == currentUserId && (
+        <img
+          src={avatarURL || defaultAvatar}
+          className="h-12 w-12 rounded-full"
+        />
+      )}
     </div>
   );
 };
