@@ -8,9 +8,9 @@ namespace Helpers.DTOs.Account
 {
     public class UpdateAccountStatusDTO
     {
-        [Required]
+        [Required(ErrorMessage = "Account ID is required")]
         public long AccountId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Status is required")]
         public string Status { get; set; } = string.Empty;
     }
 }

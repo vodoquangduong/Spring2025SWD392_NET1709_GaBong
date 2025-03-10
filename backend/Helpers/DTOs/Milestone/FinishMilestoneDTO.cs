@@ -1,16 +1,15 @@
 ﻿using BusinessObjects.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace Helpers.DTOs.Milestone
 {
     public class FinishMilestoneDTO
     {
+        [Required(ErrorMessage = "Milestone ID is required")]
         public long milestoneId {  get; set; }
+        [Required(ErrorMessage = "Milestone status is required")]
         public MilestoneStatus milestoneStatus { get; set; }
+        [Required(ErrorMessage = "Update date is required")]
         public DateTime UpdateDate { get; set; }
     }
 }

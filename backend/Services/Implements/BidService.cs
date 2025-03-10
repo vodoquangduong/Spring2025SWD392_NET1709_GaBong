@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using BusinessObjects.Models;
+﻿using BusinessObjects.Models;
 using Helpers.DTOs.Bid;
-using Helpers.DTOs.Transaction;
 using Helpers.HelperClasses;
 using Helpers.Mappers;
 using Microsoft.Extensions.Configuration;

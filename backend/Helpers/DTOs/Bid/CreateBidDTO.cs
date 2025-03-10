@@ -9,13 +9,14 @@ namespace Helpers.DTOs.Bid
 {
     public class CreateBidDTO
     {
-        [Required]
+        [Required(ErrorMessage = "Project ID is required")]
         public long ProjectId { get; set; } = long.MinValue;
        
-        [Required]
+        [Required(ErrorMessage = "Bid offer is required")]
+        [Range(0, double.MaxValue, ErrorMessage = "Bid offer must be a positive number")]
         public decimal BidOffer { get; set; } = 0;
 
-        [Required]
+        [Required(ErrorMessage = "Bid description is required")]
         public string BidDescription { get; set; } = string.Empty;
     }
 }

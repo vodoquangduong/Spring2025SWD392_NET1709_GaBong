@@ -1,20 +1,12 @@
-using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Bid;
-using Helpers.DTOs.Milestone;
 using Helpers.DTOs.Project;
 using Helpers.DTOs.Query;
-using Helpers.DTOs.Transaction;
 using Helpers.HelperClasses;
 using Helpers.Mappers;
-using Helpers.SignalR;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Configuration;
-using PayPalCheckoutSdk.Orders;
 using Repositories.Queries;
 using Services.Interfaces;
-using Services.Interfaces.Portfolio;
 
 namespace Services.Implements
 {

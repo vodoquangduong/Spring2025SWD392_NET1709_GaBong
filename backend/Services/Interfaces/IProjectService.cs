@@ -1,4 +1,3 @@
-using BusinessObjects.Models;
 using Helpers.DTOs.Project;
 using Helpers.DTOs.Query;
 using Helpers.HelperClasses;

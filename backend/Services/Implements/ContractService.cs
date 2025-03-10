@@ -1,4 +1,3 @@
-using System.Net;
 using BusinessObjects.Models;
 using Helpers.DTOs;
 using Helpers.DTOs.Contract;

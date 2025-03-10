@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Security.Cryptography;
 using Bogus;
-using Bogus.DataSets;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using DAOs;
-using Microsoft.Extensions.Configuration;
-using Repositories.Queries;
 using Services.Interfaces;
 
 namespace Services.Implements
