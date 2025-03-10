@@ -19,6 +19,9 @@ namespace Helpers.DTOs.Authentication
 
         [Required]
         public string Password { get; set; } = "";
+        [Required]
+        [EnumDataType(typeof(AccountStatus))]
+        public AccountStatus Status { get; set; } = AccountStatus.Active;
 
         [Required]
         [EnumDataType(typeof(AccountRole))]

@@ -1,3 +1,4 @@
+using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Account;
 using Helpers.DTOs.Authentication;
@@ -197,5 +198,32 @@ public class AccountService : IAccountService
     public Task<Result<AccountDTO>> UpdateCredit(long AccountId, decimal amount, string transacionType)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<Result<AccountDTO>> UpdateAccountStatus(UpdateAccountStatusDTO updateAccountStatusDTO)
+    {
+        try
+        {
+            if(!_currentUserService.Role.Equals("Admin"))
+            {
+                return Result.Failure<AccountDTO>(new Error("Update account status failed", "Only admin can update account status"));
+            }
+            var existedAccount = await _unitOfWork.GetRepo<Account>().GetSingleAsync(new QueryOptions<Account>
+            {
+                Predicate = a => a.AccountId == updateAccountStatusDTO.AccountId
+            });
+            if(existedAccount == null)
+            {
+                return Result.Failure<AccountDTO>(new Error("Update account status failed", "Account not found"));
+            }
+            existedAccount.Status = Enum.Parse<AccountStatus>(updateAccountStatusDTO.Status);
+            await _unitOfWork.GetRepo<Account>().UpdateAsync(existedAccount);
+            await _unitOfWork.SaveChangesAsync();
+            return Result.Success(existedAccount.ToAccountDTO());
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<AccountDTO>(new Error("Update account status failed", $"{e.Message}"));
+        }
     }
 }

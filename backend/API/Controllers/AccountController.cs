@@ -63,5 +63,15 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+        [HttpPut("update-account-status")]
+        public async Task<IActionResult> UpdateAccountStatus(UpdateAccountStatusDTO updateAccountStatusDTO)
+        {
+            var result = await _accountService.UpdateAccountStatus(updateAccountStatusDTO);
+            if(result.IsFailure)
+            {
+                return Ok(result.Error);
+            }
+            return Ok(result.Value);
+        }
     }
 }

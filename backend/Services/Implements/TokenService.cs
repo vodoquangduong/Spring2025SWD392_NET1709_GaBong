@@ -58,6 +58,7 @@ namespace Services.Implements
                 new Claim(ClaimTypes.Role, account.Role.ToString()),
                 new Claim("accountId", account.AccountId.ToString()),
                 new Claim("avatar", account.AvatarURL),
+                new Claim("status", account.Status.ToString()),
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
@@ -85,7 +86,8 @@ namespace Services.Implements
                 new Claim(JwtRegisteredClaimNames.Email, registerDto.Email),
                 new Claim("name", registerDto.Name),
                 new Claim("password", registerDto.Password),
-                new Claim("role", registerDto.Role.ToString())
+                new Claim("role", registerDto.Role.ToString()),
+                new Claim("status", registerDto.Status.ToString())
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
@@ -114,6 +116,7 @@ namespace Services.Implements
             string password = jwt.Claims.FirstOrDefault(c => c.Type == "password")?.Value ?? "";
             string email = jwt.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "";
             string role = jwt.Claims.FirstOrDefault(c => c.Type == "role")?.Value ?? "";
+            string status = jwt.Claims.FirstOrDefault(c => c.Type == "status")?.Value ?? "";
             var registerDto = new RegisterDTO()
             {
                 Name = name,
