@@ -21,13 +21,14 @@ import {
 import { storage } from "@/modules/firebase";
 import dayjs from "dayjs";
 import countries from "@/mocks/countries.json";
+import useUiStore from "@/stores/uiStore";
 
 export const formSchema = () => {
   return z.object({
     // images: z.string().min(1, "Required"),
     name: z
       .string()
-      .min(3, "Name must be at least 3 characters")
+      .min(3, "Name must be at least 8 characters")
       .max(50, "Name must be less than 50 characters"),
     phone: z
       .string()
@@ -53,6 +54,7 @@ export const formSchema = () => {
 const EditAbout = () => {
   const navigate = useNavigate();
   const { message } = App.useApp();
+  const { requestRevalidate } = useUiStore();
   const { accountId, updateAccount } = useAuthStore();
   const {
     handleSubmit,
@@ -120,13 +122,6 @@ const EditAbout = () => {
       content: "Updating profile ...",
       duration: 0,
     });
-    if (!fileList || fileList?.length == 0) {
-      // setError("images", {
-      //   type: "manual",
-      //   message: "Please upload at least one image",
-      // });
-      return;
-    }
     let submitForm: any;
     for (const [key, value] of Object.entries(formData)) {
       if (value) {
@@ -171,13 +166,12 @@ const EditAbout = () => {
     });
     await Promise.all(uploadPromises);
 
-    console.log(urlList[0]);
-
     formData["avatarURL"] = urlList[0];
     await PUT(`/api/Account`, formData);
     message.destroy();
     message.success("Updated successfully");
     navigate("/profile");
+    requestRevalidate();
     updateAccount({
       name: formData.name,
       avatar: formData.avatarURL,
@@ -232,6 +226,9 @@ const EditAbout = () => {
                 className="input-style w-full p-2"
                 placeholder="Enter your full name"
               />
+              {errors.name && (
+                <span className="error-msg">{errors.name.message}</span>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">
@@ -250,6 +247,9 @@ const EditAbout = () => {
                   </option>
                 ))}
               </select>
+              {errors.nationality && (
+                <span className="error-msg">{errors.nationality.message}</span>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">

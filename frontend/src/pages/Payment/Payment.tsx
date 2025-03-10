@@ -101,7 +101,9 @@ export default function Payment() {
             <Logo />
           </div> */}
           <div className="geist">
-            <div className="font-semibold text-3xl ">Complete your payment</div>
+            <div className="font-semibold text-3xl mb-3">
+              Complete your payment
+            </div>
             <div className="text-base">Review your order and pay.</div>
           </div>
           <div className="mt-4 flex justify-between gap-y-4">

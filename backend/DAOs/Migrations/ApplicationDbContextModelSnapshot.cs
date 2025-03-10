@@ -549,6 +549,10 @@ namespace DAOs.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("skill_id");
 
+                    b.Property<int>("Level")
+                        .HasColumnType("integer")
+                        .HasColumnName("level");
+
                     b.HasKey("AccountId", "SkillId");
 
                     b.HasIndex("SkillId");
@@ -593,6 +597,11 @@ namespace DAOs.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
+
+                    b.Property<string>("Detail")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("detail");
 
                     b.Property<string>("Status")
                         .IsRequired()

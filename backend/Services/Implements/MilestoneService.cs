@@ -127,6 +127,7 @@ namespace Services.Implements
                             CreatedAt = DateTime.UtcNow,
                             Amount = milestone.Project.EstimateBudget * milestone.PayAmount / 100,
                             Status = TransactionStatus.Pending,
+                            Detail = "Payment for Milestone " + milestone.MilestoneId + ": " + milestone.MilestoneName + "of project" + milestone.Project.ProjectId + ": " + milestone.Project.ProjectName + "for frelancer " + freelancer.AccountId + ": " + freelancer.Name,
                             Type = TransactionType.Payment,
                         };
                         var freelancerTransaction = new Transaction()
@@ -135,6 +136,7 @@ namespace Services.Implements
                             CreatedAt = DateTime.UtcNow,
                             Amount = milestone.Project.EstimateBudget * milestone.PayAmount /100,
                             Status = TransactionStatus.Pending,
+                            Detail = "Earning from Milestone " + milestone.MilestoneId + ": " + milestone.MilestoneName + "of project" + milestone.Project.ProjectId + ": " + milestone.Project.ProjectName,
                             Type = TransactionType.Earnings,
                         };
                         await _unitOfWork.GetRepo<Transaction>().CreateAllAsync(new List<Transaction> { freelancerTransaction, clientTransaction });

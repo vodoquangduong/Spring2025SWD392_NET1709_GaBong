@@ -5,12 +5,14 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import DashboardHeader from "../components/DashboardHeader";
 import Logo from "../components/Logo";
 import { Role } from "../types";
-import { BiSolidCategory } from "react-icons/bi";
+import { BiMoneyWithdraw, BiSolidCategory } from "react-icons/bi";
+import useAuthStore from "@/stores/authStore";
 
 export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const { role } = useAuthStore();
 
   const items = [
     {
@@ -43,23 +45,15 @@ export default function DashboardLayout() {
       icon: <FaUsers />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.STAFF],
+      allowedroles: [Role.STAFF, Role.ADMIN],
     },
     {
-      label: "Test label 3",
-      key: "/worker/posts",
-      icon: <FaBox />,
+      label: "Withdraws",
+      key: "/employee/withdraws",
+      icon: <BiMoneyWithdraw />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.GUEST],
-    },
-    {
-      label: "Test label 4",
-      key: "/worker/accounts",
-      icon: <FaBox />,
-      className:
-        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.GUEST],
+      allowedroles: [Role.STAFF, Role.ADMIN],
     },
   ];
 
@@ -80,7 +74,7 @@ export default function DashboardLayout() {
             theme={"dark"}
             selectedKeys={location.pathname.split("/").slice(0, 3)}
             mode="vertical"
-            items={items}
+            items={items.filter((item) => item.allowedroles.includes(role))}
             onClick={({ key }) => navigate(key)}
           />
         </Layout.Sider>

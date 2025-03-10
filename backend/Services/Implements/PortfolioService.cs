@@ -18,10 +18,11 @@ namespace Services.Implements
             _unitOfWork = unitOfWork;
             _currentUserService = currentUserService;
         }
-        public async Task<Result<PortfolioDTO>> CreatePortfolioAsync(CreatePortfolioDTO portfolioDto)
+        public async Task<Result<PortfolioDTO>> CreatePortfolioAsync(CreatePortfolioDTO createPortfolioDto)
         {
             try
             {
+                #region Validation
                 if (!_currentUserService.Role.Equals("Freelancer"))
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Only freelancer can create portfolio"));
@@ -34,27 +35,48 @@ namespace Services.Implements
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Portfolio already exist"));
                 }
-                if (string.IsNullOrEmpty(portfolioDto.Title) || portfolioDto.Title.Length > 50)
+                if (string.IsNullOrEmpty(createPortfolioDto.Title) || createPortfolioDto.Title.Length > 50)
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Title must not be empty and length < 50"));
                 }
-                if (string.IsNullOrEmpty(portfolioDto.About) || portfolioDto.About.Length > 500)
+                if (string.IsNullOrEmpty(createPortfolioDto.About) || createPortfolioDto.About.Length > 500)
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "About must not be empty and length < 500"));
                 }
-                if (string.IsNullOrEmpty(portfolioDto.Works))
+                if (string.IsNullOrEmpty(createPortfolioDto.Works))
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Works must not be empty"));
                 }
-                if (string.IsNullOrEmpty(portfolioDto.Certificate))
+                if (string.IsNullOrEmpty(createPortfolioDto.Certificate))
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Create portfolio failed", "Certificate must not be empty"));
                 }
-                var portfolio = portfolioDto.ToPortfolio();
-                portfolio.FreelancerId =_currentUserService.AccountId;
+
+                #endregion 
+
+
+                var portfolio = createPortfolioDto.ToPortfolio();
+                portfolio.FreelancerId = _currentUserService.AccountId;
+
+                var skillPerform = createPortfolioDto.skillPerforms.Select(
+                    s => new SkillPerform
+                    {
+                        AccountId = _currentUserService.AccountId,
+                        SkillId = s.SkillId,
+                        Level = s.Level
+                    })
+                    .ToList();
+                await _unitOfWork.GetRepo<SkillPerform>().CreateAllAsync(skillPerform);
                 var result = await _unitOfWork.GetRepo<Portfolio>().CreateAsync(portfolio);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(result.ToPortfolioDTO());
+                var skillResult = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(
+                    new QueryBuilder<SkillPerform>()
+                    .WithTracking(false)
+                    .WithInclude(s => s.SkillCategory)
+                    .WithPredicate(s => s.AccountId == portfolio.FreelancerId)
+                    .Build()
+                    );
+                return Result.Success(result.ToPortfolioDTO((List<SkillPerform>)skillResult));
             }
             catch (Exception e)
             {
@@ -67,7 +89,26 @@ namespace Services.Implements
             try
             {
                 var portfolios = _unitOfWork.GetRepo<Portfolio>().Get(new QueryOptions<Portfolio>());
-                var paginatedPortfolios = await Pagination.ApplyPaginationAsync(portfolios, pageNumber, pageSize, portfolio => portfolio.ToPortfolioDTO());
+                var accountIds = portfolios.Select(p => p.FreelancerId).Distinct().ToList();
+                var skillQuery = new QueryBuilder<SkillPerform>()
+                                    .WithTracking(false)
+                                    .WithInclude(s => s.SkillCategory)
+                                    .WithPredicate(s => accountIds.Contains(s.AccountId))
+                                    .Build();
+                var skillPerformList = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(skillQuery);
+                var skillPerformByAccount = skillPerformList.GroupBy(s => s.AccountId)
+                                                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var paginatedPortfolios = await Pagination.ApplyPaginationAsync(
+                    portfolios,
+                    pageNumber,
+                    pageSize,
+                    portfolio => portfolio.ToPortfolioDTO(
+                                    skillPerformByAccount.ContainsKey(portfolio.FreelancerId)
+                                    ? skillPerformByAccount[portfolio.FreelancerId]
+                                    : new List<SkillPerform>()
+                                    )
+                   );
                 return Result.Success(paginatedPortfolios);
             }
             catch (Exception e)
@@ -88,7 +129,13 @@ namespace Services.Implements
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Portfolio not found", $"Portfolio with freelancer id {id}"));
                 }
-                return Result.Success(portfolio.ToPortfolioDTO());
+                var skillQuery = new QueryBuilder<SkillPerform>()
+                    .WithTracking(false)
+                    .WithInclude(s => s.SkillCategory)
+                    .WithPredicate(s => s.AccountId == _currentUserService.AccountId)
+                    .Build();
+                var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(skillQuery);
+                return Result.Success(portfolio.ToPortfolioDTO(skillPerform.ToList()));
             }
             catch (Exception e)
             {
@@ -108,7 +155,13 @@ namespace Services.Implements
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Portfolio not found", $"Portfolio with id {id}"));
                 }
-                return Result.Success(portfolio.ToPortfolioDTO());
+                var SkillQuery = new QueryBuilder<SkillPerform>()
+                  .WithTracking(false)
+                  .WithInclude(s => s.SkillCategory)
+                  .WithPredicate(s => s.AccountId == portfolio.FreelancerId)
+                  .Build();
+                var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(SkillQuery);
+                return Result.Success(portfolio.ToPortfolioDTO(skillPerform.ToList()));
             }
             catch (Exception e)
             {
@@ -173,7 +226,13 @@ namespace Services.Implements
                 portfolio.Status = PortfolioStatus.Pending;
                 await _unitOfWork.GetRepo<Portfolio>().UpdateAsync(portfolio);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(portfolio.ToPortfolioDTO());
+                var SkillQuery = new QueryBuilder<SkillPerform>()
+                  .WithTracking(false)
+                  .WithInclude(s => s.SkillCategory)
+                  .WithPredicate(s => s.AccountId == portfolio.FreelancerId)
+                  .Build();
+                var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(SkillQuery);
+                return Result.Success(portfolio.ToPortfolioDTO(skillPerform.ToList()));
             }
             catch (Exception e)
             {
@@ -185,6 +244,8 @@ namespace Services.Implements
         {
             try
             {
+
+                //<== Check if portfolio exist or not==>
                 var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(new QueryOptions<Portfolio>
                 {
                     Predicate = p => p.FreelancerId == _currentUserService.AccountId
@@ -193,6 +254,8 @@ namespace Services.Implements
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Portfolio with freelancer id {_currentUserService.AccountId} not found"));
                 }
+
+                //<==Validation input==>
                 if (string.IsNullOrWhiteSpace(updatePortfolioDto.Title) || updatePortfolioDto.Title.Length > 50)
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Title can not empty or length > 50"));
@@ -214,8 +277,55 @@ namespace Services.Implements
                 portfolio.Certificate = updatePortfolioDto.Certificate;
                 portfolio.About = updatePortfolioDto.About;
                 await _unitOfWork.GetRepo<Portfolio>().UpdateAsync(portfolio);
+
+                //<==Update skill==>
+                var existingSkills = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(new QueryOptions<SkillPerform>
+                {
+                    Predicate = s => s.AccountId == _currentUserService.AccountId
+                });
+                var newSkills = updatePortfolioDto.SkillPerforms.Select(s => new SkillPerform
+                {
+                    AccountId = _currentUserService.AccountId,
+                    SkillId = s.SkillId,
+                    Level = s.Level
+                }).ToList();
+
+                // Find added skill
+                var skillsToAdd = newSkills.Where(ns => !existingSkills.Any(es => es.SkillId == ns.SkillId)).ToList();
+
+                // find skill update
+                var skillsToUpdate = existingSkills.Where(es => newSkills.Any(ns => ns.SkillId == es.SkillId)).ToList();
+                foreach (var skill in skillsToUpdate)
+                {
+                    skill.Level = newSkills.First(ns => ns.SkillId == skill.SkillId).Level;
+                }
+
+                // find delete skill
+                var skillsToDelete = existingSkills.Where(es => !newSkills.Any(ns => ns.SkillId == es.SkillId)).ToList();
+
+                // update
+                if (skillsToAdd.Any())
+                    await _unitOfWork.GetRepo<SkillPerform>().CreateAllAsync(skillsToAdd);
+                if (skillsToDelete.Any())
+                    await _unitOfWork.GetRepo<SkillPerform>().DeleteAllAsync(skillsToDelete);
+                if (skillsToUpdate.Any())
+                {
+                    foreach (var skill in skillsToUpdate)
+                    {
+                        await _unitOfWork.GetRepo<SkillPerform>().UpdateAsync(skill);
+                    }
+                }
+
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(portfolio.ToPortfolioDTO());
+
+                var SkillQuery = new QueryBuilder<SkillPerform>()
+                   .WithTracking(false)
+                   .WithInclude(s => s.SkillCategory)
+                   .WithPredicate(s => s.AccountId == portfolio.FreelancerId)
+                   .Build();
+
+                var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(SkillQuery);
+                return Result.Success(portfolio.ToPortfolioDTO(skillPerform.ToList()));
             }
             catch (Exception e)
             {
@@ -227,10 +337,12 @@ namespace Services.Implements
         {
             try
             {
+                //<==Validation==>
                 if (!_currentUserService.Role.Equals("Staff"))
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Verify portfolio failed", "Only staff can verify portfolio"));
                 }
+
                 var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(new QueryOptions<Portfolio>
                 {
                     Predicate = p => p.PortfolioId == portfolioId
@@ -239,10 +351,16 @@ namespace Services.Implements
                 {
                     return Result.Failure<PortfolioDTO>(new Error("Verify portfolio failed", $"Portfolio with id {portfolioId} not found"));
                 }
+                var SkillQuery = new QueryBuilder<SkillPerform>()
+                    .WithTracking(false)
+                    .WithInclude(s => s.SkillCategory)
+                    .WithPredicate(s => s.AccountId == portfolio.FreelancerId)
+                    .Build();
+                var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(SkillQuery);
                 portfolio.Status = verifyPortfolioDto.Status;
                 await _unitOfWork.GetRepo<Portfolio>().UpdateAsync(portfolio);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(portfolio.ToPortfolioDTO());
+                return Result.Success(portfolio.ToPortfolioDTO(skillPerform.ToList()));
             }
             catch (Exception e)
             {

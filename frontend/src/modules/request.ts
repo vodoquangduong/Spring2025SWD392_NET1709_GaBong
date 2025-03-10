@@ -28,6 +28,7 @@ const SendRequest = async (
   ) {
     alert("Session expired, please login again");
     setCookie("accessToken", "", 0);
+    useAuthStore.getState().logout();
     location.href = "/login";
   }
 

@@ -1,3 +1,4 @@
+using Helpers.DTOs.SkillPerform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace Helpers.DTOs.Portfolio
         public string Works { get; set; } = string.Empty;
         public string Certificate { get; set; } = string.Empty;
         public string About { get; set; } = string.Empty;
+        public List<CreateSkillPerformDTO> SkillPerforms { get; set; } = new List<CreateSkillPerformDTO>();
+
     }
 }

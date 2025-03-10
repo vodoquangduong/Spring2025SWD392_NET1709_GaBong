@@ -2,17 +2,20 @@ import { App, Button, Popconfirm } from "antd";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueries } from "@tanstack/react-query";
 import { GET, POST } from "@/modules/request";
 import useAuthStore from "@/stores/authStore";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
 import { NotificationStatus, NotificationType } from "@/types/notification";
 import { z } from "zod";
+import useUiStore from "@/stores/uiStore";
 
 export default function PlaceBid({ project }: { project: any }) {
   const { message } = App.useApp();
   const { accountId, name } = useAuthStore();
   const { notifyService } = useChatStore();
+  const { revalidate } = useUiStore();
+
   let { id } = useParams();
   let navigate = useNavigate();
 
@@ -23,7 +26,7 @@ export default function PlaceBid({ project }: { project: any }) {
         .number()
         .min(
           project?.estimateBudget * 0.8,
-          "Bid must be greater than the 80% of the project budget"
+          "Offer must be greater than the 80% of the project budget"
         )
         .max(10000000, "Bid must be less than 1,000,000 USD"),
       bidDescription: z
@@ -32,6 +35,15 @@ export default function PlaceBid({ project }: { project: any }) {
         .max(100, "Description must be less than 100 characters"),
     });
   };
+
+  const [user] = useQueries({
+    queries: [
+      {
+        queryKey: ["user", revalidate],
+        queryFn: async () => await GET(`/api/Account/${accountId}`),
+      },
+    ],
+  });
 
   const {
     handleSubmit,
@@ -89,6 +101,12 @@ export default function PlaceBid({ project }: { project: any }) {
   });
 
   const onSubmit = async (formData: any) => {
+    if (user?.data?.value?.phone?.trim()?.length == 0) {
+      message.info("Please update your profile first");
+      navigate("/profile/edit");
+      scrollTo(0, 0);
+      return;
+    }
     formData.projectId = id;
     message.open({
       type: "loading",
@@ -133,24 +151,6 @@ export default function PlaceBid({ project }: { project: any }) {
             <div className="font-bold">
               Describe your proposal (minimum 100 characters)
             </div>
-            <Popconfirm
-              title="Approve the freelancer"
-              description="Are you sure to approve this freelancer?"
-              onConfirm={async (formData) => {
-                console.log(formData);
-
-                // message.open({
-                //   type: "loading",
-                //   content: "Creating contract ...",
-                //   duration: 0,
-                // });
-                // const contractPolicy = (
-                //   document.querySelector("#contractPolicy") as HTMLInputElement
-                // )?.value;
-                // let data = { freelancerId, projectId, contractPolicy };
-                // mutation.mutate(data);
-              }}
-            ></Popconfirm>
             <Button
               disabled={mutation.isPending}
               htmlType="submit"

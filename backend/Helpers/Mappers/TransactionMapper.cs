@@ -17,8 +17,9 @@ namespace Helpers.Mappers
                 AccountId = transaction.AccountId,
                 CreatedAt = transaction.CreatedAt.ToString("dd-MM-yyyy"),
                 Amount = transaction.Amount,
+                Detail = transaction.Detail,
                 Status = transaction.Status,
-                Type = transaction.Type
+                Type = transaction.Type,
             };
         }
     }

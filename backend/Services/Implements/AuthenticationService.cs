@@ -63,10 +63,10 @@ namespace Services.Implements
             {
                 return null;
             }
-            var account = await _accountService.CreateAccount(registerDto);
+            //var account = await _accountService.CreateAccount(registerDto);
             return new AuthenticationResponse()
             {
-                Token = _tokenService.CreateToken(account)
+                Token = _tokenService.CreateVerifyToken(registerDto)
             };
         }
 

@@ -26,6 +26,9 @@ import useAuthStore from "../../stores/authStore";
 import { Role } from "../../types";
 import { PublicPortfolio } from "./models/freelancerModel";
 import { freelancerService } from "./services/freelancerService";
+import useUiStore from "@/stores/uiStore";
+import useChatStore from "@/components/ChatPopup/stores/chatStore";
+import { POST } from "@/modules/request";
 
 const { Text } = Typography;
 
@@ -34,6 +37,8 @@ export default function Freelancer() {
   const navigate = useNavigate();
   const { role, accountId } = useAuthStore();
   const [loading, setLoading] = useState(true);
+  const { toogleChatPopup } = useUiStore();
+  const { setCurrentRoom } = useChatStore();
   const [portfolio, setPortfolio] = useState<PublicPortfolio | null>(null);
 
   useEffect(() => {
@@ -119,13 +124,26 @@ export default function Freelancer() {
                     <Button
                       type="default"
                       icon={<FaComments />}
-                      onClick={() =>
-                        navigate(`/messages/${portfolio.freelancerId}`)
-                      }
+                      onClick={async () => {
+                        let res = await POST("/api/ChatRoom", {
+                          clientId: accountId,
+                          freelancerId: freelancerId,
+                          chatRoomName: `${accountId}-${freelancerId}`,
+                        });
+                        let res2 = await POST("/api/ChatRoom", {
+                          clientId: accountId,
+                          freelancerId: freelancerId,
+                          chatRoomName: `${accountId}-${freelancerId}`,
+                        });
+                        toogleChatPopup();
+                        setCurrentRoom(res2);
+
+                        // navigate(`/messages/${portfolio.freelancerId}`)
+                      }}
                     >
                       Contact
                     </Button>
-                    <Button
+                    {/* <Button
                       type="primary"
                       icon={<FaPlus />}
                       onClick={() =>
@@ -135,7 +153,7 @@ export default function Freelancer() {
                       }
                     >
                       Create Project
-                    </Button>
+                    </Button> */}
                   </>
                 )}
 

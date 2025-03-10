@@ -71,7 +71,7 @@ export default function ChatPopup() {
     <AnimatePresence>
       <motion.div
         ref={popupRef}
-        className="fixed bottom-0 right-24 w-[800px] h-[600px] z-40 grid grid-cols-3 border-2 border-b-0 dark:border-zinc-700"
+        className="fixed bottom-0 right-24 w-[900px] h-[700px] z-40 grid grid-cols-3 border-2 border-b-0 dark:border-zinc-700"
         variants={popupVariants}
         initial="hidden"
         animate="visible"

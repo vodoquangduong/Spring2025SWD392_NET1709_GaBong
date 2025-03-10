@@ -7,6 +7,8 @@ import { useQueries } from "@tanstack/react-query";
 import { GET } from "@/modules/request";
 import useAuthStore from "@/stores/authStore";
 import { tableColumns } from "./schemas";
+import { ResultServerResponse } from "@/types/serverResponse";
+import { ProjectDetail } from "@/types/project";
 
 export default function MyProject() {
   const { accountId } = useAuthStore();
@@ -14,17 +16,15 @@ export default function MyProject() {
     queries: [
       {
         queryKey: ["projects"],
-        queryFn: async () => await GET("/api/Project"),
+        queryFn: async (): Promise<ResultServerResponse<ProjectDetail[]>> =>
+          await GET("/api/Project"),
       },
     ],
   });
-  console.log(accountId);
-
-  console.log(projects?.data?.value);
 
   return (
     <div>
-      <div className="text-3xl font-bold mt-8">My Projects</div>
+      <div className="text-3xl font-bold mt-8 chivo">My Projects</div>
 
       <div className="flex items-center gap-4 mt-4">
         <SearchBox
@@ -38,9 +38,10 @@ export default function MyProject() {
         loading={projects.isLoading}
         className="mt-4"
         dataSource={projects?.data?.value?.filter(
-          (p: any) => p.clientId == accountId || p.freelancerId == accountId
+          (p) => p.clientId == accountId || p.freelancerId == accountId
         )}
         columns={tableColumns()}
+        rowKey={(record: any) => record?.projectId + "ProjectId"}
       />
     </div>
   );

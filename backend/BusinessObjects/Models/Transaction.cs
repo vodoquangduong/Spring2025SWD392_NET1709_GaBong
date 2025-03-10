@@ -17,6 +17,8 @@ namespace BusinessObjects.Models
         public decimal Amount { get; set; }
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
+        [Column("detail")]
+        public string Detail { get; set; } = "";
         [Column("status")]
         public Enums.TransactionStatus Status { get; set; }
         [Column("type")]

@@ -5,3 +5,10 @@ export enum MilestoneStatus {
   COMPLETED = 3,
   CANCELLED = 4,
 }
+
+export type CreateMilestoneDTO = {
+  milestoneName: string;
+  description: string;
+  amount: number;
+  deadline: string;
+};

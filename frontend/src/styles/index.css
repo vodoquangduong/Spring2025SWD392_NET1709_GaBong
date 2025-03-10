@@ -103,6 +103,10 @@
     @apply text-red-500 mb-2 mt-1 font-semibold;
   }
 
+  .info-msg {
+    @apply text-emerald-500 mb-2 mt-1 font-semibold;
+  }
+
   .confirm-modal {
     @apply bg-white dark:bg-[#0D1117] dark:!text-white;
   }
