@@ -1,12 +1,4 @@
-import {
-  Breadcrumb,
-  Button,
-  Card,
-  Divider,
-  Form,
-  message,
-  Tooltip,
-} from "antd";
+import { Button, Card, Divider, Form, message, Tooltip } from "antd";
 import React, { useState } from "react";
 import { FaSave } from "react-icons/fa";
 
@@ -48,15 +40,6 @@ const SystemConfiguration: React.FC = () => {
 
   return (
     <div className="pb-6">
-      <Breadcrumb
-        items={[
-          { title: "Dashboard" },
-          { title: "Admin" },
-          { title: "System Configuration" },
-        ]}
-        className="mb-4 text-sm"
-      />
-
       <Card className="">
         <ConfigHeader />
 

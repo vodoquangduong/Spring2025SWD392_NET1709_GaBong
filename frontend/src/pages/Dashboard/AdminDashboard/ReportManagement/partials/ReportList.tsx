@@ -1,165 +1,127 @@
 import {
-  Breadcrumb,
+  Badge,
   Button,
   Card,
   Col,
+  Empty,
   Input,
+  message,
   Row,
   Select,
-  Statistic,
+  Skeleton,
+  Space,
   Table,
   Tag,
+  Tooltip,
   Typography,
 } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaCheckCircle,
-  FaExclamationTriangle,
   FaEye,
+  FaFilter,
   FaSearch,
+  FaTimesCircle,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { Report } from "../models/types";
+import { reportMngUsecase } from "../usecases/reportMngUsecase";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-
-interface Report {
-  reportId: number;
-  senderId: number;
-  senderName?: string;
-  senderEmail?: string;
-  projectId: number;
-  projectName?: string;
-  verifyStaffId: number | null;
-  verifyStaffName?: string;
-  createdAt: string;
-  reason: string;
-  status: number;
-  priority?: "high" | "medium" | "low";
-  category?: string;
-}
-
-const mockReports: Report[] = [
-  {
-    reportId: 4,
-    senderId: 34,
-    senderName: "John Smith",
-    senderEmail: "john.smith@example.com",
-    projectId: 37,
-    projectName: "Website Redesign Project",
-    verifyStaffId: null,
-    createdAt: "February 26, 2025",
-    reason: "Freelancer didn't deliver the work on time",
-    status: 0,
-    priority: "high",
-    category: "deadline",
-  },
-  {
-    reportId: 5,
-    senderId: 42,
-    senderName: "Sarah Johnson",
-    senderEmail: "sarah.j@example.com",
-    projectId: 23,
-    projectName: "Mobile App Development",
-    verifyStaffId: 2,
-    verifyStaffName: "Admin Staff",
-    createdAt: "February 25, 2025",
-    reason: "Poor quality of deliverables",
-    status: 1,
-    priority: "medium",
-    category: "quality",
-  },
-  {
-    reportId: 6,
-    senderId: 18,
-    senderName: "Robert Williams",
-    senderEmail: "robert.w@example.com",
-    projectId: 45,
-    projectName: "Logo Design Contest",
-    verifyStaffId: null,
-    createdAt: "February 24, 2025",
-    reason: "Communication issues with the client",
-    status: 0,
-    priority: "low",
-    category: "communication",
-  },
-  {
-    reportId: 7,
-    senderId: 51,
-    senderName: "Emily Davis",
-    senderEmail: "emily.d@example.com",
-    projectId: 19,
-    projectName: "Content Writing Project",
-    verifyStaffId: 3,
-    verifyStaffName: "Support Staff",
-    createdAt: "February 23, 2025",
-    reason: "Payment dispute",
-    status: 2,
-    priority: "high",
-    category: "payment",
-  },
-];
 
 const ReportList: React.FC = () => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
-  const [priorityFilter, setPriorityFilter] = useState<string | null>(null);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [reports, setReports] = useState<Report[]>([]);
 
-  const getStatusText = (status: number): string => {
-    switch (status) {
-      case 0:
-        return "Pending";
-      case 1:
-        return "Investigating";
-      case 2:
-        return "Resolved";
-      default:
-        return "Unknown";
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
+
+  useEffect(() => {
+    fetchReports();
+  }, [pagination.current, pagination.pageSize]);
+
+  const fetchReports = async () => {
+    setLoading(true);
+    try {
+      const result = await reportMngUsecase.getReports({
+        pageNumber: pagination.current,
+        pageSize: pagination.pageSize,
+      });
+
+      setReports(result.reports);
+      setPagination((prev) => ({
+        ...prev,
+        total: result.totalCount,
+      }));
+    } catch (error) {
+      console.error("Error fetching reports:", error);
+      message.error("Failed to load reports");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getStatusColor = (status: number) => {
-    switch (status) {
-      case 0:
-        return "orange";
-      case 1:
-        return "blue";
-      case 2:
-        return "green";
-      default:
-        return "default";
-    }
+  // Handle table pagination change
+  const handleTableChange = (pagination: any) => {
+    setPagination({
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      total: pagination.total,
+    });
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "red";
-      case "medium":
-        return "orange";
-      case "low":
-        return "green";
-      default:
-        return "default";
-    }
+  // Handle quick status updates
+  const handleStatusAction = (report: Report, newStatus: number) => {
+    const action = newStatus === 1 ? "approve" : "reject";
+
+    // Show confirmation modal
+    const confirmAction = () => {
+      message.loading(`Processing ${action} action...`, 1.5).then(() => {
+        // Simulate API call
+        setTimeout(() => {
+          message.success(
+            `Report #${report.reportId} has been ${action}ed successfully`
+          );
+          // Update local data to reflect the change
+          setReports((prevReports) =>
+            prevReports.map((r) =>
+              r.reportId === report.reportId ? { ...r, status: newStatus } : r
+            )
+          );
+        }, 1000);
+      });
+    };
+
+    // Call the confirmation function
+    confirmAction();
   };
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "deadline":
-        return "purple";
-      case "quality":
-        return "cyan";
-      case "communication":
-        return "blue";
-      case "payment":
-        return "gold";
-      default:
-        return "default";
+  const getStatusTag = (status: number) => {
+    const statusName = reportMngUsecase.getStatusName(status);
+    let color = "blue";
+    let icon = null;
+
+    if (status === 1) {
+      color = "green";
+      icon = <FaCheckCircle />;
+    } else if (status === 2) {
+      color = "red";
+      icon = <FaTimesCircle />;
     }
+
+    return (
+      <Tag color={color} icon={icon}>
+        {statusName}
+      </Tag>
+    );
   };
 
   const columns = [
@@ -167,228 +129,201 @@ const ReportList: React.FC = () => {
       title: "ID",
       dataIndex: "reportId",
       key: "reportId",
-      width: 60,
+      width: 80,
+      render: (id: number) => <Text strong>{id}</Text>,
     },
     {
-      title: "Reporter",
-      dataIndex: "senderName",
-      key: "senderName",
-      render: (_: string, record: Report) => (
-        <span>
-          {record.senderName}
-          <div>
-            <Text type="secondary" style={{ fontSize: "12px" }}>
-              {record.senderEmail}
-            </Text>
-          </div>
-        </span>
+      title: "Sender",
+      dataIndex: "senderId",
+      key: "senderId",
+      width: 100,
+      render: (id: number) => (
+        <Tooltip title={`User ID: ${id}`}>User #{id}</Tooltip>
       ),
     },
     {
       title: "Project",
-      dataIndex: "projectName",
-      key: "projectName",
+      dataIndex: "projectId",
+      key: "projectId",
+      width: 100,
+      render: (id: number) => (
+        <Tooltip title={`Project ID: ${id}`}>Project #{id}</Tooltip>
+      ),
+    },
+    {
+      title: "Created",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => (
+        <Tooltip title={new Date(date).toLocaleString()}>
+          {new Date(date).toLocaleDateString()}
+        </Tooltip>
+      ),
+      sorter: (a: Report, b: Report) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     },
     {
       title: "Reason",
       dataIndex: "reason",
       key: "reason",
       ellipsis: true,
-    },
-    {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-      render: (category: string) => (
-        <Tag color={getCategoryColor(category)}>
-          {category.charAt(0).toUpperCase() + category.slice(1)}
-        </Tag>
-      ),
-    },
-    {
-      title: "Priority",
-      dataIndex: "priority",
-      key: "priority",
-      render: (priority: string) => (
-        <Tag color={getPriorityColor(priority)}>
-          {priority.charAt(0).toUpperCase() + priority.slice(1)}
-        </Tag>
+      render: (reason: string) => (
+        <Tooltip title={reason}>
+          <Text ellipsis>{reason}</Text>
+        </Tooltip>
       ),
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status: number) => (
-        <Tag
-          icon={status === 2 ? <FaCheckCircle /> : <FaExclamationTriangle />}
-          color={getStatusColor(status)}
-        >
-          {getStatusText(status)}
-        </Tag>
-      ),
-    },
-    {
-      title: "Date",
-      dataIndex: "createdAt",
-      key: "createdAt",
+      render: (status: number) => getStatusTag(status),
+      filters: [
+        { text: "Pending", value: 0 },
+        { text: "Approved", value: 1 },
+        { text: "Rejected", value: 2 },
+      ],
+      onFilter: (value: any, record: Report) => record.status === value,
     },
     {
       title: "Actions",
       key: "actions",
+      width: 240,
       render: (_: any, record: Report) => (
-        <Button
-          type="primary"
-          icon={<FaEye />}
-          size="small"
-          onClick={() =>
-            navigate(`/dashboard/admin/reports/${record.reportId}`)
-          }
-        >
-          View
-        </Button>
+        <Space size="small">
+          <Tooltip title="View Details">
+            <Button
+              icon={<FaEye />}
+              type="primary"
+              size="middle"
+              shape="circle"
+              onClick={() => navigate(`/admin/reports/${record.reportId}`)}
+            />
+          </Tooltip>
+
+          {record.status === 0 && (
+            <>
+              <Tooltip title="Approve Report">
+                <Button
+                  icon={<FaCheckCircle />}
+                  type="primary"
+                  size="middle"
+                  shape="circle"
+                  onClick={() => handleStatusAction(record, 1)}
+                  style={{ backgroundColor: "green" }}
+                />
+              </Tooltip>
+              <Tooltip title="Reject Report">
+                <Button
+                  icon={<FaTimesCircle />}
+                  danger
+                  size="middle"
+                  shape="circle"
+                  onClick={() => handleStatusAction(record, 2)}
+                />
+              </Tooltip>
+            </>
+          )}
+        </Space>
       ),
     },
   ];
 
-  const filteredReports = mockReports.filter((report) => {
+  // Filter the data client-side for search and filters
+  const filteredData = reports.filter((report) => {
     const matchesSearch =
       searchText === "" ||
-      (report.senderName &&
-        report.senderName.toLowerCase().includes(searchText.toLowerCase())) ||
-      (report.projectName &&
-        report.projectName.toLowerCase().includes(searchText.toLowerCase())) ||
+      report.reportId.toString().includes(searchText) ||
       report.reason.toLowerCase().includes(searchText.toLowerCase());
 
     const matchesStatus =
       statusFilter === null || report.status === statusFilter;
-    const matchesCategory =
-      categoryFilter === null || report.category === categoryFilter;
-    const matchesPriority =
-      priorityFilter === null || report.priority === priorityFilter;
 
-    return matchesSearch && matchesStatus && matchesCategory && matchesPriority;
+    return matchesSearch && matchesStatus;
   });
 
-  // Statistics
-  const totalReports = mockReports.length;
-  const pendingReports = mockReports.filter(
-    (report) => report.status === 0
-  ).length;
-  const resolvedReports = mockReports.filter(
-    (report) => report.status === 2
-  ).length;
-
   return (
-    <div>
-      <Breadcrumb
-        items={[
-          { title: "Dashboard" },
-          { title: "Admin" },
-          { title: "Report Management" },
-        ]}
-        style={{ marginBottom: 16 }}
-      />
-
-      <Title level={2}>Report Management</Title>
-
-      {/* Statistics */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={8}>
-          <Card>
-            <Statistic
-              title="Total Reports"
-              value={totalReports}
-              valueStyle={{ color: "#1677ff" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={8}>
-          <Card>
-            <Statistic
-              title="Pending Reports"
-              value={pendingReports}
-              valueStyle={{ color: "#fa8c16" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={8}>
-          <Card>
-            <Statistic
-              title="Resolved Reports"
-              value={resolvedReports}
-              valueStyle={{ color: "#52c41a" }}
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Filters */}
-      <Card style={{ marginBottom: 16 }}>
-        <Row gutter={16}>
-          <Col xs={24} md={6}>
+    <div className="report-management">
+      <Card
+        style={{ marginBottom: 24, boxShadow: "0 2px 8px rgba(0,0,0,0.09)" }}
+        bordered={false}
+      >
+        <Row gutter={[16, 16]} align="middle">
+          <Col xs={24} md={8}>
             <Input
-              placeholder="Search by reporter, project or reason"
-              prefix={<FaSearch />}
+              placeholder="Search by ID or reason"
+              prefix={<FaSearch style={{ color: "#bfbfbf" }} />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               allowClear
+              size="large"
             />
           </Col>
-          <Col xs={24} md={6}>
+          <Col xs={24} md={8}>
             <Select
               placeholder="Filter by status"
               style={{ width: "100%" }}
               allowClear
               onChange={(value) => setStatusFilter(value)}
+              size="large"
+              suffixIcon={<FaFilter />}
             >
-              <Option value={0}>Pending</Option>
-              <Option value={1}>Investigating</Option>
-              <Option value={2}>Resolved</Option>
+              <Option value={0}>
+                <Badge status="processing" text="Pending" />
+              </Option>
+              <Option value={1}>
+                <Badge status="success" text="Approved" />
+              </Option>
+              <Option value={2}>
+                <Badge status="error" text="Rejected" />
+              </Option>
             </Select>
           </Col>
-          <Col xs={24} md={6}>
-            <Select
-              placeholder="Filter by category"
-              style={{ width: "100%" }}
-              allowClear
-              onChange={(value) => setCategoryFilter(value)}
-            >
-              <Option value="deadline">Deadline</Option>
-              <Option value="quality">Quality</Option>
-              <Option value="communication">Communication</Option>
-              <Option value="payment">Payment</Option>
-            </Select>
-          </Col>
-          <Col xs={24} md={6}>
-            <Select
-              placeholder="Filter by priority"
-              style={{ width: "100%" }}
-              allowClear
-              onChange={(value) => setPriorityFilter(value)}
-            >
-              <Option value="high">High</Option>
-              <Option value="medium">Medium</Option>
-              <Option value="low">Low</Option>
-            </Select>
-          </Col>
+          <Col xs={24} md={8} style={{ textAlign: "right" }}></Col>
         </Row>
       </Card>
 
-      {/* Reports Table */}
-      <Card>
-        <Table
-          columns={columns}
-          dataSource={filteredReports}
-          rowKey="reportId"
-          loading={loading}
-          pagination={{
-            defaultPageSize: 10,
-            showSizeChanger: true,
-            pageSizeOptions: ["10", "20", "50"],
-            showTotal: (total) => `Total ${total} reports`,
-          }}
-        />
+      <Card
+        bordered={false}
+        style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.09)" }}
+        className="report-table-card"
+      >
+        {loading ? (
+          <Skeleton active paragraph={{ rows: 10 }} />
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={filteredData}
+            rowKey="reportId"
+            loading={loading}
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "20", "50"],
+              showTotal: (total) => `Total ${total} reports`,
+              style: { marginTop: 16 },
+            }}
+            onChange={handleTableChange}
+            rowClassName={(record) =>
+              record.status === 0
+                ? "report-row-pending"
+                : record.status === 1
+                ? "report-row-approved"
+                : "report-row-rejected"
+            }
+            locale={{
+              emptyText: (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description="No reports found"
+                />
+              ),
+            }}
+            style={{ overflowX: "auto" }}
+          />
+        )}
       </Card>
     </div>
   );

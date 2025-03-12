@@ -1,60 +1,36 @@
 export interface Report {
-  id: string;
-  title: string;
-  type: "service" | "user" | "payment" | "other";
-  priority: "high" | "medium" | "low";
-  status: "pending" | "investigating" | "resolved" | "rejected";
-  reportedBy: {
-    id: string;
-    name: string;
-    avatar: string;
-  };
-  reportedItem: {
-    id: string;
-    name: string;
-    type: string;
-  };
-  createdAt: string;
-  updatedAt: string;
+  reportId: number;
+  senderId: number;
+  projectId: number;
+  verifyStaffId: number | null;
+  createdAt: string | Date;
+  reason: string;
+  status: number;
 }
 
-export interface ReportDetail extends Report {
-  description: string;
-  attachments: {
-    id: string;
-    name: string;
-    url: string;
-    type: string;
-  }[];
-  timeline: {
-    id: string;
-    action: string;
-    note: string;
-    performedBy: {
-      id: string;
-      name: string;
-      avatar: string;
-    };
-    timestamp: string;
-  }[];
-  comments: {
-    id: string;
-    content: string;
-    user: {
-      id: string;
-      name: string;
-      avatar: string;
-    };
-    createdAt: string;
-  }[];
-  resolution?: {
-    action: string;
-    reason: string;
-    resolvedBy: {
-      id: string;
-      name: string;
-      avatar: string;
-    };
-    resolvedAt: string;
-  };
+export interface PaginationParams {
+  pageNumber: number;
+  pageSize: number;
+}
+
+export interface ReportsResponse {
+  items: Report[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
+// Update this to match the actual API response
+export interface ReportDetailResponse extends Report {
+  // The API directly returns the report object, not wrapped in a response
+}
+
+// Additional interface for updating report status
+export interface UpdateReportRequest {
+  reportId: number;
+  verifyStaffId: number;
+  status: number;
 }
