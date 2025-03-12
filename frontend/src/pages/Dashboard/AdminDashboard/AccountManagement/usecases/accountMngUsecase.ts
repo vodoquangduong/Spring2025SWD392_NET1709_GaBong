@@ -1,14 +1,44 @@
-import { Account, UpdateAccountRequest } from "../models/types";
+import {
+  Account,
+  PaginationParams,
+  UpdateAccountRequest,
+} from "../models/types";
 import { accountMngService } from "../services/accountMngService";
 
 export const accountMngUsecase = {
-  getAccounts: async (): Promise<Account[]> => {
+  getAccounts: async (
+    params?: PaginationParams
+  ): Promise<{
+    accounts: Account[];
+    pageNumber: number;
+    pageSize: number;
+    totalCount: number;
+    totalPages: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+  }> => {
     try {
-      const response = await accountMngService.getAllAccounts();
-      return response.items || [];
+      const response = await accountMngService.getAllAccounts(params);
+      return {
+        accounts: response.items || [],
+        pageNumber: response.pageNumber || 1,
+        pageSize: response.pageSize || 10,
+        totalCount: response.totalCount || 0,
+        totalPages: response.totalPages || 1,
+        hasPreviousPage: response.hasPreviousPage || false,
+        hasNextPage: response.hasNextPage || false,
+      };
     } catch (error) {
       console.error("Error in getAccounts usecase:", error);
-      return [];
+      return {
+        accounts: [],
+        pageNumber: params?.pageNumber || 1,
+        pageSize: params?.pageSize || 10,
+        totalCount: 0,
+        totalPages: 1,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      };
     }
   },
 
@@ -46,9 +76,9 @@ export const accountMngUsecase = {
       case 1:
         return "Staff";
       case 2:
-        return "Client";
-      case 3:
         return "Freelancer";
+      case 3:
+        return "Client";
       default:
         return "Unknown";
     }
@@ -59,9 +89,9 @@ export const accountMngUsecase = {
       case 0:
         return "Active";
       case 1:
-        return "Inactive";
-      case 2:
         return "Suspended";
+      case 2:
+        return "Banned";
       default:
         return "Unknown";
     }

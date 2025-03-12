@@ -2,20 +2,35 @@ import { getCookie } from "@/modules/cookie";
 import {
   AccountDetailResponse,
   AccountsResponse,
+  PaginationParams,
   UpdateAccountRequest,
 } from "../models/types";
 
 const API_URL = import.meta.env.VITE_SERVER_URL;
 
 export const accountMngService = {
-  getAllAccounts: async (): Promise<AccountsResponse> => {
+  getAllAccounts: async (
+    params?: PaginationParams
+  ): Promise<AccountsResponse> => {
     try {
       const token = getCookie("accessToken");
       if (!token) {
         throw new Error("Authentication required. Please login.");
       }
 
-      const response = await fetch(`${API_URL}/api/Account/get-all-account`, {
+      // Build query string with pagination parameters
+      const queryParams = new URLSearchParams();
+      if (params) {
+        queryParams.append("pageNumber", params.pageNumber.toString());
+        queryParams.append("pageSize", params.pageSize.toString());
+      }
+
+      const queryString = queryParams.toString();
+      const url = `${API_URL}/api/Account/get-all-account${
+        queryString ? `?${queryString}` : ""
+      }`;
+
+      const response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

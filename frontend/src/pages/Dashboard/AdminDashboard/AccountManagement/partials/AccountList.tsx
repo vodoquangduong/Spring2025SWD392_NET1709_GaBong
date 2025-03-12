@@ -41,22 +41,46 @@ const AccountList: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    const fetchAccounts = async () => {
-      setLoading(true);
-      try {
-        const data = await accountMngUsecase.getAccounts();
-        setAccounts(data);
-      } catch (error) {
-        console.error("Error fetching accounts:", error);
-        message.error("Failed to load accounts");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
 
+  useEffect(() => {
     fetchAccounts();
-  }, []);
+  }, [pagination.current, pagination.pageSize]);
+
+  const fetchAccounts = async () => {
+    setLoading(true);
+    try {
+      const result = await accountMngUsecase.getAccounts({
+        pageNumber: pagination.current,
+        pageSize: pagination.pageSize,
+      });
+
+      setAccounts(result.accounts);
+      setPagination((prev) => ({
+        ...prev,
+        total: result.totalCount,
+      }));
+    } catch (error) {
+      console.error("Error fetching accounts:", error);
+      message.error("Failed to load accounts");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle table pagination change
+  const handleTableChange = (pagination: any) => {
+    setPagination({
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      total: pagination.total,
+    });
+  };
 
   // This function now just displays a message since API is not available
   const handleStatusAction = (account: Account) => {
@@ -170,6 +194,8 @@ const AccountList: React.FC = () => {
     },
   ];
 
+  // Filter the data client-side for search and filters
+  // (You might want to move this to server-side filtering later)
   const filteredData = accounts.filter((account) => {
     const matchesSearch =
       searchText === "" ||
@@ -254,11 +280,21 @@ const AccountList: React.FC = () => {
           rowKey="accountId"
           loading={loading}
           pagination={{
-            defaultPageSize: 10,
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50"],
             showTotal: (total) => `Total ${total} accounts`,
+            onChange: (page, pageSize) => {
+              setPagination({
+                current: page,
+                pageSize: pageSize || 10,
+                total: pagination.total,
+              });
+            },
           }}
+          onChange={handleTableChange}
         />
       </Card>
 

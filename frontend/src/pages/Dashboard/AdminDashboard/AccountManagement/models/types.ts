@@ -17,8 +17,19 @@ export interface Account {
   status: number;
 }
 
+export interface PaginationParams {
+  pageNumber: number;
+  pageSize: number;
+}
+
 export interface AccountsResponse {
   items: Account[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
 }
 
 export interface AccountDetailResponse {
