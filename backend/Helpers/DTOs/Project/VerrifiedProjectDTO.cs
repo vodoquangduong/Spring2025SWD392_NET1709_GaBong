@@ -1,12 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Helpers.HelperClasses;
 
 namespace Helpers.DTOs.Project
 {
     public class VerrifiedProjectDTO
     {
-        [Required(ErrorMessage = "Project ID is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Project ID")]
         public long ProjectId { get; set; }
-        [Required(ErrorMessage = "Is verified is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Is verified")]
         public bool IsVerified { get; set; }
     }
 }

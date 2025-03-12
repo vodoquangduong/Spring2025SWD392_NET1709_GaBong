@@ -12,6 +12,7 @@ using System.Text;
 using System.Reflection;
 using Helpers.SignalR;
 using Helpers.DTOs.PayPal.Model;
+using Helpers.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,7 +73,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddAutoMapper(typeof(ProjectMapper));
+builder.Services.AddAutoMapper(typeof(MapperProfile));
 builder.Services.AddHttpContextAccessor();
 
 var mode = builder.Configuration["PaypalOptions:Mode"];

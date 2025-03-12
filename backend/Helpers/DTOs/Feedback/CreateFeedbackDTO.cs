@@ -1,18 +1,18 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using Helpers.HelperClasses;
 
 namespace Helpers.DTOs.Feedback
 {
     public class CreateFeedbackDTO
     {
-        [Required(ErrorMessage = "Project ID is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Project ID")]
         public long ProjectId { get; set; }
-        [Required(ErrorMessage = "Rating is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Rating")]
         public int Rating { get; set; }
-        [Required(ErrorMessage = "Comment is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Comment")]
         public string Comment { get; set; } = string.Empty;
     }
 }

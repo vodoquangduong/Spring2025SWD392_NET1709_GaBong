@@ -1,17 +1,16 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using BusinessObjects.Enums;
+using Helpers.HelperClasses;
 
 namespace Helpers.DTOs.Notification
 {
     public class UpdateStatusNotificationDTO
     {
-        [Required(ErrorMessage = "Notification ID is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Notification ID")]
         public long NotificationId { get; set; }
-        [Required(ErrorMessage = "Status is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Status")]
         public NotificationStatus Status { get; set; }
     }
 }

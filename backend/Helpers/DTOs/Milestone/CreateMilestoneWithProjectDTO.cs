@@ -1,22 +1,20 @@
-﻿using BusinessObjects.Enums;
-using System;
-using System.Collections.Generic;
+﻿using Helpers.HelperClasses;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Helpers.DTOs.Milestone
 {
     public class CreateMilestoneWithProjectDTO
     {
-        [Required(ErrorMessage = "Milestone name is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Milestone name")]
         public string MilestoneName { get; set; } = string.Empty;
-        [Required(ErrorMessage = "Deadline is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Deadline")]
         public DateTime Deadline { get; set; }
-        [Required(ErrorMessage = "Description is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Description")]
         public string Description { get; set; } = string.Empty;
-        [Required(ErrorMessage = "Amount is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Range(0, double.MaxValue, ErrorMessage = "Amount must be a positive number")]
         public decimal Amount { get; set; }
     }

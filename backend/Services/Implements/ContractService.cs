@@ -1,3 +1,4 @@
+using AutoMapper;
 using BusinessObjects.Models;
 using Helpers.DTOs;
 using Helpers.DTOs.Contract;
@@ -13,11 +14,12 @@ namespace Services.Implements
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
-
-        public ContractService(IUnitOfWork unitOfWork, IConfiguration configuration)
+        private readonly IMapper _mapper;
+        public ContractService(IUnitOfWork unitOfWork, IConfiguration configuration, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _mapper = mapper;
         }
 
         public async Task<Result<ContractDTO>> CreateContractAsync(
@@ -118,12 +120,8 @@ namespace Services.Implements
                 await _unitOfWork.SaveChangesAsync();
 
                 //<======Create Contract======>
-                var contract = new Contract()
-                {
-                    ProjectId = createContractDTO.ProjectId,
-                    ContractPolicy = createContractDTO.ContractPolicy,
-                    StartDate = DateTime.UtcNow,
-                };
+                var contract = _mapper.Map<Contract>(createContractDTO);
+                contract.StartDate = DateTime.UtcNow;
                 await _unitOfWork.GetRepo<Contract>().CreateAsync(contract);
                 await _unitOfWork.SaveChangesAsync();
 

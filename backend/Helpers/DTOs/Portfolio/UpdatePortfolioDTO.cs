@@ -1,24 +1,26 @@
 using Helpers.DTOs.SkillPerform;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-
+using Helpers.HelperClasses;
 namespace Helpers.DTOs.Portfolio
 {
     public class UpdatePortfolioDTO
     {
-        [Required(ErrorMessage = "Title is required")]
-        [StringLength(50, ErrorMessage = "Title must be less than 50 characters")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Title")]
+        [StringLength(50, ErrorMessage = ValidationMessage.MaxLength)]
         public string Title { get; set; } = string.Empty;
-        [Required(ErrorMessage = "Works is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Works")]
         public string Works { get; set; } = string.Empty;
-        [Required(ErrorMessage = "Certificate is required")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Certificate")]
         public string Certificate { get; set; } = string.Empty;
-        [Required(ErrorMessage = "About is required")]
-        [StringLength(500, ErrorMessage = "About must be less than 500 characters")]
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "About")]
+        [StringLength(500, ErrorMessage = ValidationMessage.MaxLength)]
         public string About { get; set; } = string.Empty;
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Skill performs")]
         public List<CreateSkillPerformDTO> SkillPerforms { get; set; } = new List<CreateSkillPerformDTO>();
 
     }
