@@ -13,6 +13,6 @@ namespace Services.Interfaces.Portfolio
         public string Certificate { get; set; } = string.Empty;
         public string About { get; set; } = string.Empty;
         public PortfolioStatus Status { get; set; }
-        public List<SkillPerformDTO> skillPerformDTOs { get; set; } = new List<SkillPerformDTO>();
+        public List<SkillPerformDTO> SkillPerformDTOs { get; set; } = new List<SkillPerformDTO>();
     }
 }

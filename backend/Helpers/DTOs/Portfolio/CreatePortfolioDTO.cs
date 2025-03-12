@@ -23,6 +23,6 @@ namespace Helpers.DTOs.Portfolio
         public string About { get; set; } = string.Empty;
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "Skill performs")]
-        public List<CreateSkillPerformDTO> skillPerforms { get; set; } = new List<CreateSkillPerformDTO>();
+        public List<CreateSkillPerformDTO> SkillPerforms { get; set; } = new List<CreateSkillPerformDTO>();
     }
 }

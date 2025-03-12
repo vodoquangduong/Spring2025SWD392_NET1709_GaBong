@@ -12,6 +12,6 @@ namespace Helpers.DTOs.Feedback
         public int Rating { get; set; }
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "Comment")]
-        public string Comment { get; set; } = string.Empty;
+        public string FeedbackComment { get; set; } = string.Empty;
     }
 }
