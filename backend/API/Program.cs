@@ -16,8 +16,11 @@ using Helpers.DTOs.PayPal.Model;
 var builder = WebApplication.CreateBuilder(args);
 
 // read config from appsettings.json
-var configuration = builder.Configuration;
-
+var configuration = builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables().Build();
 // config Serilog
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(configuration)
@@ -112,15 +115,18 @@ builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IMailSenderService,  MailSenderService>();
 builder.Services.AddSignalR();
 
+var url = builder.Configuration["Kestrel:Endpoints:Http:Url"];
+builder.WebHost.UseUrls(url);
+
 var app = builder.Build();
 
 // config Middleware
-if (app.Environment.IsDevelopment())
-{
+// if (app.Environment.IsDevelopment())
+// {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+// }
 
 app.UseHttpsRedirection();
 app.UseRouting();
