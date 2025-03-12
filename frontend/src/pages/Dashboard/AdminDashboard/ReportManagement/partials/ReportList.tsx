@@ -244,6 +244,7 @@ const ReportList: React.FC = () => {
 
   return (
     <div className="report-management">
+      <Title level={2}>Report Management</Title>
       <Card
         style={{ marginBottom: 24, boxShadow: "0 2px 8px rgba(0,0,0,0.09)" }}
         bordered={false}
