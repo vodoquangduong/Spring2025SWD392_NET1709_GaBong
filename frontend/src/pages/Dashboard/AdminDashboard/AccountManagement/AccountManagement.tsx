@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import { AccountDetail, AccountList } from "./partials";
+import AccountDetail from "./partials/AccountDetail";
+import AccountList from "./partials/AccountList";
 
 const AccountManagement: React.FC = () => {
   return (

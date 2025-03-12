@@ -1,15 +1,15 @@
-import { BiLogOut, BiMoneyWithdraw, BiSolidCategory } from "react-icons/bi";
-import { IoPieChart } from "react-icons/io5";
-import { FaUserCircle } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Role } from "@/types";
 import { Dropdown } from "antd";
+import { ItemType } from "antd/es/menu/interface";
+import { BiLogOut, BiMoneyWithdraw, BiSolidCategory } from "react-icons/bi";
+import { FaUserCircle } from "react-icons/fa";
+import { IoPieChart } from "react-icons/io5";
+import { MdOutlinePayment } from "react-icons/md";
+import { Link, useNavigate } from "react-router-dom";
+import { setCookie } from "../modules/cookie";
 import { defaultAvatar } from "../modules/default";
 import useAuthStore from "../stores/authStore";
-import { setCookie } from "../modules/cookie";
 import useChatStore from "./ChatPopup/stores/chatStore";
-import { Role } from "@/types";
-import { MdOutlinePayment } from "react-icons/md";
-import { ItemType } from "antd/es/menu/interface";
 
 const ProfileDropdown = () => {
   const { logout, email, name, avatar, role } = useAuthStore();
@@ -21,9 +21,11 @@ const ProfileDropdown = () => {
       label: (
         <Link
           to={
-            role == Role.ADMIN || role == Role.STAFF
-              ? "/employee"
-              : "/manage/dashboard"
+            role == Role.ADMIN
+              ? "/admin/accounts"
+              : role == Role.STAFF
+              ? "/employee/freelancers"
+              : "/profile"
           }
           className="flex font-semibold gap-2 items-center"
         >

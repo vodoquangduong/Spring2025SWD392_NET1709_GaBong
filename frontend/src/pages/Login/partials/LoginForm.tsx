@@ -47,8 +47,10 @@ const LoginForm = () => {
       message.destroy();
       message.success("Login successful!");
       const decoded: any = jwtDecode(response.token);
-      if (decoded?.role == Role.ADMIN || decoded?.role == Role.STAFF) {
-        navigate("/employee");
+      if (decoded?.role == Role.STAFF) {
+        navigate("/employee/freelancers");
+      } else if (decoded?.role == Role.ADMIN) {
+        navigate("/admin/accounts");
       } else {
         navigate("/");
       }
