@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import PageNotFound from "../components/PageNotFound";
 import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
-import { AccountManagement } from "../pages/Dashboard/EmployeeDashboard/AccountManagement";
 import { FreelancerManagement } from "../pages/Dashboard/EmployeeDashboard/FreelancerManagement";
 import {
   ProjectDetail as DashboardProjectDetail,
@@ -150,8 +149,6 @@ export default function MainRoutes() {
         }
       >
         <Route path="employee">
-          <Route path="" element={<Navigate to="accounts" />} />
-          <Route path="accounts/*" element={<AccountManagement />} />
           <Route path="services/*" element={<ServiceManagement />} />
           <Route path="reports/*" element={<ReportManagement />} />
           <Route path="freelancers/*" element={<FreelancerManagement />} />

@@ -1,44 +1,64 @@
 export interface Account {
-  id: string;
-  username: string;
+  accountId: number;
+  role: number;
+  name: string;
   email: string;
-  fullName: string;
-  role: "admin" | "staff" | "client";
-  status: "active" | "inactive" | "suspended";
-  lastLogin: string;
+  password?: string;
+  phone: string;
+  address: string;
+  avatarURL: string;
+  birthday: string;
+  gender: number;
+  nationality: string;
+  reputationPoint: number;
+  totalCredit: number;
+  lockCredit: number;
   createdAt: string;
+  status: number;
 }
 
-export interface AccountDetail {
-  id: string;
-  username: string;
-  email: string;
-  fullName: string;
+export interface AccountsResponse {
+  items: Account[];
+}
+
+export interface AccountDetailResponse {
+  value: Account;
+  isSuccess: boolean;
+  isFailure: boolean;
+  error: {
+    code: string;
+    message: string;
+  };
+}
+
+export interface UpdateAccountRequest {
+  name: string;
   phone: string;
-  avatar: string;
-  role: "admin" | "staff" | "client";
-  status: "active" | "inactive" | "suspended";
-  permissions: {
-    module: string;
-    actions: string[];
-  }[];
-  activityLog: {
-    action: string;
-    timestamp: string;
-    ipAddress: string;
-    details: string;
-  }[];
-  securitySettings: {
-    twoFactorEnabled: boolean;
-    lastPasswordChange: string;
-    passwordExpiryDate: string;
-  };
-  notifications: {
-    email: boolean;
-    desktop: boolean;
-    mobile: boolean;
-  };
-  lastLogin: string;
-  createdAt: string;
-  updatedAt: string;
+  address: string;
+  avatarURL: string;
+  birthday: string;
+  nationality: string;
+  gender: number;
+}
+
+export interface ResetPasswordRequest {
+  accountId: number;
+  newPassword: string;
+}
+
+// Helper types for UI
+export interface Transaction {
+  id: number;
+  type: string;
+  amount: number;
+  date: string;
+  status: string;
+}
+
+export interface Activity {
+  id: number;
+  action: string;
+  timestamp: string;
+  ip: string;
+  device: string;
 }

@@ -1,6 +1,5 @@
 import {
   Avatar,
-  Breadcrumb,
   Button,
   Card,
   Col,
@@ -11,6 +10,7 @@ import {
   message,
   Modal,
   Row,
+  Select,
   Space,
   Statistic,
   Table,
@@ -37,182 +37,198 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
+import { Account, Activity, Transaction } from "../models/types";
+import { accountMngUsecase } from "../usecases/accountMngUsecase";
 
 const { Title, Text } = Typography;
 
-interface AccountDetail {
-  accountId: number;
-  role: number;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  avatarURL: string;
-  birthday: string;
-  gender: number;
-  nationality: string;
-  reputationPoint: number;
-  totalCredit: number;
-  lockCredit: number;
-  createdAt: string;
-  status: number;
-}
+// Mock transaction history data - these could be from another API endpoint in the future
+const mockTransactions: Transaction[] = [
+  {
+    id: 1,
+    type: "Deposit",
+    amount: 1000,
+    date: "2023-05-10",
+    status: "Completed",
+  },
+  {
+    id: 2,
+    type: "Withdrawal",
+    amount: -500,
+    date: "2023-05-15",
+    status: "Completed",
+  },
+  {
+    id: 3,
+    type: "Project Payment",
+    amount: -250,
+    date: "2023-05-20",
+    status: "Completed",
+  },
+  {
+    id: 4,
+    type: "Earnings",
+    amount: 750,
+    date: "2023-05-25",
+    status: "Completed",
+  },
+];
 
-const mockAccountDetail: AccountDetail = {
-  accountId: 1,
-  role: 0,
-  name: "Do Long Admin",
-  email: "admin@gmail.com",
-  phone: "0123456789",
-  address: "Venus",
-  avatarURL: "https://i.pravatar.cc/500",
-  birthday: "2005-02-17T07:40:42.167Z",
-  gender: 0,
-  nationality: "Chinese",
-  reputationPoint: 0,
-  totalCredit: 10000,
-  lockCredit: 0,
-  createdAt: "2022-10-14T19:12:47.023Z",
-  status: 0,
-};
+// Mock activity data - these could be from another API endpoint in the future
+const mockActivities: Activity[] = [
+  {
+    id: 1,
+    action: "Login",
+    timestamp: "2023-05-28 14:30:22",
+    ip: "192.168.1.1",
+    device: "Chrome / Windows",
+  },
+  {
+    id: 2,
+    action: "Password Changed",
+    timestamp: "2023-05-25 10:15:45",
+    ip: "192.168.1.1",
+    device: "Chrome / Windows",
+  },
+  {
+    id: 3,
+    action: "Profile Updated",
+    timestamp: "2023-05-20 09:45:12",
+    ip: "192.168.1.1",
+    device: "Chrome / Windows",
+  },
+];
 
 const AccountDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const accountId = id ? parseInt(id) : 0;
   const navigate = useNavigate();
-  const [account, setAccount] = useState<AccountDetail | null>(null);
+  const [account, setAccount] = useState<Account | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("1");
   const [isResetPasswordModalVisible, setIsResetPasswordModalVisible] =
     useState(false);
   const [resetPasswordForm] = Form.useForm();
-
-  // Mock transaction history data
-  const transactions = [
-    {
-      id: 1,
-      type: "Deposit",
-      amount: 1000,
-      date: "2023-05-10",
-      status: "Completed",
-    },
-    {
-      id: 2,
-      type: "Withdrawal",
-      amount: -500,
-      date: "2023-05-15",
-      status: "Completed",
-    },
-    {
-      id: 3,
-      type: "Project Payment",
-      amount: -250,
-      date: "2023-05-20",
-      status: "Completed",
-    },
-    {
-      id: 4,
-      type: "Earnings",
-      amount: 750,
-      date: "2023-05-25",
-      status: "Completed",
-    },
-  ];
-
-  // Mock activity data
-  const activities = [
-    {
-      id: 1,
-      action: "Login",
-      timestamp: "2023-05-28 14:30:22",
-      ip: "192.168.1.1",
-      device: "Chrome / Windows",
-    },
-    {
-      id: 2,
-      action: "Password Changed",
-      timestamp: "2023-05-25 10:15:45",
-      ip: "192.168.1.1",
-      device: "Chrome / Windows",
-    },
-    {
-      id: 3,
-      action: "Profile Updated",
-      timestamp: "2023-05-20 09:45:12",
-      ip: "192.168.1.1",
-      device: "Chrome / Windows",
-    },
-  ];
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm] = Form.useForm();
 
   useEffect(() => {
-    // Simulate API call
-    setLoading(true);
-    setTimeout(() => {
-      setAccount(mockAccountDetail);
-      setLoading(false);
-    }, 500);
-  }, [id]);
+    const fetchAccountDetails = async () => {
+      if (!accountId) return;
 
-  const getRoleName = (role: number): string => {
-    switch (role) {
-      case 0:
-        return "Admin";
-      case 1:
-        return "Staff";
-      case 2:
-        return "Client";
-      case 3:
-        return "Freelancer";
-      default:
-        return "Unknown";
+      setLoading(true);
+      try {
+        const data = await accountMngUsecase.getAccountById(accountId);
+        setAccount(data);
+
+        if (data) {
+          editForm.setFieldsValue({
+            name: data.name,
+            phone: data.phone,
+            address: data.address,
+            birthday: data.birthday,
+            nationality: data.nationality,
+            gender: data.gender,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching account details:", error);
+        message.error("Failed to load account details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAccountDetails();
+  }, [accountId, editForm]);
+
+  const handleResetPassword = async (values: any) => {
+    if (!account) return;
+
+    try {
+      // Since there's no resetPassword API, we'll just show a message for now
+      message.info("Password reset API not yet implemented");
+      setIsResetPasswordModalVisible(false);
+      resetPasswordForm.resetFields();
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      message.error("Failed to reset password");
     }
   };
 
-  const getStatusName = (status: number): string => {
-    switch (status) {
-      case 0:
-        return "Active";
-      case 1:
-        return "Inactive";
-      case 2:
-        return "Suspended";
-      default:
-        return "Unknown";
+  const handleEditProfile = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    if (account) {
+      editForm.setFieldsValue({
+        name: account.name,
+        phone: account.phone,
+        address: account.address,
+        birthday: account.birthday,
+        nationality: account.nationality,
+        gender: account.gender,
+      });
     }
   };
 
-  const getGenderName = (gender: number): string => {
-    switch (gender) {
-      case 0:
-        return "Male";
-      case 1:
-        return "Female";
-      case 2:
-        return "Other";
-      default:
-        return "Not specified";
+  const handleSaveProfile = async () => {
+    try {
+      const values = await editForm.validateFields();
+
+      if (account) {
+        const updateRequest = {
+          name: values.name,
+          phone: values.phone,
+          address: values.address,
+          avatarURL: account.avatarURL,
+          birthday: values.birthday,
+          nationality: values.nationality,
+          gender: values.gender,
+        };
+
+        const success = await accountMngUsecase.updateAccount(updateRequest);
+        if (success) {
+          message.success("Profile updated successfully");
+          setIsEditing(false);
+          // Update local state
+          setAccount({
+            ...account,
+            ...updateRequest,
+          });
+        } else {
+          message.error("Failed to update profile");
+        }
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      message.error("Failed to update profile");
     }
   };
 
-  const handleResetPassword = (values: any) => {
-    console.log("Reset password:", values);
-    message.success("Password has been reset successfully");
-    setIsResetPasswordModalVisible(false);
-    resetPasswordForm.resetFields();
-  };
-
-  const handleStatusChange = (newStatus: number) => {
+  // Function to handle the demonstration of account status changes (without real API call)
+  const handleStatusAction = (newStatus: number) => {
     if (!account) return;
 
     const action = newStatus === 0 ? "activate" : "suspend";
+
     Modal.confirm({
       title: `Are you sure you want to ${action} this account?`,
       content: `This will ${action} the account for ${account.name}.`,
-      onOk() {
+      onOk: () => {
+        // Simulate a success response
+        message.info(
+          `Status change API not implemented yet. Would ${action} account ID ${account.accountId}`
+        );
+
+        // For UI demonstration purposes, we update the local state
+        // In a real implementation, this would only happen after API call success
         setAccount({
           ...account,
           status: newStatus,
         });
-        message.success(`Account has been ${action}d successfully`);
       },
     });
   };
@@ -225,10 +241,7 @@ const AccountDetail: React.FC = () => {
     return (
       <Card>
         <Title level={4}>Account not found</Title>
-        <Button
-          type="primary"
-          onClick={() => navigate("/dashboard/admin/accounts")}
-        >
+        <Button type="primary" onClick={() => navigate("/admin/accounts")}>
           Back to Account List
         </Button>
       </Card>
@@ -303,19 +316,6 @@ const AccountDetail: React.FC = () => {
 
   return (
     <>
-      <Breadcrumb
-        items={[
-          { title: "Dashboard" },
-          { title: "Admin" },
-          {
-            title: "Accounts",
-            href: "/dashboard/admin/accounts",
-          },
-          { title: `Account ${account.accountId}` },
-        ]}
-        style={{ marginBottom: 16 }}
-      />
-
       <Row gutter={[16, 16]}>
         <Col xs={24} md={8}>
           <Card>
@@ -336,7 +336,7 @@ const AccountDetail: React.FC = () => {
                       : "geekblue"
                   }
                 >
-                  {getRoleName(account.role)}
+                  {accountMngUsecase.getRoleName(account.role)}
                 </Tag>
                 <Tag
                   color={
@@ -347,117 +347,200 @@ const AccountDetail: React.FC = () => {
                       : "red"
                   }
                 >
-                  {getStatusName(account.status)}
+                  {accountMngUsecase.getStatusName(account.status)}
                 </Tag>
               </Space>
             </div>
 
-            <Divider />
-
-            <Descriptions column={1}>
-              <Descriptions.Item
-                label={
-                  <Space>
-                    <FaEnvelope /> Email
-                  </Space>
-                }
+            {isEditing ? (
+              <Form
+                form={editForm}
+                layout="vertical"
+                initialValues={{
+                  name: account.name,
+                  phone: account.phone,
+                  address: account.address,
+                  birthday: account.birthday,
+                  nationality: account.nationality,
+                  gender: account.gender,
+                }}
               >
-                {account.email}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={
-                  <Space>
-                    <FaPhone /> Phone
-                  </Space>
-                }
-              >
-                {account.phone}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={
-                  <Space>
-                    <FaMapMarkerAlt /> Address
-                  </Space>
-                }
-              >
-                {account.address}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={
-                  <Space>
-                    <FaBirthdayCake /> Birthday
-                  </Space>
-                }
-              >
-                {new Date(account.birthday).toLocaleDateString()}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={
-                  <Space>
-                    <FaUser /> Gender
-                  </Space>
-                }
-              >
-                {getGenderName(account.gender)}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={
-                  <Space>
-                    <FaFlag /> Nationality
-                  </Space>
-                }
-              >
-                {account.nationality}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={
-                  <Space>
-                    <FaCalendarAlt /> Created At
-                  </Space>
-                }
-              >
-                {new Date(account.createdAt).toLocaleDateString()}
-              </Descriptions.Item>
-            </Descriptions>
-
-            <Divider />
-
-            <Space direction="vertical" style={{ width: "100%" }}>
-              <Button
-                icon={<FaEdit />}
-                type="primary"
-                block
-                onClick={() => message.info("Edit profile functionality")}
-              >
-                Edit Profile
-              </Button>
-              <Button
-                icon={<FaKey />}
-                block
-                onClick={() => setIsResetPasswordModalVisible(true)}
-              >
-                Reset Password
-              </Button>
-              {account.status === 0 ? (
-                <Button
-                  icon={<FaBan />}
-                  danger
-                  block
-                  onClick={() => handleStatusChange(2)}
+                <Form.Item
+                  name="name"
+                  label="Full Name"
+                  rules={[
+                    { required: true, message: "Please enter full name" },
+                  ]}
                 >
-                  Suspend Account
-                </Button>
-              ) : (
-                <Button
-                  icon={<FaCheck />}
-                  type="default"
-                  block
-                  onClick={() => handleStatusChange(0)}
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  name="phone"
+                  label="Phone"
+                  rules={[
+                    { required: true, message: "Please enter phone number" },
+                  ]}
                 >
-                  Activate Account
-                </Button>
-              )}
-            </Space>
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  name="address"
+                  label="Address"
+                  rules={[{ required: true, message: "Please enter address" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  name="birthday"
+                  label="Birthday"
+                  rules={[{ required: true, message: "Please enter birthday" }]}
+                >
+                  <Input type="date" />
+                </Form.Item>
+                <Form.Item
+                  name="nationality"
+                  label="Nationality"
+                  rules={[
+                    { required: true, message: "Please enter nationality" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  name="gender"
+                  label="Gender"
+                  rules={[{ required: true, message: "Please select gender" }]}
+                >
+                  <Select>
+                    <Select.Option value={0}>Male</Select.Option>
+                    <Select.Option value={1}>Female</Select.Option>
+                    <Select.Option value={2}>Other</Select.Option>
+                  </Select>
+                </Form.Item>
+
+                <Row gutter={8}>
+                  <Col span={12}>
+                    <Button block onClick={handleCancelEdit}>
+                      Cancel
+                    </Button>
+                  </Col>
+                  <Col span={12}>
+                    <Button type="primary" block onClick={handleSaveProfile}>
+                      Save
+                    </Button>
+                  </Col>
+                </Row>
+              </Form>
+            ) : (
+              <>
+                <Divider />
+
+                <Descriptions column={1}>
+                  <Descriptions.Item
+                    label={
+                      <Space>
+                        <FaEnvelope /> Email
+                      </Space>
+                    }
+                  >
+                    {account.email}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label={
+                      <Space>
+                        <FaPhone /> Phone
+                      </Space>
+                    }
+                  >
+                    {account.phone}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label={
+                      <Space>
+                        <FaMapMarkerAlt /> Address
+                      </Space>
+                    }
+                  >
+                    {account.address}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label={
+                      <Space>
+                        <FaBirthdayCake /> Birthday
+                      </Space>
+                    }
+                  >
+                    {new Date(account.birthday).toLocaleDateString()}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label={
+                      <Space>
+                        <FaUser /> Gender
+                      </Space>
+                    }
+                  >
+                    {accountMngUsecase.getGenderName(account.gender)}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label={
+                      <Space>
+                        <FaFlag /> Nationality
+                      </Space>
+                    }
+                  >
+                    {account.nationality}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label={
+                      <Space>
+                        <FaCalendarAlt /> Created At
+                      </Space>
+                    }
+                  >
+                    {new Date(account.createdAt).toLocaleDateString()}
+                  </Descriptions.Item>
+                </Descriptions>
+
+                <Divider />
+
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <Button
+                    icon={<FaEdit />}
+                    type="primary"
+                    block
+                    onClick={handleEditProfile}
+                  >
+                    Edit Profile
+                  </Button>
+                  <Button
+                    icon={<FaKey />}
+                    block
+                    onClick={() => setIsResetPasswordModalVisible(true)}
+                  >
+                    Reset Password
+                  </Button>
+                  {account.status === 0 ? (
+                    <Button
+                      icon={<FaBan />}
+                      danger
+                      block
+                      onClick={() => handleStatusAction(2)}
+                    >
+                      Suspend Account
+                    </Button>
+                  ) : (
+                    <Button
+                      icon={<FaCheck />}
+                      type="default"
+                      block
+                      onClick={() => handleStatusAction(0)}
+                    >
+                      Activate Account
+                    </Button>
+                  )}
+                </Space>
+              </>
+            )}
           </Card>
         </Col>
 
@@ -513,16 +596,16 @@ const AccountDetail: React.FC = () => {
                           {new Date(account.createdAt).toLocaleDateString()}
                         </Descriptions.Item>
                         <Descriptions.Item label="Role">
-                          {getRoleName(account.role)}
+                          {accountMngUsecase.getRoleName(account.role)}
                         </Descriptions.Item>
                         <Descriptions.Item label="Status">
-                          {getStatusName(account.status)}
+                          {accountMngUsecase.getStatusName(account.status)}
                         </Descriptions.Item>
                         <Descriptions.Item label="Reputation">
                           {account.reputationPoint} points
                         </Descriptions.Item>
                         <Descriptions.Item label="Gender">
-                          {getGenderName(account.gender)}
+                          {accountMngUsecase.getGenderName(account.gender)}
                         </Descriptions.Item>
                       </Descriptions>
                     </Card>
@@ -531,7 +614,7 @@ const AccountDetail: React.FC = () => {
               </Tabs.TabPane>
               <Tabs.TabPane tab="Transactions" key="2">
                 <Table
-                  dataSource={transactions}
+                  dataSource={mockTransactions}
                   columns={transactionColumns}
                   rowKey="id"
                   pagination={{ pageSize: 5 }}
@@ -539,14 +622,14 @@ const AccountDetail: React.FC = () => {
               </Tabs.TabPane>
               <Tabs.TabPane tab="Activity Log" key="3">
                 <Table
-                  dataSource={activities}
+                  dataSource={mockActivities}
                   columns={activityColumns}
                   rowKey="id"
                   pagination={{ pageSize: 5 }}
                 />
                 <Divider>Activity Timeline</Divider>
                 <Timeline mode="left">
-                  {activities.map((activity) => (
+                  {mockActivities.map((activity) => (
                     <Timeline.Item key={activity.id} label={activity.timestamp}>
                       <p>
                         <strong>{activity.action}</strong>

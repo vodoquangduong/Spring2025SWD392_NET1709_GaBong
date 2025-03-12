@@ -1,7 +1,6 @@
 import {
   Avatar,
   Badge,
-  Breadcrumb,
   Button,
   Card,
   Col,
@@ -16,7 +15,7 @@ import {
   Tag,
   Typography,
 } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaEdit,
   FaEye,
@@ -26,117 +25,45 @@ import {
   FaUserPlus,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { Account } from "../models/types";
+import { accountMngUsecase } from "../usecases/accountMngUsecase";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-
-interface Account {
-  accountId: number;
-  role: number;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  avatarURL: string;
-  birthday: string;
-  gender: number;
-  nationality: string;
-  reputationPoint: number;
-  totalCredit: number;
-  lockCredit: number;
-  createdAt: string;
-  status: number;
-}
-
-const mockAccounts: Account[] = [
-  {
-    accountId: 500,
-    role: 3,
-    name: "Lucius Gill",
-    email: "encyclopedia1839@outlook.com",
-    phone: "+15345702124",
-    address: "1147 Vara Green",
-    avatarURL: "https://i.pravatar.cc/500",
-    birthday: "1985-09-16T00:00:00Z",
-    gender: 0,
-    nationality: "Honduras",
-    reputationPoint: 451,
-    totalCredit: 5224.92,
-    lockCredit: 275.82,
-    createdAt: "2020-06-23T11:49:05.031297Z",
-    status: 0,
-  },
-  {
-    accountId: 501,
-    role: 3,
-    name: "Karey Wall",
-    email: "read1994@protonmail.com",
-    phone: "+1-551-048-7090",
-    address: "886 Clarendon Crescent",
-    avatarURL: "https://i.pravatar.cc/500",
-    birthday: "2004-07-06T00:00:00Z",
-    gender: 2,
-    nationality: "Seychelles",
-    reputationPoint: 550,
-    totalCredit: 3908.1,
-    lockCredit: 148.29,
-    createdAt: "2021-11-08T18:50:53.564098Z",
-    status: 0,
-  },
-  {
-    accountId: 502,
-    role: 2,
-    name: "Rosette Fowler",
-    email: "cnn1998@yahoo.com",
-    phone: "+1-321-783-2833",
-    address: "314 Roach Bridge",
-    avatarURL: "https://i.pravatar.cc/500",
-    birthday: "2000-03-14T00:00:00Z",
-    gender: 1,
-    nationality: "Oman",
-    reputationPoint: 350,
-    totalCredit: 6128.94,
-    lockCredit: 8.91,
-    createdAt: "2023-04-23T12:23:58.19176Z",
-    status: 0,
-  },
-];
 
 const AccountList: React.FC = () => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [roleFilter, setRoleFilter] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
-  const getRoleName = (role: number): string => {
-    switch (role) {
-      case 0:
-        return "Admin";
-      case 1:
-        return "Staff";
-      case 2:
-        return "Client";
-      case 3:
-        return "Freelancer";
-      default:
-        return "Unknown";
-    }
-  };
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      setLoading(true);
+      try {
+        const data = await accountMngUsecase.getAccounts();
+        setAccounts(data);
+      } catch (error) {
+        console.error("Error fetching accounts:", error);
+        message.error("Failed to load accounts");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const getStatusName = (status: number): string => {
-    switch (status) {
-      case 0:
-        return "Active";
-      case 1:
-        return "Inactive";
-      case 2:
-        return "Suspended";
-      default:
-        return "Unknown";
-    }
+    fetchAccounts();
+  }, []);
+
+  // This function now just displays a message since API is not available
+  const handleStatusAction = (account: Account) => {
+    const action = account.status === 0 ? "suspend" : "activate";
+    message.info(
+      `Status change API not implemented yet. Would ${action} ${account.name}`
+    );
   };
 
   const columns = [
@@ -165,7 +92,7 @@ const AccountList: React.FC = () => {
       dataIndex: "role",
       key: "role",
       render: (role: number) => {
-        const roleName = getRoleName(role);
+        const roleName = accountMngUsecase.getRoleName(role);
         let color = "default";
         if (role === 0) color = "purple";
         else if (role === 1) color = "blue";
@@ -179,7 +106,7 @@ const AccountList: React.FC = () => {
       dataIndex: "status",
       key: "status",
       render: (status: number) => {
-        const statusName = getStatusName(status);
+        const statusName = accountMngUsecase.getStatusName(status);
         let color = "success";
         if (status === 1) color = "warning";
         else if (status === 2) color = "error";
@@ -216,9 +143,7 @@ const AccountList: React.FC = () => {
             icon={<FaEye />}
             type="primary"
             size="small"
-            onClick={() =>
-              navigate(`/dashboard/admin/accounts/${record.accountId}`)
-            }
+            onClick={() => navigate(`/admin/accounts/${record.accountId}`)}
           />
           <Button
             icon={<FaEdit />}
@@ -230,14 +155,14 @@ const AccountList: React.FC = () => {
               icon={<FaLock />}
               danger
               size="small"
-              onClick={() => message.success(`User ${record.name} suspended`)}
+              onClick={() => handleStatusAction(record)}
             />
           ) : (
             <Button
               icon={<FaUnlock />}
               type="default"
               size="small"
-              onClick={() => message.success(`User ${record.name} activated`)}
+              onClick={() => handleStatusAction(record)}
             />
           )}
         </Space>
@@ -245,7 +170,7 @@ const AccountList: React.FC = () => {
     },
   ];
 
-  const filteredData = mockAccounts.filter((account) => {
+  const filteredData = accounts.filter((account) => {
     const matchesSearch =
       searchText === "" ||
       account.name.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -276,15 +201,6 @@ const AccountList: React.FC = () => {
 
   return (
     <div>
-      <Breadcrumb
-        items={[
-          { title: "Dashboard" },
-          { title: "Admin" },
-          { title: "Account Management" },
-        ]}
-        style={{ marginBottom: 16 }}
-      />
-
       <Title level={2}>Account Management</Title>
 
       <Card style={{ marginBottom: 16 }}>
@@ -348,7 +264,7 @@ const AccountList: React.FC = () => {
 
       <Modal
         title="Add New Account"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
       >

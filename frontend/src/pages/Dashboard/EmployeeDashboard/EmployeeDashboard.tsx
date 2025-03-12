@@ -4,7 +4,6 @@ import {
   FaClipboardList,
   FaCog,
   FaExclamationTriangle,
-  FaUsers,
   FaUserTie,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -13,11 +12,6 @@ const EmployeeDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   const menuItems = [
-    {
-      label: "Account Management",
-      icon: <FaUsers className="w-5 h-5" />,
-      path: "/dashboard/employee/accounts",
-    },
     {
       label: "Freelancer Management",
       icon: <FaUserTie className="w-5 h-5" />,
