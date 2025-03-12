@@ -1,12 +1,19 @@
+import useAuthStore from "@/stores/authStore";
 import { Layout, Menu } from "antd";
 import { useState } from "react";
-import { FaBox, FaRegCalendarAlt, FaUsers } from "react-icons/fa";
+import { BiMoneyWithdraw, BiSolidCategory } from "react-icons/bi";
+import {
+  FaBox,
+  FaCog,
+  FaExclamationTriangle,
+  FaRegCalendarAlt,
+  FaUsers,
+  FaUsersCog,
+} from "react-icons/fa";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import DashboardHeader from "../components/DashboardHeader";
 import Logo from "../components/Logo";
 import { Role } from "../types";
-import { BiMoneyWithdraw, BiSolidCategory } from "react-icons/bi";
-import useAuthStore from "@/stores/authStore";
 
 export default function DashboardLayout() {
   const location = useLocation();
@@ -21,7 +28,7 @@ export default function DashboardLayout() {
       icon: <FaBox />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.STAFF, Role.ADMIN],
+      allowedroles: [Role.STAFF],
     },
     {
       label: "Project",
@@ -29,7 +36,7 @@ export default function DashboardLayout() {
       icon: <FaRegCalendarAlt />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.STAFF, Role.ADMIN],
+      allowedroles: [Role.STAFF],
     },
     {
       label: "Category",
@@ -37,7 +44,7 @@ export default function DashboardLayout() {
       icon: <BiSolidCategory />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.STAFF, Role.ADMIN],
+      allowedroles: [Role.STAFF],
     },
     {
       label: "Freelancers",
@@ -45,7 +52,7 @@ export default function DashboardLayout() {
       icon: <FaUsers />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.STAFF, Role.ADMIN],
+      allowedroles: [Role.STAFF],
     },
     {
       label: "Withdraws",
@@ -53,7 +60,31 @@ export default function DashboardLayout() {
       icon: <BiMoneyWithdraw />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.STAFF, Role.ADMIN],
+      allowedroles: [Role.STAFF],
+    },
+    {
+      label: "Accounts",
+      key: "/admin/accounts",
+      icon: <FaUsersCog />,
+      className:
+        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
+      allowedroles: [Role.ADMIN],
+    },
+    {
+      label: "Reports",
+      key: "/admin/reports",
+      icon: <FaExclamationTriangle />,
+      className:
+        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
+      allowedroles: [Role.ADMIN],
+    },
+    {
+      label: "System Configuration",
+      key: "/admin/system-configuration",
+      icon: <FaCog />,
+      className:
+        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
+      allowedroles: [Role.ADMIN],
     },
   ];
 

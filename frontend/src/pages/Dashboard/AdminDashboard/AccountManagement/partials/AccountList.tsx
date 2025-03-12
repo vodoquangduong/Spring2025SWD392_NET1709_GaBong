@@ -1,452 +1,434 @@
+import {
+  Avatar,
+  Badge,
+  Breadcrumb,
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  message,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
 import React, { useState } from "react";
 import {
-  FaEnvelope,
+  FaEdit,
   FaEye,
-  FaFilter,
   FaLock,
-  FaPhone,
   FaSearch,
-  FaTimes,
-  FaUser,
+  FaUnlock,
   FaUserPlus,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { Account } from "../models/types";
 
-const mockData: Account[] = [
+const { Title, Text } = Typography;
+const { Option } = Select;
+
+interface Account {
+  accountId: number;
+  role: number;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  avatarURL: string;
+  birthday: string;
+  gender: number;
+  nationality: string;
+  reputationPoint: number;
+  totalCredit: number;
+  lockCredit: number;
+  createdAt: string;
+  status: number;
+}
+
+const mockAccounts: Account[] = [
   {
-    id: "ACC001",
-    username: "john.doe",
-    email: "john.doe@example.com",
-    fullName: "John Doe",
-    role: "staff",
-    status: "active",
-    lastLogin: "2024-02-20 10:30:00",
-    createdAt: "2023-01-15",
+    accountId: 500,
+    role: 3,
+    name: "Lucius Gill",
+    email: "encyclopedia1839@outlook.com",
+    phone: "+15345702124",
+    address: "1147 Vara Green",
+    avatarURL: "https://i.pravatar.cc/500",
+    birthday: "1985-09-16T00:00:00Z",
+    gender: 0,
+    nationality: "Honduras",
+    reputationPoint: 451,
+    totalCredit: 5224.92,
+    lockCredit: 275.82,
+    createdAt: "2020-06-23T11:49:05.031297Z",
+    status: 0,
+  },
+  {
+    accountId: 501,
+    role: 3,
+    name: "Karey Wall",
+    email: "read1994@protonmail.com",
+    phone: "+1-551-048-7090",
+    address: "886 Clarendon Crescent",
+    avatarURL: "https://i.pravatar.cc/500",
+    birthday: "2004-07-06T00:00:00Z",
+    gender: 2,
+    nationality: "Seychelles",
+    reputationPoint: 550,
+    totalCredit: 3908.1,
+    lockCredit: 148.29,
+    createdAt: "2021-11-08T18:50:53.564098Z",
+    status: 0,
+  },
+  {
+    accountId: 502,
+    role: 2,
+    name: "Rosette Fowler",
+    email: "cnn1998@yahoo.com",
+    phone: "+1-321-783-2833",
+    address: "314 Roach Bridge",
+    avatarURL: "https://i.pravatar.cc/500",
+    birthday: "2000-03-14T00:00:00Z",
+    gender: 1,
+    nationality: "Oman",
+    reputationPoint: 350,
+    totalCredit: 6128.94,
+    lockCredit: 8.91,
+    createdAt: "2023-04-23T12:23:58.19176Z",
+    status: 0,
   },
 ];
 
-const roles = ["admin", "staff", "client"];
-const statuses = ["active", "inactive", "suspended"];
-
 const AccountList: React.FC = () => {
   const navigate = useNavigate();
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newAccount, setNewAccount] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    username: "",
-    password: "",
-    role: "staff",
-  });
-  const [filters, setFilters] = useState({
-    role: "",
-    status: "",
-    search: "",
-  });
+  const [searchText, setSearchText] = useState("");
+  const [roleFilter, setRoleFilter] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [form] = Form.useForm();
 
-  const handleChangePage = (newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleAddAccount = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle add account logic here
-    console.log("New account:", newAccount);
-    setShowAddModal(false);
-    setNewAccount({
-      fullName: "",
-      email: "",
-      phone: "",
-      username: "",
-      password: "",
-      role: "staff",
-    });
-  };
-
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200";
-      case "inactive":
-        return "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200";
-      case "suspended":
-        return "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200";
-      default:
-        return "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
-    }
-  };
-
-  const getRoleClass = (role: string) => {
+  const getRoleName = (role: number): string => {
     switch (role) {
-      case "admin":
-        return "bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200";
-      case "staff":
-        return "bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200";
+      case 0:
+        return "Admin";
+      case 1:
+        return "Staff";
+      case 2:
+        return "Client";
+      case 3:
+        return "Freelancer";
       default:
-        return "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
+        return "Unknown";
     }
   };
 
-  // Filter data
-  const filteredData = mockData.filter((account) => {
-    const matchesRole = !filters.role || account.role === filters.role;
-    const matchesStatus = !filters.status || account.status === filters.status;
-    const searchTerm = filters.search.toLowerCase();
-    const matchesSearch =
-      !searchTerm ||
-      account.username.toLowerCase().includes(searchTerm) ||
-      account.email.toLowerCase().includes(searchTerm) ||
-      account.fullName.toLowerCase().includes(searchTerm);
+  const getStatusName = (status: number): string => {
+    switch (status) {
+      case 0:
+        return "Active";
+      case 1:
+        return "Inactive";
+      case 2:
+        return "Suspended";
+      default:
+        return "Unknown";
+    }
+  };
 
-    return matchesRole && matchesStatus && matchesSearch;
+  const columns = [
+    {
+      title: "ID",
+      dataIndex: "accountId",
+      key: "accountId",
+      width: 80,
+    },
+    {
+      title: "User",
+      dataIndex: "name",
+      key: "name",
+      render: (_: any, record: Account) => (
+        <Space>
+          <Avatar src={record.avatarURL} />
+          <Space direction="vertical" size={0}>
+            <Text strong>{record.name}</Text>
+            <Text type="secondary">{record.email}</Text>
+          </Space>
+        </Space>
+      ),
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      render: (role: number) => {
+        const roleName = getRoleName(role);
+        let color = "default";
+        if (role === 0) color = "purple";
+        else if (role === 1) color = "blue";
+        else if (role === 2) color = "green";
+        else if (role === 3) color = "geekblue";
+        return <Tag color={color}>{roleName}</Tag>;
+      },
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status: number) => {
+        const statusName = getStatusName(status);
+        let color = "success";
+        if (status === 1) color = "warning";
+        else if (status === 2) color = "error";
+        return <Badge status={color as any} text={statusName} />;
+      },
+    },
+    {
+      title: "Reputation",
+      dataIndex: "reputationPoint",
+      key: "reputationPoint",
+      sorter: (a: Account, b: Account) => a.reputationPoint - b.reputationPoint,
+    },
+    {
+      title: "Total Credit",
+      dataIndex: "totalCredit",
+      key: "totalCredit",
+      render: (credit: number) => `$${credit.toFixed(2)}`,
+      sorter: (a: Account, b: Account) => a.totalCredit - b.totalCredit,
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => new Date(date).toLocaleDateString(),
+      sorter: (a: Account, b: Account) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_: any, record: Account) => (
+        <Space size="middle">
+          <Button
+            icon={<FaEye />}
+            type="primary"
+            size="small"
+            onClick={() =>
+              navigate(`/dashboard/admin/accounts/${record.accountId}`)
+            }
+          />
+          <Button
+            icon={<FaEdit />}
+            size="small"
+            onClick={() => message.info(`Edit user ${record.name}`)}
+          />
+          {record.status === 0 ? (
+            <Button
+              icon={<FaLock />}
+              danger
+              size="small"
+              onClick={() => message.success(`User ${record.name} suspended`)}
+            />
+          ) : (
+            <Button
+              icon={<FaUnlock />}
+              type="default"
+              size="small"
+              onClick={() => message.success(`User ${record.name} activated`)}
+            />
+          )}
+        </Space>
+      ),
+    },
+  ];
+
+  const filteredData = mockAccounts.filter((account) => {
+    const matchesSearch =
+      searchText === "" ||
+      account.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      account.email.toLowerCase().includes(searchText.toLowerCase());
+
+    const matchesRole = roleFilter === null || account.role === roleFilter;
+    const matchesStatus =
+      statusFilter === null || account.status === statusFilter;
+
+    return matchesSearch && matchesRole && matchesStatus;
   });
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    form.resetFields();
+  };
+
+  const handleAddAccount = (values: any) => {
+    console.log("Form values:", values);
+    message.success("Account added successfully!");
+    setIsModalVisible(false);
+    form.resetFields();
+  };
 
   return (
-    <div className="p-6 bg-gray-100 dark:bg-[#141414]">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Account Management
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Manage and monitor all user accounts in the system
-        </p>
-      </div>
+    <div>
+      <Breadcrumb
+        items={[
+          { title: "Dashboard" },
+          { title: "Admin" },
+          { title: "Account Management" },
+        ]}
+        style={{ marginBottom: 16 }}
+      />
 
-      <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4 mb-6">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex flex-col md:flex-row gap-4 flex-1">
-            <div className="relative">
-              <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
-              <select
-                value={filters.role}
-                onChange={(e) =>
-                  setFilters({ ...filters, role: e.target.value })
-                }
-                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 w-full md:w-48 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
-              >
-                <option value="">All Roles</option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
+      <Title level={2}>Account Management</Title>
 
-            <div className="relative">
-              <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
-              <select
-                value={filters.status}
-                onChange={(e) =>
-                  setFilters({ ...filters, status: e.target.value })
-                }
-                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 w-full md:w-48 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
-              >
-                <option value="">All Statuses</option>
-                {statuses.map((status) => (
-                  <option key={status} value={status}>
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
+      <Card style={{ marginBottom: 16 }}>
+        <Row gutter={16}>
+          <Col span={8}>
+            <Input
+              placeholder="Search by name or email"
+              prefix={<FaSearch />}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              allowClear
+            />
+          </Col>
+          <Col span={4}>
+            <Select
+              placeholder="Filter by role"
+              style={{ width: "100%" }}
+              allowClear
+              onChange={(value) => setRoleFilter(value)}
+            >
+              <Option value={0}>Admin</Option>
+              <Option value={1}>Staff</Option>
+              <Option value={2}>Client</Option>
+              <Option value={3}>Freelancer</Option>
+            </Select>
+          </Col>
+          <Col span={4}>
+            <Select
+              placeholder="Filter by status"
+              style={{ width: "100%" }}
+              allowClear
+              onChange={(value) => setStatusFilter(value)}
+            >
+              <Option value={0}>Active</Option>
+              <Option value={1}>Inactive</Option>
+              <Option value={2}>Suspended</Option>
+            </Select>
+          </Col>
+          <Col span={8} style={{ textAlign: "right" }}>
+            <Button type="primary" icon={<FaUserPlus />} onClick={showModal}>
+              Add Account
+            </Button>
+          </Col>
+        </Row>
+      </Card>
 
-            <div className="relative flex-1">
-              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search by name, email or username"
-                value={filters.search}
-                onChange={(e) =>
-                  setFilters({ ...filters, search: e.target.value })
-                }
-                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 w-full bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              />
-            </div>
-          </div>
+      <Card>
+        <Table
+          columns={columns}
+          dataSource={filteredData}
+          rowKey="accountId"
+          loading={loading}
+          pagination={{
+            defaultPageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50"],
+            showTotal: (total) => `Total ${total} accounts`,
+          }}
+        />
+      </Card>
 
-          <button
-            className="inline-flex items-center px-4 py-2 bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors duration-200"
-            onClick={() => setShowAddModal(true)}
+      <Modal
+        title="Add New Account"
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+      >
+        <Form form={form} layout="vertical" onFinish={handleAddAccount}>
+          <Form.Item
+            name="name"
+            label="Full Name"
+            rules={[{ required: true, message: "Please enter full name" }]}
           >
-            <FaUserPlus className="mr-2" /> Add Account
-          </button>
-        </div>
-      </div>
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[
+              { required: true, message: "Please enter email" },
+              { type: "email", message: "Please enter valid email" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="phone"
+            label="Phone Number"
+            rules={[{ required: true, message: "Please enter phone number" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="role"
+            label="Role"
+            rules={[{ required: true, message: "Please select role" }]}
+          >
+            <Select>
+              <Option value={0}>Admin</Option>
+              <Option value={1}>Staff</Option>
+              <Option value={2}>Client</Option>
+              <Option value={3}>Freelancer</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="Password"
+            rules={[{ required: true, message: "Please enter password" }]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item
+            name="confirmPassword"
+            label="Confirm Password"
+            dependencies={["password"]}
+            rules={[
+              { required: true, message: "Please confirm password" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("Passwords do not match"));
+                },
+              }),
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
 
-      <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-zinc-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Account ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  User Info
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Username
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Last Login
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Created At
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-zinc-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredData
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                      {row.id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <img
-                          src={`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcazeHuAcZDzv4_61fPLT-S00XnaKXch2YWQ&s=${row.id}`}
-                          alt={row.fullName}
-                          className="h-10 w-10 rounded-full object-cover"
-                        />
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {row.fullName}
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {row.email}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {row.username}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={getRoleClass(row.role)}>
-                        {row.role.charAt(0).toUpperCase() + row.role.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={getStatusClass(row.status)}>
-                        {row.status.charAt(0).toUpperCase() +
-                          row.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {row.lastLogin}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {row.createdAt}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={() => navigate(`/employee/accounts/${row.id}`)}
-                        className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300"
-                      >
-                        <FaEye className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50 dark:bg-zinc-700 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-            <span>Rows per page:</span>
-            <select
-              value={rowsPerPage}
-              onChange={handleChangeRowsPerPage}
-              className="px-2 py-1 rounded-md bg-white dark:bg-zinc-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-emerald-500"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handleChangePage(page - 1)}
-              disabled={page === 0}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              Page {page + 1} of {Math.ceil(filteredData.length / rowsPerPage)}
-            </span>
-            <button
-              onClick={() => handleChangePage(page + 1)}
-              disabled={
-                page >= Math.ceil(filteredData.length / rowsPerPage) - 1
-              }
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Add Account Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-zinc-800 rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Add Staff Account
-              </h2>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              >
-                <FaTimes className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddAccount} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    value={newAccount.fullName}
-                    onChange={(e) =>
-                      setNewAccount({ ...newAccount, fullName: e.target.value })
-                    }
-                    className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
-                    placeholder="Enter full name"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email
-                </label>
-                <div className="relative">
-                  <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="email"
-                    value={newAccount.email}
-                    onChange={(e) =>
-                      setNewAccount({ ...newAccount, email: e.target.value })
-                    }
-                    className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
-                    placeholder="Enter email"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Phone
-                </label>
-                <div className="relative">
-                  <FaPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="tel"
-                    value={newAccount.phone}
-                    onChange={(e) =>
-                      setNewAccount({ ...newAccount, phone: e.target.value })
-                    }
-                    className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
-                    placeholder="Enter phone number"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Username
-                </label>
-                <div className="relative">
-                  <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    value={newAccount.username}
-                    onChange={(e) =>
-                      setNewAccount({ ...newAccount, username: e.target.value })
-                    }
-                    className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
-                    placeholder="Enter username"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Password
-                </label>
-                <div className="relative">
-                  <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="password"
-                    value={newAccount.password}
-                    onChange={(e) =>
-                      setNewAccount({ ...newAccount, password: e.target.value })
-                    }
-                    className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
-                    placeholder="Enter password"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white rounded-lg transition-colors"
-                >
-                  Add Account
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+          <Row gutter={16}>
+            <Col span={12}>
+              <Button block onClick={handleCancel}>
+                Cancel
+              </Button>
+            </Col>
+            <Col span={12}>
+              <Button type="primary" htmlType="submit" block>
+                Add Account
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
     </div>
   );
 };

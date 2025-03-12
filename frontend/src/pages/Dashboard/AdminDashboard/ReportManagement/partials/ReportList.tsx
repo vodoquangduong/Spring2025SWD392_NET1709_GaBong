@@ -6,11 +6,9 @@ import {
   Input,
   Row,
   Select,
-  Space,
   Statistic,
   Table,
   Tag,
-  Tooltip,
   Typography,
 } from "antd";
 import React, { useState } from "react";
@@ -25,314 +23,261 @@ import { useNavigate } from "react-router-dom";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-// Mock data for reports
-const mockReports = [
+interface Report {
+  reportId: number;
+  senderId: number;
+  senderName?: string;
+  senderEmail?: string;
+  projectId: number;
+  projectName?: string;
+  verifyStaffId: number | null;
+  verifyStaffName?: string;
+  createdAt: string;
+  reason: string;
+  status: number;
+  priority?: "high" | "medium" | "low";
+  category?: string;
+}
+
+const mockReports: Report[] = [
   {
-    id: 1,
-    reporter: "Nguyễn Văn A",
-    reporterEmail: "nguyenvana@example.com",
-    reportedUser: "Trần Văn B",
-    reportedUserEmail: "tranvanb@example.com",
-    reason: "Không hoàn thành dự án đúng thời hạn",
-    description:
-      "Freelancer đã không hoàn thành dự án theo thời gian đã thỏa thuận và không thông báo trước.",
-    status: "pending",
-    date: "2023-10-15",
-    category: "project",
+    reportId: 4,
+    senderId: 34,
+    senderName: "John Smith",
+    senderEmail: "john.smith@example.com",
+    projectId: 37,
+    projectName: "Website Redesign Project",
+    verifyStaffId: null,
+    createdAt: "February 26, 2025",
+    reason: "Freelancer didn't deliver the work on time",
+    status: 0,
     priority: "high",
+    category: "deadline",
   },
   {
-    id: 2,
-    reporter: "Lê Thị C",
-    reporterEmail: "lethic@example.com",
-    reportedUser: "Phạm Văn D",
-    reportedUserEmail: "phamvand@example.com",
-    reason: "Thanh toán không đúng hạn",
-    description:
-      "Khách hàng đã không thanh toán đúng hạn theo hợp đồng đã ký kết.",
-    status: "resolved",
-    date: "2023-10-14",
-    category: "payment",
+    reportId: 5,
+    senderId: 42,
+    senderName: "Sarah Johnson",
+    senderEmail: "sarah.j@example.com",
+    projectId: 23,
+    projectName: "Mobile App Development",
+    verifyStaffId: 2,
+    verifyStaffName: "Admin Staff",
+    createdAt: "February 25, 2025",
+    reason: "Poor quality of deliverables",
+    status: 1,
     priority: "medium",
-  },
-  {
-    id: 3,
-    reporter: "Hoàng Văn E",
-    reporterEmail: "hoangvane@example.com",
-    reportedUser: "Vũ Thị F",
-    reportedUserEmail: "vuthif@example.com",
-    reason: "Giao tiếp không chuyên nghiệp",
-    description:
-      "Freelancer có thái độ không chuyên nghiệp trong quá trình làm việc và giao tiếp.",
-    status: "pending",
-    date: "2023-10-13",
-    category: "communication",
-    priority: "low",
-  },
-  {
-    id: 4,
-    reporter: "Đỗ Văn G",
-    reporterEmail: "dovang@example.com",
-    reportedUser: "Ngô Thị H",
-    reportedUserEmail: "ngothih@example.com",
-    reason: "Chất lượng sản phẩm không đạt yêu cầu",
-    description:
-      "Sản phẩm được giao không đáp ứng các yêu cầu đã thỏa thuận từ đầu.",
-    status: "pending",
-    date: "2023-10-12",
     category: "quality",
+  },
+  {
+    reportId: 6,
+    senderId: 18,
+    senderName: "Robert Williams",
+    senderEmail: "robert.w@example.com",
+    projectId: 45,
+    projectName: "Logo Design Contest",
+    verifyStaffId: null,
+    createdAt: "February 24, 2025",
+    reason: "Communication issues with the client",
+    status: 0,
+    priority: "low",
+    category: "communication",
+  },
+  {
+    reportId: 7,
+    senderId: 51,
+    senderName: "Emily Davis",
+    senderEmail: "emily.d@example.com",
+    projectId: 19,
+    projectName: "Content Writing Project",
+    verifyStaffId: 3,
+    verifyStaffName: "Support Staff",
+    createdAt: "February 23, 2025",
+    reason: "Payment dispute",
+    status: 2,
     priority: "high",
-  },
-  {
-    id: 5,
-    reporter: "Trịnh Văn I",
-    reporterEmail: "trinhvani@example.com",
-    reportedUser: "Mai Thị K",
-    reportedUserEmail: "maithik@example.com",
-    reason: "Vi phạm điều khoản dịch vụ",
-    description:
-      "Người dùng đã đăng nội dung vi phạm điều khoản dịch vụ của nền tảng.",
-    status: "resolved",
-    date: "2023-10-11",
-    category: "terms",
-    priority: "high",
-  },
-  {
-    id: 6,
-    reporter: "Lý Văn L",
-    reporterEmail: "lyvanl@example.com",
-    reportedUser: "Đinh Thị M",
-    reportedUserEmail: "dinhthim@example.com",
-    reason: "Lừa đảo",
-    description:
-      "Người dùng có hành vi lừa đảo, nhận tiền nhưng không thực hiện công việc.",
-    status: "pending",
-    date: "2023-10-10",
-    category: "fraud",
-    priority: "high",
-  },
-  {
-    id: 7,
-    reporter: "Phan Văn N",
-    reporterEmail: "phanvann@example.com",
-    reportedUser: "Bùi Thị O",
-    reportedUserEmail: "buithio@example.com",
-    reason: "Hủy dự án không có lý do",
-    description:
-      "Khách hàng đã hủy dự án mà không có lý do chính đáng sau khi công việc đã được thực hiện một phần.",
-    status: "pending",
-    date: "2023-10-09",
-    category: "project",
-    priority: "medium",
-  },
-  {
-    id: 8,
-    reporter: "Dương Văn P",
-    reporterEmail: "duongvanp@example.com",
-    reportedUser: "Hồ Thị Q",
-    reportedUserEmail: "hothiq@example.com",
-    reason: "Sao chép nội dung",
-    description:
-      "Freelancer đã sao chép nội dung từ nguồn khác mà không được phép.",
-    status: "resolved",
-    date: "2023-10-08",
-    category: "copyright",
-    priority: "medium",
+    category: "payment",
   },
 ];
 
 const ReportList: React.FC = () => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<number | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<string | null>(null);
+  const [loading] = useState(false);
 
-  // Statistics for reports
-  const statistics = [
-    {
-      title: "Tổng số báo cáo",
-      value: mockReports.length,
-      color: "blue",
-    },
-    {
-      title: "Chưa xử lý",
-      value: mockReports.filter((report) => report.status === "pending").length,
-      color: "red",
-    },
-    {
-      title: "Đã xử lý",
-      value: mockReports.filter((report) => report.status === "resolved")
-        .length,
-      color: "green",
-    },
-  ];
+  const getStatusText = (status: number): string => {
+    switch (status) {
+      case 0:
+        return "Pending";
+      case 1:
+        return "Investigating";
+      case 2:
+        return "Resolved";
+      default:
+        return "Unknown";
+    }
+  };
 
-  // Filter reports based on search and filters
-  const filteredReports = mockReports.filter((report) => {
-    const matchesSearch =
-      searchText === "" ||
-      report.reporter.toLowerCase().includes(searchText.toLowerCase()) ||
-      report.reportedUser.toLowerCase().includes(searchText.toLowerCase()) ||
-      report.reason.toLowerCase().includes(searchText.toLowerCase());
+  const getStatusColor = (status: number) => {
+    switch (status) {
+      case 0:
+        return "orange";
+      case 1:
+        return "blue";
+      case 2:
+        return "green";
+      default:
+        return "default";
+    }
+  };
 
-    const matchesStatus = !statusFilter || report.status === statusFilter;
-    const matchesCategory =
-      !categoryFilter || report.category === categoryFilter;
-    const matchesPriority =
-      !priorityFilter || report.priority === priorityFilter;
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "high":
+        return "red";
+      case "medium":
+        return "orange";
+      case "low":
+        return "green";
+      default:
+        return "default";
+    }
+  };
 
-    return matchesSearch && matchesStatus && matchesCategory && matchesPriority;
-  });
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "deadline":
+        return "purple";
+      case "quality":
+        return "cyan";
+      case "communication":
+        return "blue";
+      case "payment":
+        return "gold";
+      default:
+        return "default";
+    }
+  };
 
-  // Table columns
   const columns = [
     {
       title: "ID",
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "reportId",
+      key: "reportId",
       width: 60,
     },
     {
-      title: "Người báo cáo",
-      dataIndex: "reporter",
-      key: "reporter",
-      render: (text: string, record: any) => (
-        <Tooltip title={record.reporterEmail}>
-          <span>{text}</span>
-        </Tooltip>
+      title: "Reporter",
+      dataIndex: "senderName",
+      key: "senderName",
+      render: (_: string, record: Report) => (
+        <span>
+          {record.senderName}
+          <div>
+            <Text type="secondary" style={{ fontSize: "12px" }}>
+              {record.senderEmail}
+            </Text>
+          </div>
+        </span>
       ),
     },
     {
-      title: "Người bị báo cáo",
-      dataIndex: "reportedUser",
-      key: "reportedUser",
-      render: (text: string, record: any) => (
-        <Tooltip title={record.reportedUserEmail}>
-          <span>{text}</span>
-        </Tooltip>
-      ),
+      title: "Project",
+      dataIndex: "projectName",
+      key: "projectName",
     },
     {
-      title: "Lý do",
+      title: "Reason",
       dataIndex: "reason",
       key: "reason",
       ellipsis: true,
     },
     {
-      title: "Danh mục",
+      title: "Category",
       dataIndex: "category",
       key: "category",
-      render: (category: string) => {
-        let color = "blue";
-        switch (category) {
-          case "project":
-            color = "blue";
-            break;
-          case "payment":
-            color = "gold";
-            break;
-          case "communication":
-            color = "purple";
-            break;
-          case "quality":
-            color = "orange";
-            break;
-          case "terms":
-            color = "red";
-            break;
-          case "fraud":
-            color = "magenta";
-            break;
-          case "copyright":
-            color = "cyan";
-            break;
-          default:
-            color = "blue";
-        }
-        return (
-          <Tag color={color}>
-            {category === "project"
-              ? "Dự án"
-              : category === "payment"
-              ? "Thanh toán"
-              : category === "communication"
-              ? "Giao tiếp"
-              : category === "quality"
-              ? "Chất lượng"
-              : category === "terms"
-              ? "Điều khoản"
-              : category === "fraud"
-              ? "Lừa đảo"
-              : category === "copyright"
-              ? "Bản quyền"
-              : category}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: "Mức độ",
-      dataIndex: "priority",
-      key: "priority",
-      render: (priority: string) => {
-        let color = "blue";
-        if (priority === "high") {
-          color = "red";
-        } else if (priority === "medium") {
-          color = "orange";
-        } else if (priority === "low") {
-          color = "green";
-        }
-        return (
-          <Tag color={color}>
-            {priority === "high"
-              ? "Cao"
-              : priority === "medium"
-              ? "Trung bình"
-              : "Thấp"}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => (
-        <Tag
-          icon={
-            status === "pending" ? <FaExclamationTriangle /> : <FaCheckCircle />
-          }
-          color={status === "pending" ? "volcano" : "green"}
-        >
-          {status === "pending" ? "Chưa xử lý" : "Đã xử lý"}
+      render: (category: string) => (
+        <Tag color={getCategoryColor(category)}>
+          {category.charAt(0).toUpperCase() + category.slice(1)}
         </Tag>
       ),
     },
     {
-      title: "Ngày báo cáo",
-      dataIndex: "date",
-      key: "date",
-      sorter: (a: any, b: any) =>
-        new Date(a.date).getTime() - new Date(b.date).getTime(),
+      title: "Priority",
+      dataIndex: "priority",
+      key: "priority",
+      render: (priority: string) => (
+        <Tag color={getPriorityColor(priority)}>
+          {priority.charAt(0).toUpperCase() + priority.slice(1)}
+        </Tag>
+      ),
     },
     {
-      title: "Hành động",
-      key: "action",
-      render: (_: any, record: any) => (
-        <Space size="small">
-          <Button
-            type="primary"
-            icon={<FaEye />}
-            onClick={() => navigate(`/dashboard/admin/reports/${record.id}`)}
-          >
-            Chi tiết
-          </Button>
-        </Space>
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status: number) => (
+        <Tag
+          icon={status === 2 ? <FaCheckCircle /> : <FaExclamationTriangle />}
+          color={getStatusColor(status)}
+        >
+          {getStatusText(status)}
+        </Tag>
+      ),
+    },
+    {
+      title: "Date",
+      dataIndex: "createdAt",
+      key: "createdAt",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_: any, record: Report) => (
+        <Button
+          type="primary"
+          icon={<FaEye />}
+          size="small"
+          onClick={() =>
+            navigate(`/dashboard/admin/reports/${record.reportId}`)
+          }
+        >
+          View
+        </Button>
       ),
     },
   ];
+
+  const filteredReports = mockReports.filter((report) => {
+    const matchesSearch =
+      searchText === "" ||
+      (report.senderName &&
+        report.senderName.toLowerCase().includes(searchText.toLowerCase())) ||
+      (report.projectName &&
+        report.projectName.toLowerCase().includes(searchText.toLowerCase())) ||
+      report.reason.toLowerCase().includes(searchText.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === null || report.status === statusFilter;
+    const matchesCategory =
+      categoryFilter === null || report.category === categoryFilter;
+    const matchesPriority =
+      priorityFilter === null || report.priority === priorityFilter;
+
+    return matchesSearch && matchesStatus && matchesCategory && matchesPriority;
+  });
+
+  // Statistics
+  const totalReports = mockReports.length;
+  const pendingReports = mockReports.filter(
+    (report) => report.status === 0
+  ).length;
+  const resolvedReports = mockReports.filter(
+    (report) => report.status === 2
+  ).length;
 
   return (
     <div>
@@ -340,80 +285,94 @@ const ReportList: React.FC = () => {
         items={[
           { title: "Dashboard" },
           { title: "Admin" },
-          { title: "Quản lý báo cáo" },
+          { title: "Report Management" },
         ]}
-        className="mb-4"
+        style={{ marginBottom: 16 }}
       />
 
-      <Title level={2}>Quản lý báo cáo</Title>
+      <Title level={2}>Report Management</Title>
 
       {/* Statistics */}
-      <Row gutter={[16, 16]} className="mb-6">
-        {statistics.map((stat, index) => (
-          <Col xs={24} sm={8} key={index}>
-            <Card bordered={false} className="h-full shadow-sm">
-              <Statistic
-                title={<Text strong>{stat.title}</Text>}
-                value={stat.value}
-                valueStyle={{ color: `var(--ant-color-${stat.color})` }}
-              />
-            </Card>
-          </Col>
-        ))}
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col xs={24} sm={8}>
+          <Card>
+            <Statistic
+              title="Total Reports"
+              value={totalReports}
+              valueStyle={{ color: "#1677ff" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <Card>
+            <Statistic
+              title="Pending Reports"
+              value={pendingReports}
+              valueStyle={{ color: "#fa8c16" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <Card>
+            <Statistic
+              title="Resolved Reports"
+              value={resolvedReports}
+              valueStyle={{ color: "#52c41a" }}
+            />
+          </Card>
+        </Col>
       </Row>
 
       {/* Filters */}
-      <Card className="mb-4">
-        <Space direction="vertical" className="w-full">
-          <Row gutter={[16, 16]} align="middle">
-            <Col xs={24} md={8}>
-              <Input
-                placeholder="Tìm kiếm theo người dùng hoặc lý do"
-                prefix={<FaSearch />}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                allowClear
-              />
-            </Col>
-            <Col xs={24} md={16}>
-              <Space wrap>
-                <Select
-                  placeholder="Trạng thái"
-                  style={{ width: 150 }}
-                  allowClear
-                  onChange={(value) => setStatusFilter(value)}
-                >
-                  <Option value="pending">Chưa xử lý</Option>
-                  <Option value="resolved">Đã xử lý</Option>
-                </Select>
-                <Select
-                  placeholder="Danh mục"
-                  style={{ width: 150 }}
-                  allowClear
-                  onChange={(value) => setCategoryFilter(value)}
-                >
-                  <Option value="project">Dự án</Option>
-                  <Option value="payment">Thanh toán</Option>
-                  <Option value="communication">Giao tiếp</Option>
-                  <Option value="quality">Chất lượng</Option>
-                  <Option value="terms">Điều khoản</Option>
-                  <Option value="fraud">Lừa đảo</Option>
-                  <Option value="copyright">Bản quyền</Option>
-                </Select>
-                <Select
-                  placeholder="Mức độ"
-                  style={{ width: 150 }}
-                  allowClear
-                  onChange={(value) => setPriorityFilter(value)}
-                >
-                  <Option value="high">Cao</Option>
-                  <Option value="medium">Trung bình</Option>
-                  <Option value="low">Thấp</Option>
-                </Select>
-              </Space>
-            </Col>
-          </Row>
-        </Space>
+      <Card style={{ marginBottom: 16 }}>
+        <Row gutter={16}>
+          <Col xs={24} md={6}>
+            <Input
+              placeholder="Search by reporter, project or reason"
+              prefix={<FaSearch />}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              allowClear
+            />
+          </Col>
+          <Col xs={24} md={6}>
+            <Select
+              placeholder="Filter by status"
+              style={{ width: "100%" }}
+              allowClear
+              onChange={(value) => setStatusFilter(value)}
+            >
+              <Option value={0}>Pending</Option>
+              <Option value={1}>Investigating</Option>
+              <Option value={2}>Resolved</Option>
+            </Select>
+          </Col>
+          <Col xs={24} md={6}>
+            <Select
+              placeholder="Filter by category"
+              style={{ width: "100%" }}
+              allowClear
+              onChange={(value) => setCategoryFilter(value)}
+            >
+              <Option value="deadline">Deadline</Option>
+              <Option value="quality">Quality</Option>
+              <Option value="communication">Communication</Option>
+              <Option value="payment">Payment</Option>
+            </Select>
+          </Col>
+          <Col xs={24} md={6}>
+            <Select
+              placeholder="Filter by priority"
+              style={{ width: "100%" }}
+              allowClear
+              onChange={(value) => setPriorityFilter(value)}
+            >
+              <Option value="high">High</Option>
+              <Option value="medium">Medium</Option>
+              <Option value="low">Low</Option>
+            </Select>
+          </Col>
+        </Row>
       </Card>
 
       {/* Reports Table */}
@@ -421,12 +380,13 @@ const ReportList: React.FC = () => {
         <Table
           columns={columns}
           dataSource={filteredReports}
-          rowKey="id"
+          rowKey="reportId"
+          loading={loading}
           pagination={{
-            pageSize: 10,
+            defaultPageSize: 10,
             showSizeChanger: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} của ${total} báo cáo`,
+            pageSizeOptions: ["10", "20", "50"],
+            showTotal: (total) => `Total ${total} reports`,
           }}
         />
       </Card>

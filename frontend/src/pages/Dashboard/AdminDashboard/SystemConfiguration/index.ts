@@ -1,1 +1,1 @@
-export { default as AccountManagement } from "./SystemConfiguration";
+export { default } from "./SystemConfiguration";

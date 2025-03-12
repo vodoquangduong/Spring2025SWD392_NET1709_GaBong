@@ -1,2 +1,3 @@
-export { default as AccountManagement } from "./AccountManagement";
-export { AccountDetail, AccountList } from "./partials";
+export { default } from "./AccountManagement";
+export { default as AccountDetail } from "./partials/AccountDetail";
+export { default as AccountList } from "./partials/AccountList";
