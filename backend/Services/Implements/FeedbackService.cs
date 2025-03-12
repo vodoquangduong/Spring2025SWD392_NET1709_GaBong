@@ -1,3 +1,4 @@
+using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Feedback;
@@ -12,10 +13,12 @@ namespace Services.Implements
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currenUserService;
-        public FeedbackService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
+        private readonly IMapper _mapper;
+        public FeedbackService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _currenUserService = currentUserService;
+            _mapper = mapper;
         }
         public async Task<Result<FeedbackDTO>> CreateFeedbackAsync(CreateFeedbackDTO feedbackDTO)
         {
@@ -38,10 +41,10 @@ namespace Services.Implements
                 {
                     return Result.Failure<FeedbackDTO>(new Error("Create portfolio failed", $"You must be the client of this project to create feedback"));
                 }
-                var newFeedback = feedbackDTO.ToFeedback();
+                var newFeedback = _mapper.Map<Feedback>(feedbackDTO);
                 await _unitOfWork.GetRepo<Feedback>().CreateAsync(newFeedback);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(newFeedback.ToFeedbackDTO());
+                return Result.Success(_mapper.Map<FeedbackDTO>(newFeedback));
             }
             catch(Exception e)
             {
@@ -54,7 +57,7 @@ namespace Services.Implements
             try
             {
                 var feedbacks = await _unitOfWork.GetRepo<Feedback>().GetAllAsync(new QueryOptions<Feedback>());
-                return Result.Success(feedbacks.Select(p => p.ToFeedbackDTO()));
+                return Result.Success(feedbacks.Select(_mapper.Map<FeedbackDTO>));
             }
             catch(Exception e)
             {
@@ -77,7 +80,7 @@ namespace Services.Implements
             .WithOrderBy(o => o.OrderByDescending(f => f.CreatedAt))
             .Build();
             var feedbacks = await _unitOfWork.GetRepo<Feedback>().GetAllAsync(queryOptions);
-            return Result.Success(feedbacks.Select(feedback => feedback.ToFeedbackDTO()));
+            return Result.Success(feedbacks.Select(_mapper.Map<FeedbackDTO>));
         }
 
         public async Task<Result<FeedbackDTO>> GetFeedbackByProjectIdAsync(long projectId)
@@ -96,7 +99,7 @@ namespace Services.Implements
                 {
                     Predicate = f => f.ProjectId == projectId
                 });
-                return Result.Success(feedback!.ToFeedbackDTO());
+                return Result.Success(_mapper.Map<FeedbackDTO>(feedback));
             }
             catch(Exception e)
             {
@@ -131,10 +134,10 @@ namespace Services.Implements
                 {
                     return Result.Failure<FeedbackDTO>(new Error("Update feedback failed", "There is feedback in this project"));
                 }
-                feedback.ToFeedback(updateDTO);
+                _mapper.Map(updateDTO, feedback);
                 await _unitOfWork.GetRepo<Feedback>().UpdateAsync(feedback);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(feedback.ToFeedbackDTO());
+                return Result.Success(_mapper.Map<FeedbackDTO>(feedback));
             }
             catch(Exception e)
             {

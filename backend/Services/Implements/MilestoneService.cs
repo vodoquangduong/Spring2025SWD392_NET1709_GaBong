@@ -1,3 +1,4 @@
+using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Milestone;
@@ -13,10 +14,12 @@ namespace Services.Implements
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
-        public MilestoneService(IUnitOfWork unitOfWork, IConfiguration configuration)
+        private readonly IMapper _mapper;
+        public MilestoneService(IUnitOfWork unitOfWork, IConfiguration configuration, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _mapper = mapper;
         }
         public async Task<Result<MilestoneDTO>> CreateMilestoneAsync(CreateMilestoneDTO createMilstoneDTO)
         {
@@ -46,18 +49,11 @@ namespace Services.Implements
                 {
                     return Result.Failure<MilestoneDTO>(new Error("Create milestone failed", "Amount must be less than or equal to project budget"));
                 }
-                var milestone = new Milestone
-                {
-                    ProjectId = createMilstoneDTO.ProjectId,
-                    MilestoneName = createMilstoneDTO.MilestoneName,
-                    MilestoneDescription = createMilstoneDTO.Description,
-                    Status = MilestoneStatus.NotStarted,
-                    DeadlineDate = createMilstoneDTO.Deadline,
-                    PayAmount = createMilstoneDTO.Amount
-                };
+                var milestone = _mapper.Map<Milestone>(createMilstoneDTO);
+                milestone.Status = MilestoneStatus.NotStarted;
                 var result = await _unitOfWork.GetRepo<Milestone>().CreateAsync(milestone);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(result.ToMilestoneDTO());
+                return Result.Success(_mapper.Map<MilestoneDTO>(result));
             }
             catch (Exception e)
             {
@@ -226,7 +222,7 @@ namespace Services.Implements
             try
             {
                 var milestones = await _unitOfWork.GetRepo<Milestone>().GetAllAsync(new QueryOptions<Milestone>());
-                return Result.Success(milestones.Select(milestone => milestone.ToMilestoneDTO()));
+                return Result.Success(milestones.Select(_mapper.Map<MilestoneDTO>));
             }
             catch (Exception e)
             {
@@ -247,7 +243,7 @@ namespace Services.Implements
                 {
                     return Result.Failure<MilestoneDTO>(new Error("Milestone not found", $"Milestone with project id {id}"));
                 }
-                return Result.Success(milestone.ToMilestoneDTO());
+                return Result.Success(_mapper.Map<MilestoneDTO>(milestone));
             }
             catch (Exception e)
             {
@@ -268,15 +264,10 @@ namespace Services.Implements
                 {
                     return Result.Failure<MilestoneDTO>(new Error("Milestone not found", $"Milestone with id {milestoneId}"));
                 }
-                milestone.MilestoneName = updateMilestoneDTO.MilestoneName;
-                milestone.Status = updateMilestoneDTO.Status;
-                milestone.DeadlineDate = updateMilestoneDTO.Deadline;
-                milestone.MilestoneDescription = updateMilestoneDTO.Description;
-                milestone.PayAmount = updateMilestoneDTO.Amount;
-
+                _mapper.Map(updateMilestoneDTO, milestone);
                 await _unitOfWork.GetRepo<Milestone>().UpdateAsync(milestone);
                 await _unitOfWork.SaveChangesAsync();
-                return milestone.ToMilestoneDTO();
+                return _mapper.Map<MilestoneDTO>(milestone);
             }
             catch (Exception e)
             {

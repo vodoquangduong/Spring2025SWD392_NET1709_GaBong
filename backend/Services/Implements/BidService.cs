@@ -2,7 +2,6 @@
 using BusinessObjects.Models;
 using Helpers.DTOs.Bid;
 using Helpers.HelperClasses;
-using Helpers.Mappers;
 using Microsoft.Extensions.Configuration;
 using Repositories.Queries;
 using Services.Interfaces;
@@ -95,7 +94,7 @@ namespace Services.Implements
                 {
                     return Result.Failure<PaginatedResult<BidDTO>>(new Error("No bids found", "No bids found"));
                 }
-                var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, bid => _mapper.Map<BidDTO>(bid));
+                var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, _mapper.Map<BidDTO>);
                 return Result.Success(paginatedBids);
             }
             catch (Exception e)
@@ -114,7 +113,7 @@ namespace Services.Implements
                .WithPredicate(bid => bid.ProjectId == projectId)
                .Build();
                 var bids = _unitOfWork.GetRepo<Bid>().Get(queryOptions);
-                var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, bid => _mapper.Map<BidDTO>(bid));
+                var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, _mapper.Map<BidDTO>);
                 return Result.Success(paginatedBids);
             }
             catch (Exception e)

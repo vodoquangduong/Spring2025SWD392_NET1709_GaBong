@@ -1,9 +1,9 @@
+using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Account;
 using Helpers.DTOs.Authentication;
 using Helpers.HelperClasses;
-using Helpers.Mappers;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -13,11 +13,12 @@ public class AccountService : IAccountService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUserService;
-
-    public AccountService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
+    private readonly IMapper _mapper;
+    public AccountService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
         _currentUserService = currentUserService;
+        _mapper = mapper;
     }
 
     public async Task<Result<PaginatedResult<AccountDTO>>> GetAllAccountAsync(int pageNumber, int pageSize)
@@ -28,7 +29,7 @@ public class AccountService : IAccountService
             .WithTracking(false) // No tracking for efficient
             .Build();
             var accounts = _unitOfWork.GetRepo<Account>().Get(queryOptions);
-            var paginatedAccounts = await Pagination.ApplyPaginationAsync(accounts, pageNumber, pageSize, account => account.ToAccountDTO());
+            var paginatedAccounts = await Pagination.ApplyPaginationAsync(accounts, pageNumber, pageSize, _mapper.Map<AccountDTO>);
             return Result.Success(paginatedAccounts);
         }
         catch (Exception e)
@@ -47,7 +48,7 @@ public class AccountService : IAccountService
 
         if (account == null) return null;
 
-        return account.ToAccountDTO();
+        return _mapper.Map<AccountDTO>(account);
     }
 
     public async Task<Account> GetAccountByEmailAsync(string email)
@@ -105,7 +106,7 @@ public class AccountService : IAccountService
                                 && a.Status == BusinessObjects.Enums.AccountStatus.Active)
                 .Build();
             var accounts = _unitOfWork.GetRepo<Account>().Get(queryOptions);
-            var paginatedAccounts = await Pagination.ApplyPaginationAsync<Account, AccountDTO>(accounts, pageNumber, pageSize, a => a.ToAccountDTO());
+            var paginatedAccounts = await Pagination.ApplyPaginationAsync<Account, AccountDTO>(accounts, pageNumber, pageSize, _mapper.Map<AccountDTO>);
             return Result.Success(paginatedAccounts);
         }
         catch (Exception e)
@@ -183,10 +184,10 @@ public class AccountService : IAccountService
                 .WithPredicate(a => a.AccountId == _currentUserService.AccountId)
                 .Build();
             var existedAccount = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryOptions);
-            existedAccount?.ToAccount(accountDto);
+            _mapper.Map(accountDto, existedAccount);
             await _unitOfWork.GetRepo<Account>().UpdateAsync(existedAccount!);
             await _unitOfWork.SaveChangesAsync();
-            return Result.Success(existedAccount!.ToAccountDTO());
+            return Result.Success(_mapper.Map<AccountDTO>(existedAccount));
         }
         catch (Exception e)
         {
@@ -219,7 +220,7 @@ public class AccountService : IAccountService
             existedAccount.Status = Enum.Parse<AccountStatus>(updateAccountStatusDTO.Status);
             await _unitOfWork.GetRepo<Account>().UpdateAsync(existedAccount);
             await _unitOfWork.SaveChangesAsync();
-            return Result.Success(existedAccount.ToAccountDTO());
+            return Result.Success(_mapper.Map<AccountDTO>(existedAccount));
         }
         catch (Exception e)
         {

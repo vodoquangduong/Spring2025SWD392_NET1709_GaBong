@@ -3,21 +3,18 @@ using Helpers.DTOs.Chat;
 using Helpers.Mappers;
 using Repositories.Queries;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AutoMapper;
 
 namespace Services.Implements
 {
     public class MessageService : IMessageService
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        public MessageService(IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+        public MessageService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<Messages>> GetChatRoomMessagesAsync(long chatRoomId)
@@ -31,7 +28,7 @@ namespace Services.Implements
 
         public async Task<Messages> CreateMessagesAsync(MessageDTO messageDTO)
         {
-           var createdMessage = await _unitOfWork.GetRepo<Messages>().CreateAsync(messageDTO.ToMessage());
+           var createdMessage = await _unitOfWork.GetRepo<Messages>().CreateAsync(_mapper.Map<Messages>(messageDTO));
             await _unitOfWork.SaveChangesAsync();
             return createdMessage;
         }
