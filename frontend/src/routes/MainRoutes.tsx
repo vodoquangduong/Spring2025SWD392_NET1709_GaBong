@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import PageNotFound from "../components/PageNotFound";
 import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
-import { AccountManagement } from "../pages/Dashboard/EmployeeDashboard/AccountManagement";
 import { FreelancerManagement } from "../pages/Dashboard/EmployeeDashboard/FreelancerManagement";
 import {
   ProjectDetail as DashboardProjectDetail,
@@ -13,41 +12,47 @@ import { ServiceManagement } from "../pages/Dashboard/EmployeeDashboard/ServiceM
 // import { UserDetail, UserList } from "../pages/Dashboard/UserManager";
 import PrivateRoute from "@/components/PrivateRoute";
 import { CategoryManagement } from "@/pages/Dashboard/EmployeeDashboard/CategoryManagement";
+import {
+  WithdrawDetail,
+  WithdrawList,
+} from "@/pages/Dashboard/EmployeeDashboard/WithdrawManagement";
 import { MakeContract } from "@/pages/MakeContract";
 import Transaction from "@/pages/Manage/partials/TransactionHistory";
 import { Payment, PaymentSuccess } from "@/pages/Payment";
 import PostProject from "@/pages/PostProject/PostProject";
+import { NotifyGmailChecking, VerifyGmail } from "@/pages/VerifyGmail";
+import { Withdraw } from "@/pages/Withdraw";
 import { Role } from "@/types";
 import ForgotPassword from "../pages/ForgotPassword";
 import { Freelancer } from "../pages/Freelancer";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import {
+  Feedback,
   Manage,
-  Dashboard as UserDashboard,
   MyProject,
   Notification,
   Proposal,
-  Feedback,
+  Dashboard as UserDashboard,
 } from "../pages/Manage";
 import { Policy } from "../pages/Policy";
 import { Portfolio } from "../pages/Portfolio";
 import { EditProfile, UserProfile } from "../pages/Profile";
 import {
   Project,
+  ProjectContract,
   ProjectDetail,
   ProjectPayment,
   ProjectProposal,
-  ProjectContract,
 } from "../pages/Project";
 import Register from "../pages/Register";
 import { SearchFreelancer, SearchProject } from "../pages/Search";
-import { NotifyGmailChecking, VerifyGmail } from "@/pages/VerifyGmail";
-import { Withdraw } from "@/pages/Withdraw";
-import {
-  WithdrawDetail,
-  WithdrawList,
-} from "@/pages/Dashboard/EmployeeDashboard/WithdrawManagement";
+
+import AdminDashboard, {
+  AccountManagement as AdminAccountManagement,
+  ReportManagement as AdminReportManagement,
+  SystemConfiguration,
+} from "@/pages/Dashboard/AdminDashboard";
 
 export default function MainRoutes() {
   return (
@@ -144,8 +149,6 @@ export default function MainRoutes() {
         }
       >
         <Route path="employee">
-          <Route path="" element={<Navigate to="accounts" />} />
-          <Route path="accounts/*" element={<AccountManagement />} />
           <Route path="services/*" element={<ServiceManagement />} />
           <Route path="reports/*" element={<ReportManagement />} />
           <Route path="freelancers/*" element={<FreelancerManagement />} />
@@ -160,7 +163,17 @@ export default function MainRoutes() {
           </Route>
           <Route path="pending-services" element={<PendingServiceList />} />
         </Route>
+        <Route path="admin">
+          <Route path="" element={<AdminDashboard />} />
+          <Route path="accounts/*" element={<AdminAccountManagement />} />
+          <Route path="reports/*" element={<AdminReportManagement />} />
+          <Route
+            path="system-configuration"
+            element={<SystemConfiguration />}
+          />
+        </Route>
       </Route>
+
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
