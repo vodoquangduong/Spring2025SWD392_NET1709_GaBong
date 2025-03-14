@@ -209,7 +209,7 @@ namespace Services.Implements
                     default:
                         return Result.Failure<MilestoneDTO>(new Error("Status not found", $"Only Cancalled and Complete input"));
                 }
-                return milestone.ToMilestoneDTO();
+                return _mapper.Map<MilestoneDTO>(milestone);
             }
             catch (Exception e)
             {

@@ -7,9 +7,6 @@ namespace Helpers.DTOs.Milestone
     public class UpdateMilestoneDTO
     {
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
-        [Display(Name = "Milestone ID")]
-        public long MilestoneId { get; set; }
-        [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "Milestone name")]
         public string MilestoneName { get; set; } = string.Empty;
         [Required(ErrorMessage = ValidationMessage.RequiredField)]

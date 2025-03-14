@@ -137,7 +137,7 @@ namespace Services.Implements
                 //<===Finish contract===>
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitTransactionAsync();
-                return Result.Success(contract.ToContractDTO());
+                return Result.Success(_mapper.Map<ContractDTO>(contract));
             }
             catch (Exception e)
             {
@@ -158,7 +158,7 @@ namespace Services.Implements
                     contracts,
                     pageNumber,
                     pageSize,
-                    contract => contract.ToContractDTO()
+                    _mapper.Map<ContractDTO>
                 );
                 return Result.Success(paginatedContracts);
             }
@@ -185,7 +185,7 @@ namespace Services.Implements
                         new Error("Contract.NotFound", $"Contract with id {contractId} not found")
                     );
                 }
-                return Result.Success(contract.ToContractDTO());
+                return Result.Success(_mapper.Map<ContractDTO>(contract));
             }
             catch (Exception e)
             {
@@ -211,7 +211,7 @@ namespace Services.Implements
                         )
                     );
                 }
-                return Result.Success(contract.ToContractDTO());
+                return Result.Success(_mapper.Map<ContractDTO>(contract));
             }
             catch (Exception e)
             {

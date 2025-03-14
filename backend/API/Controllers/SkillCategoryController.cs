@@ -1,5 +1,5 @@
-﻿using Helpers.DTOs.SkillCategory;
-using Helpers.Mappers;
+﻿using AutoMapper;
+using Helpers.DTOs.SkillCategory;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -12,17 +12,20 @@ namespace API.Controllers
 
 
         private readonly ISkillCategoryService _skillCategoryService;
+        private readonly IMapper _mapper;
 
-        public SkillCategoryController(ISkillCategoryService skillCategoryService)
+
+        public SkillCategoryController(ISkillCategoryService skillCategoryService, IMapper mapper)
         {
             _skillCategoryService = skillCategoryService;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllService()
         {
             var skillCategory = await _skillCategoryService.GetAllSkillCategoryAsync();
-            var skillCategoryDTOs = skillCategory.Select(skill => skill.ToSkillCategoryDTO());
+            var skillCategoryDTOs = skillCategory.Select(_mapper.Map<SkillCategoryDTO>);
             return Ok(skillCategoryDTOs);
         }
 

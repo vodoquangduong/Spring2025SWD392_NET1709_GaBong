@@ -10,6 +10,11 @@ using Helpers.DTOs.Feedback;
 using Helpers.DTOs.Milestone;
 using Helpers.DTOs.Notification;
 using Helpers.DTOs.Portfolio;
+using Helpers.DTOs.Project;
+using Helpers.DTOs.Report;
+using Helpers.DTOs.SkillCategory;
+using Helpers.DTOs.SkillPerform;
+using Helpers.DTOs.Transaction;
 using Services.Interfaces.Portfolio;
 
 namespace Helpers.Mappers
@@ -22,6 +27,7 @@ namespace Helpers.Mappers
             //Account to AccountDTO
             CreateMap<Account, AccountDTO>()
                 .ForMember(dest => dest.Password, opt => opt.MapFrom(src => "********"));
+
 
             //AccountDTO to Account
             CreateMap<AccountDTO, Account>()
@@ -70,6 +76,8 @@ namespace Helpers.Mappers
             CreateMap<MilestoneDTO, Milestone>();
             //CreateMilestoneDTO to Milestone
             CreateMap<CreateMilestoneDTO, Milestone>();
+            //CreateMilestoneWithProjectDTO to Milestone
+            CreateMap<CreateMilestoneWithProjectDTO, Milestone>();
             //UpdateMilestoneDTO to Milestone
             CreateMap<UpdateMilestoneDTO, Milestone>();
 
@@ -99,15 +107,55 @@ namespace Helpers.Mappers
             //Project Mappings
             //Project to ProjectDTO
             CreateMap<Project, ProjectDTO>()
-                        .ForMember(dest => dest.PostDate, opt => opt.MapFrom(src => src.PostDate.ToString("dd-MM-yyyy")))
                         .ForMember(dest => dest.SkillIds, opt => opt.MapFrom(src =>
                             src.SkillRequired != null
                                 ? src.SkillRequired.Select(sr => sr.SkillId).ToList()
                                 : new List<long>()))
                         .ForMember(dest => dest.Milestones, opt => opt.MapFrom(src => (List<Milestone>)src.Milestones))
-                        .ForMember(dest => dest.Bids, opt => opt.MapFrom(src => src.Bids));
+                        .ForMember(dest => dest.Bids, opt => opt.MapFrom(src => src.Bids))
+                        .ForMember(dest => dest.PostDate, opt => opt.MapFrom(src => src.PostDate.ToString("dd-MM-yyyy")));
             //ProjectDTO to Project
             CreateMap<ProjectDTO, Project>();
+            //ProjectDetailDTO to Project
+            CreateMap<Project, ProjectDetailDTO>()
+                .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.SkillRequired.Select(sr => sr.SkillCategory)))
+                .ForMember(dest => dest.Milestones, opt => opt.MapFrom(src => src.Milestones))
+                .ForMember(dest => dest.Bids, opt => opt.MapFrom(src => src.Bids));
+            //UpdateProjectDTO to Project
+            CreateMap<UpdateProjectDTO, Project>();
+            //CreateProjectDTO to Project
+            CreateMap<CreateProjectDTO, Project>()
+                .ForMember(dest => dest.Milestones, opt => opt.Ignore())
+                .ForMember(dest => dest.SkillRequired, opt => opt.Ignore());
+            //Report Mappings
+            //Report to ReportDTO
+            CreateMap<Report, ReportDTO>();
+            //ReportDTO to Report
+            CreateMap<ReportDTO, Report>();
+            //CreateReportDTO to Report
+            CreateMap<CreateReportDTO, Report>();
+
+            //SkillCategory Mappings
+            //SkillCategory to SkillCategoryDTO
+            CreateMap<SkillCategory, SkillCategoryDTO>();
+            //SkillCategoryDTO to SkillCategory
+            CreateMap<SkillCategoryDTO, SkillCategory>();
+
+            //SkillPerform Mappings
+            //SkillPerform to SkillPerformDTO
+            CreateMap<SkillPerform, SkillPerformDTO>()
+                .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.SkillCategory))
+                .ForMember(dest => dest.SkillLevel, opt => opt.MapFrom(src => src.Level));
+            //SkillPerformDTO to SkillPerform
+            CreateMap<SkillPerformDTO, SkillPerform>();
+
+            //Transaction Mappings
+            //Transaction to TransactionDTO
+            CreateMap<Transaction, TransactionDTO>();
+            //TransactionDTO to Transaction
+            CreateMap<TransactionDTO, Transaction>();
+            //CreateTransactionDTO to Transaction
+            CreateMap<CreateTransactionDTO, Transaction>();
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Helpers.DTOs.Project
 
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "Milestones")]
-        public List<CreateMilestoneWithProjectDTO> Milestones {  get; set; } = new List<CreateMilestoneWithProjectDTO> { };
+        public List<CreateMilestoneWithProjectDTO> Milestones { get; set; } = new List<CreateMilestoneWithProjectDTO> { };
 
     }
 }

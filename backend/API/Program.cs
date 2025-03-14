@@ -12,7 +12,7 @@ using System.Text;
 using System.Reflection;
 using Helpers.SignalR;
 using Helpers.DTOs.PayPal.Model;
-using Helpers.Mappers;
+using AutoMapper.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,7 +73,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddAutoMapper(typeof(MapperProfile));
+#pragma warning disable CS0618 // Type or member is obsolete
+builder.Services.AddAutoMapper(cfg => {
+    cfg.ShouldMapMethod = m => false;
+    cfg.AddProfile<Helpers.Mappers.MapperProfile>();
+});
+#pragma warning restore CS0618 // Type or member is obsolete
+
 builder.Services.AddHttpContextAccessor();
 
 var mode = builder.Configuration["PaypalOptions:Mode"];

@@ -1,4 +1,5 @@
-﻿using Helpers.DTOs.Chat;
+﻿using AutoMapper;
+using Helpers.DTOs.Chat;
 using Helpers.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -12,10 +13,13 @@ namespace API.Controllers
     public class MessageController : ControllerBase
     {
         private readonly IMessageService messageService;
+        private readonly IMapper _mapper;
 
-        public MessageController(IMessageService messageService)
+
+        public MessageController(IMessageService messageService, IMapper mapper)
         {
             this.messageService = messageService;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -27,7 +31,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetChatRoomMessages([FromRoute] long chatRoomId)
         {
             var result = await messageService.GetChatRoomMessagesAsync(chatRoomId);
-            return Ok(result.Select(r => r.ToMessageDTO()));
+            return Ok(result.Select(_mapper.Map<MessageDTO>));
         }
 
         /// <summary>
@@ -39,7 +43,7 @@ namespace API.Controllers
         public async Task<IActionResult> Post([FromBody] MessageDTO messageDTO)
         {
             var result = await messageService.CreateMessagesAsync(messageDTO);
-            return Ok(result.ToMessageDTO());
+            return Ok(_mapper.Map<MessageDTO>(result));
         }
     }
 }

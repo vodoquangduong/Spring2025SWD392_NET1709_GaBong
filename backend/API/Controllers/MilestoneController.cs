@@ -49,9 +49,9 @@ namespace API.Controllers
         public async Task<IActionResult> UpdateMilestone([FromBody] UpdateMilestoneDTO updateMilestoneDTO, [FromRoute] long mileStoneId)
         {
             var result = await _milestoneService.UpdateMilestoneAsync(updateMilestoneDTO, mileStoneId);
-            if (result.Value == null)
+            if (result.IsFailure)
             {
-                return Ok("milestone not found");
+                return Ok(result.Error);
             }
             return Ok("update milestone success");
         }
@@ -65,9 +65,9 @@ namespace API.Controllers
         public async Task<IActionResult> FinishMilestone([FromBody] FinishMilestoneDTO finishMilestoneDTO)
         {
             var result = await _milestoneService.FinishMileStone(finishMilestoneDTO);
-            if (result.Value == null)
+            if (result.IsFailure)
             {
-                return Ok("milestone not found");
+                return Ok(result.Error);
             }
             return Ok("update milestone success");
         }
