@@ -1,2 +1,3 @@
 backend/API/appsettings.json
 backend/DAOs/dbsettings.json
+/backend/API/publish
