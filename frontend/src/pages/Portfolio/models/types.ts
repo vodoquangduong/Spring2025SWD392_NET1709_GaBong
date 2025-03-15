@@ -47,6 +47,30 @@ export interface Works {
   experiences: Experience[];
 }
 
+export interface SkillPerform {
+  skillId: number;
+  level: number;
+}
+
+// For API response, the skillPerform structure is different
+export interface SkillPerformDTO {
+  skills: {
+    skillId: number;
+    skillName: string;
+  };
+  skillLevel: number;
+}
+
+export interface SkillFormItemProps {
+  isEditing: boolean;
+}
+
+export interface SkillLevelSelectProps {
+  name: string | number | (string | number)[];
+  label?: string;
+  required?: boolean;
+}
+
 export interface CreatePortfolioDTO {
   title: string;
   works: string;
@@ -54,6 +78,7 @@ export interface CreatePortfolioDTO {
   about: string;
   content?: string;
   status?: number;
+  skillPerforms?: SkillPerform[];
 }
 
 export interface PortfolioDTO {
@@ -65,6 +90,7 @@ export interface PortfolioDTO {
   about: string;
   content?: string;
   status?: number;
+  skillPerformDTOs?: SkillPerformDTO[];
 }
 
 export interface ApiResponse<T> {
@@ -184,4 +210,10 @@ export interface Project {
   technologies: string[];
   liveUrl: string;
   githubUrl: string;
+}
+
+export enum SkillLevel {
+  Entry = 0,
+  Intermediate = 1,
+  Advanced = 2,
 }
