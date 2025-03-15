@@ -1,4 +1,8 @@
-import { CreatePortfolioDTO, PortfolioDTO } from "../models/types";
+import {
+  CreatePortfolioDTO,
+  PortfolioDTO,
+  SkillPerform,
+} from "../models/types";
 import { portfolioService } from "../services/portfolioService";
 
 export const portfolioUseCase = {
@@ -26,6 +30,14 @@ export const portfolioUseCase = {
       // Đảm bảo trường status được đặt
       if (portfolioData.status === undefined) {
         portfolioData.status = 3;
+      }
+
+      // Validate skillPerforms
+      if (
+        !portfolioData.skillPerforms ||
+        portfolioData.skillPerforms.length === 0
+      ) {
+        throw new Error("At least one skill is required");
       }
 
       // Kiểm tra xem works và certificate có phải là chuỗi JSON hợp lệ không
@@ -69,12 +81,22 @@ export const portfolioUseCase = {
   },
 
   // Hàm tiện ích để xử lý dữ liệu
-  parseWorks: (skills: string[], experiences: any[]): string => {
-    return portfolioService.parseWorks(skills, experiences);
+  parseWorks: (experiences: any[]): string => {
+    return portfolioService.parseWorks(experiences);
   },
 
   parseCertificates: (certificates: any[]): string => {
     return portfolioService.parseCertificates(certificates);
+  },
+
+  // Format skill performs for API
+  formatSkillPerforms: (
+    skills: { skillId: number; level: number }[]
+  ): SkillPerform[] => {
+    return skills.map((skill) => ({
+      skillId: skill.skillId,
+      level: skill.level,
+    }));
   },
 
   // Hàm phân tích dữ liệu portfolio từ API
@@ -84,17 +106,25 @@ export const portfolioUseCase = {
       return {
         title: "",
         about: "",
-        skills: [],
         experiences: [],
         certificates: [],
+        skillPerforms: [],
       };
     }
 
-    let worksData = { skills: [], experiences: [] };
+    let worksData = { experiences: [] };
     let certificatesData = [];
 
+    // Process skillPerformDTOs to match the format expected by the form
+    let skillPerforms = portfolioData.skillPerformDTOs
+      ? portfolioData.skillPerformDTOs.map((item) => ({
+          skillId: item.skills ? item.skills.skillId : 0,
+          level: item.skillLevel,
+        }))
+      : [];
+
     try {
-      // Parse works data
+      // Parse works data (now only for experiences)
       if (portfolioData.works) {
         console.log("Parsing works data:", portfolioData.works);
         worksData = JSON.parse(portfolioData.works);
@@ -112,13 +142,6 @@ export const portfolioUseCase = {
         console.warn("No certificate data available");
       }
 
-      // Xử lý dữ liệu skills để đảm bảo định dạng đúng
-      const processedSkills = worksData.skills
-        ? worksData.skills.map((skill: any) =>
-            typeof skill === "string" ? skill : skill.name
-          )
-        : [];
-
       // Xử lý dữ liệu experiences để đảm bảo định dạng đúng
       const processedExperiences = worksData.experiences
         ? worksData.experiences.map((exp: any) => ({
@@ -133,7 +156,7 @@ export const portfolioUseCase = {
       return {
         title: portfolioData.title || "",
         about: portfolioData.about || "",
-        skills: processedSkills,
+        skillPerforms: skillPerforms,
         experiences: processedExperiences,
         certificates: certificatesData || [],
       };
@@ -142,7 +165,7 @@ export const portfolioUseCase = {
       return {
         title: portfolioData.title || "",
         about: portfolioData.about || "",
-        skills: [],
+        skillPerforms: [],
         experiences: [],
         certificates: [],
       };
@@ -174,6 +197,14 @@ export const portfolioUseCase = {
       // Đảm bảo trường status được đặt
       if (portfolioData.status === undefined) {
         portfolioData.status = 3;
+      }
+
+      // Validate skillPerforms
+      if (
+        !portfolioData.skillPerforms ||
+        portfolioData.skillPerforms.length === 0
+      ) {
+        throw new Error("At least one skill is required");
       }
 
       // Kiểm tra xem works và certificate có phải là chuỗi JSON hợp lệ không
