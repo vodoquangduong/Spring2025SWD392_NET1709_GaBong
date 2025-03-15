@@ -1,12 +1,21 @@
+import useChatStore from "@/components/ChatPopup/stores/chatStore";
+import { POST } from "@/modules/request";
+import useUiStore from "@/stores/uiStore";
 import {
   Avatar,
   Breadcrumb,
   Button,
   Card,
+  Form,
+  Input,
+  Pagination,
+  Rate,
   Spin,
   Timeline,
   Typography,
 } from "antd";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { useEffect, useState } from "react";
 import {
   FaCertificate,
@@ -17,38 +26,53 @@ import {
   FaExternalLinkAlt,
   FaFlag,
   FaPhone,
-  FaPlus,
+  FaStar,
 } from "react-icons/fa";
 import { MdPlace } from "react-icons/md";
 import { RiShieldCheckFill } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import useAuthStore from "../../stores/authStore";
 import { Role } from "../../types";
-import { PublicPortfolio } from "./models/freelancerModel";
+import { Feedback, PublicPortfolio } from "./models/freelancerModel";
 import { freelancerService } from "./services/freelancerService";
-import useUiStore from "@/stores/uiStore";
-import useChatStore from "@/components/ChatPopup/stores/chatStore";
-import { POST } from "@/modules/request";
 
-const { Text } = Typography;
+dayjs.extend(relativeTime);
+
+const { Text, Paragraph } = Typography;
+const { TextArea } = Input;
 
 export default function Freelancer() {
   const { id: freelancerId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { role, accountId } = useAuthStore();
   const [loading, setLoading] = useState(true);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
   const { toogleChatPopup } = useUiStore();
   const { setCurrentRoom } = useChatStore();
   const [portfolio, setPortfolio] = useState<PublicPortfolio | null>(null);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm();
+  const pageSize = 5;
 
+  // Fetch portfolio and feedback data
   useEffect(() => {
-    const fetchPortfolioDetails = async () => {
+    const fetchData = async () => {
       if (!freelancerId) return;
       try {
         setLoading(true);
-        // Gọi trực tiếp API public portfolio với freelancerId
-        const data = await freelancerService.getPublicPortfolio(freelancerId);
-        setPortfolio(data);
+        // Fetch portfolio details
+        const portfolioData = await freelancerService.getPublicPortfolio(
+          freelancerId
+        );
+        setPortfolio(portfolioData);
+
+        // Fetch feedback
+        const feedbackData = await freelancerService.getFreelancerFeedback(
+          freelancerId
+        );
+        setFeedbacks(feedbackData);
       } catch (error: any) {
         console.error(error.message);
       } finally {
@@ -56,8 +80,21 @@ export default function Freelancer() {
       }
     };
 
-    fetchPortfolioDetails();
+    fetchData();
   }, [freelancerId]);
+
+  // Calculate pagination
+  const paginatedFeedbacks = feedbacks.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  // Calculate average rating
+  const averageRating =
+    feedbacks.length > 0
+      ? feedbacks.reduce((sum, feedback) => sum + feedback.rating, 0) /
+        feedbacks.length
+      : 0;
 
   if (loading) {
     return (
@@ -113,6 +150,22 @@ export default function Freelancer() {
                     {portfolio.address}
                     {portfolio.nationality && ` • ${portfolio.nationality}`}
                   </div>
+                  {feedbacks.length > 0 && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <Rate
+                        value={averageRating}
+                        disabled
+                        allowHalf
+                        character={<FaStar size={14} />}
+                      />
+                      <span className="text-amber-500 font-medium">
+                        {averageRating.toFixed(1)}
+                      </span>
+                      <span className="text-gray-500">
+                        ({feedbacks.length} reviews)
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -137,27 +190,13 @@ export default function Freelancer() {
                         });
                         toogleChatPopup();
                         setCurrentRoom(res2);
-
-                        // navigate(`/messages/${portfolio.freelancerId}`)
                       }}
                     >
                       Contact
                     </Button>
-                    {/* <Button
-                      type="primary"
-                      icon={<FaPlus />}
-                      onClick={() =>
-                        navigate("/projects/create", {
-                          state: { freelancerId: portfolio.freelancerId },
-                        })
-                      }
-                    >
-                      Create Project
-                    </Button> */}
                   </>
                 )}
 
-                {/* Nếu đang xem portfolio của chính mình thì hiện nút Edit */}
                 {role === Role.FREELANCER &&
                   accountId === Number(freelancerId) && (
                     <Button
@@ -294,6 +333,67 @@ export default function Freelancer() {
               </div>
             </div>
           )}
+          {/* Feedback Section */}
+          <div className="mt-12">
+            <div className="text-2xl font-bold mb-8">Client Feedback</div>
+
+            {feedbacks.length === 0 ? (
+              <Card className="bg-gray-50 dark:bg-zinc-800 text-center py-8">
+                <Text type="secondary" className="text-lg">
+                  No feedback yet.
+                </Text>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                {paginatedFeedbacks.map((feedback) => (
+                  <Card
+                    key={feedback.feedbackId}
+                    className="bg-gray-50 dark:bg-zinc-800 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex justify-between">
+                      <div className="flex gap-3 items-start">
+                        <Avatar src={feedback.clientAvatar} size={42}>
+                          {feedback.clientName?.charAt(0).toUpperCase()}
+                        </Avatar>
+                        <div>
+                          <Text strong className="text-lg">
+                            {feedback.clientName}
+                          </Text>
+                          {feedback.projectName && (
+                            <div className="text-sm text-gray-500">
+                              Project: {feedback.projectName}
+                            </div>
+                          )}
+                          <Rate
+                            value={feedback.rating}
+                            disabled
+                            character={<FaStar size={16} />}
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+                      <Text type="secondary" className="text-xs">
+                        {dayjs(feedback.createdDate).fromNow()}
+                      </Text>
+                    </div>
+                    <Paragraph className="mt-4">{feedback.comment}</Paragraph>
+                  </Card>
+                ))}
+
+                {feedbacks.length > pageSize && (
+                  <div className="mt-6 flex justify-end">
+                    <Pagination
+                      current={currentPage}
+                      onChange={(page) => setCurrentPage(page)}
+                      total={feedbacks.length}
+                      pageSize={pageSize}
+                      showSizeChanger={false}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

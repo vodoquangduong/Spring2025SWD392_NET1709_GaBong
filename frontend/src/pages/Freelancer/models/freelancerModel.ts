@@ -16,3 +16,24 @@ export interface PublicPortfolio {
   avatarURL: string;
   reputationPoint: number;
 }
+
+export interface Feedback {
+  feedbackId: number;
+  freelancerId: number;
+  clientId: number;
+  rating: number;
+  comment: string;
+  createdDate: string;
+  clientName: string;
+  clientAvatar?: string;
+  projectName?: string;
+  projectId?: number;
+}
+
+export interface FeedbackRequest {
+  freelancerId: number;
+  clientId: number;
+  rating: number;
+  comment: string;
+  projectId?: number;
+}
