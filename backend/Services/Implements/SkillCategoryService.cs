@@ -11,10 +11,12 @@ namespace Services.Implements
     public class SkillCategoryService : ISkillCategoryService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
         public SkillCategoryService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
         public async Task<SkillCategoryDTO> CreateSkillCategoryAsync(CreateSkillCategoryDTO createSkillCategoryDTO)
         {
@@ -37,7 +39,7 @@ namespace Services.Implements
 
             var result = await _unitOfWork.GetRepo<SkillCategory>().CreateAsync(skillCategory);
             await _unitOfWork.SaveChangesAsync();
-            return result.ToSkillCategoryDTO();
+            return _mapper.Map<SkillCategoryDTO>(result);
         }
 
         public Task DeleteSkillCategoryAsync(long id)
@@ -63,7 +65,7 @@ namespace Services.Implements
                        .Build();
             var queryResult = await _unitOfWork.GetRepo<SkillCategory>().GetAllAsync(queryOptions);
             var skillCategoryDTOs = queryResult
-                                    .Select(skillCategory => skillCategory.ToSkillCategoryDTO())
+                                    .Select(_mapper.Map<SkillCategoryDTO>)
                                     .ToList();
             return skillCategoryDTOs;
         }

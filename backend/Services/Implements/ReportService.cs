@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Report;
@@ -9,6 +5,7 @@ using Helpers.HelperClasses;
 using Helpers.Mappers;
 using Repositories.Queries;
 using Services.Interfaces;
+using AutoMapper;
 
 namespace Services.Implements
 {
@@ -16,10 +13,12 @@ namespace Services.Implements
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUserService;
-        public ReportService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
+        private readonly IMapper _mapper;
+        public ReportService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _currentUserService = currentUserService;
+            _mapper = mapper;
         }
         public async Task<Result<ReportDTO>> CreateReportAsync(CreateReportDTO createReportDTO)
         {
@@ -49,17 +48,13 @@ namespace Services.Implements
                 {
                     return Result.Failure<ReportDTO>(new Error("Reason can't be empty", $"Project with project id {createReportDTO.ProjectId}"));
                 }
-                var report = new Report
-                {
-                    ProjectId = createReportDTO.ProjectId,
-                    SenderId = _currentUserService.AccountId,
-                    Reason = createReportDTO.Reason,
-                    CreatedAt = DateTime.UtcNow,
-                    Status = ReportStatus.Pending
-                };
+                var report = _mapper.Map<Report>(createReportDTO);
+                report.SenderId = _currentUserService.AccountId;
+                report.CreatedAt = DateTime.UtcNow;
+                report.Status = ReportStatus.Pending;
                 var result = await _unitOfWork.GetRepo<Report>().CreateAsync(report);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(result.ToReportDTO());
+                return Result.Success(_mapper.Map<ReportDTO>(result));
             }
             catch (Exception e)
             {
@@ -75,7 +70,7 @@ namespace Services.Implements
                 .WithTracking(false)
                 .Build();
                 var reports = _unitOfWork.GetRepo<Report>().Get(queryOptions);
-                var paginatedReports = await Pagination.ApplyPaginationAsync(reports, pageNumber, pageSize, report => report.ToReportDTO());
+                var paginatedReports = await Pagination.ApplyPaginationAsync(reports, pageNumber, pageSize, _mapper.Map<ReportDTO>);
                 return Result.Success(paginatedReports);
             }
             catch (Exception e)
@@ -97,7 +92,7 @@ namespace Services.Implements
                 {
                     return Result.Failure<ReportDTO>(new Error("Report not found", $"Report with report id {reportId}"));
                 }
-                return Result.Success(report.ToReportDTO());
+                return Result.Success(_mapper.Map<ReportDTO>(report));
             }
             catch (Exception e)
             {

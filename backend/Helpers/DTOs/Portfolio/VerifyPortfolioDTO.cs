@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 using BusinessObjects.Enums;
+using Helpers.HelperClasses;
 
 namespace Helpers.DTOs.Portfolio
 {
     public class VerifyPortfolioDTO
     {
-     public PortfolioStatus Status { get; set; }   
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Portfolio status")]
+        public PortfolioStatus Status { get; set; }
     }
 }

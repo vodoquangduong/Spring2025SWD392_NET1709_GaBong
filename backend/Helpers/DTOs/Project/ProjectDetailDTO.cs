@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Enums;
 using Helpers.DTOs.Bid;
+using BusinessObjects;
 using BusinessObjects.Models;
 using Helpers.DTOs.Milestone;
 using System;
@@ -23,7 +24,6 @@ namespace Helpers.DTOs.Project
         public string ProjectDescription { get; set; } = string.Empty;
         public decimal EstimateBudget { get; set; }
         public string Location { get; set; } = string.Empty;
-
         public ProjectStatus Status { get; set; }
         public List<SkillCategoryDTO> Skills { get; set; } = new List<SkillCategoryDTO>();
         public List<BusinessObjects.Models.Milestone> Milestones { get; set; } = new List<BusinessObjects.Models.Milestone>();

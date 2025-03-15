@@ -1,5 +1,3 @@
-using System;
-
 namespace BusinessObjects.Enums;
 
 public enum AccountStatus

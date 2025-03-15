@@ -1,17 +1,26 @@
 using Helpers.DTOs.SkillPerform;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+using System.ComponentModel.DataAnnotations;
+using Helpers.HelperClasses;
 namespace Helpers.DTOs.Portfolio
 {
     public class UpdatePortfolioDTO
     {
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Title")]
+        [StringLength(50, ErrorMessage = ValidationMessage.MaxLength)]
         public string Title { get; set; } = string.Empty;
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Works")]
         public string Works { get; set; } = string.Empty;
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Certificate")]
         public string Certificate { get; set; } = string.Empty;
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "About")]
+        [StringLength(500, ErrorMessage = ValidationMessage.MaxLength)]
         public string About { get; set; } = string.Empty;
+        [Required(ErrorMessage = ValidationMessage.RequiredField)]
+        [Display(Name = "Skill performs")]
         public List<CreateSkillPerformDTO> SkillPerforms { get; set; } = new List<CreateSkillPerformDTO>();
 
     }

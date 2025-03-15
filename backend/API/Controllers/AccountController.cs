@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
-using Helpers.Mappers;
 using Helpers.DTOs.Query;
-using BusinessObjects.Models;
 using Helpers.DTOs.Account;
-using Helpers.HelperClasses;
 
 namespace API.Controllers
 {
@@ -57,6 +54,16 @@ namespace API.Controllers
         public async Task<IActionResult> UpdateAccount(UpdateAccountDTO accountDTO)
         {
             var result = await _accountService.UpdateAccountAsync(accountDTO);
+            if(result.IsFailure)
+            {
+                return Ok(result.Error);
+            }
+            return Ok(result.Value);
+        }
+        [HttpPut("update-account-status")]
+        public async Task<IActionResult> UpdateAccountStatus(UpdateAccountStatusDTO updateAccountStatusDTO)
+        {
+            var result = await _accountService.UpdateAccountStatus(updateAccountStatusDTO);
             if(result.IsFailure)
             {
                 return Ok(result.Error);

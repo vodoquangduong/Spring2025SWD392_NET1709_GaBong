@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Transactions;
 using BusinessObjects.Enums;
 
 namespace BusinessObjects.Models

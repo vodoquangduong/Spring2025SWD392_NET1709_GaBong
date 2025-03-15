@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Helpers.DTOs.Contract;
 using Helpers.DTOs.Query;
 using Microsoft.AspNetCore.Mvc;

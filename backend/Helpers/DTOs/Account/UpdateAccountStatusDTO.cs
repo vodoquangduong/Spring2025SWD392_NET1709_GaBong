@@ -1,16 +1,15 @@
 using System.ComponentModel.DataAnnotations;
-using BusinessObjects.Enums;
 using Helpers.HelperClasses;
 
-namespace Helpers.DTOs.Notification
+namespace Helpers.DTOs.Account
 {
-    public class UpdateStatusNotificationDTO
+    public class UpdateAccountStatusDTO
     {
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
-        [Display(Name = "Notification ID")]
-        public long NotificationId { get; set; }
+        [Display(Name = "Account ID")]
+        public long AccountId { get; set; }
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "Status")]
-        public NotificationStatus Status { get; set; }
+        public string Status { get; set; } = string.Empty;
     }
 }

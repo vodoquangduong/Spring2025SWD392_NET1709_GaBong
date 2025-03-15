@@ -1,17 +1,10 @@
 ﻿using Helpers.DTOs.PayPal.Model;
 using Helpers.DTOs.PayPal.Request;
 using Helpers.DTOs.PayPal.Response;
-using Microsoft.Extensions.Configuration;
-using PayPalCheckoutSdk.Core;
-using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 
 namespace Services.Implements
