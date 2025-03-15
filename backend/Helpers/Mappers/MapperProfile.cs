@@ -103,6 +103,8 @@ namespace Helpers.Mappers
             CreateMap<UpdatePortfolioDTO, Portfolio>();
             //PublicPortfolioDTO to Portfolio
             CreateMap<PublicPortfolioDTO, Portfolio>();
+            //PublicPortfolioDTO to PortfolioDTO
+            CreateMap<Portfolio, PublicPortfolioDTO>();
 
             //Project Mappings
             //Project to ProjectDTO
