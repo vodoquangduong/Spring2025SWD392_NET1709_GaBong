@@ -1,8 +1,9 @@
+using AutoMapper;
+using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Account;
 using Helpers.DTOs.Authentication;
 using Helpers.HelperClasses;
-using Helpers.Mappers;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -12,11 +13,12 @@ public class AccountService : IAccountService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUserService;
-
-    public AccountService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
+    private readonly IMapper _mapper;
+    public AccountService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
         _currentUserService = currentUserService;
+        _mapper = mapper;
     }
 
     public async Task<Result<PaginatedResult<AccountDTO>>> GetAllAccountAsync(int pageNumber, int pageSize)
@@ -27,7 +29,7 @@ public class AccountService : IAccountService
             .WithTracking(false) // No tracking for efficient
             .Build();
             var accounts = _unitOfWork.GetRepo<Account>().Get(queryOptions);
-            var paginatedAccounts = await Pagination.ApplyPaginationAsync(accounts, pageNumber, pageSize, account => account.ToAccountDTO());
+            var paginatedAccounts = await Pagination.ApplyPaginationAsync(accounts, pageNumber, pageSize, _mapper.Map<AccountDTO>);
             return Result.Success(paginatedAccounts);
         }
         catch (Exception e)
@@ -46,7 +48,7 @@ public class AccountService : IAccountService
 
         if (account == null) return null;
 
-        return account.ToAccountDTO();
+        return _mapper.Map<AccountDTO>(account);
     }
 
     public async Task<Account> GetAccountByEmailAsync(string email)
@@ -104,7 +106,7 @@ public class AccountService : IAccountService
                                 && a.Status == BusinessObjects.Enums.AccountStatus.Active)
                 .Build();
             var accounts = _unitOfWork.GetRepo<Account>().Get(queryOptions);
-            var paginatedAccounts = await Pagination.ApplyPaginationAsync<Account, AccountDTO>(accounts, pageNumber, pageSize, a => a.ToAccountDTO());
+            var paginatedAccounts = await Pagination.ApplyPaginationAsync<Account, AccountDTO>(accounts, pageNumber, pageSize, _mapper.Map<AccountDTO>);
             return Result.Success(paginatedAccounts);
         }
         catch (Exception e)
@@ -113,54 +115,14 @@ public class AccountService : IAccountService
         }
     }
 
-    //public async Task<Result<AccountDTO>> UpdateCredit(long accountId, decimal amount, string transacionType)
-    //{
-    //    try
-    //    {
-    //        var queryOptions = new QueryBuilder<Account>()
-    //            .WithTracking(false) // No tracking for efficient
-    //            .WithPredicate(a => a.AccountId == accountId)
-    //            .Build();
-    //        var existedAccount = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryOptions);
-    //        var account_result = existedAccount?.ToAccountDTO();
-
-    //        switch (transacionType)
-    //        {
-    //            case "Deposit":
-    //                existedAccount.TotalCredit += amount;
-    //                break;
-    //            case "Withdrawal": 
-    //                existedAccount.TotalCredit -= amount;
-    //                break ;
-    //            case "Transfer":
-    //                existedAccount.TotalCredit -= amount;
-    //                existedAccount.LockCredit -= amount;
-    //                break ;
-    //            case "Payment":
-    //                existedAccount.TotalCredit += amount;
-    //                break;
-    //            case "Refund":
-    //                existedAccount.TotalCredit += amount;
-    //                break ;
-    //            case "Fee":
-    //                existedAccount.TotalCredit -= amount;
-    //                break ;
-    //            case "Other":
-    //                existedAccount.TotalCredit += amount;
-    //                break;
-    //            default:
-    //                existedAccount.TotalCredit += amount;
-    //                break;
-    //        }
-
     public async Task<Result<AccountDTO>> UpdateAccountAsync(UpdateAccountDTO accountDto)
     {
         try
         {
-            // if(_currentUserService.Status.Equals("Inactive"))
-            // {
-            //     return Result.Failure<AccountDTO>(new Error("Account is inactive", "Account is inactive"));
-            // }
+            if(_currentUserService.Status.Equals("Inactive"))
+            {
+                return Result.Failure<AccountDTO>(new Error("Account is inactive", "Account is inactive"));
+            }
             if(string.IsNullOrEmpty(accountDto.Name))
             {
                 return Result.Failure<AccountDTO>(new Error("Update account failed", "Name cannot null"));
@@ -182,10 +144,10 @@ public class AccountService : IAccountService
                 .WithPredicate(a => a.AccountId == _currentUserService.AccountId)
                 .Build();
             var existedAccount = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryOptions);
-            existedAccount?.ToAccount(accountDto);
+            _mapper.Map(accountDto, existedAccount);
             await _unitOfWork.GetRepo<Account>().UpdateAsync(existedAccount!);
             await _unitOfWork.SaveChangesAsync();
-            return Result.Success(existedAccount!.ToAccountDTO());
+            return Result.Success(_mapper.Map<AccountDTO>(existedAccount));
         }
         catch (Exception e)
         {
@@ -197,5 +159,32 @@ public class AccountService : IAccountService
     public Task<Result<AccountDTO>> UpdateCredit(long AccountId, decimal amount, string transacionType)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<Result<AccountDTO>> UpdateAccountStatus(UpdateAccountStatusDTO updateAccountStatusDTO)
+    {
+        try
+        {
+            if(!_currentUserService.Role.Equals("Admin"))
+            {
+                return Result.Failure<AccountDTO>(new Error("Update account status failed", "Only admin can update account status"));
+            }
+            var existedAccount = await _unitOfWork.GetRepo<Account>().GetSingleAsync(new QueryOptions<Account>
+            {
+                Predicate = a => a.AccountId == updateAccountStatusDTO.AccountId
+            });
+            if(existedAccount == null)
+            {
+                return Result.Failure<AccountDTO>(new Error("Update account status failed", "Account not found"));
+            }
+            existedAccount.Status = Enum.Parse<AccountStatus>(updateAccountStatusDTO.Status);
+            await _unitOfWork.GetRepo<Account>().UpdateAsync(existedAccount);
+            await _unitOfWork.SaveChangesAsync();
+            return Result.Success(_mapper.Map<AccountDTO>(existedAccount));
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<AccountDTO>(new Error("Update account status failed", $"{e.Message}"));
+        }
     }
 }

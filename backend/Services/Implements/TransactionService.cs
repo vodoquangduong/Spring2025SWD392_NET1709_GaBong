@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
-using System.Threading.Tasks;
+using AutoMapper;
 using BusinessObjects.Models;
 using Helpers.DTOs.Transaction;
 using Helpers.HelperClasses;
-using Helpers.Mappers;
 using Microsoft.Extensions.Configuration;
 using Repositories.Queries;
 using Services.Interfaces;
@@ -16,14 +11,16 @@ namespace Services.Implements
     public class TransactionService : ITransactionService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
         private readonly IConfiguration _configuration;
 
-        public TransactionService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IConfiguration configuration)
+            public TransactionService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IConfiguration configuration, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _currentUserService = currentUserService;
             _configuration = configuration;
+            _mapper = mapper;
         }
 
         public Task<TransactionDTO> CreateBidAsync(long bidId)
@@ -49,7 +46,7 @@ namespace Services.Implements
             await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transaction);
             await _unitOfWork.GetRepo<Account>().UpdateAsync(account);
             await _unitOfWork.SaveChangesAsync();
-            return transaction.ToTransactionDTO();
+            return _mapper.Map<TransactionDTO>(transaction);
         }
 
         public async Task<Result<TransactionDTO>> CreateTransactionAsync(CreateTransactionDTO createTransactionDTO)
@@ -72,17 +69,10 @@ namespace Services.Implements
                 {
                     return Result.Failure<TransactionDTO>(new Error("Create transaction failed", "Amount must be greater than 0"));
                 }
-                var transaction = new Transaction
-                {
-                    AccountId = createTransactionDTO.AccountId,
-                    Amount = createTransactionDTO.Amount,
-                    Status = createTransactionDTO.Status,
-                    CreatedAt = DateTime.UtcNow,
-                    Type = createTransactionDTO.Type
-                };
+                var transaction = _mapper.Map<Transaction>(createTransactionDTO);
                 var result = await _unitOfWork.GetRepo<Transaction>().CreateAsync(transaction);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(result.ToTransactionDTO());
+                return Result.Success(_mapper.Map<TransactionDTO>(result));
             }
             catch (Exception e)
             {
@@ -113,7 +103,7 @@ namespace Services.Implements
             await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transaction);
             await _unitOfWork.GetRepo<Account>().UpdateAsync(account);
             await _unitOfWork.SaveChangesAsync();
-            return transaction.ToTransactionDTO();
+            return _mapper.Map<TransactionDTO>(transaction);
         }
 
         public async Task<Result<PaginatedResult<TransactionDTO>>> GetAllTransactionAsync(int pageNumber, int pageSize)
@@ -121,7 +111,7 @@ namespace Services.Implements
             try
             {
                 var transactions = _unitOfWork.GetRepo<Transaction>().Get(new QueryOptions<Transaction>());
-                var paginatedTransactions = await Pagination.ApplyPaginationAsync(transactions, pageNumber, pageSize, transaction => transaction.ToTransactionDTO());
+                var paginatedTransactions = await Pagination.ApplyPaginationAsync(transactions, pageNumber, pageSize, _mapper.Map<TransactionDTO>);
                 return Result.Success(paginatedTransactions);
             }
             catch (Exception e)
@@ -148,7 +138,7 @@ namespace Services.Implements
                 {
                     return Result.Failure<List<TransactionDTO>>(new Error("Transaction not found", $"Transaction with account id {id}"));
                 }
-                var  result = transaction.Select(t => t.ToTransactionDTO()).ToList();
+                var  result = transaction.Select(_mapper.Map<TransactionDTO>).ToList();
                 return Result.Success(result);
             }
             catch (Exception e)
@@ -168,7 +158,7 @@ namespace Services.Implements
             {
                 throw new KeyNotFoundException($"Transaction with ID {id} not found.");
             }
-            return transaction.ToTransactionDTO();
+            return _mapper.Map<TransactionDTO>(transaction);
         }
     }
 }

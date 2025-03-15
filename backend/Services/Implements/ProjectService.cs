@@ -1,20 +1,11 @@
 using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
-using Helpers.DTOs.Bid;
-using Helpers.DTOs.Milestone;
 using Helpers.DTOs.Project;
 using Helpers.DTOs.Query;
-using Helpers.DTOs.Transaction;
 using Helpers.HelperClasses;
-using Helpers.Mappers;
-using Helpers.SignalR;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Configuration;
-using PayPalCheckoutSdk.Orders;
 using Repositories.Queries;
 using Services.Interfaces;
-using Services.Interfaces.Portfolio;
 
 namespace Services.Implements
 {
@@ -22,11 +13,12 @@ namespace Services.Implements
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUserService;
-
-        public ProjectService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
+        private readonly IMapper _mapper;
+        public ProjectService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _currentUserService = currentUserService;
+            _mapper = mapper;
         }
 
         public async Task<Result<ProjectDTO>> CreateProjectAsync(CreateProjectDTO projectDto)
@@ -64,47 +56,59 @@ namespace Services.Implements
                         )
                     );
                 }
+
+                // Add skill validation
+                foreach (var skillId in projectDto.SkillIds)
+                {
+                    var skillExists = await _unitOfWork.GetRepo<SkillCategory>()
+                        .GetSingleAsync(new QueryOptions<SkillCategory>
+                        {
+                            Predicate = s => s.SkillId == skillId
+                        });
+
+                    if (skillExists == null)
+                    {
+                        return Result.Failure<ProjectDTO>(
+                            new Error(
+                                "Create project failed",
+                                $"Skill with ID {skillId} does not exist"
+                            )
+                        );
+                    }
+                }
                 #endregion 
                 //<========Create========>
-                var project = new Project()
-                {
-                    ClientId = client.AccountId,
-                    ProjectName = projectDto.ProjectName,
-                    ProjectDescription = projectDto.ProjectDescription,
-                    AvailableTimeRange = projectDto.AvailableTimeRange,
-                    EstimateBudget = projectDto.EstimateBudget,
-                    Location = projectDto.Location,
-                    Status = ProjectStatus.Pending,
-                    SkillRequired = projectDto
-                        .SkillIds.Select(skillId => new SkillRequired { SkillId = skillId })
-                        .ToList(),
-                };
-
+                var project = _mapper.Map<Project>(projectDto);
+                project.ClientId = _currentUserService.AccountId;
                 var createProject = await _unitOfWork.GetRepo<Project>().CreateAsync(project);
                 await _unitOfWork.SaveChangesAsync();
 
+                //<==Create SkillRequired==>
+                var skillRequireds = projectDto.SkillIds.Select(skillId => new SkillRequired
+                {
+                    ProjectId = createProject.ProjectId,
+                    SkillId = skillId
+                }).ToList();
+                await _unitOfWork.GetRepo<SkillRequired>().CreateAllAsync(skillRequireds);
+
                 //<==Create Milestone==>
-                var milestones = projectDto
-                    .Milestones.Select(m => new Milestone
+                var milestones = projectDto.Milestones.Select(m =>
                     {
-                        ProjectId = createProject.ProjectId,
-                        MilestoneName = m.MilestoneName,
-                        DeadlineDate = m.Deadline,
-                        MilestoneDescription = m.Description,
-                        PayAmount = m.Amount,
-                        Status = MilestoneStatus.NotStarted,
+                        var milestone = _mapper.Map<Milestone>(m);
+                        milestone.ProjectId = createProject.ProjectId;
+                        milestone.Status = MilestoneStatus.NotStarted;
+                        return milestone;
                     })
                     .ToList();
                 await _unitOfWork.GetRepo<Milestone>().CreateAllAsync(milestones);
-
+                await _unitOfWork.SaveChangesAsync();
                 //<==Lock credit==>
                 client.LockCredit += createProject.EstimateBudget;
                 await _unitOfWork.GetRepo<Account>().UpdateAsync(client);
 
                 //<==Save change==>
                 await _unitOfWork.SaveChangesAsync();
-
-                return Result.Success(createProject.ToProjectDTO());
+                return Result.Success(_mapper.Map<ProjectDTO>(createProject));
             }
             catch (Exception e)
             {
@@ -175,7 +179,7 @@ namespace Services.Implements
                     query,
                     pageNumber,
                     pageSize,
-                    project => project.ToProjectDTO()
+                    _mapper.Map<ProjectDTO>
                 );
                 return Result.Success(paginatedProjects);
             }
@@ -217,30 +221,13 @@ namespace Services.Implements
                     .WithPredicate(s => s.ProjectId == projectId)
                     .Build();
                 var skill = await _unitOfWork.GetRepo<SkillRequired>().GetAllAsync(skillQuerry);
-
                 if (project == null)
                 {
                     return Result.Failure<ProjectDetailDTO>(
                         new Error("Get project failed", "Project not found")
                     );
                 }
-                var result = new ProjectDetailDTO()
-                {
-                    ProjectId = projectId,
-                    ClientId = project.ClientId,
-                    FreelancerId = project.FreelancerId,
-                    VerifyStaffId = project.VerifyStaffId,
-                    PostDate = project.PostDate.ToString("dd-MM-yyyy"),
-                    AvailableTimeRange = project.AvailableTimeRange,
-                    ProjectName = project.ProjectName,
-                    ProjectDescription = project.ProjectDescription,
-                    Location = project.Location,
-                    EstimateBudget = project.EstimateBudget,
-                    Status = project.Status,
-                    Skills = skill.Select(s => s.SkillCategory.ToSkillCategoryDTO()).ToList(),
-                    Milestones = (List<Milestone>)project.Milestones,
-                    Bids = bids.Select(b => b.ToBidDTO()).ToList() ?? new List<BidDTO>(),
-                };
+                var result = _mapper.Map<ProjectDetailDTO>(project);
                 return Result.Success(result);
             }
             catch (Exception e)
@@ -270,16 +257,10 @@ namespace Services.Implements
                         new Error("Project not found", $"Project with project id {projectId}")
                     );
                 }
-                project.ProjectName = updateProjectDTO.ProjectName;
-                project.AvailableTimeRange = updateProjectDTO.AvailableTimeRange;
-                project.Status = updateProjectDTO.Status;
-                project.EstimateBudget = updateProjectDTO.EstimateBudget;
-                project.Location = updateProjectDTO.Location;
-                project.ProjectDescription = updateProjectDTO.ProjectDescription;
-
+                _mapper.Map(updateProjectDTO, project);
                 await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(project.ToProjectDTO());
+                return Result.Success(_mapper.Map<ProjectDTO>(project));
             }
             catch (Exception e)
             {
@@ -297,7 +278,6 @@ namespace Services.Implements
                     .WithTracking(true)
                     .WithPredicate(a => a.ProjectId == verrified.ProjectId) // Filter by ID
                     .Build();
-
                 var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
                 if (project == null)
                 {
@@ -324,7 +304,7 @@ namespace Services.Implements
                     await _unitOfWork.SaveChangesAsync();
                 }
 
-                return Result.Success(project.ToProjectDTO());
+                return Result.Success(_mapper.Map<ProjectDTO>(project));
             }
             catch (Exception e)
             {
@@ -341,7 +321,6 @@ namespace Services.Implements
         {
             try
             {
-                Console.WriteLine($"Verifying project with ID: {projectId}");
                 var queryOptions = new QueryBuilder<Project>()
                     .WithTracking(true)
                     .WithPredicate(a => a.ProjectId == projectId) // Filter by ID
@@ -353,11 +332,27 @@ namespace Services.Implements
                         new Error("Project not found", $"Project with project id {projectId}")
                     );
                 }
+                if (project.Status != ProjectStatus.Verified)
+                {
+                    return Result.Failure<ProjectDTO>(
+                        new Error("Choose freelancer failed", $"Project with project id {projectId} is not Verified")
+                    );
+                }
+                var freelancer = await _unitOfWork.GetRepo<Account>().GetSingleAsync(new QueryOptions<Account>
+                {
+                    Predicate = a => a.AccountId == freelancerId && a.Role == AccountRole.Freelancer && a.Status == AccountStatus.Active
+                });
+                if (freelancer == null)
+                {
+                    return Result.Failure<ProjectDTO>(
+                        new Error("Freelancer not found", $"Freelancer with account id {freelancerId} is not found or banned")
+                    );
+                }
                 project.Status = ProjectStatus.OnGoing;
                 project.FreelancerId = freelancerId;
                 await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
                 await _unitOfWork.SaveChangesAsync();
-                return project.ToProjectDTO();
+                return Result.Success(_mapper.Map<ProjectDTO>(project));
             }
             catch (Exception e)
             {
@@ -391,7 +386,7 @@ namespace Services.Implements
                     query,
                     pageNumber,
                     pageSize,
-                    project => project.ToProjectDTO()
+                    _mapper.Map<ProjectDTO>
                 );
                 return Result.Success(paginatedProjects);
             }
@@ -416,7 +411,7 @@ namespace Services.Implements
                     .Build();
                 var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
                 //var accounts = await _unitOfWork.GetRepo<Account>().GetAllAsync(queryOptions);
-                return Result.Success(projects.Select(p => p.ToProjectDTO()));
+                return Result.Success(_mapper.Map<IEnumerable<ProjectDTO>>(projects));
                 //return Result.Success(projects.Select(p => p.ToProjectDTO()));
                 //return Result.Success(projects);
             }

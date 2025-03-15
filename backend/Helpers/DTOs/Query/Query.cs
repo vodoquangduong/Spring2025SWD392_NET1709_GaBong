@@ -1,5 +1,4 @@
 ﻿
-
 namespace Helpers.DTOs.Query
 {
     public class Query

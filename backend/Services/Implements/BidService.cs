@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects.Models;
 using Helpers.DTOs.Bid;
-using Helpers.DTOs.Transaction;
 using Helpers.HelperClasses;
-using Helpers.Mappers;
 using Microsoft.Extensions.Configuration;
 using Repositories.Queries;
 using Services.Interfaces;
@@ -15,11 +13,13 @@ namespace Services.Implements
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
 
-        public BidService(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public BidService(IUnitOfWork unitOfWork, IConfiguration configuration, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _mapper = mapper;
         }
 
         public async Task<Result<BidDTO>> CreateBidAsync(CreateBidDTO bidDto, long freelancerId)
@@ -68,21 +68,13 @@ namespace Services.Implements
                 freelancer.TotalCredit -= bidFee;
                 await _unitOfWork.GetRepo<Account>().UpdateAsync(freelancer);
                 await _unitOfWork.SaveChangesAsync();
-
                 transaction.Status = BusinessObjects.Enums.TransactionStatus.Completed;
                 await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transaction);
-
-                var bid = new Bid()
-                {
-                    BidOwnerId = freelancerId,
-                    BidDescription = bidDto.BidDescription,
-                    ProjectId = bidDto.ProjectId,
-                    BidOffer = bidDto.BidOffer,
-                };
-
+                var bid = _mapper.Map<Bid>(bidDto);
+                bid.BidOwnerId = freelancerId;
                 var result = await _unitOfWork.GetRepo<Bid>().CreateAsync(bid);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(result.ToBidDTO());
+                return Result.Success(_mapper.Map<BidDTO>(result));
             }
             catch (Exception e)
             {
@@ -102,7 +94,7 @@ namespace Services.Implements
                 {
                     return Result.Failure<PaginatedResult<BidDTO>>(new Error("No bids found", "No bids found"));
                 }
-                var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, bid => bid.ToBidDTO());
+                var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, _mapper.Map<BidDTO>);
                 return Result.Success(paginatedBids);
             }
             catch (Exception e)
@@ -121,7 +113,7 @@ namespace Services.Implements
                .WithPredicate(bid => bid.ProjectId == projectId)
                .Build();
                 var bids = _unitOfWork.GetRepo<Bid>().Get(queryOptions);
-                var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, bid => bid.ToBidDTO());
+                var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, _mapper.Map<BidDTO>);
                 return Result.Success(paginatedBids);
             }
             catch (Exception e)

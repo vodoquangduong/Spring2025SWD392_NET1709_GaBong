@@ -1,4 +1,3 @@
-using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Account;
 using Helpers.DTOs.Authentication;
@@ -17,4 +16,5 @@ public interface IAccountService
 
     Task<Result<AccountDTO>> UpdateCredit(long AccountId, decimal amount, string transacionType);
     Task<Result<AccountDTO>> UpdateAccountAsync(UpdateAccountDTO accountDto);
+    Task<Result<AccountDTO>> UpdateAccountStatus(UpdateAccountStatusDTO updateAccountDTO);
 }

@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using AutoMapper;
 using BusinessObjects.Models;
 using Helpers.DTOs;
 using Helpers.DTOs.Notification;
 using Helpers.HelperClasses;
-using Helpers.Mappers;
 using Repositories.Queries;
 using Services.Interfaces;
 
@@ -14,10 +10,12 @@ namespace Services.Implements
 {
     public class NotificationService : INotificationService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public NotificationService(IUnitOfWork unitOfWork)
+        private readonly IUnitOfWork _unitOfWork;   
+        private readonly IMapper _mapper;
+        public NotificationService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
         public async Task<Result<NotificationDTO>> CreateNotificationAsync(CreateNotificationDTO notificationDto)
         {
@@ -31,10 +29,10 @@ namespace Services.Implements
                 {
                     return Result.Failure<NotificationDTO>(new Error("User not found", $"User with id {notificationDto.AccountId}"));
                 }
-                var notification = notificationDto.ToNotification();
+                var notification = _mapper.Map<Notification>(notificationDto);
                 var result = await _unitOfWork.GetRepo<Notification>().CreateAsync(notification);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(result.ToNotificationDTO());
+                return Result.Success(_mapper.Map<NotificationDTO>(result));
             }
             catch (Exception e)
             {
@@ -51,7 +49,7 @@ namespace Services.Implements
                     OrderBy = n => n.OrderByDescending(n => n.Time)
                 };
                 var query =  _unitOfWork.GetRepo<Notification>().Get(queryOptions);
-                var paginatedNotifications = await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize, notification => notification.ToNotificationDTO());
+                var paginatedNotifications = await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize, _mapper.Map<NotificationDTO>);
                 return Result.Success(paginatedNotifications);
             }
             catch (Exception e)
@@ -72,9 +70,9 @@ namespace Services.Implements
                 {
                     return Result.Failure<NotificationDTO>(new Error("Notification not found", $"Notification with id {updateDTO.NotificationId}"));
                 }
-                notification.ToNotification(updateDTO);
+                _mapper.Map(updateDTO, notification);
                 await _unitOfWork.SaveChangesAsync();
-                return Result.Success(notification.ToNotificationDTO());
+                return Result.Success(_mapper.Map<NotificationDTO>(notification));
             }
             catch (Exception e)
             {

@@ -126,9 +126,9 @@ namespace API.Controllers
         public async Task<IActionResult> VerifyProject([FromBody] VerrifiedProjectDTO verify)
         {
             var result = await _projectService.VerifyProjectAsync(verify);
-            if (result.Value == null)
+            if (result.IsFailure)
             {
-                return Ok("Project not found");
+                return Ok(result.Error);
             }
             return Ok("Project verified");
         }
@@ -138,10 +138,14 @@ namespace API.Controllers
             [FromBody] ChooseFreelancerDTO chooseFreelancerDTO
         )
         {
-            await _projectService.ChooseFreelancerAsync(
+            var result = await _projectService.ChooseFreelancerAsync(
                 chooseFreelancerDTO.ProjectId,
                 chooseFreelancerDTO.FreelancerId
             );
+            if (result.IsFailure)
+            {
+                return Ok(result.Error);
+            }
             return Ok("Project is on going");
         }
 
