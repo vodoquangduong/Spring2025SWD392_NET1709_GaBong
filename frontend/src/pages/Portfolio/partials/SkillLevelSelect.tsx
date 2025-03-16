@@ -44,7 +44,9 @@ const SkillLevelSelect: React.FC<SkillLevelSelectProps> = ({
         optionLabelProp="label"
         optionRender={(option) => (
           <Space>
-            <Tag color={skillService.getSkillLevelColor(Number(option.value))}>
+            <Tag
+              color={skillService.getSkillLevelColor(option.value as number)}
+            >
               {option.label}
             </Tag>
           </Space>

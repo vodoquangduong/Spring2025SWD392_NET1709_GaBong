@@ -48,77 +48,6 @@ export const portfolioService = {
     }
   },
 
-  getPortfolioById: async (portfolioId: number): Promise<PendingPortfolio> => {
-    try {
-      const token = getCookie("accessToken");
-      if (!token) {
-        throw new Error("Authentication required. Please login.");
-      }
-      const pendingResponse = await fetch(`${API_URL}/api/Portfolio/pending`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!pendingResponse.ok) {
-        throw new Error("Failed to get portfolio information");
-      }
-
-      const pendingData = await pendingResponse.json();
-      const portfolios = pendingData.value.items;
-      const portfolioInfo = portfolios.find(
-        (p: PendingPortfolio) => p.portfolioId === portfolioId
-      );
-
-      if (!portfolioInfo) {
-        throw new Error("Portfolio not found");
-      }
-
-      const response = await fetch(
-        `${API_URL}/api/Portfolio/pending/${portfolioInfo.freelancerId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        let errorMessage;
-        try {
-          const errorData = await response.json();
-          errorMessage =
-            errorData.message ||
-            errorData.error ||
-            "Failed to get portfolio details";
-        } catch {
-          errorMessage =
-            response.status >= 500
-              ? "Server error. Please try again later."
-              : "Failed to get portfolio details";
-        }
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
-
-      // Extract data from correct path based on API response structure
-      const dataValue = data.value || data;
-
-      // Normalize skillPerform data - ensure it's an array regardless of API response format
-      const combinedData = {
-        ...portfolioInfo,
-        ...dataValue,
-      };
-
-      return combinedData;
-    } catch (error: any) {
-      throw error;
-    }
-  },
-
   verifyPortfolio: async (
     portfolioId: number,
     status: number
@@ -169,6 +98,11 @@ export const portfolioService = {
   ): Promise<PendingPortfolio> => {
     try {
       const token = getCookie("accessToken");
+      if (!token) {
+        throw new Error("Authentication required. Please login.");
+      }
+
+      console.log(`Fetching portfolio for freelancer ID: ${freelancerId}`);
       const response = await fetch(
         `${API_URL}/api/Portfolio/pending/${freelancerId}`,
         {
@@ -179,12 +113,97 @@ export const portfolioService = {
       );
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to fetch portfolio");
+        let errorMessage = "Failed to fetch portfolio";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // If we can't parse the error as JSON, use default message
+        }
+        throw new Error(errorMessage);
       }
-      return await response.json();
+
+      const data = await response.json();
+      return data;
     } catch (error: any) {
-      throw new Error(error.message || "Failed to fetch portfolio details");
+      console.error("Error fetching portfolio by freelancer ID:", error);
+      throw error;
+    }
+  },
+
+  getFreelancerIdFromPortfolio: async (
+    portfolioId: number
+  ): Promise<number> => {
+    try {
+      const token = getCookie("accessToken");
+      if (!token) {
+        throw new Error("Authentication required. Please login.");
+      }
+
+      // Use the pending portfolios API to find this portfolio
+      const response = await fetch(
+        `${API_URL}/api/Portfolio/pending?PageSize=100&PageNumber=1`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch portfolios");
+      }
+
+      const data = await response.json();
+      const portfolios = data.value?.items || [];
+      const matchingPortfolio = portfolios.find(
+        (p: any) => p.portfolioId === portfolioId
+      );
+
+      if (!matchingPortfolio) {
+        throw new Error(`Portfolio with ID ${portfolioId} not found`);
+      }
+
+      return matchingPortfolio.freelancerId;
+    } catch (error: any) {
+      console.error("Error getting freelancerId from portfolio:", error);
+      throw error;
+    }
+  },
+
+  // New method to get basic portfolio info to extract freelancerId
+  getInitialPortfolioData: async (
+    portfolioId: number
+  ): Promise<{ portfolioId: number; freelancerId: number }> => {
+    try {
+      const token = getCookie("accessToken");
+      if (!token) {
+        throw new Error("Authentication required. Please login.");
+      }
+
+      // Get just enough data to extract the freelancerId
+      const response = await fetch(`${API_URL}/api/Portfolio/${portfolioId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch portfolio information");
+      }
+
+      const data = await response.json();
+      const portfolioData = data.value || data;
+
+      return {
+        portfolioId: portfolioData.portfolioId,
+        freelancerId: portfolioData.freelancerId,
+      };
+    } catch (error: any) {
+      console.error("Error fetching initial portfolio data:", error);
+      throw error;
     }
   },
 

@@ -43,20 +43,6 @@ const SkillFormItem: React.FC<SkillFormItemProps> = ({ isEditing }) => {
     fetchSkills();
   }, []);
 
-  // Helper function to get color based on skill level
-  const getSkillLevelColor = (level: number) => {
-    switch (level) {
-      case SkillLevel.Entry:
-        return "red";
-      case SkillLevel.Intermediate:
-        return "gold";
-      case SkillLevel.Advanced:
-        return "green";
-      default:
-        return "default";
-    }
-  };
-
   const renderSkillLegend = () => (
     <Tooltip title="Skill level color legend">
       <Space size="small" className="cursor-help">

@@ -52,38 +52,32 @@ const FreelancerDetail: React.FC = () => {
       try {
         setLoading(true);
         const portfolioId = parseInt(id);
+        const freelancerId =
+          await portfolioService.getFreelancerIdFromPortfolio(portfolioId);
 
-        // Đầu tiên lấy thông tin portfolio để có được freelancerId
-        const portfolioData = await portfolioService.getPortfolioById(
-          portfolioId
-        );
-
-        if (!portfolioData || !portfolioData.freelancerId) {
-          message.error("Không thể tìm thấy thông tin freelancer");
+        if (!freelancerId) {
+          message.error("Portfolio not found");
           return;
         }
 
-        const data = await portfolioService.getPendingPortfolioByFreelancerId(
-          portfolioData.freelancerId
-        );
+        const portfolioData =
+          await portfolioService.getPendingPortfolioByFreelancerId(
+            freelancerId
+          );
 
-        if (!data.name || !data.email) {
-          message.warning("Some personal information may be incomplete");
+        if (!portfolioData) {
+          message.error("Portfolio details not found");
+          return;
         }
 
-        setPortfolio(data);
-        console.log("Portfolio data from new API:", data);
+        setPortfolio(portfolioData);
+        console.log("Portfolio data loaded:", portfolioData);
       } catch (error: any) {
-        if (error?.message) {
-          if (error.message.includes("System.InvalidOperationException")) {
-            message.error("Remote database return 500 again 😥");
-          } else {
-            const errorMessage = error.message.replace("Error: ", "");
-            message.error(errorMessage);
-          }
-        } else {
-          message.error("Failed to fetch portfolio details. Please try again.");
-        }
+        const errorMessage = error?.message
+          ? error.message.replace("Error: ", "")
+          : "Failed to fetch portfolio details. Please try again.";
+        message.error(errorMessage);
+        console.error("Error fetching portfolio:", error);
       } finally {
         setLoading(false);
       }
@@ -99,8 +93,6 @@ const FreelancerDetail: React.FC = () => {
       setApproving(true);
       await portfolioService.verifyPortfolio(portfolio.portfolioId, 1); // 1 = Verified
       message.success("Portfolio has been approved successfully");
-
-      // Ghi log người duyệt
       console.log(
         `Portfolio ${portfolio.portfolioId} approved by ${
           userName || "unknown user"
@@ -346,6 +338,7 @@ const FreelancerDetail: React.FC = () => {
                 Reputation Points: {displayReputationPoint}
               </div>
             </div>
+
             <div>
               <div className="mb-4">
                 <div className="font-bold text-lg mb-2">Skills</div>
