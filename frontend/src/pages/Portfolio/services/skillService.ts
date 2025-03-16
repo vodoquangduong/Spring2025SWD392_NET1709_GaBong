@@ -47,4 +47,18 @@ export const skillService = {
         return "Unknown";
     }
   },
+
+  // Get skill level color based on level number
+  getSkillLevelColor: (level: number): string => {
+    switch (level) {
+      case SkillLevel.Entry:
+        return "red";
+      case SkillLevel.Intermediate:
+        return "gold";
+      case SkillLevel.Advanced:
+        return "green";
+      default:
+        return "default";
+    }
+  },
 };

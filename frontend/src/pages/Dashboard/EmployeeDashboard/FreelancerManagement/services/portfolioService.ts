@@ -104,9 +104,13 @@ export const portfolioService = {
 
       const data = await response.json();
 
+      // Extract data from correct path based on API response structure
+      const dataValue = data.value || data;
+
+      // Normalize skillPerform data - ensure it's an array regardless of API response format
       const combinedData = {
         ...portfolioInfo,
-        ...(data.value || data),
+        ...dataValue,
       };
 
       return combinedData;
@@ -181,6 +185,66 @@ export const portfolioService = {
       return await response.json();
     } catch (error: any) {
       throw new Error(error.message || "Failed to fetch portfolio details");
+    }
+  },
+
+  // Helper to normalize skill data from a portfolio
+  normalizeSkillData: (
+    portfolio: PendingPortfolio
+  ): { name: string; level?: number }[] => {
+    // First try to use skillPerform data if available
+    if (portfolio.skillPerform && portfolio.skillPerform.length > 0) {
+      return portfolio.skillPerform.map((skillItem) => {
+        // Handle both API formats (skill or skills)
+        const skill = skillItem.skill || skillItem.skills;
+        return {
+          name: skill ? skill.skillName : "Unknown Skill",
+          level: skillItem.skillLevel,
+        };
+      });
+    }
+
+    // Fallback to parsing works JSON
+    try {
+      if (portfolio.works && portfolio.works !== "string") {
+        const worksData = JSON.parse(portfolio.works);
+        if (worksData.skills && Array.isArray(worksData.skills)) {
+          return worksData.skills;
+        }
+      }
+    } catch (e) {
+      console.error("Error parsing works data:", e);
+    }
+
+    // Return empty array if no skill data found
+    return [];
+  },
+
+  // Get skill level name based on level number
+  getSkillLevelName: (level?: number): string => {
+    switch (level) {
+      case 0:
+        return "Entry";
+      case 1:
+        return "Intermediate";
+      case 2:
+        return "Advanced";
+      default:
+        return "Unknown";
+    }
+  },
+
+  // Get skill level color based on level number
+  getSkillLevelColor: (level?: number): string => {
+    switch (level) {
+      case 0:
+        return "red";
+      case 1:
+        return "gold";
+      case 2:
+        return "green";
+      default:
+        return "default";
     }
   },
 };

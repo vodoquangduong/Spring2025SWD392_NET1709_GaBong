@@ -6,6 +6,7 @@ import {
   message,
   Modal,
   Spin,
+  Tag,
   Timeline,
   Typography,
 } from "antd";
@@ -173,6 +174,26 @@ const FreelancerDetail: React.FC = () => {
     }
   };
 
+  // Helper function to get level name
+  const getSkillLevelInfo = () => {
+    return (
+      <div className="mb-2 text-xs">
+        <div className="flex items-center">
+          <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+          <span className="text-gray-600 dark:text-gray-300">Advanced</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+          <span className="text-gray-600 dark:text-gray-300">Intermediate</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+          <span className="text-gray-600 dark:text-gray-300">Entry</span>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -186,8 +207,23 @@ const FreelancerDetail: React.FC = () => {
   }
 
   // Parse JSON data
-  const worksData = JSON.parse(portfolio.works || "{}");
-  const skills = worksData.skills || [];
+  const worksData =
+    portfolio.works && portfolio.works !== "string"
+      ? JSON.parse(portfolio.works || "{}")
+      : {};
+
+  // Get skills from skillPerform if available, otherwise use works data
+  const skills =
+    portfolio.skillPerform && portfolio.skillPerform.length > 0
+      ? portfolio.skillPerform.map((skillItem) => {
+          const skill = skillItem.skill || skillItem.skills;
+          return {
+            name: skill ? skill.skillName : "Unknown Skill",
+            level: skillItem.skillLevel,
+          };
+        })
+      : worksData.skills || [];
+
   const experiences = worksData.experiences || [];
   const certificates = JSON.parse(portfolio.certificate || "[]");
 
@@ -311,38 +347,45 @@ const FreelancerDetail: React.FC = () => {
               </div>
             </div>
             <div>
-              <div className="text-lg font-bold mt-8 mb-4">Skills</div>
-              <div className="flex flex-wrap gap-2">
-                {skills.map((skill: any, index: number) => (
-                  <div
-                    key={index}
-                    className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-lg text-sm"
-                  >
-                    {skill.name}
-                  </div>
-                ))}
-                {skills.length === 0 && (
-                  <Text type="secondary">No skills specified</Text>
-                )}
+              <div className="mb-4">
+                <div className="font-bold text-lg mb-2">Skills</div>
+                {getSkillLevelInfo()}
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {skills.length > 0 ? (
+                    skills.map((skill: any, index: number) => (
+                      <Tag
+                        key={index}
+                        color={portfolioService.getSkillLevelColor(skill.level)}
+                        className="px-3 py-1.5 rounded text-sm mb-2"
+                      >
+                        {skill.name}
+                      </Tag>
+                    ))
+                  ) : (
+                    <Text type="secondary">No skills specified</Text>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="font-bold mt-8 mb-2 text-lg">Portfolio Status</div>
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-3 items-center">
-                <HiIdentification
-                  color={
-                    portfolio.status === 0
-                      ? "orange"
-                      : portfolio.status === 1
-                      ? "green"
-                      : "red"
-                  }
-                />
-                {portfolio.status === 0
-                  ? "Pending Verification"
-                  : portfolio.status === 1
-                  ? "Verified"
-                  : "Rejected"}
+              <div className="font-bold mt-8 mb-2 text-lg">
+                Portfolio Status
+              </div>
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-3 items-center">
+                  <HiIdentification
+                    color={
+                      portfolio.status === 0
+                        ? "orange"
+                        : portfolio.status === 1
+                        ? "green"
+                        : "red"
+                    }
+                  />
+                  {portfolio.status === 0
+                    ? "Pending Verification"
+                    : portfolio.status === 1
+                    ? "Verified"
+                    : "Rejected"}
+                </div>
               </div>
             </div>
           </div>

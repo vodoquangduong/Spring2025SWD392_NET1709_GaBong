@@ -1,4 +1,4 @@
-import { Form, Select } from "antd";
+import { Form, Select, Space, Tag } from "antd";
 import React from "react";
 import { SkillLevelSelectProps } from "../models/types";
 import { skillService } from "../services/skillService";
@@ -9,6 +9,22 @@ const SkillLevelSelect: React.FC<SkillLevelSelectProps> = ({
   required = true,
 }) => {
   const levelOptions = skillService.getSkillLevelOptions();
+
+  const tagRender = (props: any) => {
+    const { label, value, closable, onClose } = props;
+    const color = skillService.getSkillLevelColor(value);
+
+    return (
+      <Tag
+        color={color}
+        closable={closable}
+        onClose={onClose}
+        style={{ marginRight: 3 }}
+      >
+        {label}
+      </Tag>
+    );
+  };
 
   return (
     <Form.Item
@@ -24,6 +40,15 @@ const SkillLevelSelect: React.FC<SkillLevelSelectProps> = ({
         placeholder="Select level"
         options={levelOptions}
         className="bg-white dark:bg-[#27272a]"
+        tagRender={tagRender}
+        optionLabelProp="label"
+        optionRender={(option) => (
+          <Space>
+            <Tag color={skillService.getSkillLevelColor(Number(option.value))}>
+              {option.label}
+            </Tag>
+          </Space>
+        )}
       />
     </Form.Item>
   );
