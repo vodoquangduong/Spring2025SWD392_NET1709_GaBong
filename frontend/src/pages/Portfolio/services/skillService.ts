@@ -1,4 +1,5 @@
 import axios from "axios";
+import { SkillLevel } from "../models/types";
 const API_URL = import.meta.env.VITE_SERVER_URL;
 
 export interface Skill {
@@ -20,9 +21,30 @@ export const skillService = {
   // Chuyển đổi danh sách skills từ API thành định dạng options cho Select component
   mapSkillsToOptions: (skills: Skill[]) => {
     return skills.map((skill) => ({
-      value: skill.skillName,
+      value: skill.skillId, // Changed from skill.skillName to skill.skillId
       label: skill.skillName,
       id: skill.skillId,
     }));
+  },
+
+  // Provide skill level options for dropdown selection
+  getSkillLevelOptions: () => [
+    { value: SkillLevel.Entry, label: "Entry" },
+    { value: SkillLevel.Intermediate, label: "Intermediate" },
+    { value: SkillLevel.Advanced, label: "Advanced" },
+  ],
+
+  // Map skill level enum to readable string
+  getSkillLevelName: (level: number): string => {
+    switch (level) {
+      case SkillLevel.Entry:
+        return "Entry";
+      case SkillLevel.Intermediate:
+        return "Intermediate";
+      case SkillLevel.Advanced:
+        return "Advanced";
+      default:
+        return "Unknown";
+    }
   },
 };

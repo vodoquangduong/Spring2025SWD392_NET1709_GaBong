@@ -15,13 +15,11 @@ import {
   Form,
   Input,
   Row,
-  Select,
   Space,
-  Tag,
   Typography,
 } from "antd";
 import { FormInstance } from "antd/lib/form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   FaBriefcase,
   FaCertificate,
@@ -29,8 +27,8 @@ import {
   FaUserCheck,
 } from "react-icons/fa";
 import { PortfolioDTO } from "../models/types";
-import { skillService } from "../services/skillService";
 import PortfolioTips from "./PortfolioTips";
+import SkillFormItem from "./SkillFormItem";
 import VerificationStatus from "./VerificationStatus";
 
 // Import PortfolioStatus enum
@@ -89,27 +87,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
   handleSubmitForReview,
   handleSubmit,
 }) => {
-  const [skillOptions, setSkillOptions] = useState<
-    { value: string; label: string; id: number }[]
-  >([]);
   const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    const fetchSkills = async () => {
-      try {
-        setLoading(true);
-        const skills = await skillService.getSkills();
-        const options = skillService.mapSkillsToOptions(skills);
-        setSkillOptions(options);
-      } catch (error) {
-        console.error("Failed to fetch skills:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSkills();
-  }, []);
 
   console.log("Portfolio in PortfolioForm:", portfolio);
   console.log("Portfolio status:", portfolio?.status);
@@ -187,30 +165,8 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                     />
                   </Form.Item>
 
-                  {/* Skills Section - Updated to use API data */}
-                  <Form.Item
-                    name="skills"
-                    label={
-                      <Space>
-                        <FaCertificate />
-                        <span>Skills</span>
-                      </Space>
-                    }
-                    rules={[
-                      { required: true, message: "Please select your skills" },
-                    ]}
-                  >
-                    <Select
-                      mode="multiple"
-                      placeholder={
-                        loading ? "Loading skills..." : "Select your skills"
-                      }
-                      style={{ width: "100%" }}
-                      options={skillOptions}
-                      loading={loading}
-                      className="bg-white dark:bg-[#27272a]"
-                    />
-                  </Form.Item>
+                  {/* Replace the old Skills Section with SkillFormItem */}
+                  <SkillFormItem isEditing={true} />
 
                   {/* About Section */}
                   <div>
@@ -705,60 +661,8 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                   )}
                 </Form.Item>
 
-                {/* Skills Section - Updated to use API data */}
-                <Form.Item
-                  name="skills"
-                  label={
-                    <Space>
-                      <FaCertificate />
-                      <span>Skills</span>
-                    </Space>
-                  }
-                  rules={[
-                    { required: true, message: "Please select your skills" },
-                  ]}
-                >
-                  {isEditing ? (
-                    <Select
-                      mode="multiple"
-                      placeholder={
-                        loading ? "Loading skills..." : "Select your skills"
-                      }
-                      style={{ width: "100%" }}
-                      options={skillOptions}
-                      loading={loading}
-                      className="bg-white dark:bg-[#27272a]"
-                    />
-                  ) : (
-                    <div>
-                      {portfolio?.works &&
-                        (() => {
-                          try {
-                            const worksData = JSON.parse(portfolio.works);
-                            return (
-                              worksData.skills &&
-                              worksData.skills.map(
-                                (skill: any, index: number) => (
-                                  <Tag color="blue" key={index}>
-                                    {typeof skill === "string"
-                                      ? skill
-                                      : skill.name}
-                                  </Tag>
-                                )
-                              )
-                            );
-                          } catch (e) {
-                            console.error("Error rendering skills:", e);
-                            return (
-                              <Text type="danger">
-                                Error parsing skills data
-                              </Text>
-                            );
-                          }
-                        })()}
-                    </div>
-                  )}
-                </Form.Item>
+                {/* Replace the old Skills Section with SkillFormItem */}
+                <SkillFormItem isEditing={isEditing} />
 
                 {/* About Section */}
                 <div>

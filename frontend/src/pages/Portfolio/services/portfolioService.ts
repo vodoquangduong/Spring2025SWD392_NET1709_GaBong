@@ -18,7 +18,8 @@ export const portfolioService = {
         works: portfolioData.works,
         certificate: portfolioData.certificate,
         about: portfolioData.about,
-        status: 3,
+        status: portfolioData.status || 3,
+        skillPerforms: portfolioData.skillPerforms || [],
       };
 
       const response = await fetch(`${API_URL}/api/Portfolio`, {
@@ -166,13 +167,8 @@ export const portfolioService = {
     }
   },
 
-  // Hàm chuyển đổi dữ liệu kinh nghiệm làm việc thành chuỗi JSON
-  parseWorks: (skills: string[], experiences: any[]): string => {
-    // Đảm bảo skills có định dạng đúng
-    const processedSkills = skills.map((skill) => ({
-      name: skill,
-    }));
-
+  // Modified to handle experiences only (skills are completely removed)
+  parseWorks: (experiences: any[]): string => {
     // Đảm bảo experiences có định dạng đúng
     const processedExperiences = experiences.map((exp) => ({
       position: exp.position,
@@ -194,9 +190,8 @@ export const portfolioService = {
           : !exp.endDate,
     }));
 
-    // Tạo đối tượng works và chuyển đổi thành chuỗi JSON
+    // Tạo đối tượng works chỉ với experiences, completely removing the skills field
     const worksObject = {
-      skills: processedSkills || [],
       experiences: processedExperiences || [],
     };
 
@@ -235,7 +230,8 @@ export const portfolioService = {
         works: portfolioData.works,
         certificate: portfolioData.certificate,
         about: portfolioData.about,
-        status: 3,
+        status: portfolioData.status || 3,
+        skillPerforms: portfolioData.skillPerforms || [],
       };
 
       const response = await fetch(`${API_URL}/api/Portfolio`, {

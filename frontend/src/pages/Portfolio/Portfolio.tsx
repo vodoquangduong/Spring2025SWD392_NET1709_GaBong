@@ -53,7 +53,7 @@ const Portfolio: React.FC = () => {
             form.setFieldsValue({
               title: "",
               description: "",
-              skills: [],
+              skillPerforms: [], // Set empty skill performs array
               experiences: [],
               certificates: [],
             });
@@ -65,11 +65,11 @@ const Portfolio: React.FC = () => {
         setPortfolio(data);
         const parsedData = portfolioUseCase.parsePortfolioData(data);
 
-        // Set form values
+        // Set form values including skillPerforms
         form.setFieldsValue({
           title: parsedData.title,
           description: parsedData.about,
-          skills: parsedData.skills,
+          skillPerforms: parsedData.skillPerforms, // Set skill performs from parsed data
           experiences: parsedData.experiences,
           certificates: parsedData.certificates,
         });
@@ -133,7 +133,7 @@ const Portfolio: React.FC = () => {
               form.setFieldsValue({
                 title: parsedData.title,
                 description: parsedData.about,
-                skills: parsedData.skills,
+                skillPerforms: parsedData.skillPerforms,
                 experiences: parsedData.experiences,
                 certificates: parsedData.certificates,
               });
@@ -173,6 +173,13 @@ const Portfolio: React.FC = () => {
 
       if (values.description && values.description.length > 500) {
         message.error("About must be less than 500 characters");
+        setSubmitting(false);
+        return;
+      }
+
+      // Validate skills
+      if (!values.skillPerforms || values.skillPerforms.length === 0) {
+        message.error("At least one skill is required");
         setSubmitting(false);
         return;
       }
@@ -253,14 +260,21 @@ const Portfolio: React.FC = () => {
         return;
       }
 
-      const worksString = portfolioService.parseWorks(
-        values.skills || [],
-        values.experiences || []
-      );
-
+      // Now only pass experiences to parseWorks (skills are handled separately)
+      const worksString = portfolioService.parseWorks(values.experiences || []);
       const certificatesString = portfolioService.parseCertificates(
         values.certificates || []
       );
+
+      // Prepare skill performs data
+      const skillPerforms = values.skillPerforms || [];
+
+      // Validate skills
+      if (!skillPerforms || skillPerforms.length === 0) {
+        message.error("At least one skill is required");
+        setSubmitting(false);
+        return;
+      }
 
       // Đảm bảo dữ liệu không bị null hoặc undefined và đúng thứ tự
       const portfolioData: CreatePortfolioDTO = {
@@ -269,6 +283,7 @@ const Portfolio: React.FC = () => {
         certificate: certificatesString,
         about: values.description || "",
         status: 3,
+        skillPerforms: skillPerforms,
       };
 
       console.log("Final portfolio data to send:", portfolioData);
@@ -304,7 +319,7 @@ const Portfolio: React.FC = () => {
           form.setFieldsValue({
             title: parsedData.title,
             description: parsedData.about,
-            skills: parsedData.skills,
+            skillPerforms: parsedData.skillPerforms,
             experiences: parsedData.experiences,
             certificates: parsedData.certificates,
           });
