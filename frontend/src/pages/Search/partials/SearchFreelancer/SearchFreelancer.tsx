@@ -1,53 +1,63 @@
-import { useQuery } from "@tanstack/react-query";
+import SearchBox from "@/components/SearchBox";
+import useAuthStore from "@/stores/authStore";
+import { Role } from "@/types";
 import { message } from "antd";
+import { useEffect, useState } from "react";
+import { VerifiedPortfolio } from "./models/searchFreelancerModel";
 import FreelancerFilter from "./partials/FreelancerFilter";
 import FreelancerListing from "./partials/FreelancerListing";
 import { portfolioService } from "./services/freelancersService";
-import SearchBox from "@/components/SearchBox";
-import { useState } from "react";
-import useAuthStore from "@/stores/authStore";
-import { Role } from "@/types";
 
-export default function SearchFreelancer() {
+const SearchFreelancer = () => {
+  const [portfolios, setPortfolios] = useState<VerifiedPortfolio[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
   const [query, setQuery] = useState<any>({});
   const { role } = useAuthStore();
-  const { data, isLoading } = useQuery({
-    queryKey: ["verified-portfolios"],
-    queryFn: async () => {
-      try {
-        const response = await portfolioService.getVerifiedPortfolios();
-        return response?.value;
-      } catch (error: any) {
-        if (error?.message) {
-          if (error.message.includes("System.InvalidOperationException")) {
-            message.error("Remote database return 500 again 😥");
-          } else {
-            const errorMessage = error.message.replace("Error: ", "");
-            message.error(errorMessage);
-          }
-        } else {
-          message.error(
-            "Failed to fetch verified portfolios. Please try again."
-          );
-        }
-        throw error;
+
+  const fetchFreelancers = async (page: number = 1, pageSize: number = 10) => {
+    try {
+      setLoading(true);
+      const response = await portfolioService.getVerifiedPortfolios(
+        page,
+        pageSize
+      );
+
+      if (response && response.value) {
+        setPortfolios(response.value.items);
+        setPagination({
+          current: response.value.currentPage || 1,
+          pageSize: response.value.pageSize || 10,
+          total: response.value.totalCount || 0,
+        });
       }
-    },
-  });
+    } catch (error: any) {
+      message.error(error.message || "Failed to load freelancers");
+      console.error("Error fetching freelancers:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFreelancers(pagination.current, pagination.pageSize);
+  }, []);
+
+  const handlePageChange = (page: number, pageSize: number) => {
+    fetchFreelancers(page, pageSize);
+  };
 
   if (role == Role.FREELANCER) {
     location.href = "/";
   }
 
   return (
-    // =================================
     <div>
-      <div
-        className="relative w-full text-secondary dark:text-primary pb-6 h-[240px] flex items-center"
-        // style={{
-        //   backgroundImage: "url(/bg.jpg)",
-        // }}
-      >
+      <div className="relative w-full text-secondary dark:text-primary pb-6 h-[240px] flex items-center">
         <div className="absolute bg-black top-0 left-0 w-full pb-6 h-full flex items-center z-10"></div>
         <div className="mx-container space-y-4 z-10">
           <div className="text-3xl font-bold">Browse</div>
@@ -72,14 +82,17 @@ export default function SearchFreelancer() {
         </div>
         <div className="col-span-9 rounded-md dark:bg-zinc-900 shadow-lg">
           <FreelancerListing
-            portfolios={data?.items || []}
-            totalCount={data?.totalCount || 0}
-            pageNumber={data?.pageNumber || 1}
-            pageSize={data?.pageSize || 10}
-            isLoading={isLoading}
+            portfolios={portfolios}
+            totalCount={pagination.total}
+            pageNumber={pagination.current}
+            pageSize={pagination.pageSize}
+            isLoading={loading}
+            onPageChange={handlePageChange}
           />
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default SearchFreelancer;

@@ -58,6 +58,24 @@ export interface FreelancerDetail extends Freelancer {
     createdAt: string;
   }[];
 }
+
+export interface Skill {
+  skillId: number;
+  skillName: string;
+}
+
+export interface SkillPerform {
+  skill?: Skill;
+  skills?: Skill; // Handle both formats from API
+  skillLevel: number;
+}
+
+export enum SkillLevel {
+  Entry = 0,
+  Intermediate = 1,
+  Advanced = 2,
+}
+
 export interface PendingPortfolio {
   portfolioId: number;
   freelancerId: number;
@@ -75,6 +93,7 @@ export interface PendingPortfolio {
   gender: number;
   nationality: string;
   reputationPoint: number;
+  skillPerform?: SkillPerform[];
 }
 
 export interface PendingPortfoliosResponse {

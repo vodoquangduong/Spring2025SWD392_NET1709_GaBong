@@ -6,6 +6,7 @@ import {
   message,
   Modal,
   Spin,
+  Tag,
   Timeline,
   Typography,
 } from "antd";
@@ -51,38 +52,32 @@ const FreelancerDetail: React.FC = () => {
       try {
         setLoading(true);
         const portfolioId = parseInt(id);
+        const freelancerId =
+          await portfolioService.getFreelancerIdFromPortfolio(portfolioId);
 
-        // Đầu tiên lấy thông tin portfolio để có được freelancerId
-        const portfolioData = await portfolioService.getPortfolioById(
-          portfolioId
-        );
-
-        if (!portfolioData || !portfolioData.freelancerId) {
-          message.error("Không thể tìm thấy thông tin freelancer");
+        if (!freelancerId) {
+          message.error("Portfolio not found");
           return;
         }
 
-        const data = await portfolioService.getPendingPortfolioByFreelancerId(
-          portfolioData.freelancerId
-        );
+        const portfolioData =
+          await portfolioService.getPendingPortfolioByFreelancerId(
+            freelancerId
+          );
 
-        if (!data.name || !data.email) {
-          message.warning("Some personal information may be incomplete");
+        if (!portfolioData) {
+          message.error("Portfolio details not found");
+          return;
         }
 
-        setPortfolio(data);
-        console.log("Portfolio data from new API:", data);
+        setPortfolio(portfolioData);
+        console.log("Portfolio data loaded:", portfolioData);
       } catch (error: any) {
-        if (error?.message) {
-          if (error.message.includes("System.InvalidOperationException")) {
-            message.error("Remote database return 500 again 😥");
-          } else {
-            const errorMessage = error.message.replace("Error: ", "");
-            message.error(errorMessage);
-          }
-        } else {
-          message.error("Failed to fetch portfolio details. Please try again.");
-        }
+        const errorMessage = error?.message
+          ? error.message.replace("Error: ", "")
+          : "Failed to fetch portfolio details. Please try again.";
+        message.error(errorMessage);
+        console.error("Error fetching portfolio:", error);
       } finally {
         setLoading(false);
       }
@@ -98,8 +93,6 @@ const FreelancerDetail: React.FC = () => {
       setApproving(true);
       await portfolioService.verifyPortfolio(portfolio.portfolioId, 1); // 1 = Verified
       message.success("Portfolio has been approved successfully");
-
-      // Ghi log người duyệt
       console.log(
         `Portfolio ${portfolio.portfolioId} approved by ${
           userName || "unknown user"
@@ -173,6 +166,26 @@ const FreelancerDetail: React.FC = () => {
     }
   };
 
+  // Helper function to get level name
+  const getSkillLevelInfo = () => {
+    return (
+      <div className="mb-2 text-xs">
+        <div className="flex items-center">
+          <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+          <span className="text-gray-600 dark:text-gray-300">Advanced</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+          <span className="text-gray-600 dark:text-gray-300">Intermediate</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+          <span className="text-gray-600 dark:text-gray-300">Entry</span>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -186,8 +199,23 @@ const FreelancerDetail: React.FC = () => {
   }
 
   // Parse JSON data
-  const worksData = JSON.parse(portfolio.works || "{}");
-  const skills = worksData.skills || [];
+  const worksData =
+    portfolio.works && portfolio.works !== "string"
+      ? JSON.parse(portfolio.works || "{}")
+      : {};
+
+  // Get skills from skillPerform if available, otherwise use works data
+  const skills =
+    portfolio.skillPerform && portfolio.skillPerform.length > 0
+      ? portfolio.skillPerform.map((skillItem) => {
+          const skill = skillItem.skill || skillItem.skills;
+          return {
+            name: skill ? skill.skillName : "Unknown Skill",
+            level: skillItem.skillLevel,
+          };
+        })
+      : worksData.skills || [];
+
   const experiences = worksData.experiences || [];
   const certificates = JSON.parse(portfolio.certificate || "[]");
 
@@ -310,39 +338,47 @@ const FreelancerDetail: React.FC = () => {
                 Reputation Points: {displayReputationPoint}
               </div>
             </div>
+
             <div>
-              <div className="text-lg font-bold mt-8 mb-4">Skills</div>
-              <div className="flex flex-wrap gap-2">
-                {skills.map((skill: any, index: number) => (
-                  <div
-                    key={index}
-                    className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-lg text-sm"
-                  >
-                    {skill.name}
-                  </div>
-                ))}
-                {skills.length === 0 && (
-                  <Text type="secondary">No skills specified</Text>
-                )}
+              <div className="mb-4">
+                <div className="font-bold text-lg mb-2">Skills</div>
+                {getSkillLevelInfo()}
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {skills.length > 0 ? (
+                    skills.map((skill: any, index: number) => (
+                      <Tag
+                        key={index}
+                        color={portfolioService.getSkillLevelColor(skill.level)}
+                        className="px-3 py-1.5 rounded text-sm mb-2"
+                      >
+                        {skill.name}
+                      </Tag>
+                    ))
+                  ) : (
+                    <Text type="secondary">No skills specified</Text>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="font-bold mt-8 mb-2 text-lg">Portfolio Status</div>
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-3 items-center">
-                <HiIdentification
-                  color={
-                    portfolio.status === 0
-                      ? "orange"
-                      : portfolio.status === 1
-                      ? "green"
-                      : "red"
-                  }
-                />
-                {portfolio.status === 0
-                  ? "Pending Verification"
-                  : portfolio.status === 1
-                  ? "Verified"
-                  : "Rejected"}
+              <div className="font-bold mt-8 mb-2 text-lg">
+                Portfolio Status
+              </div>
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-3 items-center">
+                  <HiIdentification
+                    color={
+                      portfolio.status === 0
+                        ? "orange"
+                        : portfolio.status === 1
+                        ? "green"
+                        : "red"
+                    }
+                  />
+                  {portfolio.status === 0
+                    ? "Pending Verification"
+                    : portfolio.status === 1
+                    ? "Verified"
+                    : "Rejected"}
+                </div>
               </div>
             </div>
           </div>

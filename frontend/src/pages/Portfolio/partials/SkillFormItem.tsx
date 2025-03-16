@@ -10,11 +10,12 @@ import {
   Select,
   Space,
   Tag,
+  Tooltip,
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { FaCertificate } from "react-icons/fa";
-import { SkillFormItemProps } from "../models/types";
+import { SkillFormItemProps, SkillLevel } from "../models/types";
 import { skillService } from "../services/skillService";
 import SkillLevelSelect from "./SkillLevelSelect";
 
@@ -42,14 +43,42 @@ const SkillFormItem: React.FC<SkillFormItemProps> = ({ isEditing }) => {
     fetchSkills();
   }, []);
 
+  const renderSkillLegend = () => (
+    <Tooltip title="Skill level color legend">
+      <Space size="small" className="cursor-help">
+        <Tag
+          color={skillService.getSkillLevelColor(SkillLevel.Entry)}
+          className="m-0"
+        >
+          Entry
+        </Tag>
+        <Tag
+          color={skillService.getSkillLevelColor(SkillLevel.Intermediate)}
+          className="m-0"
+        >
+          Intermediate
+        </Tag>
+        <Tag
+          color={skillService.getSkillLevelColor(SkillLevel.Advanced)}
+          className="m-0"
+        >
+          Advanced
+        </Tag>
+      </Space>
+    </Tooltip>
+  );
+
   return (
     <>
-      <Typography.Title level={5}>
-        <Space>
-          <FaCertificate />
-          <span>Skills</span>
-        </Space>
-      </Typography.Title>
+      <div className="flex items-center justify-between">
+        <Typography.Title level={5} className="mb-0">
+          <Space>
+            <FaCertificate />
+            <span>Skills</span>
+          </Space>
+        </Typography.Title>
+        {!isEditing && <div>{renderSkillLegend()}</div>}
+      </div>
       <Divider style={{ margin: "12px 0" }} />
 
       <Form.List name="skillPerforms">
@@ -95,16 +124,22 @@ const SkillFormItem: React.FC<SkillFormItemProps> = ({ isEditing }) => {
                       ) : (
                         <div>
                           {(() => {
-                            // Get form values directly without hooks
                             const formValues = form.getFieldsValue();
                             const skillId =
                               formValues.skillPerforms?.[name]?.skillId;
                             const skillName = skillOptions.find(
                               (s) => s.value === skillId
                             )?.label;
+                            const level =
+                              formValues.skillPerforms?.[name]?.level;
 
                             return skillName ? (
-                              <Tag color="blue">{skillName}</Tag>
+                              <Tag
+                                color={skillService.getSkillLevelColor(level)}
+                                className="px-3 py-1 text-sm"
+                              >
+                                {skillName}
+                              </Tag>
                             ) : (
                               <Typography.Text type="secondary">
                                 Loading skill...
@@ -115,40 +150,11 @@ const SkillFormItem: React.FC<SkillFormItemProps> = ({ isEditing }) => {
                       )}
                     </Form.Item>
                   </Col>
-                  <Col xs={24} md={12}>
-                    {isEditing ? (
+                  {isEditing && (
+                    <Col xs={24} md={12}>
                       <SkillLevelSelect name={[name, "level"]} />
-                    ) : (
-                      <Form.Item label="Level">
-                        <Typography.Text>
-                          {(() => {
-                            // Get form values directly without hooks
-                            const formValues = form.getFieldsValue();
-                            const level =
-                              formValues.skillPerforms?.[name]?.level;
-                            const levelName =
-                              skillService.getSkillLevelName(level);
-
-                            return (
-                              <Tag
-                                color={
-                                  level === 0
-                                    ? "green"
-                                    : level === 1
-                                    ? "blue"
-                                    : level === 2
-                                    ? "purple"
-                                    : "default"
-                                }
-                              >
-                                {levelName}
-                              </Tag>
-                            );
-                          })()}
-                        </Typography.Text>
-                      </Form.Item>
-                    )}
-                  </Col>
+                    </Col>
+                  )}
                 </Row>
               </Card>
             ))}
