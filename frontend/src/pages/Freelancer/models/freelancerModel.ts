@@ -1,3 +1,14 @@
+export interface Skill {
+  skillId: number;
+  skillName: string;
+}
+
+export interface SkillPerform {
+  skill?: Skill;
+  skills?: Skill; // Handle both formats from API
+  skillLevel: number;
+}
+
 export interface PublicPortfolio {
   portfolioId: number;
   freelancerId: number;
@@ -15,6 +26,7 @@ export interface PublicPortfolio {
   nationality: string;
   avatarURL: string;
   reputationPoint: number;
+  skillPerform?: SkillPerform[];
 }
 
 export interface Feedback {

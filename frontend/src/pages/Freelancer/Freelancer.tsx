@@ -11,6 +11,7 @@ import {
   Pagination,
   Rate,
   Spin,
+  Tag,
   Timeline,
   Typography,
 } from "antd";
@@ -34,6 +35,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import useAuthStore from "../../stores/authStore";
 import { Role } from "../../types";
 import { Feedback, PublicPortfolio } from "./models/freelancerModel";
+import SkillLegend from "./partials/SkillLegend";
 import { freelancerService } from "./services/freelancerService";
 
 dayjs.extend(relativeTime);
@@ -110,9 +112,35 @@ export default function Freelancer() {
 
   // Parse JSON data
   const worksData = JSON.parse(portfolio.works || "{}");
-  const skills = worksData.skills || [];
+
+  // Get skills from skillPerform if available, otherwise use works data
+  const skills =
+    portfolio.skillPerform && portfolio.skillPerform.length > 0
+      ? portfolio.skillPerform.map((skillItem) => {
+          const skill = skillItem.skill || skillItem.skills;
+          return {
+            name: skill ? skill.skillName : "Unknown Skill",
+            level: skillItem.skillLevel,
+          };
+        })
+      : worksData.skills || [];
+
   const experiences = worksData.experiences || [];
   const certificates = JSON.parse(portfolio.certificate || "[]");
+
+  // Get skill level color based on level number
+  const getSkillLevelColor = (level?: number): string => {
+    switch (level) {
+      case 0:
+        return "red";
+      case 1:
+        return "gold";
+      case 2:
+        return "green";
+      default:
+        return "default";
+    }
+  };
 
   const formattedBirthday =
     portfolio.birthday && portfolio.birthday !== "0001-01-01T00:00:00"
@@ -246,16 +274,26 @@ export default function Freelancer() {
 
           {/* Skills Section */}
           <div>
-            <div className="text-lg font-bold mt-8 mb-4">Skills</div>
+            <div className="gap-2 items-center justify-between">
+              <div className="text-lg font-bold mt-8 mb-4">Skills</div>
+              <div className="p-2">
+                <SkillLegend />
+              </div>
+            </div>
             <div className="flex flex-wrap gap-2">
-              {skills.map((skill: any, index: number) => (
-                <div
-                  key={index}
-                  className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-1 rounded-lg text-sm"
-                >
-                  {skill.name}
-                </div>
-              ))}
+              {skills.length > 0 ? (
+                skills.map((skill: any, index: number) => (
+                  <Tag
+                    key={index}
+                    color={getSkillLevelColor(skill.level)}
+                    className="px-3 py-1.5 rounded-lg text-sm mb-2"
+                  >
+                    {skill.name}
+                  </Tag>
+                ))
+              ) : (
+                <Text type="secondary">No skills specified</Text>
+              )}
             </div>
           </div>
         </div>

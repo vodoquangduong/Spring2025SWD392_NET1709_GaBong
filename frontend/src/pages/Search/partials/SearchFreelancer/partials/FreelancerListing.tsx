@@ -1,4 +1,4 @@
-import { Avatar, Button, Pagination, Space, Spin } from "antd";
+import { Avatar, Button, Pagination, Space, Spin, Tag } from "antd";
 import { FaCheckCircle } from "react-icons/fa";
 import { FaChartLine, FaEye, FaGlobe, FaLocationDot } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
@@ -10,10 +10,37 @@ interface FreelancerListingProps {
   pageNumber: number;
   pageSize: number;
   isLoading: boolean;
+  onPageChange: (page: number, pageSize: number) => void;
 }
 
 const FreelancerItem = ({ portfolio }: { portfolio: VerifiedPortfolio }) => {
   const navigate = useNavigate();
+
+  // Extract skills from skillPerform or works data
+  const skills =
+    portfolio.skillPerform && portfolio.skillPerform.length > 0
+      ? portfolio.skillPerform.map((skillItem) => {
+          const skill = skillItem.skill || skillItem.skills;
+          return {
+            name: skill ? skill.skillName : "Unknown Skill",
+            level: skillItem.skillLevel,
+          };
+        })
+      : getSkillsFromWorks(portfolio.works);
+
+  // Get skill level color based on level number
+  const getSkillLevelColor = (level?: number): string => {
+    switch (level) {
+      case 0:
+        return "red";
+      case 1:
+        return "gold";
+      case 2:
+        return "green";
+      default:
+        return "default";
+    }
+  };
 
   return (
     <div className="py-6 px-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950">
@@ -43,6 +70,21 @@ const FreelancerItem = ({ portfolio }: { portfolio: VerifiedPortfolio }) => {
                 <span>{portfolio.nationality}</span>
               </Space>
             </Space>
+
+            {/* Skills display */}
+            <div className="mt-3">
+              <div className="flex flex-wrap gap-2">
+                {skills.map((skill, index) => (
+                  <Tag
+                    key={index}
+                    color={getSkillLevelColor(skill.level)}
+                    className="px-2 py-1 rounded text-xs"
+                  >
+                    {skill.name}
+                  </Tag>
+                ))}
+              </div>
+            </div>
           </div>
         </Space>
 
@@ -61,10 +103,22 @@ const FreelancerItem = ({ portfolio }: { portfolio: VerifiedPortfolio }) => {
         </div>
       </div>
 
-      <div className="mt-4 text-white-600">{portfolio.about}</div>
+      <div className="mt-4 text-white-600 line-clamp-2">{portfolio.about}</div>
     </div>
   );
 };
+
+// Helper function to parse skills from works JSON
+function getSkillsFromWorks(works: string): { name: string; level?: number }[] {
+  try {
+    if (!works || works === "string") return [];
+    const worksData = JSON.parse(works);
+    return Array.isArray(worksData.skills) ? worksData.skills : [];
+  } catch (e) {
+    console.error("Error parsing works data:", e);
+    return [];
+  }
+}
 
 export default function FreelancerListing({
   portfolios,
@@ -72,6 +126,7 @@ export default function FreelancerListing({
   pageNumber,
   pageSize,
   isLoading,
+  onPageChange,
 }: FreelancerListingProps) {
   return (
     <div>
@@ -109,6 +164,7 @@ export default function FreelancerListing({
           current={pageNumber}
           pageSize={pageSize}
           total={totalCount}
+          onChange={onPageChange}
         />
       </div>
     </div>
