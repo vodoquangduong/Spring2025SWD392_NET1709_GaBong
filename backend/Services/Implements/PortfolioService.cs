@@ -110,27 +110,44 @@ namespace Services.Implements
         {
             try
             {
-                var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(new QueryOptions<Portfolio>
-                {
-                    Predicate = p => p.FreelancerId == id
-                });
+                // Get portfolio with account information
+                var queryOptions = new QueryBuilder<Portfolio>()
+                    .WithTracking(false)
+                    .WithInclude(p => p.Account)
+                    .WithPredicate(p => p.FreelancerId == id)
+                    .Build();
+
+                var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(queryOptions);
+                
                 if (portfolio == null)
                 {
-                    return Result.Failure<PortfolioDTO>(new Error("Portfolio not found", $"Portfolio with freelancer id {id}"));
+                    return Result.Failure<PortfolioDTO>(
+                        new Error("Portfolio not found", $"Portfolio with freelancer id {id} not found")
+                    );
                 }
+
+                // Get skill performs for this freelancer
                 var skillQuery = new QueryBuilder<SkillPerform>()
                     .WithTracking(false)
                     .WithInclude(s => s.SkillCategory)
-                    .WithPredicate(s => s.AccountId == _currentUserService.AccountId)
+                    .WithPredicate(s => s.AccountId == id)
                     .Build();
-                var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(skillQuery);
+
+                var skillPerforms = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(skillQuery);
+
+                // Map and combine the data
                 var portfolioDto = _mapper.Map<PortfolioDTO>(portfolio);
-                portfolioDto.SkillPerformDTOs = skillPerform.Select(s => _mapper.Map<SkillPerformDTO>(s)).ToList();
+                portfolioDto.SkillPerformDTOs = skillPerforms
+                    .Select(s => _mapper.Map<SkillPerformDTO>(s))
+                    .ToList();
+
                 return Result.Success(portfolioDto);
             }
             catch (Exception e)
             {
-                return Result.Failure<PortfolioDTO>(new Error("Get portfolio by freelancer id failed", $"{e.Message}"));
+                return Result.Failure<PortfolioDTO>(
+                    new Error("Get portfolio by freelancer id failed", $"{e.Message}")
+                );
             }
         }
 
@@ -433,24 +450,33 @@ namespace Services.Implements
                     .WithInclude(p => p.Account)
                     .WithTracking(false)
                     .Build();
+
                 var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(queryOptions);
-                var SkillQuery = new QueryBuilder<SkillPerform>()
-                  .WithTracking(false)
-                  .WithInclude(s => s.SkillCategory)
-                  .WithPredicate(s => s.AccountId == portfolio!.FreelancerId)
-                  .Build();
-                var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(SkillQuery);
+                
                 if (portfolio == null)
                 {
-                    return Result.Failure<PublicPortfolioDTO>(new Error("Portfolio not found", $"Portfolio with Freelancer Id {id} not found"));
+                    return Result.Failure<PublicPortfolioDTO>(
+                        new Error("Portfolio not found", $"Portfolio with Freelancer Id {id} not found")
+                    );
                 }
+
+                var skillQuery = new QueryBuilder<SkillPerform>()
+                    .WithTracking(false)
+                    .WithInclude(s => s.SkillCategory)
+                    .WithPredicate(s => s.AccountId == id)  // Use id directly instead of portfolio.FreelancerId
+                    .Build();
+
+                var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(skillQuery);
                 var portfolioDto = _mapper.Map<PublicPortfolioDTO>(portfolio);
                 portfolioDto.SkillPerform = skillPerform.Select(s => _mapper.Map<SkillPerformDTO>(s)).ToList();
+                
                 return Result.Success(portfolioDto);
             }
             catch (Exception e)
             {
-                return Result.Failure<PublicPortfolioDTO>(new Error("Get public portfolio by id failed", $"{e.Message}"));
+                return Result.Failure<PublicPortfolioDTO>(
+                    new Error("Get public portfolio by id failed", $"{e.Message}")
+                );
             }
         }
     }

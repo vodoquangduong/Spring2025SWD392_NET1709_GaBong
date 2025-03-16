@@ -104,7 +104,16 @@ namespace Helpers.Mappers
             //PublicPortfolioDTO to Portfolio
             CreateMap<PublicPortfolioDTO, Portfolio>();
             //PublicPortfolioDTO to PortfolioDTO
-            CreateMap<Portfolio, PublicPortfolioDTO>();
+            CreateMap<Portfolio, PublicPortfolioDTO>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Account.Name))
+    .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Account.Email))
+    .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Account.Phone))
+    .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Account.Address))
+    .ForMember(dest => dest.AvatarURL, opt => opt.MapFrom(src => src.Account.AvatarURL))
+    .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Account.Birthday))
+    .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Account.Gender))
+    .ForMember(dest => dest.Nationality, opt => opt.MapFrom(src => src.Account.Nationality))
+    .ForMember(dest => dest.ReputationPoint, opt => opt.MapFrom(src => src.Account.ReputationPoint));
             //Project Mappings
             //Project to ProjectDTO
             CreateMap<Project, ProjectDTO>()
