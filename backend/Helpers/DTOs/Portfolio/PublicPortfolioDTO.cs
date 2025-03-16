@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BusinessObjects.Enums;
+using Helpers.DTOs.SkillPerform;
 
 namespace Helpers.DTOs.Portfolio
 {
@@ -24,5 +25,6 @@ namespace Helpers.DTOs.Portfolio
         public Gender Gender { get; set; }
         public string Nationality { get; set; } = string.Empty;
         public int ReputationPoint { get; set; } = 0;
+        public List<SkillPerformDTO> SkillPerform { get; set; } = new List<SkillPerformDTO>();
     }
 }

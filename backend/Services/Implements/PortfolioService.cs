@@ -153,7 +153,7 @@ namespace Services.Implements
                   .Build();
                 var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(SkillQuery);
                 var portfolioDto = _mapper.Map<PortfolioDTO>(portfolio);
-                portfolioDto.SkillPerformDTOs = skillPerform.Select(s => _mapper.Map<SkillPerformDTO>(s)).ToList();
+                portfolioDto.SkillPerformDTOs = skillPerform.Select(_mapper.Map<SkillPerformDTO>).ToList();
                 return Result.Success(portfolioDto);
             }
             catch (Exception e)
@@ -166,18 +166,49 @@ namespace Services.Implements
         {
             try
             {
+                // Get portfolios with account information
                 var queryOptions = new QueryBuilder<Portfolio>()
-                .WithTracking(false)
-                .WithInclude(p => p.Account)
-                .WithPredicate(p => p.Status == PortfolioStatus.Pending)
-                .Build();
+                    .WithTracking(false)
+                    .WithInclude(p => p.Account)
+                    .WithPredicate(p => p.Status == PortfolioStatus.Pending)
+                    .Build();
                 var query = _unitOfWork.GetRepo<Portfolio>().Get(queryOptions);
-                var paginatedPortfolios = await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize, _mapper.Map<PublicPortfolioDTO>);
+                // Get all freelancer IDs from the portfolios
+                var freelancerIds = query.Select(p => p.FreelancerId).Distinct().ToList();
+                // Get all skill performs for these freelancers
+                var skillQuery = new QueryBuilder<SkillPerform>()
+                    .WithTracking(false)
+                    .WithInclude(s => s.SkillCategory)
+                    .WithPredicate(s => freelancerIds.Contains(s.AccountId))
+                    .Build();
+                var skillPerformList = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(skillQuery);
+                // Group skills by account ID
+                var skillPerformByAccount = skillPerformList
+                    .GroupBy(s => s.AccountId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+                var paginatedPortfolios = await Pagination.ApplyPaginationAsync(
+                    query,
+                    pageNumber,
+                    pageSize,
+                    portfolio =>
+                    {
+                        var dto = _mapper.Map<PublicPortfolioDTO>(portfolio);
+                        // Add skill performs if they exist for this freelancer
+                        var skillList = skillPerformByAccount.ContainsKey(portfolio.FreelancerId)
+                            ? skillPerformByAccount[portfolio.FreelancerId]
+                            : new List<SkillPerform>();
+                        dto.SkillPerform = skillList.Select(s => _mapper.Map<SkillPerformDTO>(s)).ToList();
+                        return dto;
+                    }
+                );
+
                 return Result.Success(paginatedPortfolios);
             }
             catch (Exception e)
             {
-                return Result.Failure<PaginatedResult<PublicPortfolioDTO>>(new Error("View public porfolio pending list failed", $"{e.Message}"));
+                return Result.Failure<PaginatedResult<PublicPortfolioDTO>>(
+                    new Error("View public portfolio pending list failed", $"{e.Message}")
+                );
             }
         }
 
@@ -191,12 +222,19 @@ namespace Services.Implements
                     .WithTracking(false)
                     .Build();
                 var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(queryOptions);
+                var SkillQuery = new QueryBuilder<SkillPerform>()
+                  .WithTracking(false)
+                  .WithInclude(s => s.SkillCategory)
+                  .WithPredicate(s => s.AccountId == portfolio!.FreelancerId)
+                  .Build();
+                var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(SkillQuery);
                 if (portfolio == null)
                 {
                     return Result.Failure<PublicPortfolioDTO>(new Error("Portfolio not found", $"Portfolio with Freelancer Id {id} not found"));
                 }
-
-                return Result.Success(_mapper.Map<PublicPortfolioDTO>(portfolio));
+                var portfolioDto = _mapper.Map<PublicPortfolioDTO>(portfolio);
+                portfolioDto.SkillPerform = skillPerform.Select(s => _mapper.Map<SkillPerformDTO>(s)).ToList();
+                return Result.Success(portfolioDto);
             }
             catch (Exception e)
             {
@@ -350,7 +388,34 @@ namespace Services.Implements
                 .WithPredicate(p => p.Status == PortfolioStatus.Verified)
                 .Build();
                 var query = _unitOfWork.GetRepo<Portfolio>().Get(queryOptions);
-                var paginatedPortfolios = await Pagination.ApplyPaginationAsync(query, pageNumber, pageSize, _mapper.Map<PublicPortfolioDTO>);
+                 // Get all freelancer IDs from the portfolios
+                var freelancerIds = query.Select(p => p.FreelancerId).Distinct().ToList();
+                // Get all skill performs for these freelancers
+                var skillQuery = new QueryBuilder<SkillPerform>()
+                    .WithTracking(false)
+                    .WithInclude(s => s.SkillCategory)
+                    .WithPredicate(s => freelancerIds.Contains(s.AccountId))
+                    .Build();
+                var skillPerformList = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(skillQuery);
+                // Group skills by account ID
+                var skillPerformByAccount = skillPerformList
+                    .GroupBy(s => s.AccountId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+                var paginatedPortfolios = await Pagination.ApplyPaginationAsync(
+                    query,
+                    pageNumber,
+                    pageSize,
+                    portfolio =>
+                    {
+                        var dto = _mapper.Map<PublicPortfolioDTO>(portfolio);
+                        // Add skill performs if they exist for this freelancer
+                        var skillList = skillPerformByAccount.ContainsKey(portfolio.FreelancerId)
+                            ? skillPerformByAccount[portfolio.FreelancerId]
+                            : new List<SkillPerform>();
+                        dto.SkillPerform = skillList.Select(s => _mapper.Map<SkillPerformDTO>(s)).ToList();
+                        return dto;
+                    }
+                );
                 return Result.Success(paginatedPortfolios);
             }
             catch (Exception e)
@@ -369,12 +434,19 @@ namespace Services.Implements
                     .WithTracking(false)
                     .Build();
                 var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(queryOptions);
+                var SkillQuery = new QueryBuilder<SkillPerform>()
+                  .WithTracking(false)
+                  .WithInclude(s => s.SkillCategory)
+                  .WithPredicate(s => s.AccountId == portfolio!.FreelancerId)
+                  .Build();
+                var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(SkillQuery);
                 if (portfolio == null)
                 {
                     return Result.Failure<PublicPortfolioDTO>(new Error("Portfolio not found", $"Portfolio with Freelancer Id {id} not found"));
                 }
-
-                return Result.Success(_mapper.Map<PublicPortfolioDTO>(portfolio));
+                var portfolioDto = _mapper.Map<PublicPortfolioDTO>(portfolio);
+                portfolioDto.SkillPerform = skillPerform.Select(s => _mapper.Map<SkillPerformDTO>(s)).ToList();
+                return Result.Success(portfolioDto);
             }
             catch (Exception e)
             {
