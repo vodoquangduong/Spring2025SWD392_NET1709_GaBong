@@ -1,5 +1,5 @@
 import { Rate } from "antd";
-import { FaClock, FaFlag, FaPhone, FaUser } from "react-icons/fa6";
+import { FaFlag, FaPhone, FaUser } from "react-icons/fa6";
 import { HiIdentification } from "react-icons/hi2";
 import { IoCard, IoMail } from "react-icons/io5";
 import { MdPlace } from "react-icons/md";

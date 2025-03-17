@@ -199,7 +199,6 @@ export default function Freelancer() {
 
               {/* Buttons section */}
               <div className="flex gap-3">
-                {/* Nếu là client thì hiện nút Contact và Create Project */}
                 {role === Role.CLIENT && (
                   <>
                     <Button
