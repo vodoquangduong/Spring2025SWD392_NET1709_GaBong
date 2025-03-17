@@ -182,7 +182,7 @@ const UserProfile = () => {
                 >
                   Edit Profile
                 </Button>
-                {profile.role === 2 && (
+                {profile.role == 2 && (
                   <Button
                     icon={<FaFolder />}
                     onClick={handleViewPortfolio}

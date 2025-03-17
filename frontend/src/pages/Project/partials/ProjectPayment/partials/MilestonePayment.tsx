@@ -10,7 +10,6 @@ import dayjs from "dayjs";
 import { tableColumns } from "../schemas";
 import useUiStore from "@/stores/uiStore";
 import PaymentSummary from "./PaymentSummary";
-import CreateMilestoneForm from "../forms/CreateMilestoneForm";
 
 export default function MilestonePayment() {
   const { id: projectId } = useParams();

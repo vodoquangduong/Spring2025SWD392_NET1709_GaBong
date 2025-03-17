@@ -28,7 +28,7 @@ export default function Sidebar() {
       <div>
         <div className="text-lg font-bold mt-8 mb-4">Skills</div>
         <div>
-          <Skills />
+          <Skills items={[]} />
         </div>
       </div>
       <div className="font-bold mt-8 mb-2 text-lg">Freelancer Verification</div>

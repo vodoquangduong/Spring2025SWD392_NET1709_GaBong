@@ -1,6 +1,11 @@
 export interface UserProfileData {
   accountId: number;
-  role: number;
+  role: "freelancer" | "client" | "staff" | "admin" | 2;
+  lastName: string;
+  firstName: string;
+  profession: string;
+  location: string;
+  bio: string;
   name: string;
   email: string;
   phone: string;
@@ -13,7 +18,23 @@ export interface UserProfileData {
   totalCredit: number;
   lockCredit: number;
   createdAt: string;
+  languages: {
+    name: string;
+    level: string;
+  }[];
+  profileImage: string;
   status: number;
+  website: string;
+  education: {
+    school: string;
+    degree: string;
+    duration: string;
+  }[];
+  socials: {
+    github: string;
+    linkedin: string;
+    twitter: string;
+  };
 }
 
 // Portfolio related interfaces
@@ -50,4 +71,19 @@ export interface Transaction {
   description: string;
   date: string;
   status: "pending" | "completed" | "failed";
+}
+
+export interface ExperienceProps {
+  experience: {
+    position: string;
+    company: string;
+    startDate: string;
+    endDate: string;
+    description: string;
+    duration: string;
+  }[];
+}
+
+export interface SkillsProps {
+  skills: string[];
 }

@@ -29,7 +29,7 @@ const About = ({ profile }: AboutProps) => {
             type="text"
             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white"
             placeholder="Enter your last name"
-            defaultValue={profile.lastName}
+            defaultValue={profile.lastName + ""}
           />
         </div>
       </div>
