@@ -230,7 +230,6 @@ export const portfolioUseCase = {
   // Method to send portfolio for verification
   submitPortfolioForVerification: async (): Promise<boolean> => {
     try {
-      // Gọi API gửi portfolio để xác minh
       const result = await portfolioService.submitPortfolioForVerification();
       return result;
     } catch (error: any) {
