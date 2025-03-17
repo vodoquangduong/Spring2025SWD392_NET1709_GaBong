@@ -27,7 +27,6 @@ export const portfolioUseCase = {
         throw new Error("About must be less than 500 characters");
       }
 
-      // Đảm bảo trường status được đặt
       if (portfolioData.status === undefined) {
         portfolioData.status = 3;
       }
@@ -40,7 +39,7 @@ export const portfolioUseCase = {
         throw new Error("At least one skill is required");
       }
 
-      // Kiểm tra xem works và certificate có phải là chuỗi JSON hợp lệ không
+      // Check if works and certificate are valid JSON strings
       try {
         JSON.parse(portfolioData.works);
         JSON.parse(portfolioData.certificate);
@@ -51,7 +50,6 @@ export const portfolioUseCase = {
 
       console.log("Creating portfolio with data:", portfolioData);
 
-      // Gọi API tạo portfolio
       const result = await portfolioService.createPortfolio(portfolioData);
       return result;
     } catch (error: any) {
@@ -80,7 +78,7 @@ export const portfolioUseCase = {
     }
   },
 
-  // Hàm tiện ích để xử lý dữ liệu
+  // Utility functions to process data
   parseWorks: (experiences: any[]): string => {
     return portfolioService.parseWorks(experiences);
   },
@@ -99,9 +97,8 @@ export const portfolioUseCase = {
     }));
   },
 
-  // Hàm phân tích dữ liệu portfolio từ API
+  // Function to analyze portfolio data from API
   parsePortfolioData: (portfolioData: PortfolioDTO | null) => {
-    // Nếu không có dữ liệu, trả về đối tượng rỗng
     if (!portfolioData) {
       return {
         title: "",
@@ -142,7 +139,7 @@ export const portfolioUseCase = {
         console.warn("No certificate data available");
       }
 
-      // Xử lý dữ liệu experiences để đảm bảo định dạng đúng
+      // Process experiences data to ensure correct format
       const processedExperiences = worksData.experiences
         ? worksData.experiences.map((exp: any) => ({
             ...exp,
@@ -177,7 +174,7 @@ export const portfolioUseCase = {
     portfolioData: CreatePortfolioDTO
   ): Promise<PortfolioDTO> => {
     try {
-      // Kiểm tra dữ liệu đầu vào
+      // Check input data
       if (!portfolioData.title) {
         throw new Error("Title is required");
       }
@@ -194,7 +191,7 @@ export const portfolioUseCase = {
         throw new Error("About must be less than 500 characters");
       }
 
-      // Đảm bảo trường status được đặt
+      // Make sure the status field is set
       if (portfolioData.status === undefined) {
         portfolioData.status = 3;
       }
@@ -207,7 +204,7 @@ export const portfolioUseCase = {
         throw new Error("At least one skill is required");
       }
 
-      // Kiểm tra xem works và certificate có phải là chuỗi JSON hợp lệ không
+      // Check if works and certificate are valid JSON strings
       try {
         JSON.parse(portfolioData.works);
         JSON.parse(portfolioData.certificate);
@@ -218,7 +215,7 @@ export const portfolioUseCase = {
 
       console.log("Updating portfolio with data:", portfolioData);
 
-      // Gọi API cập nhật portfolio
+      // Call API Update Portfolio
       const result = await portfolioService.updatePortfolio(
         portfolioId,
         portfolioData
@@ -230,7 +227,7 @@ export const portfolioUseCase = {
     }
   },
 
-  // Phương thức gửi portfolio để xác minh
+  // Method to send portfolio for verification
   submitPortfolioForVerification: async (): Promise<boolean> => {
     try {
       // Gọi API gửi portfolio để xác minh

@@ -118,7 +118,7 @@ export const portfolioService = {
         }
       );
 
-      // Nếu không tìm thấy portfolio (404), trả về null
+      // If portfolio not found (404), return null
       if (response.status === 404) {
         return null as any;
       }
@@ -140,7 +140,7 @@ export const portfolioService = {
           }
         }
 
-        // Nếu lỗi liên quan đến "không tìm thấy portfolio", trả về null
+        // If the error is related to "portfolio not found", return null
         if (
           errorMessage.includes("not found") ||
           errorMessage.includes("No portfolio")
@@ -154,7 +154,7 @@ export const portfolioService = {
       const data = await response.json();
       return data.value || data;
     } catch (error: any) {
-      // Nếu lỗi là 404 hoặc liên quan đến "not found", trả về null
+      // If the error is 404 or related to "not found", return null
       if (
         error.message &&
         (error.message.includes("404") ||
@@ -169,7 +169,7 @@ export const portfolioService = {
 
   // Modified to handle experiences only (skills are completely removed)
   parseWorks: (experiences: any[]): string => {
-    // Đảm bảo experiences có định dạng đúng
+    // Make sure experiences are in the correct format
     const processedExperiences = experiences.map((exp) => ({
       position: exp.position,
       company: exp.company,
@@ -190,16 +190,16 @@ export const portfolioService = {
           : !exp.endDate,
     }));
 
-    // Tạo đối tượng works chỉ với experiences, completely removing the skills field
+    // Create a works object with only experiences, completely removing the skills field
     const worksObject = {
       experiences: processedExperiences || [],
     };
 
-    // Chuyển đổi thành chuỗi JSON
+    // Convert to JSON string
     return JSON.stringify(worksObject);
   },
 
-  // Hàm chuyển đổi dữ liệu chứng chỉ thành chuỗi JSON
+  // Function to convert certificate data to JSON string
   parseCertificates: (certificates: any[]): string => {
     const processedCertificates = certificates.map((cert) => ({
       title: cert.title,
@@ -271,7 +271,6 @@ export const portfolioService = {
     }
   },
 
-  // Phương thức gửi portfolio để xác minh
   submitPortfolioForVerification: async (): Promise<boolean> => {
     try {
       const token = getCookie("accessToken");
@@ -290,18 +289,16 @@ export const portfolioService = {
         }
       );
 
-      // Nếu status code là 2xx, coi như thành công
+      // If status code is 2xx, consider it successful
       if (response.ok) {
         try {
           const data = await response.json();
           return data.isSuccess !== undefined ? data.isSuccess : true;
         } catch {
-          // Nếu không parse được JSON, vẫn coi là thành công
           return true;
         }
       }
 
-      // Xử lý trường hợp lỗi
       let errorMessage;
       try {
         const errorData = await response.json();

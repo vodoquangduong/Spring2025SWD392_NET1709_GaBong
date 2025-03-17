@@ -172,46 +172,11 @@ export const portfolioService = {
     }
   },
 
-  // New method to get basic portfolio info to extract freelancerId
-  getInitialPortfolioData: async (
-    portfolioId: number
-  ): Promise<{ portfolioId: number; freelancerId: number }> => {
-    try {
-      const token = getCookie("accessToken");
-      if (!token) {
-        throw new Error("Authentication required. Please login.");
-      }
-
-      // Get just enough data to extract the freelancerId
-      const response = await fetch(`${API_URL}/api/Portfolio/${portfolioId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch portfolio information");
-      }
-
-      const data = await response.json();
-      const portfolioData = data.value || data;
-
-      return {
-        portfolioId: portfolioData.portfolioId,
-        freelancerId: portfolioData.freelancerId,
-      };
-    } catch (error: any) {
-      console.error("Error fetching initial portfolio data:", error);
-      throw error;
-    }
-  },
-
   // Helper to normalize skill data from a portfolio
   normalizeSkillData: (
     portfolio: PendingPortfolio
   ): { name: string; level?: number }[] => {
-    // First try to use skillPerform data if available
+    // Try to use skillPerform data if available
     if (portfolio.skillPerform && portfolio.skillPerform.length > 0) {
       return portfolio.skillPerform.map((skillItem) => {
         // Handle both API formats (skill or skills)

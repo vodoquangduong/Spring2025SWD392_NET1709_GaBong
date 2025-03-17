@@ -82,7 +82,7 @@ const AccountList: React.FC = () => {
     });
   };
 
-  // This function now just displays a message since API is not available
+  // Displays a message since API is not available
   const handleStatusAction = (account: Account) => {
     const action = account.status === 0 ? "suspend" : "activate";
     message.info(

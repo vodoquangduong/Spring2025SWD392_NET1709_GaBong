@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_SERVER_URL;
 
 // Helper function to parse dates
 const parseDateString = (dateStr: string): Date => {
-  // Handle date format like "26-02-2025"
+  // Handle date format like "dd-mm-yyyy"
   if (dateStr && typeof dateStr === "string") {
     const [day, month, year] = dateStr.split("-").map(Number);
     if (day && month && year) {

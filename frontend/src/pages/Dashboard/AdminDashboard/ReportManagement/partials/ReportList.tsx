@@ -78,14 +78,11 @@ const ReportList: React.FC = () => {
     });
   };
 
-  // Handle quick status updates
+  // Handle quick status updates (not real API calls)
   const handleStatusAction = (report: Report, newStatus: number) => {
     const action = newStatus === 1 ? "approve" : "reject";
-
-    // Show confirmation modal
     const confirmAction = () => {
       message.loading(`Processing ${action} action...`, 1.5).then(() => {
-        // Simulate API call
         setTimeout(() => {
           message.success(
             `Report #${report.reportId} has been ${action}ed successfully`
