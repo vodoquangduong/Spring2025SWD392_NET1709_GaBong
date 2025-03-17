@@ -13,7 +13,6 @@ namespace Services.Implements
     {
         private readonly IConfiguration _config;
         private readonly SymmetricSecurityKey _key;
-
         public TokenService(IConfiguration config)
         {
             _config = config;
@@ -24,15 +23,14 @@ namespace Services.Implements
                 )
             );
         }
+
         public string CreateResetToken(ResetPasswordDTO resetPasswordDto)
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Email, resetPasswordDto.Email),
             };
-
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
-
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -43,9 +41,7 @@ namespace Services.Implements
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
-
             var token = tokenHandler.CreateToken(tokenDescriptor);
-
             return tokenHandler.WriteToken(token);
         }
 
@@ -60,9 +56,7 @@ namespace Services.Implements
                 new Claim("avatar", account.AvatarURL),
                 new Claim("status", account.Status.ToString()),
             };
-
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
-
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -71,11 +65,8 @@ namespace Services.Implements
                 Issuer = _config["JWT:Issuer"],
                 Audience = _config["JWT:Audience"]
             };
-
             var tokenHandler = new JwtSecurityTokenHandler();
-
             var token = tokenHandler.CreateToken(tokenDescriptor);
-
             return tokenHandler.WriteToken(token);
         }
 
@@ -89,9 +80,7 @@ namespace Services.Implements
                 new Claim("role", registerDto.Role.ToString()),
                 new Claim("status", registerDto.Status.ToString())
             };
-
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
-
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -100,11 +89,8 @@ namespace Services.Implements
                 Issuer = _config["JWT:Issuer"],
                 Audience = _config["JWT:Audience"]
             };
-
             var tokenHandler = new JwtSecurityTokenHandler();
-
             var token = tokenHandler.CreateToken(tokenDescriptor);
-
             return tokenHandler.WriteToken(token);
         }
 
@@ -123,7 +109,6 @@ namespace Services.Implements
                 Password = password,
                 Email = email,
             };
-
             return registerDto;
         }
     }

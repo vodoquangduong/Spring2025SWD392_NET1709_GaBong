@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using BusinessObjects.Models;
 using Helpers.DTOs.SkillCategory;
-using Helpers.Mappers;
 using Repositories.Queries;
 using Services.Interfaces;
-
 
 namespace Services.Implements
 {
@@ -12,7 +10,6 @@ namespace Services.Implements
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-
         public SkillCategoryService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -42,11 +39,6 @@ namespace Services.Implements
             return _mapper.Map<SkillCategoryDTO>(result);
         }
 
-        public Task DeleteSkillCategoryAsync(long id)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<IEnumerable<SkillCategory>> GetAllSkillCategoryAsync()
         {
             var queryOptions = new QueryBuilder<SkillCategory>()
@@ -55,7 +47,6 @@ namespace Services.Implements
 
             return await _unitOfWork.GetRepo<SkillCategory>().GetAllAsync(queryOptions);
         }
-
 
         public async Task<List<SkillCategoryDTO>> GetSkillCategoryByIdAsync(long id)
         {

@@ -9,12 +9,8 @@ namespace API.Controllers
     [ApiController]
     public class SkillCategoryController : ControllerBase
     {
-
-
         private readonly ISkillCategoryService _skillCategoryService;
         private readonly IMapper _mapper;
-
-
         public SkillCategoryController(ISkillCategoryService skillCategoryService, IMapper mapper)
         {
             _skillCategoryService = skillCategoryService;
@@ -28,7 +24,6 @@ namespace API.Controllers
             var skillCategoryDTOs = skillCategory.Select(_mapper.Map<SkillCategoryDTO>);
             return Ok(skillCategoryDTOs);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> CreateSkillVategoryAsync([FromBody] CreateSkillCategoryDTO createSkillCategoryDTO)

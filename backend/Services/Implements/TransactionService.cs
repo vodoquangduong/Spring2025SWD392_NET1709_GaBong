@@ -14,8 +14,7 @@ namespace Services.Implements
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
         private readonly IConfiguration _configuration;
-
-            public TransactionService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IConfiguration configuration, IMapper mapper)
+        public TransactionService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IConfiguration configuration, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _currentUserService = currentUserService;
@@ -42,7 +41,6 @@ namespace Services.Implements
             var account = await _unitOfWork.GetRepo<Account>().GetSingleAsync(accountQueryOptions);
             transaction.Status = BusinessObjects.Enums.TransactionStatus.Completed;
             account.TotalCredit += transaction.Amount;
-
             await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transaction);
             await _unitOfWork.GetRepo<Account>().UpdateAsync(account);
             await _unitOfWork.SaveChangesAsync();
@@ -61,10 +59,6 @@ namespace Services.Implements
                 {
                     return Result.Failure<TransactionDTO>(new Error("Create transaction failed", $"Account with account id {createTransactionDTO.AccountId} not found"));
                 }
-                // if (_currentUserService.Role != "Staff")
-                // {
-                //     return Result.Failure<TransactionDTO>(new Error("Create transaction failed", "You don't have permission to create transaction"));
-                // }
                 if (createTransactionDTO.Amount <= 0)
                 {
                     return Result.Failure<TransactionDTO>(new Error("Create transaction failed", "Amount must be greater than 0"));
@@ -78,11 +72,6 @@ namespace Services.Implements
             {
                 return Result.Failure<TransactionDTO>(new Error("Create transaction failed", $"{e.Message}"));
             }
-        }
-
-        public Task<TransactionDTO> FinishMilestoneAsync(long milestoneId)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<TransactionDTO> FinishPaymentAsync(long id)
@@ -99,7 +88,6 @@ namespace Services.Implements
             var account  = await _unitOfWork.GetRepo<Account>().GetSingleAsync(accountQueryOptions);
             transaction.Status = BusinessObjects.Enums.TransactionStatus.Completed;
             account.TotalCredit += transaction.Amount;
-
             await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transaction);
             await _unitOfWork.GetRepo<Account>().UpdateAsync(account);
             await _unitOfWork.SaveChangesAsync();
@@ -118,11 +106,6 @@ namespace Services.Implements
             {
                 return Result.Failure<PaginatedResult<TransactionDTO>>(new Error("Get all transaction failed", $"{e.Message}"));
             }
-        }
-
-        public Task<Result<List<TransactionDTO>>> GetTransactionByAccountAsync(long id)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<Result<List<TransactionDTO>>> GetTransactionByAccountIdAsync(long id)

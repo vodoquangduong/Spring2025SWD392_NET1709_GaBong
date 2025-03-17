@@ -14,6 +14,7 @@ namespace API.Controllers
         {
             _portfolioService = portfolioService;
         }
+        
         [HttpPost]
         public async Task<IActionResult> CreatePortfolio([FromBody] CreatePortfolioDTO portfolioDto)
         {
@@ -24,6 +25,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAllPortfolio([FromQuery] Query query)
         {
@@ -34,6 +36,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPortfolioById([FromRoute] long id)
         {
@@ -44,6 +47,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpGet("freelancer/{freelancerId}")]
         public async Task<IActionResult> GetPortfolioByFreelancerId([FromRoute] long freelancerId)
         {
@@ -54,6 +58,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpPut]
         public async Task<IActionResult> UpdatePortfolio([FromBody] UpdatePortfolioDTO updatePortfolioDto)
         {
@@ -64,6 +69,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpPut("verify/{portfolioId}")]
         public async Task<IActionResult> VerifyPortfolio([FromRoute] long portfolioId, [FromBody] VerifyPortfolioDTO verifyPortfolioDto)
         {
@@ -74,6 +80,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpPut("freelancer-submit")]
         public async Task<IActionResult> SubmitPortfolio()
         {
@@ -84,6 +91,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpGet("public/{freelancerId}")]
         public async Task<IActionResult> GetVerifiedPublicPortfolioByFreelancerId([FromRoute] long freelancerId)
         {
@@ -94,6 +102,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpGet("pending/{freelancerId}")]
         public async Task<IActionResult> GetPendingPublicPortfolioByFreelancerId([FromRoute] long freelancerId)
         {
@@ -104,6 +113,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpGet("pending")]
         public async Task<IActionResult> GetPublicPortfolioPendingList([FromQuery] Query query)
         {
@@ -114,6 +124,7 @@ namespace API.Controllers
             }
             return Ok(response);
         }
+        
         [HttpGet("verified")]
         public async Task<IActionResult> GetPublicPortfolioVerifiedList([FromQuery] Query query)
         {

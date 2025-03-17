@@ -13,6 +13,7 @@ namespace API.Controllers
         {
             _milestoneService = milestoneService;
         }
+        
         [HttpPost]
         public async Task<IActionResult> CreateMilestone([FromBody] CreateMilestoneDTO milestoneDto)
         {
@@ -23,6 +24,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAllMilestones()
         {
@@ -33,6 +35,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpGet("get-by-project/{id}")]
         public async Task<IActionResult> GetMilestoneByProjectId([FromRoute] long id)
         {

@@ -1,5 +1,4 @@
-﻿
-namespace Helpers.DTOs.SkillCategory
+﻿namespace Helpers.DTOs.SkillCategory
 {
     public class SkillCategoryDTO
     {

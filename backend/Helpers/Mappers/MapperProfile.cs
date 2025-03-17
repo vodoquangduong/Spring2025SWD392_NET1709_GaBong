@@ -27,14 +27,11 @@ namespace Helpers.Mappers
             //Account to AccountDTO
             CreateMap<Account, AccountDTO>()
                 .ForMember(dest => dest.Password, opt => opt.MapFrom(src => "********"));
-
-
             //AccountDTO to Account
             CreateMap<AccountDTO, Account>()
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => Enum.Parse<AccountRole>(src.Role.ToString())))
                 .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => Enum.Parse<Gender>(src.Gender.ToString())))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => Enum.Parse<AccountStatus>(src.Status.ToString())));
-
             //UpdateAccountDTO to Account
             CreateMap<UpdateAccountDTO, Account>();
 
@@ -42,7 +39,6 @@ namespace Helpers.Mappers
             //Bid to BidDTO
             CreateMap<Bid, BidDTO>()
                 .ForMember(dest => dest.BidOwner, opt => opt.MapFrom(src => src.BidOwner));
-
             //BidDTO to Bid
             CreateMap<BidDTO, Bid>();
             //CreateBid to Bid
@@ -91,7 +87,6 @@ namespace Helpers.Mappers
             //UpdateStatusNotificationDTO to Notification
             CreateMap<UpdateStatusNotificationDTO, Notification>();
 
-
             //Portfolio Mappings
             //Portfolio to PortfolioDTO
             CreateMap<Portfolio, PortfolioDTO>();
@@ -105,24 +100,24 @@ namespace Helpers.Mappers
             CreateMap<PublicPortfolioDTO, Portfolio>();
             //PublicPortfolioDTO to PortfolioDTO
             CreateMap<Portfolio, PublicPortfolioDTO>()
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Account.Name))
-    .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Account.Email))
-    .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Account.Phone))
-    .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Account.Address))
-    .ForMember(dest => dest.AvatarURL, opt => opt.MapFrom(src => src.Account.AvatarURL))
-    .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Account.Birthday))
-    .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Account.Gender))
-    .ForMember(dest => dest.Nationality, opt => opt.MapFrom(src => src.Account.Nationality))
-    .ForMember(dest => dest.ReputationPoint, opt => opt.MapFrom(src => src.Account.ReputationPoint));
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Account.Name))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Account.Email))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Account.Phone))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Account.Address))
+                .ForMember(dest => dest.AvatarURL, opt => opt.MapFrom(src => src.Account.AvatarURL))
+                .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Account.Birthday))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Account.Gender))
+                .ForMember(dest => dest.Nationality, opt => opt.MapFrom(src => src.Account.Nationality))
+                .ForMember(dest => dest.ReputationPoint, opt => opt.MapFrom(src => src.Account.ReputationPoint));
             //Project Mappings
             //Project to ProjectDTO
             CreateMap<Project, ProjectDTO>()
-                        .ForMember(dest => dest.SkillIds, opt => opt.MapFrom(src =>
+                .ForMember(dest => dest.SkillIds, opt => opt.MapFrom(src =>
                             src.SkillRequired != null
                                 ? src.SkillRequired.Select(sr => sr.SkillId).ToList()
                                 : new List<long>()))
-                        .ForMember(dest => dest.Milestones, opt => opt.MapFrom(src => (List<Milestone>)src.Milestones))
-                        .ForMember(dest => dest.Bids, opt => opt.MapFrom(src => src.Bids))
+                .ForMember(dest => dest.Milestones, opt => opt.MapFrom(src => (List<Milestone>)src.Milestones))
+                .ForMember(dest => dest.Bids, opt => opt.MapFrom(src => src.Bids))
                         .ForMember(dest => dest.PostDate, opt => opt.MapFrom(src => src.PostDate.ToString("dd-MM-yyyy")));
             //ProjectDTO to Project
             CreateMap<ProjectDTO, Project>();

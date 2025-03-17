@@ -9,6 +9,5 @@ namespace Helpers.DTOs.Query
         public List<int>? SkillIds { get; set; }
         public string? Location { get; set; }
         public string SortBy { get; set; } // "newest", "oldest", "highest_budget", "lowest_budget"
-
     }
 }

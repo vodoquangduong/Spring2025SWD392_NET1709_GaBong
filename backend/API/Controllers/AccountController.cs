@@ -16,7 +16,6 @@ namespace API.Controllers
             _accountService = accountService;
         }   
 
-
        [HttpGet("get-all-account")]
        public async Task<IActionResult> GetAllAccount([FromQuery] Query query)
        {
@@ -39,7 +38,6 @@ namespace API.Controllers
             return Ok(result.Value);
         }
 
-
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAccountById(long id)
         {
@@ -50,6 +48,7 @@ namespace API.Controllers
             }
             return Ok(account);
         }
+
         [HttpPut]
         public async Task<IActionResult> UpdateAccount(UpdateAccountDTO accountDTO)
         {
@@ -60,6 +59,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+        
         [HttpPut("update-account-status")]
         public async Task<IActionResult> UpdateAccountStatus(UpdateAccountStatusDTO updateAccountStatusDTO)
         {
