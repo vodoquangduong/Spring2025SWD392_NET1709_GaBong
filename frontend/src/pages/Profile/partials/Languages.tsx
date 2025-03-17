@@ -1,6 +1,6 @@
-import { LanguagesProps } from "../models/types";
+import { UserProfileData } from "../models/types";
 
-const Languages = ({ languages }: LanguagesProps) => {
+const Languages = ({ languages }: UserProfileData) => {
   const proficiencyLevels = [
     "Beginner",
     "Elementary",

@@ -1,19 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import SearchBox from "../../../components/SearchBox";
-import { FaPlus, FaRegBell } from "react-icons/fa";
-
-const candidates = [
-  "https://shreethemes.in/jobstack/layouts/assets/images/team/01.jpg",
-  "https://shreethemes.in/jobstack/layouts/assets/images/team/02.jpg",
-  "https://shreethemes.in/jobstack/layouts/assets/images/team/03.jpg",
-  "https://shreethemes.in/jobstack/layouts/assets/images/team/04.jpg",
-  "https://shreethemes.in/jobstack/layouts/assets/images/team/05.jpg",
-  // "https://shreethemes.in/jobstack/layouts/assets/images/team/06.jpg",
-  // "https://shreethemes.in/jobstack/layouts/assets/images/team/07.jpg",
-  // "https://shreethemes.in/jobstack/layouts/assets/images/team/08.jpg",
-];
 
 const Temp = () => {
   useEffect(() => {
@@ -240,21 +227,6 @@ const companies = [
     name: "Adobe",
     logo: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAkFBMVEXsICf////rABD3rrDrAADsHSTsGSH+7+/sGyLsFR7rDxnrAAzrABH+9fX3sbPrBxT/+vrwYGTzh4rsJCzxcnX84+T97O3yeXz71tf4u7zzgoX60NH3qav0lJbtLzX6x8juO0H1nJ70jpD83t/6ycrwXWHvT1TuSEztNzzwaGvvT1PvVVrwX2P4wMLydHf1oaNR6dZ3AAAEUUlEQVR4nO2ceVPiQBDFHcyEXECUU0EF8T7W7//ttqhdVgcyLwlYNd3u+/27Kat7J+nX13ByQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCPkPGXS8ZKFt+xbyxamP/uVPcDF+MH56Jza0fceTXwAPzQ84RDsskYfjKLSBRzO4Qg4a85qGtvBYsjH28E77IaZn2EFjlkloG48jv6nzcJGHtvEokus6B01vqFowBqtaD825asGIuvUerovQVh5BOqp30JgzxYIRzZt4ONcrGPFjEweNeVIrGPmimYenWgXDDhvEmQ1qBSO7bOagMbeD0LYeRjRr6uFapyQ2jTMbnlUKRgRLX5e5xlhTU/ruoFEw6kpfl77CQ6wrfV1Kq04w0uc2DmoUjPrS12WszcNk2c5BY0bKBKNomJJ+Mu+EtrkdUa+th+YxDm10G7JpaweVCUa0bu+hGSgSjPj1AAfNlaJwmvcP8XCi5zVNrtvHmQ0jNUXU4BYcFCga9VQYHZCSLlA296JEMFIUZx7zif8ftQhGBFLSeQ6rKh1DbziNGWUWhSEdglF8+D2YFFhKuhra3zYDH9rmjGCHSoNgwJS02Hxn0Z3/gZmCQ+yAacyfWJneg/8D+ZsL8B38WyBFQC8vxAsGiiPbIhe9yOW18L6iHYAj3DYqbAxGNivhgpGd+20fZ1s9L1b+p6QLBvrEPuU8eQL9cNmCgRaEyuQzJUMzjbXoQ8zf/ZZ/TavjF/9zogUjWYK3z1nvQjsMF4IPEUUQd+MCNf1LuatuNgUp6c4QFIUkuYKBFoTGOxESyUo3llomoo9rd7Zkh6BMnAoVDDSN2V9Z74DJhlTBQCnp/hYpjLsyBQO+dxVz+gho57vIQ0Sxo2qbG7XkZAoGGtw/VDVC0UbRh8BpYvrmt3ddaS8Sl67AVTeUknpuxqCelbzLNHbot3biWSVBzeG1uG4G6pKuPJvccEYlTjByf2Oi9K50IQW9ESYY2S+/rf5qCDbmhK26ocgPTEXNYVmXadA1SnR3CzWHZe1Gow/qDYUMVCZKukyDUtJZtIOT3qBd8LWgQhilpL2uS8/ZfbIJaA4LukyD3rU93NsVSEfl3L6Eg/s9usnXCALLRDEzDFTpVeD2KFBzWMplmuSplYNm5iRxSGhKIZsLHfApVeLuWaJkQcZutE1AEVSJuzYDe5AiPDxgl7RwXj60QyTiMk2n8fWmf7jZClqDk7Ab3eZ60xb3tyLgDpGAlhT+ZQ8PbraSn/qfDL/qZuMDHDTvjt3wNUhDC0a7601bdvqhqEwMvuqGdkkB7gANlYmTwB42u3FfYXfmvHwodQ88iMob3bivwBU6pKmzoIcINw4g7oqeTUGZeB9S9dPnvveHvDB9V+eyqfcP9adB85rU/1tsmN0mceZ/VELiRgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCPlWfgMxXDz6FolmVgAAAABJRU5ErkJggg==",
   },
-];
-
-const positions = [
-  "Frontend Developer",
-  "Backend Developer",
-  "Full Stack Developer",
-  "UI/UX Designer",
-  "Project Manager",
-  "QA Engineer",
-  "Software Engineer",
-  "Data Analyst",
-  "Technical Writer",
-  "Marketing Specialist",
-  "Business Analyst",
-  "Sales Representative",
 ];
 
 export const ScrollHorizontal = () => {

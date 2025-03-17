@@ -146,7 +146,7 @@ export const projectColumns = () => {
                     mutation.mutate({
                       projectId: record.projectId,
                       isVerified: true,
-                      clientId: record.clientId,
+                      clientId: record.clientId + "",
                     });
                   }}
                 >
@@ -166,7 +166,7 @@ export const projectColumns = () => {
                     mutation.mutate({
                       projectId: record.projectId,
                       isVerified: false,
-                      clientId: record.clientId,
+                      clientId: record.clientId + "",
                     });
                   }}
                 >

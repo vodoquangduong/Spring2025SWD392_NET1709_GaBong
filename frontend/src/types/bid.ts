@@ -1,4 +1,4 @@
-import { Account } from "@/pages/Dashboard/EmployeeDashboard/AccountManagement/models/types";
+import { Account } from "./account";
 
 export interface Bid {
   bidDescription: string;

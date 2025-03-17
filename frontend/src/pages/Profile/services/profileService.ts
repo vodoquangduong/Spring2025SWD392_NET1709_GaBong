@@ -4,7 +4,7 @@ import { UserProfileData } from "../models/types";
 const API_URL = import.meta.env.VITE_SERVER_URL;
 
 export const profileService = {
-  getProfile: async (id: number): Promise<UserProfileData> => {
+  getProfile: async (id: number): Promise<any> => {
     try {
       const token = getCookie("accessToken");
       const response = await fetch(`${API_URL}/api/Account/${id}`, {
@@ -27,7 +27,7 @@ export const profileService = {
         console.log("API response value:", data.value);
 
         // Map API response to our interface
-        const mappedData: UserProfileData = {
+        const mappedData: any = {
           accountId: data.value.accountId,
           role: data.value.role,
           name: data.value.name,
@@ -58,7 +58,7 @@ export const profileService = {
   updateProfile: async (
     id: number,
     data: Partial<UserProfileData>
-  ): Promise<UserProfileData> => {
+  ): Promise<any> => {
     try {
       const token = getCookie("accessToken");
       const response = await fetch(`${API_URL}/api/Account/${id}`, {

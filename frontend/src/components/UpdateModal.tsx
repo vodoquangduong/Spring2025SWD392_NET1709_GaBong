@@ -1,7 +1,7 @@
-import { FormCallback } from "types";
 import CreateModal from "./CreateModal";
 import { FaRegEdit } from "react-icons/fa";
 import { ReactNode } from "react";
+import { FormCallback } from "@/types";
 
 type UpdateModalProps = {
   record: any;

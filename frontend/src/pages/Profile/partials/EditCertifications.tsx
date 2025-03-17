@@ -1,7 +1,7 @@
 import { FaPlus, FaTrash } from "react-icons/fa";
-import { CertificationsProps } from "../models/types";
+// import { CertificationsProps } from "../models/types";
 
-const EditCertifications = ({ certifications }: CertificationsProps) => {
+const EditCertifications = ({ certifications }: any) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">

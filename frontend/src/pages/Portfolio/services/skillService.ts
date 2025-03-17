@@ -18,7 +18,7 @@ export const skillService = {
     }
   },
 
-  // Chuyển đổi danh sách skills từ API thành định dạng options cho Select component
+  // Convert skills list from API into options format for Select component
   mapSkillsToOptions: (skills: Skill[]) => {
     return skills.map((skill) => ({
       value: skill.skillId, // Changed from skill.skillName to skill.skillId

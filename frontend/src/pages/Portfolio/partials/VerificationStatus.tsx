@@ -30,7 +30,6 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
 
   const currentStatus = getCurrentStatus();
 
-  // Tạo các bước trong tiến trình dựa trên status thực tế
   const getStepsItems = () => {
     const items = [
       {
@@ -68,7 +67,7 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
       },
     ];
 
-    // Thêm bước Verified hoặc Rejected dựa trên status thực tế
+    // Add Verified or Rejected step based on actual status
     if (currentStatus === PortfolioStatus.Verified) {
       items.push({
         title: "Verified",
@@ -86,7 +85,7 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
         ),
       });
     } else if (currentStatus === PortfolioStatus.Pending) {
-      // Khi đang ở trạng thái Pending, hiển thị cả hai nhánh tiềm năng nhưng ở trạng thái wait
+      // When in Pending state, show both potential branches but in wait state
       items.push({
         title: "Verification Result",
         status: "wait" as "process" | "finish" | "wait" | "error",
