@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessObjects.Models;
+﻿using BusinessObjects.Models;
 using Helpers.DTOs.Chat;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
-using Repositories.Queries;
 using Services.Interfaces;
 
 namespace Services.Implements
@@ -57,7 +49,7 @@ namespace Services.Implements
                         ChatRoomId = createdChatRoom.ChatRoomID
                     }
                 );
-            
+
             //await _unitOfWork
             //    .GetRepo<RoomDetail>()
             //    .CreateAsync(

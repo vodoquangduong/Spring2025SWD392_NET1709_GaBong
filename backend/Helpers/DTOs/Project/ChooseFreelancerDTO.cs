@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Helpers.HelperClasses;
+﻿using Helpers.HelperClasses;
+using System.ComponentModel.DataAnnotations;
 
 namespace Helpers.DTOs.Project
 {
@@ -11,6 +11,6 @@ namespace Helpers.DTOs.Project
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "Freelancer ID")]
         public long FreelancerId { get; set; }
-        
+
     }
 }

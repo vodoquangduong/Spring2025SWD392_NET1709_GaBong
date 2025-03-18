@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Services.Interfaces;
+﻿using Helpers.DTOs.Account;
 using Helpers.DTOs.Query;
-using Helpers.DTOs.Account;
+using Microsoft.AspNetCore.Mvc;
+using Services.Interfaces;
 
 namespace API.Controllers
 {
@@ -14,19 +14,19 @@ namespace API.Controllers
         public AccountController(IAccountService accountService)
         {
             _accountService = accountService;
-        }   
-
-
-       [HttpGet("get-all-account")]
-       public async Task<IActionResult> GetAllAccount([FromQuery] Query query)
-       {
-        var result = await _accountService.GetAllAccountAsync(query.PageNumber, query.PageSize);
-        if (result.IsFailure)
-        {
-            return Ok(result.Error);
         }
-        return Ok(result.Value);
-       }
+
+
+        [HttpGet("get-all-account")]
+        public async Task<IActionResult> GetAllAccount([FromQuery] Query query)
+        {
+            var result = await _accountService.GetAllAccountAsync(query.PageNumber, query.PageSize);
+            if (result.IsFailure)
+            {
+                return Ok(result.Error);
+            }
+            return Ok(result.Value);
+        }
 
         [HttpGet("get-all-freelancer")]
         public async Task<IActionResult> GetAllFreelancer([FromQuery] Query query)
@@ -54,7 +54,7 @@ namespace API.Controllers
         public async Task<IActionResult> UpdateAccount(UpdateAccountDTO accountDTO)
         {
             var result = await _accountService.UpdateAccountAsync(accountDTO);
-            if(result.IsFailure)
+            if (result.IsFailure)
             {
                 return Ok(result.Error);
             }
@@ -64,7 +64,7 @@ namespace API.Controllers
         public async Task<IActionResult> UpdateAccountStatus(UpdateAccountStatusDTO updateAccountStatusDTO)
         {
             var result = await _accountService.UpdateAccountStatus(updateAccountStatusDTO);
-            if(result.IsFailure)
+            if (result.IsFailure)
             {
                 return Ok(result.Error);
             }

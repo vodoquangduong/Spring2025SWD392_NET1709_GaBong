@@ -2,19 +2,16 @@
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using Repositories.Queries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repositories.Implements
 {
     public class ChatRoomRepository : IChatRoomRepository
     {
-        private readonly UnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ChatRoomRepository(UnitOfWork unitOfWork)
+        public ChatRoomRepository(
+            IUnitOfWork unitOfWork
+            )
         {
             _unitOfWork = unitOfWork;
         }
@@ -96,7 +93,7 @@ namespace Repositories.Implements
             return returnRoom;
         }
 
-        
+
         public async Task<IEnumerable<RoomDetail>> GetAllUserSharedRoomDetailsAsync(IEnumerable<long> chatRoomIds, long accountId)
         {
             var sharedRoomQuery = new QueryBuilder<RoomDetail>()

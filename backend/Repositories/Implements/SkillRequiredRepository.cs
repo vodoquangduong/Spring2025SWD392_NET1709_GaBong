@@ -1,12 +1,6 @@
 ﻿using BusinessObjects.Models;
-using DAOs;
 using Repositories.Interfaces;
 using Repositories.Queries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repositories.Implements
 {
@@ -19,16 +13,17 @@ namespace Repositories.Implements
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<List<SkillCategory>> GetSkillByProjectIdAsync(long projectId)
+        public async Task<IEnumerable<SkillRequired>> GetSkillByProjectIdAsync(long projectId)
         {
             var queryOptions = new QueryBuilder<SkillRequired>()
                 .WithTracking(false)
                 .WithInclude(sr => sr.SkillCategory)
-                .WithPredicate(sr => sr.ProjectId == projectId)  // Chỉ lấy dữ liệu theo projectId
+                .WithInclude(sr => sr.ProjectId)
                 .Build();
 
             var skills = await _unitOfWork.GetRepo<SkillRequired>().GetAllAsync(queryOptions);
-            return skills.Select(sr => sr.SkillCategory).ToList();
+
+            return skills;
         }
 
         public async Task CreateAllAsync(List<SkillRequired> skillRequireds)

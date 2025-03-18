@@ -17,7 +17,7 @@ namespace BusinessObjects.Models
         public string FeedbackComment { get; set; } = string.Empty;
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-    
+
         // Navigation properties
         [ForeignKey("ProjectId")]
         public Project Project { get; set; } = null!;

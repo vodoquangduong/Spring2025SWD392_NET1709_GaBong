@@ -33,7 +33,7 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateSkillVategoryAsync([FromBody] CreateSkillCategoryDTO createSkillCategoryDTO)
         {
-            var skillCategory = await _skillCategoryService.CreateSkillCategoryAsync( createSkillCategoryDTO);
+            var skillCategory = await _skillCategoryService.CreateSkillCategoryAsync(createSkillCategoryDTO);
             if (skillCategory == null)
             {
                 return NotFound("Create fail");

@@ -1,15 +1,7 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
-using DAOs;
-using Helpers.HelperClasses;
-using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using Repositories.Queries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repositories.Implements
 {
@@ -58,8 +50,8 @@ namespace Repositories.Implements
 
         public async Task<Account> CreateAccountAsync(Account account)
         {
-        var createdAccount = await _unitOfWork.GetRepo<Account>().CreateAsync(account);
-        await _unitOfWork.SaveChangesAsync();
+            var createdAccount = await _unitOfWork.GetRepo<Account>().CreateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
             return createdAccount;
         }
 
@@ -83,7 +75,7 @@ namespace Repositories.Implements
         {
             var queryOptions = new QueryBuilder<Account>()
                 .WithTracking(false) // No tracking for efficient
-                .WithPredicate(a => a.Role == BusinessObjects.Enums.AccountRole.Freelancer 
+                .WithPredicate(a => a.Role == BusinessObjects.Enums.AccountRole.Freelancer
                                 && a.Status == BusinessObjects.Enums.AccountStatus.Active)
                 .Build();
             var accounts = _unitOfWork.GetRepo<Account>().Get(queryOptions);

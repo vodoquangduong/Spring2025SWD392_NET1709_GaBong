@@ -1,6 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using BusinessObjects.Enums;
 using Helpers.HelperClasses;
+using System.ComponentModel.DataAnnotations;
 
 namespace Helpers.DTOs.Notification
 {

@@ -1,15 +1,14 @@
 ﻿using BusinessObjects.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repositories.Interfaces
 {
     public interface ITransactionRepository
     {
         Task<Transaction> CreateTransationAsync(Transaction transaction);
+        Task CreateAllTransationAsync(List<Transaction> transactions);
+        Task<Transaction?> GetSingleByIdAsync(long transationId);
         Task UpdateAsync(Transaction transaction);
+        IQueryable<Transaction> GetAllTransactionsPaging();
+        Task<IEnumerable<Transaction>> GetAllTransactionByAccountIdAsync(long accountId);
     }
 }

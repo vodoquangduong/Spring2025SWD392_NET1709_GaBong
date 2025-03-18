@@ -1,7 +1,7 @@
+using BusinessObjects.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using BusinessObjects.Enums;
 
 namespace BusinessObjects.Models
 {
@@ -18,7 +18,7 @@ namespace BusinessObjects.Models
 
         [ForeignKey("Freelancer")]
         [Column("freelancer_id")]
-        public long? FreelancerId { get; set; }
+        public long FreelancerId { get; set; }
 
         [ForeignKey("Verifier")]
         [Column("verify_staff_id")]

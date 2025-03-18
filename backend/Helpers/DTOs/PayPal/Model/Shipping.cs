@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace Helpers.DTOs.PayPal.Model
+﻿namespace Helpers.DTOs.PayPal.Model
 {
     public sealed class Shipping
     {

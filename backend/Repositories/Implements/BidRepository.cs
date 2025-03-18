@@ -1,11 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Repositories.Interfaces;
 using Repositories.Queries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repositories.Implements
 {
@@ -23,6 +18,20 @@ namespace Repositories.Implements
             var createdBid = await _unitOfWork.GetRepo<Bid>().CreateAsync(bid);
             await _unitOfWork.SaveChangesAsync();
             return createdBid;
+        }
+
+        public async Task<Bid?> GetChoosenBid(long projectId, long freelancerId)
+        {
+            var queryBid = new QueryBuilder<Bid>()
+                .WithTracking(false)
+                .WithPredicate(b =>
+                    b.BidOwnerId == freelancerId
+                    && b.ProjectId == projectId
+                )
+                .Build();
+            var choosenBid = await _unitOfWork.GetRepo<Bid>().GetSingleAsync(queryBid);
+
+            return choosenBid;
         }
 
         public IQueryable<Bid> GetAllBidByFreelancerIdPaging(long freelancerId)

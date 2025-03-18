@@ -1,5 +1,4 @@
 using BusinessObjects.Enums;
-using BusinessObjects.Models;
 using Helpers.DTOs.SkillPerform;
 
 namespace Services.Interfaces.Portfolio

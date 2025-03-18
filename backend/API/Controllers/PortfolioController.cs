@@ -98,7 +98,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetPendingPublicPortfolioByFreelancerId([FromRoute] long freelancerId)
         {
             var result = await _portfolioService.GetPendingPublicPortfolioByFreelancerIdAsync(freelancerId);
-            if(result.IsFailure)
+            if (result.IsFailure)
             {
                 return Ok(result.Error);
             }

@@ -1,8 +1,5 @@
-﻿using BusinessObjects.Enums;
-using BusinessObjects.Models;
-using Helpers.DTOs.PayPal;
+﻿using Helpers.DTOs.PayPal;
 using Microsoft.AspNetCore.Mvc;
-using PayPalCheckoutSdk.Payments;
 using Services.Implements;
 using Services.Interfaces;
 using System.Globalization;

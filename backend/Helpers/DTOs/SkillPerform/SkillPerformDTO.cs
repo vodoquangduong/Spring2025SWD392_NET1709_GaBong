@@ -5,7 +5,7 @@ namespace Helpers.DTOs.SkillPerform
 {
     public class SkillPerformDTO
     {
-        public SkillCategoryDTO Skills {  get; set; }
+        public SkillCategoryDTO Skills { get; set; }
         public SkillLevel SkillLevel { get; set; }
     }
 }

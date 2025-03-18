@@ -1,11 +1,11 @@
 ﻿using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
 using Microsoft.Extensions.Configuration;
-using Services.Interfaces;
-using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
+using Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Services.Implements
 {

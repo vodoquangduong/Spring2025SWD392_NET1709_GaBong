@@ -1,12 +1,12 @@
+using BusinessObjects.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BusinessObjects.Enums;
 
 namespace BusinessObjects.Models
 {
     public class Report
     {
-        
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("report_id")]

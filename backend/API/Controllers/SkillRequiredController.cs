@@ -17,7 +17,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProjectSkill([FromRoute]long id)
+        public async Task<IActionResult> GetProjectSkill([FromRoute] long id)
         {
             var skills = await _skillRequiredService.GetSkillByProjectIdAsync(id);
             if (skills == null)

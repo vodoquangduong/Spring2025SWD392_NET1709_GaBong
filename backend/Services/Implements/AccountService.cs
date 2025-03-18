@@ -4,9 +4,7 @@ using BusinessObjects.Models;
 using Helpers.DTOs.Account;
 using Helpers.DTOs.Authentication;
 using Helpers.HelperClasses;
-using PayPalCheckoutSdk.Payments;
 using Repositories.Interfaces;
-using Repositories.Queries;
 using Services.Interfaces;
 
 namespace Services.Implements;
@@ -19,8 +17,8 @@ public class AccountService : IAccountService
     private readonly IMapper _mapper;
     public AccountService(
         //IUnitOfWork unitOfWork, 
-        ICurrentUserService currentUserService, 
-        IAccountRepository accountRepository, 
+        ICurrentUserService currentUserService,
+        IAccountRepository accountRepository,
         IMapper mapper)
     {
         //_unitOfWork = unitOfWork;
@@ -140,23 +138,23 @@ public class AccountService : IAccountService
     {
         try
         {
-            if(_currentUserService.Status.Equals("Inactive"))
+            if (_currentUserService.Status.Equals("Inactive"))
             {
                 return Result.Failure<AccountDTO>(new Error("Account is inactive", "Account is inactive"));
             }
-            if(string.IsNullOrEmpty(accountDto.Name))
+            if (string.IsNullOrEmpty(accountDto.Name))
             {
                 return Result.Failure<AccountDTO>(new Error("Update account failed", "Name cannot null"));
             }
-            if(string.IsNullOrEmpty(accountDto.Address))
+            if (string.IsNullOrEmpty(accountDto.Address))
             {
-                return Result.Failure<AccountDTO>(new Error("Update account failed","Address cannot null"));
+                return Result.Failure<AccountDTO>(new Error("Update account failed", "Address cannot null"));
             }
-            if(string.IsNullOrEmpty(accountDto.AvatarURL))
+            if (string.IsNullOrEmpty(accountDto.AvatarURL))
             {
-                return Result.Failure<AccountDTO>(new Error("Update account failed","Avatar URL cannot null"));
+                return Result.Failure<AccountDTO>(new Error("Update account failed", "Avatar URL cannot null"));
             }
-            if(string.IsNullOrEmpty(accountDto.Phone))
+            if (string.IsNullOrEmpty(accountDto.Phone))
             {
                 return Result.Failure<AccountDTO>(new Error("Update account failed", "Phone number cannot null"));
             }
@@ -192,7 +190,7 @@ public class AccountService : IAccountService
     {
         try
         {
-            if(!_currentUserService.Role.Equals("Admin"))
+            if (!_currentUserService.Role.Equals("Admin"))
             {
                 return Result.Failure<AccountDTO>(new Error("Update account status failed", "Only admin can update account status"));
             }
@@ -203,7 +201,7 @@ public class AccountService : IAccountService
             //});
             var existedAccount = await _accountRepository.GetSingleByAccountIdAsync(updateAccountStatusDTO.AccountId);
 
-            if(existedAccount == null)
+            if (existedAccount == null)
             {
                 return Result.Failure<AccountDTO>(new Error("Update account status failed", "Account not found"));
             }

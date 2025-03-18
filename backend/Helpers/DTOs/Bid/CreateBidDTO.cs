@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Helpers.HelperClasses;
+﻿using Helpers.HelperClasses;
+using System.ComponentModel.DataAnnotations;
 
 namespace Helpers.DTOs.Bid
 {
@@ -8,7 +8,7 @@ namespace Helpers.DTOs.Bid
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "Project ID")]
         public long ProjectId { get; set; } = long.MinValue;
-       
+
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Range(0, double.MaxValue, ErrorMessage = "Bid offer must be a positive number")]
         [Display(Name = "Bid offer")]

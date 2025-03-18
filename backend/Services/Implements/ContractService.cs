@@ -3,22 +3,40 @@ using BusinessObjects.Models;
 using Helpers.DTOs;
 using Helpers.DTOs.Contract;
 using Helpers.HelperClasses;
-using Helpers.Mappers;
 using Microsoft.Extensions.Configuration;
-using Repositories.Queries;
+using Repositories.Interfaces;
 using Services.Interfaces;
 
 namespace Services.Implements
 {
     public class ContractService : IContractService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        //private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
+        private readonly IProjectRepository _projectRepository;
+        private readonly IBidRepository _bidRepository;
+        private readonly IAccountRepository _accountRepository;
+        private readonly ITransactionRepository _transactionRepository;
+        private readonly IContractRepository _contractRepository;
         private readonly IMapper _mapper;
-        public ContractService(IUnitOfWork unitOfWork, IConfiguration configuration, IMapper mapper)
+        public ContractService(
+            //IUnitOfWork unitOfWork,
+            IConfiguration configuration,
+            IProjectRepository projectRepository,
+            IBidRepository bidRepository,
+            IAccountRepository accountRepository,
+            ITransactionRepository transactionRepository,
+            IContractRepository contractRepository,
+            IMapper mapper
+            )
         {
-            _unitOfWork = unitOfWork;
+            //_unitOfWork = unitOfWork;
             _configuration = configuration;
+            _projectRepository = projectRepository;
+            _bidRepository = bidRepository;
+            _accountRepository = accountRepository;
+            _transactionRepository = transactionRepository;
+            _contractRepository = contractRepository;
             _mapper = mapper;
         }
 
@@ -29,11 +47,13 @@ namespace Services.Implements
             try
             {
                 //<==Query Project==>
-                var queryProject = new QueryBuilder<Project>()
-                    .WithTracking(false)
-                    .WithPredicate(p => p.ProjectId == createContractDTO.ProjectId)
-                    .Build();
-                var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryProject);
+                //var queryProject = new QueryBuilder<Project>()
+                //    .WithTracking(false)
+                //    .WithPredicate(p => p.ProjectId == createContractDTO.ProjectId)
+                //    .Build();
+                //var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryProject);
+                var project = await _projectRepository.GetSingleByIdAsync(createContractDTO.ProjectId);
+
                 if (project == null)
                 {
                     Console.WriteLine("Project not found");
@@ -56,21 +76,23 @@ namespace Services.Implements
                 }
 
                 //<==Query Bid==>
-                var queryBid = new QueryBuilder<Bid>()
-                    .WithTracking(false)
-                    .WithPredicate(b =>
-                        b.BidOwnerId == createContractDTO.freelancerId
-                        && b.ProjectId == createContractDTO.ProjectId
-                    )
-                    .Build();
-                var choosenBid = await _unitOfWork.GetRepo<Bid>().GetSingleAsync(queryBid);
+                //var queryBid = new QueryBuilder<Bid>()
+                //    .WithTracking(false)
+                //    .WithPredicate(b =>
+                //        b.BidOwnerId == createContractDTO.freelancerId
+                //        && b.ProjectId == createContractDTO.ProjectId
+                //    )
+                //    .Build();
+                //var choosenBid = await _unitOfWork.GetRepo<Bid>().GetSingleAsync(queryBid);
+                var choosenBid = await _bidRepository.GetChoosenBid(createContractDTO.ProjectId, createContractDTO.freelancerId);
 
                 //<==Query client==>
-                var queryClient = new QueryBuilder<Account>()
-                    .WithTracking(false)
-                    .WithPredicate(a => a.AccountId == project.ClientId)
-                    .Build();
-                var client = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryClient);
+                //var queryClient = new QueryBuilder<Account>()
+                //    .WithTracking(false)
+                //    .WithPredicate(a => a.AccountId == project.ClientId)
+                //    .Build();
+                //var client = await _unitOfWork.GetRepo<Account>().GetSingleAsync(queryClient);
+                var client = await _accountRepository.GetSingleByAccountIdAsync(project.ClientId);
 
                 //<==Check client credit enough for project or not==>
                 client.LockCredit -= project.EstimateBudget;
@@ -93,7 +115,7 @@ namespace Services.Implements
                 }
 
                 //<==Start create contract==>
-                await _unitOfWork.BeginTransactionAsync();
+                //await _unitOfWork.BeginTransactionAsync();
 
                 //<======Transaction for project fee(10% project amount)=======>
                 var transactionProjectFee = new Transaction()
@@ -102,46 +124,59 @@ namespace Services.Implements
                     Amount = choosenBid.BidOffer * projectFee,
                     Status = BusinessObjects.Enums.TransactionStatus.Pending,
                     CreatedAt = DateTime.UtcNow,
-                    Detail = "Fee to create project "+ project.ProjectId + ": " + project.ProjectName,
+                    Detail = "Fee to create project " + project.ProjectId + ": " + project.ProjectName,
                     Type = BusinessObjects.Enums.TransactionType.Fee,
                 };
-                await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionProjectFee);
-                await _unitOfWork.SaveChangesAsync(); // Save to generate TransactionId
+
+                //await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionProjectFee);
+                //await _unitOfWork.SaveChangesAsync(); // Save to generate TransactionId
+                await _transactionRepository.CreateTransationAsync(transactionProjectFee);
 
                 //<======Apply for client credit======>
                 client.TotalCredit -= choosenBid.BidOffer * projectFee;
                 client.LockCredit += choosenBid.BidOffer;
-                await _unitOfWork.GetRepo<Account>().UpdateAsync(client);
-                await _unitOfWork.SaveChangesAsync();
+
+                //await _unitOfWork.GetRepo<Account>().UpdateAsync(client);
+                //await _unitOfWork.SaveChangesAsync();
+                await _accountRepository.UpdateAsync(client);
 
                 //<======Complete transaction======>
                 transactionProjectFee.Status = BusinessObjects.Enums.TransactionStatus.Completed;
-                await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transactionProjectFee);
-                await _unitOfWork.SaveChangesAsync();
+
+                //await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transactionProjectFee);
+                //await _unitOfWork.SaveChangesAsync();
+                await _transactionRepository.UpdateAsync(transactionProjectFee);
 
                 //<======Create Contract======>
                 var contract = _mapper.Map<Contract>(createContractDTO);
                 contract.StartDate = DateTime.UtcNow;
-                await _unitOfWork.GetRepo<Contract>().CreateAsync(contract);
-                await _unitOfWork.SaveChangesAsync();
+
+                //await _unitOfWork.GetRepo<Contract>().CreateAsync(contract);
+                //await _unitOfWork.SaveChangesAsync();
+                await _contractRepository.CreateAsync(contract);
+
 
                 //<======Update project======>
                 project.FreelancerId = createContractDTO.freelancerId;
                 project.Status = BusinessObjects.Enums.ProjectStatus.OnGoing;
                 project.EstimateBudget = choosenBid.BidOffer;
-                await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
+
+                //await _unitOfWork.GetRepo<Project>().UpdateAsync(project);
+                await _projectRepository.UpdateAsync(project);
 
                 //<======Update bid(refund money bid for freelancer)======>\
                 await refundBid(project);
-                
+
                 //<===Finish contract===>
-                await _unitOfWork.SaveChangesAsync();
-                await _unitOfWork.CommitTransactionAsync();
+                //await _unitOfWork.SaveChangesAsync();
+                //await _unitOfWork.CommitTransactionAsync();
+
                 return Result.Success(_mapper.Map<ContractDTO>(contract));
             }
             catch (Exception e)
             {
-                await _unitOfWork.RollBackAsync();
+                //await _unitOfWork.RollBackAsync();
+
                 return Result.Failure<ContractDTO>(new Error("Contract.CreationFailed", e.Message));
             }
         }
@@ -153,7 +188,9 @@ namespace Services.Implements
         {
             try
             {
-                var contracts = _unitOfWork.GetRepo<Contract>().Get(new QueryOptions<Contract>());
+                //var contracts = _unitOfWork.GetRepo<Contract>().Get(new QueryOptions<Contract>());
+                var contracts = _contractRepository.GetAllContractsPaging();
+
                 var paginatedContracts = await Pagination.ApplyPaginationAsync(
                     contracts,
                     pageNumber,
@@ -174,11 +211,13 @@ namespace Services.Implements
         {
             try
             {
-                var contract = await _unitOfWork
-                    .GetRepo<Contract>()
-                    .GetSingleAsync(
-                        new QueryOptions<Contract> { Predicate = c => c.ContractId == contractId }
-                    );
+                //var contract = await _unitOfWork
+                //    .GetRepo<Contract>()
+                //    .GetSingleAsync(
+                //        new QueryOptions<Contract> { Predicate = c => c.ContractId == contractId }
+                //    );
+                var contract = await _contractRepository.GetSigleByContractId(contractId);
+
                 if (contract == null)
                 {
                     return Result.Failure<ContractDTO>(
@@ -197,11 +236,13 @@ namespace Services.Implements
         {
             try
             {
-                var contract = await _unitOfWork
-                    .GetRepo<Contract>()
-                    .GetSingleAsync(
-                        new QueryOptions<Contract> { Predicate = c => c.ProjectId == projectId }
-                    );
+                //var contract = await _unitOfWork
+                //    .GetRepo<Contract>()
+                //    .GetSingleAsync(
+                //        new QueryOptions<Contract> { Predicate = c => c.ProjectId == projectId }
+                //    );
+                var contract = await _contractRepository.GetSigleByProjectId(projectId);
+
                 if (contract == null)
                 {
                     return Result.Failure<ContractDTO>(
@@ -221,12 +262,14 @@ namespace Services.Implements
 
         public async Task refundBid(Project project)
         {
-            var bidquery = new QueryBuilder<Bid>()
-                .WithTracking(false)
-                .WithInclude(b => b.BidOwner)
-                .WithPredicate(b => b.ProjectId == project.ProjectId)
-                .Build();
-            var bids = await _unitOfWork.GetRepo<Bid>().GetAllAsync(bidquery);
+            //var bidquery = new QueryBuilder<Bid>()
+            //    .WithTracking(false)
+            //    .WithInclude(b => b.BidOwner)
+            //    .WithPredicate(b => b.ProjectId == project.ProjectId)
+            //    .Build();
+            //var bids = await _unitOfWork.GetRepo<Bid>().GetAllAsync(bidquery);
+            var bids = await _bidRepository.GetBidsByProjectAsync(project.ProjectId);
+
             var choosenBid = project.FreelancerId;
             Account freelancer;
             foreach (var item in bids)
@@ -235,12 +278,13 @@ namespace Services.Implements
                 if (item.BidOwnerId != choosenBid)
                 {
                     //<======Get freelancer who not choosen======>
-                    var options = new QueryBuilder<Account>()
-                        .WithTracking(true)
-                        .WithPredicate(a => a.AccountId == item.BidOwnerId)
-                        .Build();
+                    //var options = new QueryBuilder<Account>()
+                    //    .WithTracking(true)
+                    //    .WithPredicate(a => a.AccountId == item.BidOwnerId)
+                    //    .Build();
 
-                    freelancer = await _unitOfWork.GetRepo<Account>().GetSingleAsync(options);
+                    //freelancer = await _unitOfWork.GetRepo<Account>().GetSingleAsync(options);
+                    freelancer = await _accountRepository.GetSingleByAccountIdAsync(item.BidOwnerId);
 
                     decimal bidFee;
                     if (!decimal.TryParse(_configuration["PaymentPolicy:BidFee"], out bidFee))
@@ -257,20 +301,26 @@ namespace Services.Implements
                         Type = BusinessObjects.Enums.TransactionType.Refund,
                         Detail = "Refund for reject proposal of project " + project.ProjectId + ": " + project.ProjectName
                     };
-                    await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionRefundFee);
-                    await _unitOfWork.SaveChangesAsync();
+
+                    //await _unitOfWork.GetRepo<Transaction>().CreateAsync(transactionRefundFee);
+                    //await _unitOfWork.SaveChangesAsync();
+                    await _transactionRepository.CreateTransationAsync(transactionRefundFee);
 
 
                     //<=======Update freelancer balance=======>
                     freelancer.TotalCredit += transactionRefundFee.Amount;
-                    await _unitOfWork.GetRepo<Account>().UpdateAsync(freelancer);
-                    await _unitOfWork.SaveChangesAsync();
+
+                    //await _unitOfWork.GetRepo<Account>().UpdateAsync(freelancer);
+                    //await _unitOfWork.SaveChangesAsync();
+                    await _accountRepository.UpdateAsync(freelancer);
 
 
                     //<======Complete transaction=======>
                     transactionRefundFee.Status = BusinessObjects.Enums.TransactionStatus.Completed;
-                    await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transactionRefundFee);
-                    await _unitOfWork.SaveChangesAsync();
+
+                    //await _unitOfWork.GetRepo<Transaction>().UpdateAsync(transactionRefundFee);
+                    //await _unitOfWork.SaveChangesAsync();
+                    await _transactionRepository.UpdateAsync(transactionRefundFee);
                 }
             }
         }

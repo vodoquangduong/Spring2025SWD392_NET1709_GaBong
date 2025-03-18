@@ -15,9 +15,9 @@ namespace BusinessObjects.Models
         [Column("skill_id")]
         public long SkillId { get; set; }
 
-        [Column ("level")]
+        [Column("level")]
         public SkillLevel Level { get; set; } = SkillLevel.Entry;
-        
+
         // Navigation Properties
         [ForeignKey("AccountId")]
         public virtual Account Account { get; set; } = null!;

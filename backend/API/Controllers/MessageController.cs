@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Helpers.DTOs.Chat;
-using Helpers.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 

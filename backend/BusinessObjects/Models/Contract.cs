@@ -19,8 +19,8 @@ namespace BusinessObjects.Models
         // Navigation properties
         [ForeignKey("ProjectId")]
         public Project Project { get; set; } = null!;
-        
-        
+
+
 
     }
 }

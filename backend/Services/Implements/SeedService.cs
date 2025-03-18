@@ -1,9 +1,9 @@
-﻿using System.Security.Cryptography;
-using Bogus;
+﻿using Bogus;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using DAOs;
 using Services.Interfaces;
+using System.Security.Cryptography;
 
 namespace Services.Implements
 {

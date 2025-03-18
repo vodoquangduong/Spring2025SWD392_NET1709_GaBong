@@ -8,7 +8,7 @@ namespace Helpers.DTOs.Milestone
     {
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "Milestone ID")]
-        public long milestoneId {  get; set; }
+        public long milestoneId { get; set; }
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "Milestone status")]
         public MilestoneStatus milestoneStatus { get; set; }

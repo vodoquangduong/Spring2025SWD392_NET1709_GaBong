@@ -1,6 +1,6 @@
+using BusinessObjects.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BusinessObjects.Enums;
 
 namespace BusinessObjects.Models
 {
@@ -25,6 +25,6 @@ namespace BusinessObjects.Models
         //navigation property
         [ForeignKey("AccountId")]
         public virtual Account Account { get; set; } = null!;
-        
+
     }
 }

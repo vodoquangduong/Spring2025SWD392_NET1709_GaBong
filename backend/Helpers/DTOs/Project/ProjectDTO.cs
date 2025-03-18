@@ -1,8 +1,5 @@
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using Helpers.DTOs.Milestone;
 using Helpers.DTOs.Bid;
 
 public class ProjectDTO

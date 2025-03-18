@@ -59,7 +59,7 @@ namespace API.Controllers
             return Ok(result.Value);
         }
 
-        
+
         /// <summary>
         /// Get all transaction of an account (For table list UI)
         /// </summary>

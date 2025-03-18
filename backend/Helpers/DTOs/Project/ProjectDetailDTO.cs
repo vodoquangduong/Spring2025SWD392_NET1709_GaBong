@@ -1,13 +1,5 @@
 ﻿using BusinessObjects.Enums;
 using Helpers.DTOs.Bid;
-using BusinessObjects;
-using BusinessObjects.Models;
-using Helpers.DTOs.Milestone;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Helpers.DTOs.SkillCategory;
 
 namespace Helpers.DTOs.Project

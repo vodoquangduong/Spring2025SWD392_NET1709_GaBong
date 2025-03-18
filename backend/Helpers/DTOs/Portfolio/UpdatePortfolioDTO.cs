@@ -1,6 +1,6 @@
 using Helpers.DTOs.SkillPerform;
-using System.ComponentModel.DataAnnotations;
 using Helpers.HelperClasses;
+using System.ComponentModel.DataAnnotations;
 namespace Helpers.DTOs.Portfolio
 {
     public class UpdatePortfolioDTO

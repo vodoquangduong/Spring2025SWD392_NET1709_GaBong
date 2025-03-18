@@ -40,7 +40,7 @@ namespace Services.Implements
             return new AuthenticationResponse { Token = _tokenService.CreateToken(account) };
         }
 
-        
+
         public async Task<AuthenticationResponse?> LoginGoogle(LoginGoogleDTO loginGoogleDto)
         {
             var existingAccount = await _accountService.GetAccountByEmailAsync(

@@ -1,16 +1,8 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
-using DAOs;
 using Helpers.DTOs.Query;
-using Helpers.HelperClasses;
-using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using Repositories.Queries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repositories.Implements
 {
@@ -47,20 +39,29 @@ namespace Repositories.Implements
             return await _unitOfWork.GetRepo<Project>().GetSingleAsync(queryOptions);
         }
 
+        public async Task<Project?> GetSingleCompletedAsync(long projectId)
+        {
+            var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(new QueryOptions<Project>
+            {
+                Predicate = p => p.ProjectId == projectId && p.Status == ProjectStatus.Completed
+            });
+
+            return project;
+        }
         public async Task<Project?> GetProjectWithSkillMilestoneBidAsync(long projectId)
         {
-                var projectQueryOptions = new QueryBuilder<Project>()
-                    .WithTracking(false) // No tracking for efficient
-                    .WithInclude(p => p.SkillRequired)
-                    .WithInclude(p => p.Milestones)
-                    .WithInclude(p => p.Bids)
-                    .WithPredicate(project =>
-                        project.ProjectId == projectId
-                        && project.Milestones.Any()
-                        && project.SkillRequired.Any()
-                    )
-                    .Build();
-                var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(projectQueryOptions);
+            var projectQueryOptions = new QueryBuilder<Project>()
+                .WithTracking(false) // No tracking for efficient
+                .WithInclude(p => p.SkillRequired)
+                .WithInclude(p => p.Milestones)
+                .WithInclude(p => p.Bids)
+                .WithPredicate(project =>
+                    project.ProjectId == projectId
+                    && project.Milestones.Any()
+                    && project.SkillRequired.Any()
+                )
+                .Build();
+            var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(projectQueryOptions);
 
             return project;
         }
@@ -81,14 +82,14 @@ namespace Repositories.Implements
 
         public async Task<IEnumerable<Project>> GetAllProjectsAsync()
         {
-                var queryOptions = new QueryBuilder<Project>()
-                    .WithTracking(false) // No tracking for efficient
-                    .WithInclude(p => p.SkillRequired)
-                    .WithInclude(p => p.Milestones)
-                    .WithInclude(p => p.Bids)
-                    .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
-                    .Build();
-                var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
+            var queryOptions = new QueryBuilder<Project>()
+                .WithTracking(false) // No tracking for efficient
+                .WithInclude(p => p.SkillRequired)
+                .WithInclude(p => p.Milestones)
+                .WithInclude(p => p.Bids)
+                .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
+                .Build();
+            var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
             return projects;
         }
 
@@ -140,22 +141,23 @@ namespace Repositories.Implements
 
         public IQueryable<Project> GetAllProjectsPendingPaging()
         {
-                var queryOptions = new QueryBuilder<Project>()
-                    .WithTracking(false) // No tracking for efficient
-                    .WithInclude(p => p.SkillRequired)
-                    .WithInclude(p => p.Bids)
-                    .WithInclude(p => p.Milestones)
-                    .WithPredicate(p =>
-                        (p.Status == ProjectStatus.Pending)
-                        && p.Milestones.Any()
-                        && p.SkillRequired.Any()
-                    )
-                    .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
-                    .Build();
-                var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);
+            var queryOptions = new QueryBuilder<Project>()
+                .WithTracking(false) // No tracking for efficient
+                .WithInclude(p => p.SkillRequired)
+                .WithInclude(p => p.Bids)
+                .WithInclude(p => p.Milestones)
+                .WithPredicate(p =>
+                    (p.Status == ProjectStatus.Pending)
+                    && p.Milestones.Any()
+                    && p.SkillRequired.Any()
+                )
+                .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
+                .Build();
+            var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);
 
             return query;
         }
+
     }
 
 }

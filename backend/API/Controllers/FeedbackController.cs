@@ -17,7 +17,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetAllFeedback()
         {
             var result = await _feedbackService.GetAllFeedbacksAsync();
-            if(result.IsFailure)
+            if (result.IsFailure)
             {
                 return Ok(result.Error);
             }
@@ -27,7 +27,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetFeedbacksByFreelancerId([FromRoute] long freelancerId)
         {
             var result = await _feedbackService.GetFeedbacksByFreelancerIdAsync(freelancerId);
-            if(result.IsFailure)
+            if (result.IsFailure)
             {
                 return Ok(result.Error);
             }
@@ -37,7 +37,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetFeedbackByProjectId([FromRoute] long projectId)
         {
             var result = await _feedbackService.GetFeedbackByProjectIdAsync(projectId);
-            if(result.IsFailure)
+            if (result.IsFailure)
             {
                 return Ok(result.Error);
             }
@@ -47,7 +47,7 @@ namespace API.Controllers
         public async Task<IActionResult> CreateFeedback([FromBody] CreateFeedbackDTO createDTO)
         {
             var result = await _feedbackService.CreateFeedbackAsync(createDTO);
-            if(result.IsFailure)
+            if (result.IsFailure)
             {
                 return Ok(result.Error);
             }
@@ -57,7 +57,7 @@ namespace API.Controllers
         public async Task<IActionResult> UpdateFeedback([FromBody] UpdateFeedbackDTO updateDTO)
         {
             var result = await _feedbackService.UpdateFeedback(updateDTO);
-            if(result.IsFailure)
+            if (result.IsFailure)
             {
                 return Ok(result.Error);
             }
@@ -67,7 +67,7 @@ namespace API.Controllers
         public async Task<IActionResult> DeleteFeedbackByProjectId([FromRoute] long projectId)
         {
             var result = await _feedbackService.DeleteFeedback(projectId);
-            if(result.IsFailure)
+            if (result.IsFailure)
             {
                 return Ok(result.Error);
             }

@@ -1,5 +1,4 @@
-﻿using Helpers.DTOs.Chat;
-using Helpers.DTOs.Notification;
+﻿using Helpers.DTOs.Notification;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Helpers.SignalR

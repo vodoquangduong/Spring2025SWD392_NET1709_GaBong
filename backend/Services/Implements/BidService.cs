@@ -4,7 +4,6 @@ using Helpers.DTOs.Bid;
 using Helpers.HelperClasses;
 using Microsoft.Extensions.Configuration;
 using Repositories.Interfaces;
-using Repositories.Queries;
 using Services.Interfaces;
 
 
@@ -22,11 +21,11 @@ namespace Services.Implements
 
         public BidService(
             //IUnitOfWork unitOfWork, 
-            IConfiguration configuration, 
-            IProjectRepository projectRepository, 
-            IAccountRepository accountRepository, 
-            IBidRepository bidRepository, 
-            ITransactionRepository transactionRepository, 
+            IConfiguration configuration,
+            IProjectRepository projectRepository,
+            IAccountRepository accountRepository,
+            IBidRepository bidRepository,
+            ITransactionRepository transactionRepository,
             IMapper mapper)
         {
             //_unitOfWork = unitOfWork;
@@ -80,7 +79,7 @@ namespace Services.Implements
                     Amount = bidFee,
                     Status = BusinessObjects.Enums.TransactionStatus.Pending,
                     CreatedAt = DateTime.UtcNow,
-                    Detail = "Bid on project " + project.ProjectId + ": " + project.ProjectName, 
+                    Detail = "Bid on project " + project.ProjectId + ": " + project.ProjectName,
                     Type = BusinessObjects.Enums.TransactionType.Fee,
                 };
 
@@ -103,7 +102,7 @@ namespace Services.Implements
 
                 //var result = await _unitOfWork.GetRepo<Bid>().CreateAsync(bid);
                 //await _unitOfWork.SaveChangesAsync();
-               var result = await _bidRepository.CreateBidAsync(bid);
+                var result = await _bidRepository.CreateBidAsync(bid);
 
                 return Result.Success(_mapper.Map<BidDTO>(result));
             }
@@ -141,13 +140,13 @@ namespace Services.Implements
         {
             try
             {
-               // var queryOptions = new QueryBuilder<Bid>()
-               //.WithInclude(bid => bid.BidOwner)
-               //.WithTracking(false) // No tracking for efficient
-               //.WithPredicate(bid => bid.ProjectId == projectId)
-               //.Build();
-               // var bids = _unitOfWork.GetRepo<Bid>().Get(queryOptions);
-               var bids = _bidRepository.GetAllBidByProjectIdPaging(projectId);
+                // var queryOptions = new QueryBuilder<Bid>()
+                //.WithInclude(bid => bid.BidOwner)
+                //.WithTracking(false) // No tracking for efficient
+                //.WithPredicate(bid => bid.ProjectId == projectId)
+                //.Build();
+                // var bids = _unitOfWork.GetRepo<Bid>().Get(queryOptions);
+                var bids = _bidRepository.GetAllBidByProjectIdPaging(projectId);
 
 
                 var paginatedBids = await Pagination.ApplyPaginationAsync(bids, pageNumber, pageSize, _mapper.Map<BidDTO>);

@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Repositories.Interfaces;
 
 public interface IUnitOfWork : IDisposable
@@ -10,4 +8,4 @@ public interface IUnitOfWork : IDisposable
     Task CommitTransactionAsync();
     Task RollBackAsync();
     Task<bool> SaveAsync();
-} 
+}

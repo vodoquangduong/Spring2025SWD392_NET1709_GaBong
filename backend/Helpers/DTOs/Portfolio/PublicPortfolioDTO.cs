@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BusinessObjects.Enums;
 using Helpers.DTOs.SkillPerform;
 
@@ -20,7 +16,7 @@ namespace Helpers.DTOs.Portfolio
         public string Email { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
-         public string AvatarURL { get; set; } = string.Empty;
+        public string AvatarURL { get; set; } = string.Empty;
         public DateTime Birthday { get; set; } = DateTime.MinValue;
         public Gender Gender { get; set; }
         public string Nationality { get; set; } = string.Empty;

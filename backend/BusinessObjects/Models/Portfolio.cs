@@ -1,6 +1,6 @@
+using BusinessObjects.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BusinessObjects.Enums;
 
 namespace BusinessObjects.Models
 {

@@ -5,7 +5,6 @@ using Helpers.DTOs.Project;
 using Helpers.DTOs.Query;
 using Helpers.HelperClasses;
 using Repositories.Interfaces;
-using Repositories.Queries;
 using Services.Interfaces;
 
 namespace Services.Implements
@@ -19,7 +18,7 @@ namespace Services.Implements
         private readonly IAccountRepository _accountRepository;
         private readonly ISkillRequiredRepository _skillRequiredRepository;
         private readonly ISkillCategoryRepository _skillCategoryRepository;
-        private readonly IBidRepository _bidRepository;
+        //private readonly IBidRepository _bidRepository;
         private readonly IMilestoneRepository _milestoneRepository;
         public ProjectService(
             //IUnitOfWork unitOfWork,
@@ -29,7 +28,7 @@ namespace Services.Implements
             ISkillRequiredRepository skillRequiredRepository,
             ISkillCategoryRepository skillCategoryRepository,
             IMilestoneRepository milestoneRepository,
-            IBidRepository bidRepository,
+            //IBidRepository bidRepository,
             IMapper mapper
             )
         {
@@ -40,7 +39,7 @@ namespace Services.Implements
             _skillRequiredRepository = skillRequiredRepository;
             _skillCategoryRepository = skillCategoryRepository;
             _milestoneRepository = milestoneRepository;
-            _bidRepository = bidRepository;
+            //_bidRepository = bidRepository;
             _mapper = mapper;
         }
 
@@ -89,7 +88,7 @@ namespace Services.Implements
                     //    {
                     //        Predicate = s => s.SkillId == skillId
                     //    });
-                    var skillExists = await _skillCategoryRepository.GetSingleAsync(skillId);
+                    var skillExists = await _skillCategoryRepository.GetSingleByIdAsync(skillId);
 
                     if (skillExists == null)
                     {
@@ -446,7 +445,7 @@ namespace Services.Implements
                 //    .Build();
                 //var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);
                 var query = _projectRepository.GetAllProjectsPendingPaging();
-                
+
                 var paginatedProjects = await Pagination.ApplyPaginationAsync(
                     query,
                     pageNumber,

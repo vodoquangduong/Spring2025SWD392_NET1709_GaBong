@@ -1,11 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Repositories.Interfaces;
 using Repositories.Queries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repositories.Implements
 {
@@ -18,7 +13,7 @@ namespace Repositories.Implements
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Milestone?> GetMilestoneByIdAsync(long milestoneId)
+        public async Task<Milestone?> GetSingleByIdAsync(long milestoneId)
         {
             var queryOptions = new QueryBuilder<Milestone>()
                 .WithTracking(true)
@@ -28,7 +23,7 @@ namespace Repositories.Implements
             return await _unitOfWork.GetRepo<Milestone>().GetSingleAsync(queryOptions);
         }
 
-        public async Task<List<Milestone>> GetMilestonesByProjectIdAsync(long projectId)
+        public async Task<IEnumerable<Milestone>> GetSingleByProjectIdAsync(long projectId)
         {
             var queryOptions = new QueryBuilder<Milestone>()
                 .WithTracking(false)
@@ -36,6 +31,14 @@ namespace Repositories.Implements
                 .Build();
 
             return await _unitOfWork.GetRepo<Milestone>().GetAllAsync(queryOptions);
+        }
+
+        public async Task<IEnumerable<Milestone>> GetAllMilestonesAsync()
+        {
+
+            var milestones = await _unitOfWork.GetRepo<Milestone>().GetAllAsync(new QueryOptions<Milestone>());
+
+            return milestones;
         }
 
         public async Task<Milestone> CreateMilestoneAsync(Milestone milestone)

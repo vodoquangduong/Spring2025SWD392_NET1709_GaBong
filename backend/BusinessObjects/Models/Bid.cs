@@ -22,7 +22,7 @@ namespace BusinessObjects.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         [Column("bid_description")]
         public string BidDescription { get; set; } = string.Empty;
-        
+
         // Navigation properties
         [ForeignKey("BidOwnerId")]
         [JsonIgnore]

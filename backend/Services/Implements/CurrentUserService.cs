@@ -18,7 +18,7 @@ namespace Services.Implements
             {
                 var userIdClaim = _httpContextAccessor.HttpContext?.User.Claims
                     .FirstOrDefault(c => c.Type == "accountId");
-                    
+
                 if (userIdClaim == null)
                     throw new UnauthorizedAccessException("Account Id not found in token");
 
@@ -31,7 +31,7 @@ namespace Services.Implements
             get
             {
                 return _httpContextAccessor.HttpContext?.User.Claims
-                    .FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value 
+                    .FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
                     ?? throw new UnauthorizedAccessException("Username not found in token");
             }
         }
@@ -41,7 +41,7 @@ namespace Services.Implements
             get
             {
                 return _httpContextAccessor.HttpContext?.User.Claims
-                    .FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value 
+                    .FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value
                     ?? throw new UnauthorizedAccessException("Role not found in token");
             }
         }
@@ -51,7 +51,7 @@ namespace Services.Implements
             get
             {
                 return _httpContextAccessor.HttpContext?.User.Claims
-                    .FirstOrDefault(c => c.Type == "status")?.Value 
+                    .FirstOrDefault(c => c.Type == "status")?.Value
                     ?? throw new UnauthorizedAccessException("Status not found in token");
             }
         }
