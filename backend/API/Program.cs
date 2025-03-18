@@ -13,6 +13,7 @@ using System.Reflection;
 using Helpers.SignalR;
 using Helpers.DTOs.PayPal.Model;
 using AutoMapper.Internal;
+using Repositories.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,6 +100,8 @@ builder.Services.AddSingleton(x => new PayPalClient(mode, clientId, clientSecret
 // Repository
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
 // Service
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
