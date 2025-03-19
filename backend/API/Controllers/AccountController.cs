@@ -14,15 +14,6 @@ namespace API.Controllers
         public AccountController(IAccountService accountService)
         {
             _accountService = accountService;
-        }   
-
-       [HttpGet("get-all-account")]
-       public async Task<IActionResult> GetAllAccount([FromQuery] Query query)
-       {
-        var result = await _accountService.GetAllAccountAsync(query.PageNumber, query.PageSize);
-        if (result.IsFailure)
-        {
-            return Ok(result.Error);
         }
 
 
@@ -69,7 +60,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
-        
+
         [HttpPut("update-account-status")]
         public async Task<IActionResult> UpdateAccountStatus(UpdateAccountStatusDTO updateAccountStatusDTO)
         {
