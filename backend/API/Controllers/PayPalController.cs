@@ -36,8 +36,6 @@ namespace API.Controllers
             var amount = transaction.Result.Amount.ToString("F2", CultureInfo.InvariantCulture);
             Console.WriteLine("This amount: " + amount);
             var currency = "USD";
-
-
             try
             {
                 var response = await _payPalClient.CreateOrder(

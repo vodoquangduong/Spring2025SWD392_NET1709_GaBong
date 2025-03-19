@@ -11,7 +11,6 @@ namespace API.Controllers
     {
         private readonly IProjectService _projectService;
         private readonly ICurrentUserService _currentUserService;
-
         public ProjectController(
             IProjectService projectService,
             ICurrentUserService currentUserService

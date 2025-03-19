@@ -4,6 +4,7 @@ using BusinessObjects.Models;
 using Helpers.DTOs.Report;
 using Helpers.HelperClasses;
 using Repositories.Interfaces;
+using Repositories.Queries;
 using Services.Interfaces;
 
 namespace Services.Implements

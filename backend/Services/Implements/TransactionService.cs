@@ -81,10 +81,6 @@ namespace Services.Implements
                 {
                     return Result.Failure<TransactionDTO>(new Error("Create transaction failed", $"Account with account id {createTransactionDTO.AccountId} not found"));
                 }
-                // if (_currentUserService.Role != "Staff")
-                // {
-                //     return Result.Failure<TransactionDTO>(new Error("Create transaction failed", "You don't have permission to create transaction"));
-                // }
                 if (createTransactionDTO.Amount <= 0)
                 {
                     return Result.Failure<TransactionDTO>(new Error("Create transaction failed", "Amount must be greater than 0"));
@@ -101,11 +97,6 @@ namespace Services.Implements
             {
                 return Result.Failure<TransactionDTO>(new Error("Create transaction failed", $"{e.Message}"));
             }
-        }
-
-        public Task<TransactionDTO> FinishMilestoneAsync(long milestoneId)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<TransactionDTO> FinishPaymentAsync(long id)
@@ -150,11 +141,6 @@ namespace Services.Implements
             {
                 return Result.Failure<PaginatedResult<TransactionDTO>>(new Error("Get all transaction failed", $"{e.Message}"));
             }
-        }
-
-        public Task<Result<List<TransactionDTO>>> GetTransactionByAccountAsync(long id)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<Result<List<TransactionDTO>>> GetTransactionByAccountIdAsync(long id)

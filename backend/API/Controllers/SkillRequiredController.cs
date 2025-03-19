@@ -7,10 +7,7 @@ namespace API.Controllers
     [ApiController]
     public class SkillRequiredController : ControllerBase
     {
-
-
         private readonly ISkillRequiredService _skillRequiredService;
-
         public SkillRequiredController(ISkillRequiredService skillRequiredService)
         {
             _skillRequiredService = skillRequiredService;

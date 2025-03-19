@@ -13,6 +13,7 @@ namespace API.Controllers
         {
             _feedbackService = feedbackService;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAllFeedback()
         {
@@ -23,6 +24,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpGet("freelancer/{freelancerId}")]
         public async Task<IActionResult> GetFeedbacksByFreelancerId([FromRoute] long freelancerId)
         {
@@ -33,6 +35,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpGet("project/{projectId}")]
         public async Task<IActionResult> GetFeedbackByProjectId([FromRoute] long projectId)
         {
@@ -43,6 +46,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+        
         [HttpPost]
         public async Task<IActionResult> CreateFeedback([FromBody] CreateFeedbackDTO createDTO)
         {
@@ -53,6 +57,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpPut]
         public async Task<IActionResult> UpdateFeedback([FromBody] UpdateFeedbackDTO updateDTO)
         {
@@ -63,6 +68,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+        
         [HttpDelete("{projectId}")]
         public async Task<IActionResult> DeleteFeedbackByProjectId([FromRoute] long projectId)
         {

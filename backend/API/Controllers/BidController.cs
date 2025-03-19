@@ -3,8 +3,6 @@ using Helpers.DTOs.Query;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace API.Controllers
 {
     [Route("api/[controller]")]
@@ -13,7 +11,6 @@ namespace API.Controllers
     {
         private readonly IBidService _bidService;
         private readonly ICurrentUserService _currentUserService;
-
         public BidController(IBidService bidService, ICurrentUserService currentUserService)
         {
             _bidService = bidService;
@@ -51,18 +48,6 @@ namespace API.Controllers
                 return Ok(createdBid.Error);
             }
             return Ok(createdBid.Value);
-        }
-
-        // PUT api/<BidController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<BidController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

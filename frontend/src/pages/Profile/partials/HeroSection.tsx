@@ -7,9 +7,13 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { HeroSectionProps } from "../models/types";
+import { UserProfileData } from "../models/types";
 
-const HeroSection = ({ profile }: HeroSectionProps) => {
+interface AboutProps {
+  profile: UserProfileData;
+}
+
+const HeroSection = ({ profile }: AboutProps) => {
   const renderRoleSpecificActions = () => {
     switch (profile.role) {
       case "freelancer":

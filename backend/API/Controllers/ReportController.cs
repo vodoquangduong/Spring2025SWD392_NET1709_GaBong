@@ -14,6 +14,7 @@ namespace API.Controllers
         {
             _reportService = reportService;
         }
+
         [HttpPost]
         public async Task<IActionResult> CreateReportAsync([FromBody] CreateReportDTO createReportDTO)
         {
@@ -24,6 +25,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAllReportsAsync([FromQuery] Query query)
         {
@@ -34,6 +36,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+        
         [HttpGet("{reportId}")]
         public async Task<IActionResult> GetReportByIdAsync([FromRoute] long reportId)
         {

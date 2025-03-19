@@ -88,31 +88,23 @@ namespace Services.Implements
                 {
                     project.SkillRequired.Add(new SkillRequired { SkillId = skillId });
                 }
-
-
                 //<==Random milestone==>
                 generateMilestones(project, _faker.Random.Int(2, 5));
 
                 switch (project.Status)
                 {
                     case ProjectStatus.Pending:
-
                         break;
-
                     case ProjectStatus.Verified:
                         //<==Random bid==>
                         generateBids(project, _faker.Random.Int(2, 10), freelancerId);
                         project.VerifyStaffId = staffId;
                         break;
-
                     case ProjectStatus.ReVerify:
-
                         break;
-
                     case ProjectStatus.OnGoing:
                         project.FreelancerId = freelancerId;
                         project.VerifyStaffId = staffId;
-
                         //<==Random bid==>
                         generateBids(project, _faker.Random.Int(2, 10), freelancerId);
                         //<==Random contract==>
@@ -165,7 +157,6 @@ namespace Services.Implements
                             Type = TransactionType.Fee,
                         };
                         _context.Add(fee);
-
                         //<==Random milestone transaction==>
                         foreach (var milestone in project.Milestones)
                         {
@@ -186,7 +177,6 @@ namespace Services.Implements
                                 Status = TransactionStatus.Completed,
                                 Type = TransactionType.Payment,
                             };
-
                             var earning = new Transaction
                             {
                                 AccountId = freelancerId,
@@ -238,7 +228,6 @@ namespace Services.Implements
             {
                 _context.Add(new SkillCategory { SkillName = skill });
             }
-
             await _context.SaveChangesAsync();
             Console.WriteLine(
                 $"Inserted skill categories successfully! {skillCategories.Count} index) "
@@ -250,9 +239,7 @@ namespace Services.Implements
             var password = "12345678";
             var hashedPassword = HashPassword(password);
             var random = new Random();
-
             var faker = new Faker();
-
             return new Account
             {
                 Role = Enum.TryParse<AccountRole>(
@@ -289,7 +276,6 @@ namespace Services.Implements
             using var rng = RandomNumberGenerator.Create();
             byte[] salt = new byte[16];
             rng.GetBytes(salt);
-
             using var pbkdf2 = new Rfc2898DeriveBytes(
                 password,
                 salt,
@@ -414,10 +400,8 @@ namespace Services.Implements
             {
                 accounts.Add(GenerateFakeAccount());
             }
-
             await _context.Accounts.AddRangeAsync(accounts);
             await _context.SaveChangesAsync();
-
             Console.WriteLine($"Inserted {accounts.Count} fake accounts successfully!");
         }
 
@@ -461,16 +445,13 @@ namespace Services.Implements
             Random rand = new Random();
             decimal remainingBudget = 100;
             List<decimal> payAmounts = new List<decimal>();
-
             // Bước 1: Chia đều ngân sách ban đầu
             decimal baseAmount = Math.Round(remainingBudget / numOfMilestone, 2);
-
             // Bước 2: Tạo danh sách với giá trị ban đầu
             for (int i = 0; i < numOfMilestone; i++)
             {
                 payAmounts.Add(baseAmount);
             }
-
             // Bước 3: Điều chỉnh để tạo chênh lệch 10-20 đơn vị giữa các phần tử
             for (int i = 0; i < numOfMilestone - 1; i++)
             {
@@ -484,11 +465,9 @@ namespace Services.Implements
                     payAmounts[i + 1] -= adjustment;
                 }
             }
-
             // Bước 4: Cân bằng lại phần tử cuối cùng để đảm bảo tổng vẫn bằng 100
             decimal sum = payAmounts.Sum();
             payAmounts[numOfMilestone - 1] += Math.Round(100 - sum, 2);
-
             // Bước 5: Gán vào danh sách Milestone
             for (int j = 0; j < numOfMilestone; j++)
             {
@@ -513,13 +492,10 @@ namespace Services.Implements
             }
         }
 
-
-
         private async void generateBids(Project project, int numOfBid, long freelancerId)
         {
             HashSet<long> usedBidOwnerIds = new HashSet<long>(); // Để đảm bảo không có ID bị trùng
             Random rand = new Random();
-
             for (int j = 0; j < numOfBid; j++)
             {
                 try
@@ -588,7 +564,6 @@ namespace Services.Implements
                     Status = TransactionStatus.Completed,
                     Type = TransactionType.Payment,
                 };
-
                 var earning = new Transaction
                 {
                     AccountId = freelancerId,

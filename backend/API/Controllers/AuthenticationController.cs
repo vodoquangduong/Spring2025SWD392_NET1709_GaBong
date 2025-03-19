@@ -8,16 +8,11 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IMailSenderService _mailSender;
-
-        public AuthenticationController(
-           IAuthenticationService authenticationService,
-       IMailSenderService emailSender
-       )
+        public AuthenticationController(IAuthenticationService authenticationService,IMailSenderService emailSender)
         {
             _authenticationService = authenticationService;
             _mailSender = emailSender;
@@ -122,28 +117,5 @@ namespace API.Controllers
             }
             return Ok(accessToken);
         }
-
-        //[HttpPost("login-google")]
-        //public async Task<IActionResult> LoginGoogle([FromBody] LoginGoogleDTO loginGoogleDto)
-        //{
-        //    var accessToken = await _authenticationService.LoginGoogle(loginGoogleDto);
-        //    if (accessToken == null)
-        //    {
-        //        return Unauthorized("Email not existing!");
-        //    }
-        //    return Ok(accessToken);
-        //}
-
-        //[HttpPost("register-google")]
-        //public async Task<IActionResult> RegisterGoogle([FromBody] RegisterDTO registerGoogleDto)
-        //{
-        //    var accessToken = await _authenticationService.RegisterGoogle(registerGoogleDto);
-        //    if (accessToken == null)
-        //    {
-        //        return Unauthorized("Email already be used");
-        //    }
-        //    return Ok(accessToken);
-        //}
-
     }
 }

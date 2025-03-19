@@ -1,9 +1,3 @@
-export type ServerResponse<T> = {
-  status: number;
-  data: T;
-  message: string;
-};
-
 export type ResultServerResponse<T> = {
   error: {
     message: string;
@@ -12,6 +6,12 @@ export type ResultServerResponse<T> = {
   isSuccess: boolean;
   isFailure: boolean;
   value: T;
+};
+
+export type ServerResponse<T> = {
+  status: number;
+  data: T;
+  message: string;
 };
 
 export type NormalServerResponse<T> = {

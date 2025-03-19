@@ -1,10 +1,9 @@
 import Back from "@/components/Back";
-import Logo from "@/components/Logo";
-import { GET, POST, PUT } from "@/modules/request";
-import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
+import { GET, POST } from "@/modules/request";
+import { useMutation, useQueries } from "@tanstack/react-query";
 import { App, Button, Popconfirm, Skeleton, Table } from "antd";
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useContractStore from "./store/contractStore";
 import { defaultAvatar } from "@/modules/default";
 import dayjs from "dayjs";
@@ -15,7 +14,6 @@ import Skills from "@/components/Skills";
 
 export default function MakeContract() {
   const navigate = useNavigate();
-  const [amount, setAmount] = useState(0);
   const { accountId } = useAuthStore();
   const { message } = App.useApp();
   const { freelancerId, projectId, bidTotal } = useContractStore();
@@ -63,15 +61,10 @@ export default function MakeContract() {
       },
     ],
   });
+
   if (!freelancerId || !projectId) {
     location.href = "/";
   }
-
-  // console.log(project?.data?.value?.milestones);
-  console.log(
-    "🚀 ~ MakeContract ~ project?.data?.value?.milestones:",
-    project?.data?.value
-  );
 
   return (
     <div className="h-screen w-screen flex justify-center">
@@ -256,29 +249,6 @@ export default function MakeContract() {
     </div>
   );
 }
-
-const CardImages = () => {
-  return (
-    <div className="flex gap-2 pt-6 pb-4">
-      <img
-        className="w-14"
-        src="https://www.f-cdn.com/assets/main/en/assets/payments/cc/visa.svg"
-      />
-      <img
-        className="w-14"
-        src="https://www.f-cdn.com/assets/main/en/assets/payments/cc/mastercard.svg"
-      />
-      <img
-        className="w-14"
-        src="https://www.f-cdn.com/assets/main/en/assets/payments/cc/amex.svg"
-      />
-      <img
-        className="w-14"
-        src="https://www.f-cdn.com/assets/main/en/assets/payments/cc/jcb.svg"
-      />
-    </div>
-  );
-};
 
 const UserItem = ({ data }: any) => {
   return (

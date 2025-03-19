@@ -1,6 +1,5 @@
 using Helpers.DTOs.PayPal.Model;
 
-
 namespace Helpers.DTOs.PayPal.Request
 {
     public sealed class CreateOrderRequest

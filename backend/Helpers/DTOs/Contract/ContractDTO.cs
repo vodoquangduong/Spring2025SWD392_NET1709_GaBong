@@ -6,7 +6,5 @@ namespace Helpers.DTOs
         public long ProjectId { get; set; }
         public string ContractPolicy { get; set; } = string.Empty;
         public string StartDate { get; set; } = string.Empty;
-
-
     }
 }

@@ -12,10 +12,8 @@ namespace BusinessObjects.Models
         [Key]
         [Column("project_id")]
         public long ProjectId { get; set; }
-
         [Column("skill_id")]
         public long SkillId { get; set; }
-
         // Navigation Properties
         [ForeignKey("ProjectId")]
         [JsonIgnore]

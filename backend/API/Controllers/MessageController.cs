@@ -3,7 +3,6 @@ using Helpers.DTOs.Chat;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace API.Controllers
 {
@@ -13,8 +12,6 @@ namespace API.Controllers
     {
         private readonly IMessageService messageService;
         private readonly IMapper _mapper;
-
-
         public MessageController(IMessageService messageService, IMapper mapper)
         {
             this.messageService = messageService;

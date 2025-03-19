@@ -2,7 +2,6 @@
 using Helpers.DTOs.Bid;
 using Helpers.HelperClasses;
 
-
 namespace Services.Interfaces
 {
     public interface IBidService
