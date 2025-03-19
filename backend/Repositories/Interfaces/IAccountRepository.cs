@@ -4,7 +4,7 @@ namespace Repositories.Interfaces
 {
     public interface IAccountRepository
     {
-        Task<Account?> GetSingleByAccountIdAsync(long id);
+        Task<Account?> GetSingleByAccountIdAsync(long? id);
         Task<Account?> GetFreelancerByAccountIdAsync(long id);
         Task<Account?> GetAccountByEmailAsync(string email);
         Task<Account> CreateAccountAsync(Account account);

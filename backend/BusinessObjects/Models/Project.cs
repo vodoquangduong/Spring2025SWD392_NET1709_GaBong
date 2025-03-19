@@ -18,7 +18,7 @@ namespace BusinessObjects.Models
 
         [ForeignKey("Freelancer")]
         [Column("freelancer_id")]
-        public long FreelancerId { get; set; }
+        public long? FreelancerId { get; set; }
 
         [ForeignKey("Verifier")]
         [Column("verify_staff_id")]

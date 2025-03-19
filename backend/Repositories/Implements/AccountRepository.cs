@@ -15,7 +15,7 @@ namespace Repositories.Implements
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Account?> GetSingleByAccountIdAsync(long accountId)
+        public async Task<Account?> GetSingleByAccountIdAsync(long? accountId)
         {
             //<== Get client account==>
             var queryOption = new QueryBuilder<Account>()
