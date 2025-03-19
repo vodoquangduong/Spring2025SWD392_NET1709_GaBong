@@ -104,7 +104,7 @@ namespace Services.Implements
                 //await _unitOfWork.SaveChangesAsync();
                 var result = await _bidRepository.CreateBidAsync(bid);
 
-                return Result.Success(_mapper.Map<BidDTO>(result));
+                return Result.Success(_mapper.Map<Bid, BidDTO>(result));
             }
             catch (Exception e)
             {

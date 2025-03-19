@@ -46,7 +46,11 @@ namespace API.Controllers
         public async Task<IActionResult> CreateBid([FromBody] CreateBidDTO bid)
         {
             var createdBid = await _bidService.CreateBidAsync(bid, _currentUserService.AccountId);
-            return Ok(createdBid);
+            if (createdBid.IsFailure)
+            {
+                return Ok(createdBid.Error);
+            }
+            return Ok(createdBid.Value);
         }
 
         // PUT api/<BidController>/5

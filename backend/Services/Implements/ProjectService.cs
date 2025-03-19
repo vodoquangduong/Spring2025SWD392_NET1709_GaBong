@@ -242,7 +242,7 @@ namespace Services.Implements
                 //    )
                 //    .Build();
                 //var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(projectQueryOptions);
-                var project = _projectRepository.GetProjectWithSkillMilestoneBidAsync(projectId);
+                var project = await _projectRepository.GetProjectWithSkillMilestoneBidAsync(projectId);
 
                 //var bidQueryOptions = new QueryBuilder<Bid>()
                 //    .WithTracking(false)
@@ -270,7 +270,8 @@ namespace Services.Implements
                         new Error("Get project failed", "Project not found")
                     );
                 }
-                var result = _mapper.Map<ProjectDetailDTO>(project);
+                //var result = _mapper.Map<ProjectDetailDTO>(project);
+                var result = _mapper.Map<Project,ProjectDetailDTO>(project);
                 return Result.Success(result);
             }
             catch (Exception e)
