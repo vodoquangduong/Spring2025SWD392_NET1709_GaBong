@@ -16,14 +16,7 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
-import {
-  FaEdit,
-  FaEye,
-  FaLock,
-  FaSearch,
-  FaUnlock,
-  FaUserPlus,
-} from "react-icons/fa";
+import { FaEye, FaLock, FaSearch, FaUnlock, FaUserPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Account } from "../models/types";
 import { accountMngUsecase } from "../usecases/accountMngUsecase";
@@ -169,11 +162,11 @@ const AccountList: React.FC = () => {
             size="small"
             onClick={() => navigate(`/admin/accounts/${record.accountId}`)}
           />
-          <Button
+          {/* <Button
             icon={<FaEdit />}
             size="small"
             onClick={() => message.info(`Edit user ${record.name}`)}
-          />
+          /> */}
           {record.status === 0 ? (
             <Button
               icon={<FaLock />}
@@ -249,8 +242,8 @@ const AccountList: React.FC = () => {
             >
               <Option value={0}>Admin</Option>
               <Option value={1}>Staff</Option>
-              <Option value={2}>Client</Option>
-              <Option value={3}>Freelancer</Option>
+              <Option value={3}>Client</Option>
+              <Option value={2}>Freelancer</Option>
             </Select>
           </Col>
           <Col span={4}>
@@ -261,13 +254,13 @@ const AccountList: React.FC = () => {
               onChange={(value) => setStatusFilter(value)}
             >
               <Option value={0}>Active</Option>
-              <Option value={1}>Inactive</Option>
-              <Option value={2}>Suspended</Option>
+              <Option value={1}>Suspended</Option>
+              <Option value={2}>Banned</Option>
             </Select>
           </Col>
           <Col span={8} style={{ textAlign: "right" }}>
             <Button type="primary" icon={<FaUserPlus />} onClick={showModal}>
-              Add Account
+              Add Staff - Chua lam
             </Button>
           </Col>
         </Row>

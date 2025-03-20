@@ -126,38 +126,6 @@ export const mockSettings: SystemSetting[] = [
     type: "number",
     category: "payment",
   },
-  {
-    key: "paypal_enabled",
-    name: "PayPal Enabled",
-    value: true,
-    description: "Enable PayPal as a payment method",
-    type: "boolean",
-    category: "payment",
-  },
-  {
-    key: "paypal_client_id",
-    name: "PayPal Client ID",
-    value: "your-paypal-client-id",
-    description: "Client ID from PayPal Developer Dashboard",
-    type: "text",
-    category: "payment",
-  },
-  {
-    key: "stripe_enabled",
-    name: "Stripe Enabled",
-    value: true,
-    description: "Enable Stripe as a payment method",
-    type: "boolean",
-    category: "payment",
-  },
-  {
-    key: "stripe_key",
-    name: "Stripe API Key",
-    value: "your-stripe-api-key",
-    description: "API Key from Stripe Dashboard",
-    type: "text",
-    category: "payment",
-  },
 
   // Security Settings
   {
