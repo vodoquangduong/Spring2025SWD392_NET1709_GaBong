@@ -143,12 +143,12 @@ builder.WebHost.UseUrls(url);
 var app = builder.Build();
 
 // config Middleware
-// if (app.Environment.IsDevelopment())
-// {
-app.UseDeveloperExceptionPage();
-app.UseSwagger();
-app.UseSwaggerUI();
-// }
+//if (app.Environment.IsDevelopment())
+//{
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+//}
 
 app.UseHttpsRedirection();
 app.UseRouting();
@@ -156,7 +156,7 @@ app.UseCors(builder =>
     builder.AllowAnyMethod()
            .AllowAnyHeader()
            .AllowCredentials()
-           .WithOrigins("http://localhost:5173"));
+           .WithOrigins("https://gigshub-gabong.vercel.app"));
 app.UseAuthentication();
 app.UseAuthorization();
 
