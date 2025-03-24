@@ -70,5 +70,17 @@ namespace Services.Implements
             decimal totalRevenue = await _adminRepository.GetTotalRevenue(startDate, endDate);
             return Result.Success(totalRevenue);
         }
+
+        public async Task<Result<int>> GetTotalCompletedProjectsById(long accountId)
+        {
+            int totalProjects = await _adminRepository.GetTotalCompletedProjectsById(accountId);
+            return Result.Success(totalProjects);
+        }
+
+        public async Task<Result<int>> GetTotalOngoingProjectsById(long accountId)
+        {
+            int totalProjects = await _adminRepository.GetTotalOngoingProjectsById(accountId);
+            return Result.Success(totalProjects);
+        }
     }
 }

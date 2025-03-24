@@ -12,5 +12,7 @@ namespace Repositories.Interfaces
         Task<decimal> GetTotalRevenue(DateTime? startDate = null, DateTime? endDate = null);
         Task<IEnumerable<RevenueGraphData>> GetRevenueGraph(DateTime startDate, DateTime endDate, string groupBy = "month");
         Task<IEnumerable<Transaction>> GetRevenueList(DateTime? startDate = null, DateTime? endDate = null);
+        Task<int> GetTotalCompletedProjectsById(long accountId);
+        Task<int> GetTotalOngoingProjectsById(long accountId);
     }
 }

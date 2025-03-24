@@ -117,8 +117,17 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }   
-        
-        
-
+        [HttpGet("total-completed-projects-by-id")]
+        public async Task<IActionResult> GetTotalCompletedProjectsById([FromQuery] long accountId)
+        {
+            var result = await _adminService.GetTotalCompletedProjectsById(accountId);
+            return Ok(result);
+        }
+        [HttpGet("total-ongoing-projects-by-id")]
+        public async Task<IActionResult> GetTotalOngoingProjectsById([FromQuery] long accountId)
+        {
+            var result = await _adminService.GetTotalOngoingProjectsById(accountId);
+            return Ok(result);
+        }
     }
 }

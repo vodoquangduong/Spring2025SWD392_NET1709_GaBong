@@ -125,5 +125,23 @@ namespace Repositories.Implements
 
             return result.OrderBy(x => x.Date);
         }
+           public async Task<int> GetTotalCompletedProjectsById(long accountId)
+        {
+            var queryOptions = new QueryBuilder<Project>()
+                .WithTracking(false)
+                .WithPredicate(p => (p.ClientId == accountId || p.FreelancerId == accountId) && p.Status == ProjectStatus.Completed)
+                .Build();
+            var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
+            return projects.Count();
+        }
+        public async Task<int> GetTotalOngoingProjectsById(long accountId)
+        {
+            var queryOptions = new QueryBuilder<Project>()
+            .WithTracking(false)
+            .WithPredicate(p => (p.ClientId == accountId || p.FreelancerId == accountId) && p.Status == ProjectStatus.OnGoing)
+            .Build();
+            var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
+            return projects.Count();
+        }
     }
 }
