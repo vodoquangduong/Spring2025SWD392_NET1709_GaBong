@@ -24,11 +24,11 @@ export default function DashboardLayout() {
   const items = [
     {
       label: "Dashboard",
-      key: "/employee",
+      key: "/admin",
       icon: <FaBox />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.STAFF],
+      allowedroles: [Role.ADMIN],
     },
     {
       label: "Project",
@@ -113,7 +113,7 @@ export default function DashboardLayout() {
           <Layout.Header className="p-4 bg-white flex justify-between items-center dark:bg-zinc-800 border-b border-zinc-300 dark:border-zinc-600">
             <DashboardHeader />
           </Layout.Header>
-          <div className="m-16 !mb-0">
+          <div className="mx-14 my-10 !mb-0">
             {/* <div className="min-h-screen"> */}
             <Outlet />
             {/* </div> */}
