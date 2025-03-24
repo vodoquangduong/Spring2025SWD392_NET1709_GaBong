@@ -56,6 +56,15 @@ const EditAbout = () => {
   const { message } = App.useApp();
   const { requestRevalidate } = useUiStore();
   const { accountId, updateAccount } = useAuthStore();
+  const [fileList, setFileList] = useState<UploadFile[]>([
+    {
+      uid: "-1",
+      name: "image.png",
+      status: "done",
+      url: defaultAvatar,
+    },
+  ]);
+
   const {
     handleSubmit,
     setError,
@@ -107,15 +116,6 @@ const EditAbout = () => {
     ],
   });
 
-  const [fileList, setFileList] = useState<UploadFile[]>([
-    {
-      uid: "-1",
-      name: "image.png",
-      status: "done",
-      url: defaultAvatar,
-    },
-  ]);
-
   const onSubmit = async (formData: any) => {
     message.open({
       type: "loading",
@@ -141,30 +141,33 @@ const EditAbout = () => {
         console.error("Failed to delete old image:", error);
       }
     }
-
-    // Update new image to firebase
     const urlList: string[] = [];
-    const uploadPromises = fileList.map(async (file: UploadFile) => {
-      const imgRef = ref(storage, `images/${v4()}`);
-      if (file?.url) {
-        const blob = await fetch(file?.url).then((r) => r.blob());
-        const uploadResult = await uploadBytes(imgRef, blob as Blob);
-        const url = await getDownloadURL(uploadResult.ref);
-        urlList.push(url);
-        if (file?.url.includes("firebase")) {
-          const oldImageRef = ref(storage, file?.url);
-          await deleteObject(oldImageRef);
+    try {
+      // Update new image to firebase
+      const uploadPromises = fileList.map(async (file: UploadFile) => {
+        const imgRef = ref(storage, `images/${v4()}`);
+        if (file?.url) {
+          const blob = await fetch(file?.url).then((r) => r?.blob());
+          const uploadResult = await uploadBytes(imgRef, blob as Blob);
+          const url = await getDownloadURL(uploadResult.ref);
+          urlList.push(url);
+          if (file?.url.includes("firebase")) {
+            const oldImageRef = ref(storage, file?.url);
+            await deleteObject(oldImageRef);
+          }
+        } else {
+          const uploadResult = await uploadBytes(
+            imgRef,
+            file.originFileObj as Blob
+          );
+          const url = await getDownloadURL(uploadResult.ref);
+          urlList.push(url);
         }
-      } else {
-        const uploadResult = await uploadBytes(
-          imgRef,
-          file.originFileObj as Blob
-        );
-        const url = await getDownloadURL(uploadResult.ref);
-        urlList.push(url);
-      }
-    });
-    await Promise.all(uploadPromises);
+      });
+      await Promise.all(uploadPromises);
+    } catch (error) {
+      console.error("Failed to upload image");
+    }
 
     formData["avatarURL"] = urlList[0];
     await PUT(`/api/Account`, formData);
