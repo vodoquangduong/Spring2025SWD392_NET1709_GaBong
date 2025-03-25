@@ -14,6 +14,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import DashboardHeader from "../components/DashboardHeader";
 import Logo from "../components/Logo";
 import { Role } from "../types";
+import { RiMoneyCnyCircleLine } from "react-icons/ri";
 
 export default function DashboardLayout() {
   const location = useLocation();
@@ -53,6 +54,14 @@ export default function DashboardLayout() {
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
       allowedroles: [Role.STAFF],
+    },
+    {
+      label: "Transactions",
+      key: "/employee/transactions",
+      icon: <RiMoneyCnyCircleLine />,
+      className:
+        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
+      allowedroles: [Role.STAFF, Role.ADMIN],
     },
     {
       label: "Withdraws",
