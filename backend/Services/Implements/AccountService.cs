@@ -3,6 +3,7 @@ using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Helpers.DTOs.Account;
 using Helpers.DTOs.Authentication;
+using Helpers.DTOs.Query;
 using Helpers.HelperClasses;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -43,6 +44,22 @@ public class AccountService : IAccountService
         catch (Exception e)
         {
             return Result.Failure<PaginatedResult<AccountDTO>>(new Error("Get all account failed", $"{e.Message}"));
+        }
+    }
+
+    
+    public async Task<Result<PaginatedResult<AccountDTO>>> GetAllAccountFilteredAsync(int pageNumber, int pageSize, AccountFilter filter)
+    {
+        try
+        {
+            var accounts = _accountRepository.GetAllAccountsFilteredPaging(filter);
+
+            var paginatedAccounts = await Pagination.ApplyPaginationAsync(accounts, pageNumber, pageSize, _mapper.Map<AccountDTO>);
+            return Result.Success(paginatedAccounts);
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<PaginatedResult<AccountDTO>>(new Error("Get all account filtered failed", $"{e.Message}"));
         }
     }
 

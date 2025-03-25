@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Helpers.DTOs.Query;
 
 namespace Repositories.Interfaces
 {
@@ -10,6 +11,7 @@ namespace Repositories.Interfaces
         Task<Account> CreateAccountAsync(Account account);
         Task UpdateAsync(Account account);
         IQueryable<Account> GetAllAccountsPaging();
+        IQueryable<Account> GetAllAccountsFilteredPaging(AccountFilter filter);
         IQueryable<Account> GetAllFreelancersPaging();
     }
 }

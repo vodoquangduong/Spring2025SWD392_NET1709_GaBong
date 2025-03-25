@@ -28,6 +28,27 @@ namespace API.Controllers
             return Ok(result.Value);
         }
 
+        /// <summary>
+        /// Get accounts, filtered by Name, Role, Status
+        /// Sort by reputation, total_credit, create_at
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        [HttpGet("get-all-account-filtered")]
+        public async Task<IActionResult> GetAllAccountFiltered(
+            [FromQuery] Query query,
+            [FromQuery] AccountFilter filter
+            )
+        {
+            var result = await _accountService.GetAllAccountFilteredAsync(query.PageNumber, query.PageSize, filter);
+            if (result.IsFailure)
+            {
+                return Ok(result.Error);
+            }
+            return Ok(result.Value);
+        }
+
         [HttpGet("get-all-freelancer")]
         public async Task<IActionResult> GetAllFreelancer([FromQuery] Query query)
         {
