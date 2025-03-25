@@ -2,6 +2,7 @@ import { Card, Col, Row, Typography } from "antd";
 import React from "react";
 import { FaCog, FaExclamationTriangle, FaUsers } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import DashboardChart from "./DashboardChart/DashboardChart";
 
 const { Title, Paragraph } = Typography;
 
@@ -12,31 +13,32 @@ const AdminDashboard: React.FC = () => {
     {
       label: "Account Management",
       icon: <FaUsers className="text-2xl" />,
-      path: "/dashboard/admin/accounts",
+      path: "/admin/accounts",
       description: "Manage user accounts, roles and permissions",
     },
     {
       label: "Report Management",
       icon: <FaExclamationTriangle className="text-2xl" />,
-      path: "/dashboard/admin/reports",
+      path: "/admin/reports",
       description: "Review and process user reports and complaints",
     },
     {
       label: "System Configuration",
       icon: <FaCog className="text-2xl" />,
-      path: "/dashboard/admin/system-configuration",
+      path: "/admin/system-configuration",
       description: "Configure system parameters and settings",
     },
   ];
 
   return (
     <div className="admin-dashboard">
-      <Title level={2} style={{ marginBottom: 24 }}>
+      <Title
+        level={2}
+        style={{ marginBottom: 24 }}
+        className="text-3xl font-bold chivo"
+      >
         Admin Dashboard
       </Title>
-      <Paragraph className="mb-6">
-        Welcome to the administrator dashboard. Select a module to manage.
-      </Paragraph>
 
       <Row gutter={[16, 16]}>
         {menuItems.map((item, index) => (
@@ -64,6 +66,9 @@ const AdminDashboard: React.FC = () => {
           </Col>
         ))}
       </Row>
+      <div>
+        <DashboardChart />
+      </div>
     </div>
   );
 };

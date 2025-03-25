@@ -5,7 +5,6 @@ import ProfileDropdown from "../ProfileDropdown";
 import useAuthStore from "../../stores/authStore";
 import { Badge, Button, message } from "antd";
 import { FaChevronDown } from "react-icons/fa";
-import CreateModal from "../CreateModal";
 import CreateProjectForm from "./forms/CreateProjectForm";
 import NotificationDropdown from "../NotificationDropdown/NotificationDropdown";
 import { Role } from "@/types";

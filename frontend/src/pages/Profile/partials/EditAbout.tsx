@@ -32,8 +32,10 @@ export const formSchema = () => {
       .max(50, "Name must be less than 50 characters"),
     phone: z
       .string()
-      .min(3, "Phone number must be at least 3 characters")
-      .max(50, "Phone number must be less than 50 characters"),
+      .regex(
+        /^(\+\d{1,3}[- ]?)?\d{10}$/,
+        "It should be 10 digits and may include a country code."
+      ),
     address: z
       .string()
       .min(3, "Address must be at least 3 characters")
@@ -56,6 +58,15 @@ const EditAbout = () => {
   const { message } = App.useApp();
   const { requestRevalidate } = useUiStore();
   const { accountId, updateAccount } = useAuthStore();
+  const [fileList, setFileList] = useState<UploadFile[]>([
+    {
+      uid: "-1",
+      name: "image.png",
+      status: "done",
+      url: defaultAvatar,
+    },
+  ]);
+
   const {
     handleSubmit,
     setError,
@@ -66,6 +77,7 @@ const EditAbout = () => {
     setValue,
     getValues,
   } = useForm({
+    mode: "onChange",
     defaultValues: {
       name: "",
       phone: "",
@@ -107,15 +119,6 @@ const EditAbout = () => {
     ],
   });
 
-  const [fileList, setFileList] = useState<UploadFile[]>([
-    {
-      uid: "-1",
-      name: "image.png",
-      status: "done",
-      url: defaultAvatar,
-    },
-  ]);
-
   const onSubmit = async (formData: any) => {
     message.open({
       type: "loading",
@@ -141,41 +144,51 @@ const EditAbout = () => {
         console.error("Failed to delete old image:", error);
       }
     }
-
-    // Update new image to firebase
     const urlList: string[] = [];
-    const uploadPromises = fileList.map(async (file: UploadFile) => {
-      const imgRef = ref(storage, `images/${v4()}`);
-      if (file?.url) {
-        const blob = await fetch(file?.url).then((r) => r.blob());
-        const uploadResult = await uploadBytes(imgRef, blob as Blob);
-        const url = await getDownloadURL(uploadResult.ref);
-        urlList.push(url);
-        if (file?.url.includes("firebase")) {
-          const oldImageRef = ref(storage, file?.url);
-          await deleteObject(oldImageRef);
+    try {
+      // Update new image to firebase
+      const uploadPromises = fileList.map(async (file: UploadFile) => {
+        const imgRef = ref(storage, `images/${v4()}`);
+        if (file?.url) {
+          const blob = await fetch(file?.url).then((r) => r?.blob());
+          const uploadResult = await uploadBytes(imgRef, blob as Blob);
+          const url = await getDownloadURL(uploadResult.ref);
+          urlList.push(url);
+          if (file?.url.includes("firebase")) {
+            const oldImageRef = ref(storage, file?.url);
+            await deleteObject(oldImageRef);
+          }
+        } else {
+          const uploadResult = await uploadBytes(
+            imgRef,
+            file.originFileObj as Blob
+          );
+          const url = await getDownloadURL(uploadResult.ref);
+          urlList.push(url);
         }
-      } else {
-        const uploadResult = await uploadBytes(
-          imgRef,
-          file.originFileObj as Blob
-        );
-        const url = await getDownloadURL(uploadResult.ref);
-        urlList.push(url);
-      }
-    });
-    await Promise.all(uploadPromises);
+      });
+      await Promise.all(uploadPromises);
+    } catch (error) {
+      console.error("Failed to upload image");
+    }
 
     formData["avatarURL"] = urlList[0];
-    await PUT(`/api/Account`, formData);
+    const res = await PUT(`/api/Account`, formData);
+    console.log("res", res);
+
     message.destroy();
-    message.success("Updated successfully");
-    navigate("/profile");
-    requestRevalidate();
-    updateAccount({
-      name: formData.name,
-      avatar: formData.avatarURL,
-    });
+    if (!res) {
+      message.error("Update failed");
+      return;
+    } else {
+      message.success("Updated successfully");
+      navigate("/profile");
+      requestRevalidate();
+      updateAccount({
+        name: formData.name,
+        avatar: formData.avatarURL,
+      });
+    }
   };
 
   return (

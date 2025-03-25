@@ -12,10 +12,7 @@ import { ServiceManagement } from "../pages/Dashboard/EmployeeDashboard/ServiceM
 // import { UserDetail, UserList } from "../pages/Dashboard/UserManager";
 import PrivateRoute from "@/components/PrivateRoute";
 import { CategoryManagement } from "@/pages/Dashboard/EmployeeDashboard/CategoryManagement";
-import {
-  WithdrawDetail,
-  WithdrawList,
-} from "@/pages/Dashboard/EmployeeDashboard/WithdrawManagement";
+import { WithdrawList } from "@/pages/Dashboard/EmployeeDashboard/WithdrawManagement";
 import { MakeContract } from "@/pages/MakeContract";
 import Transaction from "@/pages/Manage/partials/TransactionHistory";
 import { Payment, PaymentSuccess } from "@/pages/Payment";
@@ -53,6 +50,7 @@ import AdminDashboard, {
   ReportManagement as AdminReportManagement,
   SystemConfiguration,
 } from "@/pages/Dashboard/AdminDashboard";
+import { TransactionList } from "@/pages/Dashboard/EmployeeDashboard/TransactionManagement";
 
 export default function MainRoutes() {
   return (
@@ -157,10 +155,8 @@ export default function MainRoutes() {
             <Route index element={<ProjectList />} />
             <Route path=":id" element={<DashboardProjectDetail />} />
           </Route>
-          <Route path="withdraws">
-            <Route index element={<WithdrawList />} />
-            <Route path=":id" element={<WithdrawDetail />} />
-          </Route>
+          <Route path="withdraws" element={<WithdrawList />} />
+          <Route path="transactions" element={<TransactionList />} />
           <Route path="pending-services" element={<PendingServiceList />} />
         </Route>
         <Route path="admin">

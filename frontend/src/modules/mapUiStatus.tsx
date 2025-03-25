@@ -1,6 +1,7 @@
 import { Role } from "@/types";
 import { MilestoneStatus } from "@/types/milestone";
 import { ProjectStatus } from "@/types/project";
+import { TransactionStatus, TransactionType } from "@/types/transaction";
 import { Tag } from "antd";
 
 export const mapProjectStatusToTag = (status: ProjectStatus) => {
@@ -36,7 +37,6 @@ export const mapMilestoneStatusToTag = (status: MilestoneStatus) => {
 };
 
 export const mapRoleToTag = (role: any) => {
-  console.log("🚀 ~ mapRoleToTag ~ role:", role);
   const getRoleName = (role: Role): string => {
     switch (role) {
       case Role.ADMIN:
@@ -57,4 +57,40 @@ export const mapRoleToTag = (role: any) => {
       {getRoleName(role)}
     </Tag>
   );
+};
+
+export const mapTransactionStatusToTag = (status: number) => {
+  switch (status) {
+    case TransactionStatus.PENDING:
+      return <Tag color="orange">Pending</Tag>;
+    case TransactionStatus.COMPLETED:
+      return <Tag color="green">Completed</Tag>;
+    case TransactionStatus.FAILED:
+      return <Tag color="red">Failed</Tag>;
+    case TransactionStatus.REFUNDED:
+      return <Tag color="blue">Refunded</Tag>;
+    case TransactionStatus.CANCELLED:
+      return <Tag color="gray">Cancelled</Tag>;
+    default:
+      return <Tag color="default">Unknown</Tag>;
+  }
+};
+
+export const mapTransactionTypeToTag = (type: number) => {
+  switch (type) {
+    case TransactionType.DEPOSIT:
+      return <Tag color="green">Deposit</Tag>;
+    case TransactionType.WITHDRAWAL:
+      return <Tag color="blue">Withdrawal</Tag>;
+    case TransactionType.EARNINGS:
+      return <Tag color="cyan">Earnings</Tag>;
+    case TransactionType.PAYMENT:
+      return <Tag color="purple">Payment</Tag>;
+    case TransactionType.FEE:
+      return <Tag color="orange">Fee</Tag>;
+    case TransactionType.REFUND:
+      return <Tag color="geekblue">Refund</Tag>;
+    default:
+      return <Tag color="default">Unknown</Tag>;
+  }
 };

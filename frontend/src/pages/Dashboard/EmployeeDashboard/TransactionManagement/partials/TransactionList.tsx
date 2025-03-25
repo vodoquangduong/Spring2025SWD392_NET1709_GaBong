@@ -3,14 +3,14 @@ import { motion } from "motion/react";
 import { PAGE_ANIMATION } from "@/modules/constants";
 import SearchBox from "@/components/SearchBox";
 import { Pagination, Table } from "antd";
-import { withdrawColumns } from "../schemas";
+import { transactionColumns } from "../schemas";
 import { GET } from "@/modules/request";
 import { useQuery } from "@tanstack/react-query";
 import useQueryParams from "@/hooks/useQueryParams";
 import useUiStore from "@/stores/uiStore";
 import { Transaction } from "@/types/transaction";
 
-export default function WithdrawList() {
+export default function TransactionList() {
   const { page } = useQueryParams();
   const navigate = useNavigate();
   const { revalidate } = useUiStore();
@@ -24,10 +24,10 @@ export default function WithdrawList() {
     <motion.div {...PAGE_ANIMATION}>
       <div className="mb-4">
         <div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Withdraw Management
+          Transaction Management
         </div>
         <div className="text-gray-600 dark:text-gray-400">
-          Manage and monitor all withdraws in the system
+          Manage and monitor all transactions in the system
         </div>
       </div>
       <div className="flex justify-between mb-4 items-center">
@@ -36,18 +36,19 @@ export default function WithdrawList() {
       <Table
         pagination={false}
         loading={isLoading || isRefetching}
-        columns={withdrawColumns()}
+        columns={transactionColumns()}
         dataSource={data?.items as Transaction[]}
         rowKey={(record: Transaction) => record?.transactionId}
       />
       <div className="flex justify-end">
         <Pagination
+          showSizeChanger={false}
           className="py-8"
           showTotal={(total) => `Total ${total} items`}
           defaultCurrent={data?.pageNumber}
           total={data?.totalCount}
           onChange={(page) => {
-            navigate(`/employee/withdraws?page=${page}`);
+            navigate(`/employee/transactions?page=${page}`);
           }}
         />
       </div>

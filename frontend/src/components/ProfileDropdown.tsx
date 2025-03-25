@@ -10,6 +10,7 @@ import { setCookie } from "../modules/cookie";
 import { defaultAvatar } from "../modules/default";
 import useAuthStore from "../stores/authStore";
 import useChatStore from "./ChatPopup/stores/chatStore";
+import { RiHistoryFill } from "react-icons/ri";
 
 const ProfileDropdown = () => {
   const { logout, email, name, avatar, role } = useAuthStore();
@@ -73,6 +74,18 @@ const ProfileDropdown = () => {
         >
           <BiMoneyWithdraw />
           Withdraw
+        </Link>
+      ),
+    },
+    {
+      key: "transaction",
+      label: (
+        <Link
+          to={"/manage/transaction-history"}
+          className="flex font-semibold gap-2 items-center"
+        >
+          <RiHistoryFill />
+          Transaction History
         </Link>
       ),
     },

@@ -1,8 +1,8 @@
-﻿using Helpers.DTOs.Authentication;
+﻿using System.Security.Claims;
+using Helpers.DTOs.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
-using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -12,7 +12,11 @@ namespace API.Controllers
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IMailSenderService _mailSender;
-        public AuthenticationController(IAuthenticationService authenticationService,IMailSenderService emailSender)
+
+        public AuthenticationController(
+            IAuthenticationService authenticationService,
+            IMailSenderService emailSender
+        )
         {
             _authenticationService = authenticationService;
             _mailSender = emailSender;
@@ -94,7 +98,7 @@ namespace API.Controllers
                 resetPasswordDto.Email,
                 "",
                 resetToken.Token,
-                "[DATJ Diamond] – Reset password verification"
+                "[GigsHub] – Reset password verification"
             );
 
             return Ok(result);
