@@ -21,5 +21,6 @@ export enum TransactionStatus {
   PENDING = 0,
   COMPLETED = 1,
   FAILED = 2,
+  REFUNDED = 4,
   CANCELLED = 3,
 }

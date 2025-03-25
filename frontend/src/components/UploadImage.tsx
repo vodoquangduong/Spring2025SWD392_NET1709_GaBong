@@ -40,7 +40,7 @@ const UploadImage = ({ fileList, setFileList }: any) => {
   return (
     <>
       <Upload
-        style={{ width: 200 }}
+        style={{ height: 200 }}
         listType="picture-card"
         fileList={fileList}
         onPreview={handlePreview}
@@ -51,7 +51,7 @@ const UploadImage = ({ fileList, setFileList }: any) => {
       </Upload>
       {previewImage && (
         <Image
-          width={100}
+          width={200}
           height={200}
           wrapperStyle={{ display: "none" }}
           preview={{

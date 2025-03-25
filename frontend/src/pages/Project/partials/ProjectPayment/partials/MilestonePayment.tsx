@@ -1,7 +1,6 @@
 import { Dropdown, Select, Table } from "antd";
 import { FaPlus } from "react-icons/fa6";
 import { GoQuestion } from "react-icons/go";
-import CreateModal from "../../../../../components/CreateModal";
 import { BiChevronDown } from "react-icons/bi";
 import { useQueries } from "@tanstack/react-query";
 import { GET } from "@/modules/request";

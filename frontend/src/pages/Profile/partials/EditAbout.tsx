@@ -32,8 +32,10 @@ export const formSchema = () => {
       .max(50, "Name must be less than 50 characters"),
     phone: z
       .string()
-      .min(3, "Phone number must be at least 3 characters")
-      .max(50, "Phone number must be less than 50 characters"),
+      .regex(
+        /^(\+\d{1,3}[- ]?)?\d{10}$/,
+        "It should be 10 digits and may include a country code."
+      ),
     address: z
       .string()
       .min(3, "Address must be at least 3 characters")
@@ -75,6 +77,7 @@ const EditAbout = () => {
     setValue,
     getValues,
   } = useForm({
+    mode: "onChange",
     defaultValues: {
       name: "",
       phone: "",
@@ -170,15 +173,22 @@ const EditAbout = () => {
     }
 
     formData["avatarURL"] = urlList[0];
-    await PUT(`/api/Account`, formData);
+    const res = await PUT(`/api/Account`, formData);
+    console.log("res", res);
+
     message.destroy();
-    message.success("Updated successfully");
-    navigate("/profile");
-    requestRevalidate();
-    updateAccount({
-      name: formData.name,
-      avatar: formData.avatarURL,
-    });
+    if (!res) {
+      message.error("Update failed");
+      return;
+    } else {
+      message.success("Updated successfully");
+      navigate("/profile");
+      requestRevalidate();
+      updateAccount({
+        name: formData.name,
+        avatar: formData.avatarURL,
+      });
+    }
   };
 
   return (
