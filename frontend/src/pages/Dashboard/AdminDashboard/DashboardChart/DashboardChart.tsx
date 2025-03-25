@@ -1,35 +1,28 @@
-import { defaultAvatar } from "@/modules/default";
 import { GET } from "@/modules/request";
 import { Portfolio } from "@/pages/Profile/models/types";
 import useAuthStore from "@/stores/authStore";
-import { ProjectDetail, ProjectStatus } from "@/types/project";
+import { ProjectDetail } from "@/types/project";
 import { PaginatedResult, ResultServerResponse } from "@/types/serverResponse";
 import { Transaction } from "@/types/transaction";
 import { useQueries } from "@tanstack/react-query";
-import {
-  Button,
-  DatePicker,
-  List,
-  Progress,
-  Select,
-  Spin,
-  Statistic,
-  Tag,
-} from "antd";
+import { Spin } from "antd";
+import { ApexOptions } from "apexcharts";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// Import ApexCharts components
-import { ApexOptions } from "apexcharts";
-import ReactApexChart from "react-apexcharts";
-// Fix the import path using the correct relative path
 import { Account } from "../AccountManagement/models/types";
-// Import the dedicated dashboard service instead of the account management service
 import {
   RevenueDataPoint,
   TopFreelancerWithReputation,
   dashboardChartService,
 } from "./services/dashboardChartService";
+
+// Import components directly from their files instead of the index
+import AccountDistribution from "./partials/AccountDistribution";
+import PlatformOverview from "./partials/PlatformOverview";
+import ProjectStatus from "./partials/ProjectStatus";
+import RevenueChart from "./partials/RevenueChart";
+import TopFreelancers from "./partials/TopFreelancers";
 
 // Helper function to safely parse JSON
 const safeJsonParse = (
@@ -124,7 +117,7 @@ const DashboardChart = () => {
       gradient: {
         shadeIntensity: 1,
         opacityFrom: 0.7,
-        opacityTo: 0.9,
+        opacityTo: 9,
         stops: [0, 90, 100],
       },
     },
@@ -317,7 +310,6 @@ const DashboardChart = () => {
           suspended: allAccounts.filter((acc) => acc.status === 1).length,
           banned: allAccounts.filter((acc) => acc.status === 2).length,
         };
-
         setAccountStats(stats);
       } catch (error) {
         console.error("Error fetching accounts for dashboard:", error);
@@ -328,14 +320,6 @@ const DashboardChart = () => {
 
     fetchAccounts();
   }, []);
-
-  // Get top freelancers by reputation
-  const getTopFreelancers = () => {
-    return accounts
-      .filter((acc) => acc.role === 2) // Filter freelancers only
-      .sort((a, b) => b.reputationPoint - a.reputationPoint) // Sort by reputation points
-      .slice(0, 10); // Get top 10
-  };
 
   const [transactions, projects, freelancers] = useQueries({
     queries: [
@@ -359,29 +343,6 @@ const DashboardChart = () => {
     ],
   });
 
-  const getPercentByStatus = (status: ProjectStatus[]) => {
-    if (!projects?.data?.value) {
-      return 0;
-    }
-    return (
-      (projects?.data?.value?.filter(
-        (p: ProjectDetail) =>
-          status.includes(p.status) && p.freelancerId == accountId
-      ).length /
-        (projects?.data?.value?.filter((p) => p.freelancerId == accountId)
-          ?.length || 1)) *
-      100
-    );
-  };
-
-  const getTotalProjects = () => {
-    if (!projects?.data?.value) {
-      return 0;
-    }
-    return projects?.data?.value?.filter((p) => p.freelancerId == accountId)
-      ?.length;
-  };
-
   return (
     <div className="geist min-h-screen pt-6 pb-40">
       {loading ? (
@@ -390,392 +351,25 @@ const DashboardChart = () => {
         </div>
       ) : (
         <>
-          {/* Main Stats Section */}
-          <div>
-            <h2 className="text-xl font-bold mb-4">Platform Overview</h2>
-            <div className="grid grid-cols-4 gap-4">
-              <div className="dark:bg-black/20 border shadow rounded-lg p-4 bg-white">
-                <Statistic
-                  title="Total Freelancers"
-                  value={dashboardStats.totalFreelancers}
-                  valueStyle={{ color: "#3f8600" }}
-                />
-              </div>
-              <div className="dark:bg-black/20 border shadow rounded-lg p-4 bg-white">
-                <Statistic
-                  title="Total Revenue"
-                  value={dashboardStats.totalRevenue}
-                  prefix="$"
-                  valueStyle={{ color: "#1677ff" }}
-                />
-              </div>
-              <div className="dark:bg-black/20 border shadow rounded-lg p-4 bg-white">
-                <Statistic
-                  title="Completed Projects"
-                  value={dashboardStats.completedProjects}
-                  valueStyle={{ color: "#52c41a" }}
-                />
-              </div>
-              <div className="dark:bg-black/20 border shadow rounded-lg p-4 bg-white">
-                <Statistic
-                  title="Ongoing Projects"
-                  value={dashboardStats.ongoingProjects}
-                  valueStyle={{ color: "#1677ff" }}
-                />
-              </div>
-            </div>
+          <PlatformOverview dashboardStats={dashboardStats} />
+          <ProjectStatus dashboardStats={dashboardStats} />
+          <AccountDistribution accountStats={accountStats} />
+          <RevenueChart
+            startDate={startDate}
+            endDate={endDate}
+            groupBy={groupBy}
+            revenueGraphData={revenueGraphData}
+            loadingRevenue={loadingRevenue}
+            setStartDate={setStartDate}
+            setEndDate={setEndDate}
+            setGroupBy={setGroupBy}
+            fetchRevenueData={fetchRevenueData}
+            revenueChartOptions={revenueChartOptions}
+            revenueChartSeries={revenueChartSeries}
+          />
 
-            {/* Project Status Section */}
-            <div className="mt-6">
-              <h2 className="text-xl font-bold mb-4">Project Status</h2>
-              <div className="grid grid-cols-4 gap-4">
-                <div className="dark:bg-black/20 border shadow rounded-lg p-4 bg-white">
-                  <Statistic
-                    title="Pending Projects"
-                    value={dashboardStats.pendingProjects}
-                    valueStyle={{ color: "#faad14" }}
-                  />
-                </div>
-                <div className="dark:bg-black/20 border shadow rounded-lg p-4 bg-white">
-                  <Statistic
-                    title="Verified Projects"
-                    value={dashboardStats.verifiedProjects}
-                    valueStyle={{ color: "#52c41a" }}
-                  />
-                </div>
-                <div className="dark:bg-black/20 border shadow rounded-lg p-4 bg-white">
-                  <Statistic
-                    title="Reverify Projects"
-                    value={dashboardStats.reverifyProjects}
-                    valueStyle={{ color: "#cf1322" }}
-                  />
-                </div>
-                <div className="dark:bg-black/20 border shadow rounded-lg p-4 bg-white">
-                  <Statistic
-                    title="Total Projects"
-                    value={
-                      dashboardStats.pendingProjects +
-                      dashboardStats.verifiedProjects +
-                      dashboardStats.reverifyProjects +
-                      dashboardStats.ongoingProjects +
-                      dashboardStats.completedProjects
-                    }
-                    valueStyle={{ color: "#1677ff" }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Account Distribution Charts */}
-          <div className="w-full grid grid-cols-2 gap-6 mt-8">
-            {/* Role Distribution */}
-            <div className="border p-4 h-[250px] bg-white">
-              <div className="text-xl font-bold mb-4">
-                Account Role Distribution
-              </div>
-              <div className="flex flex-col gap-3">
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span>Clients: {accountStats.clients}</span>
-                    <span>
-                      {accountStats.total
-                        ? Math.round(
-                            (accountStats.clients / accountStats.total) * 100
-                          )
-                        : 0}
-                      %
-                    </span>
-                  </div>
-                  <Progress
-                    percent={
-                      accountStats.total
-                        ? Math.round(
-                            (accountStats.clients / accountStats.total) * 100
-                          )
-                        : 0
-                    }
-                    showInfo={false}
-                    strokeColor="#4096ff"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span>Freelancers: {accountStats.freelancers}</span>
-                    <span>
-                      {accountStats.total
-                        ? Math.round(
-                            (accountStats.freelancers / accountStats.total) *
-                              100
-                          )
-                        : 0}
-                      %
-                    </span>
-                  </div>
-                  <Progress
-                    percent={
-                      accountStats.total
-                        ? Math.round(
-                            (accountStats.freelancers / accountStats.total) *
-                              100
-                          )
-                        : 0
-                    }
-                    showInfo={false}
-                    strokeColor="#52c41a"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span>Staff: {accountStats.staff}</span>
-                    <span>
-                      {accountStats.total
-                        ? Math.round(
-                            (accountStats.staff / accountStats.total) * 100
-                          )
-                        : 0}
-                      %
-                    </span>
-                  </div>
-                  <Progress
-                    percent={
-                      accountStats.total
-                        ? Math.round(
-                            (accountStats.staff / accountStats.total) * 100
-                          )
-                        : 0
-                    }
-                    showInfo={false}
-                    strokeColor="#722ed1"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Status Distribution */}
-            <div className="border p-4 h-[250px] bg-white">
-              <div className="text-xl font-bold mb-4">
-                Account Status Distribution
-              </div>
-              <div className="flex flex-col gap-3">
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span>Active: {accountStats.active}</span>
-                    <span>
-                      {accountStats.total
-                        ? (
-                            (accountStats.active / accountStats.total) *
-                            100
-                          ).toFixed(2)
-                        : 0}
-                      %
-                    </span>
-                  </div>
-                  <Progress
-                    percent={
-                      accountStats.total
-                        ? (accountStats.active / accountStats.total) * 100
-                        : 0
-                    }
-                    showInfo={false}
-                    strokeColor="#52c41a"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span>Suspended: {accountStats.suspended}</span>
-                    <span>
-                      {accountStats.total
-                        ? (
-                            (accountStats.suspended / accountStats.total) *
-                            100
-                          ).toFixed(2)
-                        : 0}
-                      %
-                    </span>
-                  </div>
-                  <Progress
-                    percent={
-                      accountStats.total
-                        ? (accountStats.suspended / accountStats.total) * 100
-                        : 0
-                    }
-                    showInfo={false}
-                    strokeColor="#faad14"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span>Banned: {accountStats.banned}</span>
-                    <span>
-                      {accountStats.total
-                        ? (
-                            (accountStats.banned / accountStats.total) *
-                            100
-                          ).toFixed(2)
-                        : 0}
-                      %
-                    </span>
-                  </div>
-                  <Progress
-                    percent={
-                      accountStats.total
-                        ? (accountStats.banned / accountStats.total) * 100
-                        : 0
-                    }
-                    showInfo={false}
-                    strokeColor="#f5222d"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Revenue Section */}
-          <div className="mt-8 border p-4 bg-white">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Revenue Overview</h2>
-              <div className="flex gap-4">
-                <DatePicker.RangePicker
-                  value={[dayjs(startDate), dayjs(endDate)]}
-                  onChange={(dates) => {
-                    if (dates && dates[0] && dates[1]) {
-                      setStartDate(dates[0].format("YYYY-MM-DD"));
-                      setEndDate(dates[1].format("YYYY-MM-DD"));
-                    }
-                  }}
-                />
-                <Select
-                  value={groupBy}
-                  onChange={setGroupBy}
-                  options={[
-                    { value: "day", label: "Daily" },
-                    { value: "week", label: "Weekly" },
-                    { value: "month", label: "Monthly" },
-                    { value: "year", label: "Yearly" },
-                  ]}
-                  style={{ width: 120 }}
-                />
-                <Button
-                  type="primary"
-                  onClick={fetchRevenueData}
-                  loading={loadingRevenue}
-                >
-                  Apply
-                </Button>
-              </div>
-            </div>
-
-            {loadingRevenue ? (
-              <div className="flex justify-center items-center h-64">
-                <Spin />
-              </div>
-            ) : revenueGraphData.length > 0 ? (
-              <div className="h-[400px]">
-                <ReactApexChart
-                  options={revenueChartOptions}
-                  series={revenueChartSeries}
-                  type="area"
-                  height={350}
-                />
-              </div>
-            ) : (
-              <div className="flex justify-center items-center h-64">
-                <p>No revenue data available for the selected period</p>
-              </div>
-            )}
-          </div>
-
-          <div className="w-full grid grid-cols-3 gap-6 mt-8">
-            {/* Revenue Listing */}
-            {/* <div className="col-span-2 border p-4 h-[500px] bg-white overflow-auto">
-              <h2 className="text-xl font-bold mb-4">Revenue Details</h2>
-              {loadingRevenue ? (
-                <div className="flex justify-center items-center h-64">
-                  <Spin />
-                </div>
-              ) : revenueListData.length > 0 ? (
-                <div className="h-[400px]">
-                  <ReactApexChart
-                    options={barChartOptions}
-                    series={barChartSeries}
-                    type="bar"
-                    height={350}
-                  />
-                </div>
-              ) : (
-                <div className="flex justify-center items-center h-64">
-                  <p>No revenue details available for the selected period</p>
-                </div>
-              )}
-            </div> */}
-
-            {/* Top Freelancers List */}
-            <div className="border p-4 h-[500px] bg-white">
-              <List
-                className="bg-white dark:bg-zinc-900 border-0 overflow-auto max-h-[460px] custom-scrollbar"
-                header={
-                  <div className="text-xl font-bold sticky top-0 z-10 bg-white py-2">
-                    Top 10 Freelancers by Reputation
-                  </div>
-                }
-                bordered
-                dataSource={topFreelancers}
-                loading={loading}
-                locale={{ emptyText: "No freelancers data available" }}
-                renderItem={(item: TopFreelancerWithReputation) => (
-                  <List.Item className="flex flex-col items-start">
-                    <div className="flex w-full">
-                      <img
-                        className="mt-2 w-12 aspect-square rounded-xl object-cover object-center bg-white border"
-                        src={item.avatarURL || defaultAvatar}
-                        alt={item.name}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = defaultAvatar;
-                        }}
-                      />
-                      <div className="flex-1 ml-4 w-3/4">
-                        <div
-                          title={item?.name}
-                          className="hover:text-emerald-400 cursor-pointer font-semibold w-full truncate mb-1"
-                          onClick={() =>
-                            navigate(`/admin/accounts/${item?.accountId}`)
-                          }
-                        >
-                          {item?.name} - {item?.email}
-                        </div>
-                        <div className="flex gap-y-2">
-                          <div className="flex gap-1 flex-wrap">
-                            <Tag className="text-xs" color="blue-inverse">
-                              {item?.reputationPoint} Points
-                            </Tag>
-                            {item.role === 2 ? (
-                              <Tag className="text-xs" color="green-inverse">
-                                Freelancer
-                              </Tag>
-                            ) : (
-                              <Tag className="text-xs" color="purple-inverse">
-                                Client
-                              </Tag>
-                            )}
-                            <Tag className="text-xs" color="orange-inverse">
-                              Credit: ${item.totalCredit.toFixed(2)}
-                            </Tag>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </List.Item>
-                )}
-                style={{
-                  scrollBehavior: "smooth",
-                }}
-              />
-            </div>
+          <div className="w-full grid grid-cols-1 gap-6 mt-8">
+            <TopFreelancers topFreelancers={topFreelancers} loading={loading} />
           </div>
         </>
       )}
