@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using Repositories.Implements;
 using Repositories.Interfaces;
 using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 using Services.Implements;
 using Services.Interfaces;
 using System.Reflection;
@@ -25,6 +26,7 @@ var configuration = builder.Configuration
 // config Serilog
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(configuration)
+    .WriteTo.Console()
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -143,25 +145,39 @@ builder.Services.AddScoped<IMailSenderService, MailSenderService>();
 builder.Services.AddSignalR();
 
 var url = builder.Configuration["Kestrel:Endpoints:Http:Url"];
-builder.WebHost.UseUrls(url);
+if (!string.IsNullOrEmpty(url))
+{
+    builder.WebHost.UseUrls(url);
+}
 
 var app = builder.Build();
 
 // config Middleware
-//if (app.Environment.IsDevelopment())
-//{
+if (app.Environment.IsDevelopment())
+{
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
-//}
+    app.UseCors(builder =>
+        builder.AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials()
+               .WithOrigins("http://localhost:5173"));
+}
+else
+{
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseCors(builder =>
+        builder.AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials()
+               .WithOrigins("https://gigshub-gabong.vercel.app"));
+}
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseCors(builder =>
-    builder.AllowAnyMethod()
-           .AllowAnyHeader()
-           .AllowCredentials()
-           .WithOrigins("https://gigshub-gabong.vercel.app"));
 app.UseAuthentication();
 app.UseAuthorization();
 
