@@ -18,7 +18,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { FaEye, FaSearch, FaUserPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { Account } from "../models/types";
+import { Account, PaginationParams } from "../models/types";
 import { accountMngUsecase } from "../usecases/accountMngUsecase";
 
 const { Title, Text } = Typography;
@@ -31,37 +31,33 @@ const AccountList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [allAccounts, setAllAccounts] = useState<Account[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
-  // Pagination state - only for UI display, not API calls
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
     total: 0,
+    totalPages: 1,
   });
 
-  // Load all accounts once when component mounts
   useEffect(() => {
-    fetchAllAccounts();
-  }, []);
+    fetchAccounts({
+      pageNumber: pagination.current,
+      pageSize: pagination.pageSize,
+    });
+  }, [pagination.current, pagination.pageSize]);
 
-  // Fetch all accounts without pagination
-  const fetchAllAccounts = async () => {
+  const fetchAccounts = async (params: PaginationParams) => {
     setLoading(true);
     try {
-      // We'll use a large page size to fetch all accounts at once
-      const result = await accountMngUsecase.getAccounts({
-        pageNumber: 1,
-        pageSize: 1000, // Use a large number to get all accounts
-      });
+      const result = await accountMngUsecase.getAccounts(params);
 
-      setAllAccounts(result.accounts);
       setAccounts(result.accounts);
       setPagination((prev) => ({
         ...prev,
-        total: result.accounts.length,
+        total: result.totalCount,
+        totalPages: result.totalPages,
       }));
     } catch (error) {
       console.error("Error fetching accounts:", error);
@@ -71,39 +67,21 @@ const AccountList: React.FC = () => {
     }
   };
 
-  // Effect to apply filters when search text or filters change
-  useEffect(() => {
-    applyFilters();
-  }, [searchText, roleFilter, statusFilter, allAccounts]);
-
-  // Apply filters to the full account list
-  const applyFilters = () => {
-    const filtered = allAccounts.filter((account) => {
-      const matchesSearch =
-        searchText === "" ||
-        account.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        account.email.toLowerCase().includes(searchText.toLowerCase());
-
-      const matchesRole = roleFilter === null || account.role === roleFilter;
-      const matchesStatus =
-        statusFilter === null || account.status === statusFilter;
-
-      return matchesSearch && matchesRole && matchesStatus;
+  // Apply search and filters
+  const handleApplyFilters = () => {
+    // Reset to first page when applying filters
+    fetchAccounts({
+      pageNumber: 1,
+      pageSize: pagination.pageSize,
+      searchText: searchText || undefined,
+      roleFilter: roleFilter !== null ? roleFilter : undefined,
+      statusFilter: statusFilter !== null ? statusFilter : undefined,
     });
 
-    setAccounts(filtered);
     setPagination((prev) => ({
       ...prev,
-      current: 1, // Reset to first page when filtering
-      total: filtered.length,
+      current: 1,
     }));
-  };
-
-  // Calculate the current page data for display
-  const getCurrentPageData = () => {
-    const startIndex = (pagination.current - 1) * pagination.pageSize;
-    const endIndex = startIndex + pagination.pageSize;
-    return accounts.slice(startIndex, endIndex);
   };
 
   // Handle search input change
@@ -111,13 +89,18 @@ const AccountList: React.FC = () => {
     setSearchText(e.target.value);
   };
 
+  // Handle search submit (on press Enter)
+  const handleSearchSubmit = () => {
+    handleApplyFilters();
+  };
+
   // Handle table pagination change
   const handleTableChange = (paginationTable: any) => {
-    setPagination({
+    setPagination((prev) => ({
+      ...prev,
       current: paginationTable.current,
       pageSize: paginationTable.pageSize,
-      total: accounts.length,
-    });
+    }));
   };
 
   const columns = [
@@ -237,6 +220,7 @@ const AccountList: React.FC = () => {
               prefix={<FaSearch />}
               value={searchText}
               onChange={handleSearch}
+              onPressEnter={handleSearchSubmit}
               allowClear
             />
           </Col>
@@ -266,6 +250,13 @@ const AccountList: React.FC = () => {
             </Select>
           </Col>
           <Col span={8} style={{ textAlign: "right" }}>
+            <Button
+              type="primary"
+              onClick={handleApplyFilters}
+              style={{ marginRight: 8 }}
+            >
+              Apply Filters
+            </Button>
             <Button type="primary" icon={<FaUserPlus />} onClick={showModal}>
               Add Staff - Chua lam
             </Button>
@@ -276,13 +267,13 @@ const AccountList: React.FC = () => {
       <Card>
         <Table
           columns={columns}
-          dataSource={getCurrentPageData()}
+          dataSource={accounts}
           rowKey="accountId"
           loading={loading}
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,
-            total: accounts.length, // Use filtered accounts length
+            total: pagination.total,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50"],
             showTotal: (total) => `Total ${total} accounts`,

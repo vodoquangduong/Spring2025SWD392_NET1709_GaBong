@@ -23,6 +23,17 @@ export const accountMngService = {
       if (params) {
         queryParams.append("pageNumber", params.pageNumber.toString());
         queryParams.append("pageSize", params.pageSize.toString());
+
+        // Add optional filter parameters if provided
+        if (params.searchText) {
+          queryParams.append("searchText", params.searchText);
+        }
+        if (params.roleFilter !== undefined) {
+          queryParams.append("role", params.roleFilter.toString());
+        }
+        if (params.statusFilter !== undefined) {
+          queryParams.append("status", params.statusFilter.toString());
+        }
       }
 
       const queryString = queryParams.toString();

@@ -20,6 +20,9 @@ export interface Account {
 export interface PaginationParams {
   pageNumber: number;
   pageSize: number;
+  searchText?: string;
+  roleFilter?: number;
+  statusFilter?: number;
 }
 
 export interface AccountsResponse {

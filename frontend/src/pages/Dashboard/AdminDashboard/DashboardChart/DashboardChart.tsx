@@ -13,7 +13,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // Fix the import path using the correct relative path
 import { Account } from "../AccountManagement/models/types";
-import { accountMngService } from "../AccountManagement/services/accountMngService";
+// Import the dedicated dashboard service instead of the account management service
+import { dashboardChartService } from "./services/dashboardChartService";
 
 // Helper function to safely parse JSON
 const safeJsonParse = (
@@ -51,14 +52,9 @@ const DashboardChart = () => {
     const fetchAccounts = async () => {
       setAccountsLoading(true);
       try {
-        // Use existing accountMngService to get all accounts
-        // Using large pageSize to get all accounts at once
-        const result = await accountMngService.getAllAccounts({
-          pageNumber: 1,
-          pageSize: 1000,
-        });
-
-        const allAccounts = result.items || [];
+        // Use the dedicated dashboard service that fetches all accounts without pagination
+        const allAccounts =
+          await dashboardChartService.getAllAccountsForDashboard();
         setAccounts(allAccounts);
 
         // Calculate account statistics
