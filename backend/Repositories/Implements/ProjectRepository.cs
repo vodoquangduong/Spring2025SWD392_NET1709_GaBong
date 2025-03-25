@@ -154,10 +154,7 @@ namespace Repositories.Implements
                 .WithOrderBy(q => q.OrderByDescending(p => p.PostDate))
                 .Build();
             var query = _unitOfWork.GetRepo<Project>().Get(queryOptions);
-
             return query;
         }
-
-    }
-
+            }
 }

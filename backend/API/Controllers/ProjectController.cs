@@ -95,7 +95,11 @@ namespace API.Controllers
         public async Task<IActionResult> GetProjectById([FromRoute] long projectId)
         {
             var projectDTO = await _projectService.GetProjectByIdAsync(projectId);
-            return Ok(projectDTO);
+            if (projectDTO.IsFailure)
+            {
+                return Ok(projectDTO.Error);
+            }
+            return Ok(projectDTO.Value);
         }
 
         [HttpGet("test-current-user")]
