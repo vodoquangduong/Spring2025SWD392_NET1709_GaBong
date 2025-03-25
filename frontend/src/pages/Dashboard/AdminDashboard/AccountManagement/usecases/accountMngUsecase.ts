@@ -68,6 +68,19 @@ export const accountMngUsecase = {
     }
   },
 
+  updateAccountStatus: async (
+    accountId: number,
+    status: number
+  ): Promise<boolean> => {
+    try {
+      await accountMngService.updateAccountStatus(accountId, status);
+      return true;
+    } catch (error) {
+      console.error("Error in updateAccountStatus usecase:", error);
+      return false;
+    }
+  },
+
   // Helper functions for UI display
   getRoleName: (role: number): string => {
     switch (role) {

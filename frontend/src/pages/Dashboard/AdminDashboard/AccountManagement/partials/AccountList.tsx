@@ -16,7 +16,7 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
-import { FaEye, FaLock, FaSearch, FaUnlock, FaUserPlus } from "react-icons/fa";
+import { FaEye, FaSearch, FaUserPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Account } from "../models/types";
 import { accountMngUsecase } from "../usecases/accountMngUsecase";
@@ -73,14 +73,6 @@ const AccountList: React.FC = () => {
       pageSize: pagination.pageSize,
       total: pagination.total,
     });
-  };
-
-  // Displays a message since API is not available
-  const handleStatusAction = (account: Account) => {
-    const action = account.status === 0 ? "suspend" : "activate";
-    message.info(
-      `Status change API not implemented yet. Would ${action} ${account.name}`
-    );
   };
 
   const columns = [
@@ -167,21 +159,6 @@ const AccountList: React.FC = () => {
             size="small"
             onClick={() => message.info(`Edit user ${record.name}`)}
           /> */}
-          {record.status === 0 ? (
-            <Button
-              icon={<FaLock />}
-              danger
-              size="small"
-              onClick={() => handleStatusAction(record)}
-            />
-          ) : (
-            <Button
-              icon={<FaUnlock />}
-              type="default"
-              size="small"
-              onClick={() => handleStatusAction(record)}
-            />
-          )}
         </Space>
       ),
     },
