@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using Helpers.DTOs.Query;
 using Repositories.Interfaces;
 using Repositories.Queries;
 
@@ -66,6 +67,39 @@ namespace Repositories.Implements
             var queryOptions = new QueryBuilder<Account>()
                 .WithTracking(false) // No tracking for efficient
                 .Build();
+            var accounts = _unitOfWork.GetRepo<Account>().Get(queryOptions);
+
+            return accounts;
+        }
+
+        public IQueryable<Account> GetAllAccountsFilteredPaging(AccountFilter filter)
+        {
+            var queryOptions = new QueryBuilder<Account>()
+                .WithTracking(false) // No tracking for efficient
+                .WithPredicate(acc =>
+                     (string.IsNullOrEmpty(filter.AccountName)
+                        || acc.Name.Contains(filter.AccountName))
+                    && (string.IsNullOrEmpty(filter.AccountRole)
+                        || acc.Role.Equals(Enum.Parse<AccountRole>(filter.AccountRole)))
+                    && (string.IsNullOrEmpty(filter.AccountStatus)
+                        || acc.Status.Equals(Enum.Parse<AccountStatus>(filter.AccountStatus)))
+                )
+                .WithOrderBy(acc =>
+                {
+                    switch (filter.SortBy)
+                    {
+                        case AccountFilter.SortReputation:
+                            return acc.OrderByDescending(acc => acc.ReputationPoint);
+                        case AccountFilter.SortTotalCredit:
+                            return acc.OrderByDescending(acc => acc.TotalCredit);
+                        case AccountFilter.SortCreatedAt:
+                            return acc.OrderByDescending(acc => acc.CreatedAt);
+                        default:
+                            return acc.OrderByDescending(acc => acc.AccountId);
+                    }
+                })
+                .Build();
+
             var accounts = _unitOfWork.GetRepo<Account>().Get(queryOptions);
 
             return accounts;
