@@ -16,7 +16,7 @@ export default function ProjectFilter({ query, setQuery }: any) {
     queries: [
       {
         queryKey: ["skills"],
-        queryFn: async () => await GET(`/api/SkillCategory`),
+        queryFn: async () => await GET(`/api/SkillCategory`, false),
       },
     ],
   });

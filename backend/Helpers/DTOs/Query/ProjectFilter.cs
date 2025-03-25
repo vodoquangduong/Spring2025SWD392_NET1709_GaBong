@@ -1,4 +1,3 @@
-
 namespace Helpers.DTOs.Query
 {
     public class ProjectFilter
@@ -8,6 +7,6 @@ namespace Helpers.DTOs.Query
         public decimal? MaxBudget { get; set; }
         public List<int>? SkillIds { get; set; }
         public string? Location { get; set; }
-        public string SortBy { get; set; } // "newest", "oldest", "highest_budget", "lowest_budget"
+        public string? SortBy { get; set; } // "newest", "oldest", "highest_budget", "lowest_budget"
     }
 }

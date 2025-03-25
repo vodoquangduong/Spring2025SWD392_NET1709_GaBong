@@ -1,18 +1,55 @@
+import { GET, PUT } from "@/modules/request";
+import useUiStore from "@/stores/uiStore";
 import { MilestoneStatus } from "@/types/milestone";
-import { Skeleton, Tag } from "antd";
+import { ProjectStatus } from "@/types/project";
+import { App, Button, Skeleton, Tag } from "antd";
 import { GoDownload, GoQuestion } from "react-icons/go";
 
 export default function PaymentSummary({ project }: { project: any }) {
   console.log("🚀 ~ PaymentSummary ~ project:", project);
+  const { modal } = App.useApp();
+  const { requestRevalidate } = useUiStore();
   // a.find()
+
+  const onCancelProject = () => {
+    modal.confirm({
+      title: "Are you sure?",
+      content: "This action will cancel the project and refund all bids.",
+      centered: true,
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      async onOk() {
+        const projectData = await GET(`/api/Project/${project.projectId}`);
+        console.log("projectData", projectData.value);
+        if (projectData.value && projectData.value.freelancerId) {
+          const project = projectData.value;
+          const body = {
+            availableTimeRange: project.availableTimeRange,
+            projectName: project.projectName,
+            projectDescription: project.projectDescription,
+            estimateBudget: project.estimateBudget,
+            location: project.location,
+            status: ProjectStatus.CLOSED,
+            skillIds: project.skillIds,
+          };
+          await PUT(`/api/Project/update/${project.projectId}`, body);
+          requestRevalidate();
+        }
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
+  };
 
   return (
     <div className="dark:bg-white/5 p-6 w-full mb-6 rounded-md shadow-md">
-      <div className="text-2xl font-semibold flex items-center gap-4">
+      <div className="text-2xl font-semibold flex items-center gap-4 justify-between">
         Payment Summary
-        <Tag className="px-4 !font-bold rounded-xl hover:bg-zinc-300 dark:hover:bg-zinc-600 cursor-pointer">
-          Invoice Summary
-        </Tag>
+        {project?.status == ProjectStatus.ON_GOING && (
+          <Button onClick={onCancelProject}>Cancel Project</Button>
+        )}
       </div>
       {!project?.estimateBudget ? (
         <div>

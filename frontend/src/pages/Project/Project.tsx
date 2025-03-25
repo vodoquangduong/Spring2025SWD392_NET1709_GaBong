@@ -1,4 +1,4 @@
-import { Breadcrumb, Skeleton, Tag } from "antd";
+import { App, Breadcrumb, Button, Skeleton, Tag } from "antd";
 import { GoDotFill } from "react-icons/go";
 import { CiBookmark } from "react-icons/ci";
 import { IoShareSocial } from "react-icons/io5";
@@ -8,20 +8,23 @@ import { TabItem } from "../Search/Search";
 import { Link, Outlet, useParams } from "react-router-dom";
 import Sidebar from "./partials/ProjectDetail/partials/Sidebar";
 import { useQueries, useQuery } from "@tanstack/react-query";
-import { GET } from "@/modules/request";
+import { GET, POST, PUT } from "@/modules/request";
 import { formatTimeAgo } from "@/modules/formatTimeAgo";
 import dayjs from "dayjs";
 import useAuthStore from "@/stores/authStore";
 import { ProjectStatus } from "@/types/project";
 import { mapProjectStatusToTag } from "@/modules/mapUiStatus";
 import { FaLocationDot } from "react-icons/fa6";
+import useUiStore from "@/stores/uiStore";
 
 export default function Project() {
+  const { revalidate, requestRevalidate } = useUiStore();
   const { id: projectId } = useParams();
   const { accountId } = useAuthStore();
+  const { modal } = App.useApp();
 
   const { data, isLoading } = useQuery<any>({
-    queryKey: ["projectDetail", projectId],
+    queryKey: ["projectDetail", projectId, revalidate],
     queryFn: async () => await GET(`/api/Project/${projectId}`),
   });
 
@@ -61,6 +64,39 @@ export default function Project() {
     project: data?.value,
     isLoading,
     accountId,
+  };
+
+  const onCancelProject = () => {
+    modal.confirm({
+      title: "Are you sure?",
+      content: "This action will cancel the project and refund all bids.",
+      centered: true,
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      async onOk() {
+        const projectData = await GET(`/api/Project/${projectId}`);
+        console.log("projectData", projectData.value);
+        if (projectData.value && !projectData.value.freelancerId) {
+          const project = projectData.value;
+          const body = {
+            availableTimeRange: project.availableTimeRange,
+            projectName: project.projectName,
+            projectDescription: project.projectDescription,
+            estimateBudget: project.estimateBudget,
+            location: project.location,
+            status: ProjectStatus.CLOSED,
+            skillIds: project.skillIds,
+          };
+          await PUT(`/api/Project/update/${projectId}`, body);
+          requestRevalidate();
+        }
+        console.log("OK");
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
   };
 
   useEffect(() => {
@@ -120,10 +156,15 @@ export default function Project() {
               {isLoading ? (
                 <Skeleton.Input active style={{ width: 200 }} />
               ) : (
-                <div>
-                  <div className={"py-2 flex gap-2 items-center"}>
-                    <FaLocationDot className="text-emerald-500" />
-                    {data?.value?.location}
+                <div className="mt-4">
+                  <div className="flex items-center justify-between">
+                    <div className={"py-2 flex gap-2 items-center"}>
+                      <FaLocationDot className="text-emerald-500" />
+                      {data?.value?.location}
+                    </div>
+                    {data.value.status == ProjectStatus.PENDING && (
+                      <Button onClick={onCancelProject}>Cancel Project</Button>
+                    )}
                   </div>
                   {`Posted ${formatTimeAgo(
                     dayjs(data?.value?.postDate, "DD-MM-YYYY").toISOString()

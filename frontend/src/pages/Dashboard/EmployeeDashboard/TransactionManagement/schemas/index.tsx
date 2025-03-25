@@ -3,13 +3,11 @@ import {
   Button,
   Calendar,
   ConfigProvider,
-  Image,
   Modal,
   Popconfirm,
   Popover,
   Tag,
   Typography,
-  UploadFile,
 } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -26,7 +24,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { POST, PUT } from "@/modules/request";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
 import { NotificationStatus, NotificationType } from "@/types/notification";
-import { FaEye, FaPen } from "react-icons/fa";
+import { FaEye } from "react-icons/fa";
 import useUiStore from "@/stores/uiStore";
 import { ColumnType } from "antd/es/table";
 import {
@@ -35,10 +33,6 @@ import {
   TransactionType,
 } from "@/types/transaction";
 import { TableProps } from "antd/lib";
-import { defaultAvatar } from "@/modules/default";
-import UploadImage from "@/components/UploadImage";
-import CreateModal from "@/components/CreateModal";
-import CreateProofForm from "../forms/CreateProofForm";
 
 // export const formSchema = () => {
 //   return z.object({
@@ -47,8 +41,7 @@ import CreateProofForm from "../forms/CreateProofForm";
 //   });
 // };
 
-export const withdrawColumns = (): ColumnType<Transaction>[] => {
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+export const transactionColumns = (): ColumnType<Transaction>[] => {
   const { message } = App.useApp();
   const navigate = useNavigate();
   const { notifyService } = useChatStore();
@@ -194,35 +187,6 @@ export const withdrawColumns = (): ColumnType<Transaction>[] => {
       dataIndex: "detail",
       key: "detail",
       render: (date: string) => date,
-    },
-    {
-      title: "Withdraw Proof",
-      dataIndex: "",
-      key: "withdrawProof",
-      render: (_: any, record: Transaction) => {
-        return record.status != TransactionStatus.COMPLETED ? (
-          <Image src={defaultAvatar} width={150} alt="" />
-        ) : (
-          <CreateModal
-            type="default"
-            children={
-              <span className="text-sm flex items-center gap-2">
-                <FaPen />
-                Proof
-              </span>
-            }
-            modalTitle={"Upload Withdraw Proof Image"}
-            form={(
-              setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
-            ) => (
-              <CreateProofForm
-                setIsModalOpen={setIsModalOpen}
-                record={record}
-              />
-            )}
-          />
-        );
-      },
     },
   ];
 };

@@ -39,13 +39,19 @@ export interface UserProfileData {
 
 // Portfolio related interfaces
 export interface Portfolio {
+  name: string;
   id: string;
   title: string;
   description: string;
-  imageUrl: string;
+  avatarURL: string;
   link: string;
   technologies: string[];
   completedDate: string;
+  reputationPoint: number;
+  skillPerform: number[];
+  freelancerId: number;
+  phone: string;
+  email: string;
 }
 
 export interface Project {
