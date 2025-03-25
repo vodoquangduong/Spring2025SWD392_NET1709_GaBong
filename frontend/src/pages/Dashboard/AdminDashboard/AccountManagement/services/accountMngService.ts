@@ -23,6 +23,17 @@ export const accountMngService = {
       if (params) {
         queryParams.append("pageNumber", params.pageNumber.toString());
         queryParams.append("pageSize", params.pageSize.toString());
+
+        // Add optional filter parameters if provided
+        if (params.searchText) {
+          queryParams.append("searchText", params.searchText);
+        }
+        if (params.roleFilter !== undefined) {
+          queryParams.append("role", params.roleFilter.toString());
+        }
+        if (params.statusFilter !== undefined) {
+          queryParams.append("status", params.statusFilter.toString());
+        }
       }
 
       const queryString = queryParams.toString();
@@ -136,6 +147,56 @@ export const accountMngService = {
       return data;
     } catch (error) {
       console.error("Error updating account:", error);
+      throw error;
+    }
+  },
+
+  updateAccountStatus: async (
+    accountId: number,
+    status: number
+  ): Promise<any> => {
+    try {
+      const token = getCookie("accessToken");
+      if (!token) {
+        throw new Error("Authentication required. Please login.");
+      }
+
+      const response = await fetch(
+        `${API_URL}/api/Account/update-account-status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            accountId: accountId,
+            status: status.toString(),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        let errorMessage;
+        try {
+          const errorData = await response.json();
+          errorMessage =
+            errorData.message ||
+            errorData.error ||
+            "Failed to update account status";
+        } catch {
+          errorMessage =
+            response.status >= 500
+              ? "Server error. Please try again later."
+              : "Failed to update account status";
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error updating account status:", error);
       throw error;
     }
   },

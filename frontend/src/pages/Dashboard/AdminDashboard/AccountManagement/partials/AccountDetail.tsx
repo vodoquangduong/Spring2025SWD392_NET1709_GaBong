@@ -26,10 +26,8 @@ import {
   FaCalendarAlt,
   FaCheck,
   FaDollarSign,
-  FaEdit,
   FaEnvelope,
   FaFlag,
-  FaKey,
   FaLock,
   FaMapMarkerAlt,
   FaPhone,
@@ -208,27 +206,39 @@ const AccountDetail: React.FC = () => {
     }
   };
 
-  // Function to handle the demonstration of account status changes (without real API call)
+  // Updated function to handle account status changes with real API call
   const handleStatusAction = (newStatus: number) => {
     if (!account) return;
 
+    // Status change is only between Active (0) and Suspended (1) as per requirements
     const action = newStatus === 0 ? "activate" : "suspend";
+    const statusText = newStatus === 0 ? "active" : "suspended";
 
     Modal.confirm({
       title: `Are you sure you want to ${action} this account?`,
-      content: `This will ${action} the account for ${account.name}.`,
-      onOk: () => {
-        // Simulate a success response
-        message.info(
-          `Status change API not implemented yet. Would ${action} account ID ${account.accountId}`
-        );
+      content: `This will change the account status for ${account.name} to ${statusText}.`,
+      onOk: async () => {
+        try {
+          const success = await accountMngUsecase.updateAccountStatus(
+            account.accountId,
+            newStatus
+          );
 
-        // For UI demonstration purposes, we update the local state
-        // In a real implementation, this would only happen after API call success
-        setAccount({
-          ...account,
-          status: newStatus,
-        });
+          if (success) {
+            message.success(`Account successfully ${action}ed`);
+
+            // Update local state after API call success
+            setAccount({
+              ...account,
+              status: newStatus,
+            });
+          } else {
+            message.error(`Failed to ${action} account`);
+          }
+        } catch (error) {
+          console.error(`Error ${action}ing account:`, error);
+          message.error(`Failed to ${action} account: ${error}`);
+        }
       },
     });
   };
@@ -504,27 +514,12 @@ const AccountDetail: React.FC = () => {
                 <Divider />
 
                 <Space direction="vertical" style={{ width: "100%" }}>
-                  <Button
-                    icon={<FaEdit />}
-                    type="primary"
-                    block
-                    onClick={handleEditProfile}
-                  >
-                    Edit Profile
-                  </Button>
-                  <Button
-                    icon={<FaKey />}
-                    block
-                    onClick={() => setIsResetPasswordModalVisible(true)}
-                  >
-                    Reset Password
-                  </Button>
                   {account.status === 0 ? (
                     <Button
                       icon={<FaBan />}
                       danger
                       block
-                      onClick={() => handleStatusAction(2)}
+                      onClick={() => handleStatusAction(1)}
                     >
                       Suspend Account
                     </Button>

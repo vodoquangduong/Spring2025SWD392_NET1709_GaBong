@@ -16,9 +16,9 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
-import { FaEye, FaLock, FaSearch, FaUnlock, FaUserPlus } from "react-icons/fa";
+import { FaEye, FaSearch, FaUserPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { Account } from "../models/types";
+import { Account, PaginationParams } from "../models/types";
 import { accountMngUsecase } from "../usecases/accountMngUsecase";
 
 const { Title, Text } = Typography;
@@ -34,29 +34,30 @@ const AccountList: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
-  // Pagination state
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
     total: 0,
+    totalPages: 1,
   });
 
   useEffect(() => {
-    fetchAccounts();
+    fetchAccounts({
+      pageNumber: pagination.current,
+      pageSize: pagination.pageSize,
+    });
   }, [pagination.current, pagination.pageSize]);
 
-  const fetchAccounts = async () => {
+  const fetchAccounts = async (params: PaginationParams) => {
     setLoading(true);
     try {
-      const result = await accountMngUsecase.getAccounts({
-        pageNumber: pagination.current,
-        pageSize: pagination.pageSize,
-      });
+      const result = await accountMngUsecase.getAccounts(params);
 
       setAccounts(result.accounts);
       setPagination((prev) => ({
         ...prev,
         total: result.totalCount,
+        totalPages: result.totalPages,
       }));
     } catch (error) {
       console.error("Error fetching accounts:", error);
@@ -66,21 +67,40 @@ const AccountList: React.FC = () => {
     }
   };
 
-  // Handle table pagination change
-  const handleTableChange = (pagination: any) => {
-    setPagination({
-      current: pagination.current,
+  // Apply search and filters
+  const handleApplyFilters = () => {
+    // Reset to first page when applying filters
+    fetchAccounts({
+      pageNumber: 1,
       pageSize: pagination.pageSize,
-      total: pagination.total,
+      searchText: searchText || undefined,
+      roleFilter: roleFilter !== null ? roleFilter : undefined,
+      statusFilter: statusFilter !== null ? statusFilter : undefined,
     });
+
+    setPagination((prev) => ({
+      ...prev,
+      current: 1,
+    }));
   };
 
-  // Displays a message since API is not available
-  const handleStatusAction = (account: Account) => {
-    const action = account.status === 0 ? "suspend" : "activate";
-    message.info(
-      `Status change API not implemented yet. Would ${action} ${account.name}`
-    );
+  // Handle search input change
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+  };
+
+  // Handle search submit (on press Enter)
+  const handleSearchSubmit = () => {
+    handleApplyFilters();
+  };
+
+  // Handle table pagination change
+  const handleTableChange = (paginationTable: any) => {
+    setPagination((prev) => ({
+      ...prev,
+      current: paginationTable.current,
+      pageSize: paginationTable.pageSize,
+    }));
   };
 
   const columns = [
@@ -167,40 +187,10 @@ const AccountList: React.FC = () => {
             size="small"
             onClick={() => message.info(`Edit user ${record.name}`)}
           /> */}
-          {record.status === 0 ? (
-            <Button
-              icon={<FaLock />}
-              danger
-              size="small"
-              onClick={() => handleStatusAction(record)}
-            />
-          ) : (
-            <Button
-              icon={<FaUnlock />}
-              type="default"
-              size="small"
-              onClick={() => handleStatusAction(record)}
-            />
-          )}
         </Space>
       ),
     },
   ];
-
-  // Filter the data client-side for search and filters
-  // (You might want to move this to server-side filtering later)
-  const filteredData = accounts.filter((account) => {
-    const matchesSearch =
-      searchText === "" ||
-      account.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      account.email.toLowerCase().includes(searchText.toLowerCase());
-
-    const matchesRole = roleFilter === null || account.role === roleFilter;
-    const matchesStatus =
-      statusFilter === null || account.status === statusFilter;
-
-    return matchesSearch && matchesRole && matchesStatus;
-  });
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -229,7 +219,8 @@ const AccountList: React.FC = () => {
               placeholder="Search by name or email"
               prefix={<FaSearch />}
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={handleSearch}
+              onPressEnter={handleSearchSubmit}
               allowClear
             />
           </Col>
@@ -242,8 +233,8 @@ const AccountList: React.FC = () => {
             >
               <Option value={0}>Admin</Option>
               <Option value={1}>Staff</Option>
-              <Option value={3}>Client</Option>
               <Option value={2}>Freelancer</Option>
+              <Option value={3}>Client</Option>
             </Select>
           </Col>
           <Col span={4}>
@@ -259,6 +250,13 @@ const AccountList: React.FC = () => {
             </Select>
           </Col>
           <Col span={8} style={{ textAlign: "right" }}>
+            <Button
+              type="primary"
+              onClick={handleApplyFilters}
+              style={{ marginRight: 8 }}
+            >
+              Apply Filters
+            </Button>
             <Button type="primary" icon={<FaUserPlus />} onClick={showModal}>
               Add Staff - Chua lam
             </Button>
@@ -269,7 +267,7 @@ const AccountList: React.FC = () => {
       <Card>
         <Table
           columns={columns}
-          dataSource={filteredData}
+          dataSource={accounts}
           rowKey="accountId"
           loading={loading}
           pagination={{
@@ -279,13 +277,6 @@ const AccountList: React.FC = () => {
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50"],
             showTotal: (total) => `Total ${total} accounts`,
-            onChange: (page, pageSize) => {
-              setPagination({
-                current: page,
-                pageSize: pageSize || 10,
-                total: pagination.total,
-              });
-            },
           }}
           onChange={handleTableChange}
         />
