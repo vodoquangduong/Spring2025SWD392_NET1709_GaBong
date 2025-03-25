@@ -77,10 +77,7 @@ namespace Services.Implements
                 //{
                 //    Predicate = a => a.AccountId == createTransactionDTO.AccountId
                 //});
-                var user = await _accountRepository.GetSingleByAccountIdAsync(
-                    createTransactionDTO.AccountId
-                );
-
+                var user = await _accountRepository.GetSingleByAccountIdAsync(createTransactionDTO.AccountId);
                 if (user == null)
                 {
                     return Result.Failure<TransactionDTO>(
@@ -210,6 +207,26 @@ namespace Services.Implements
                 throw new KeyNotFoundException($"Transaction with ID {id} not found.");
             }
             return _mapper.Map<TransactionDTO>(transaction);
+        }
+
+        public async Task<Result<TransactionDTO>> UpdateTransactionAsync(UpdateTransactionDTO updateTransactionDTO)
+        {
+            try
+            {
+                var transaction = await _transactionRepository.GetSingleByIdAsync(updateTransactionDTO.TransactionId);
+                if (transaction == null)
+                {
+                    return Result.Failure<TransactionDTO>(new Error("Update transaction failed", $"Transaction with id {updateTransactionDTO.TransactionId} not found"));
+                }
+                transaction.Status = updateTransactionDTO.Status;
+                transaction.Detail = updateTransactionDTO.Details;
+                await _transactionRepository.UpdateAsync(transaction);
+                return Result.Success(_mapper.Map<TransactionDTO>(transaction));
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<TransactionDTO>(new Error("Update transaction failed", $"{e.Message}"));
+            }
         }
     }
 }

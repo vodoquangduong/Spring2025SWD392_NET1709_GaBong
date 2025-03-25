@@ -97,7 +97,7 @@ namespace Repositories.Implements
                     .GroupBy(t => t.CreatedAt.Date)
                     .Select(g => new RevenueGraphData
                     {
-                        Date = DateTime.SpecifyKind(g.Key, DateTimeKind.Utc),
+                        Date = g.Key.ToString("dd/MM/yyyy"),
                         Revenue = g.Sum(t => t.Type == TransactionType.Fee ? t.Amount : 
                                            t.Type == TransactionType.Refund ? -t.Amount : 0)
                     }),
@@ -106,7 +106,7 @@ namespace Repositories.Implements
                     .GroupBy(t => new { t.CreatedAt.Year, t.CreatedAt.Month })
                     .Select(g => new RevenueGraphData
                     {
-                        Date = DateTime.SpecifyKind(new DateTime(g.Key.Year, g.Key.Month, 1), DateTimeKind.Utc),
+                        Date = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MM/yyyy"),
                         Revenue = g.Sum(t => t.Type == TransactionType.Fee ? t.Amount : 
                                            t.Type == TransactionType.Refund ? -t.Amount : 0)
                     }),
@@ -115,7 +115,7 @@ namespace Repositories.Implements
                     .GroupBy(t => t.CreatedAt.Year)
                     .Select(g => new RevenueGraphData
                     {
-                        Date = DateTime.SpecifyKind(new DateTime(g.Key, 1, 1), DateTimeKind.Utc),
+                        Date = g.Key.ToString(),
                         Revenue = g.Sum(t => t.Type == TransactionType.Fee ? t.Amount : 
                                            t.Type == TransactionType.Refund ? -t.Amount : 0)
                     }),

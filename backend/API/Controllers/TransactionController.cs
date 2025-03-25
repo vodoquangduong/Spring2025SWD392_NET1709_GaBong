@@ -57,6 +57,16 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
+        [HttpPut]
+        public async Task<IActionResult> UpdateTransaction([FromBody] UpdateTransactionDTO updateTransactionDTO)
+        {
+            var result = await _transactionService.UpdateTransactionAsync(updateTransactionDTO);
+            if (result.IsFailure)
+            {
+                return Ok(result.Error);
+            }
+            return Ok(result.Value);
+        }
 
 
         /// <summary>
