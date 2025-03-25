@@ -379,7 +379,7 @@ const DashboardChart = () => {
                         title={item?.name}
                         className="hover:text-emerald-400 cursor-pointer font-semibold w-full truncate mb-1"
                         onClick={() =>
-                          navigate(`/freelancers/${item?.freelancerId}`)
+                          navigate(`/admin/accounts/${item?.freelancerId}`)
                         }
                       >
                         {item?.name} - {item?.email}
