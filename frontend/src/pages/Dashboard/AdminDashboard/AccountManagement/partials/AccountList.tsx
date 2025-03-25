@@ -31,32 +31,37 @@ const AccountList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [allAccounts, setAllAccounts] = useState<Account[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
-  // Pagination state
+  // Pagination state - only for UI display, not API calls
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
     total: 0,
   });
 
+  // Load all accounts once when component mounts
   useEffect(() => {
-    fetchAccounts();
-  }, [pagination.current, pagination.pageSize]);
+    fetchAllAccounts();
+  }, []);
 
-  const fetchAccounts = async () => {
+  // Fetch all accounts without pagination
+  const fetchAllAccounts = async () => {
     setLoading(true);
     try {
+      // We'll use a large page size to fetch all accounts at once
       const result = await accountMngUsecase.getAccounts({
-        pageNumber: pagination.current,
-        pageSize: pagination.pageSize,
+        pageNumber: 1,
+        pageSize: 1000, // Use a large number to get all accounts
       });
 
+      setAllAccounts(result.accounts);
       setAccounts(result.accounts);
       setPagination((prev) => ({
         ...prev,
-        total: result.totalCount,
+        total: result.accounts.length,
       }));
     } catch (error) {
       console.error("Error fetching accounts:", error);
@@ -66,12 +71,52 @@ const AccountList: React.FC = () => {
     }
   };
 
+  // Effect to apply filters when search text or filters change
+  useEffect(() => {
+    applyFilters();
+  }, [searchText, roleFilter, statusFilter, allAccounts]);
+
+  // Apply filters to the full account list
+  const applyFilters = () => {
+    const filtered = allAccounts.filter((account) => {
+      const matchesSearch =
+        searchText === "" ||
+        account.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        account.email.toLowerCase().includes(searchText.toLowerCase());
+
+      const matchesRole = roleFilter === null || account.role === roleFilter;
+      const matchesStatus =
+        statusFilter === null || account.status === statusFilter;
+
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+
+    setAccounts(filtered);
+    setPagination((prev) => ({
+      ...prev,
+      current: 1, // Reset to first page when filtering
+      total: filtered.length,
+    }));
+  };
+
+  // Calculate the current page data for display
+  const getCurrentPageData = () => {
+    const startIndex = (pagination.current - 1) * pagination.pageSize;
+    const endIndex = startIndex + pagination.pageSize;
+    return accounts.slice(startIndex, endIndex);
+  };
+
+  // Handle search input change
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+  };
+
   // Handle table pagination change
-  const handleTableChange = (pagination: any) => {
+  const handleTableChange = (paginationTable: any) => {
     setPagination({
-      current: pagination.current,
-      pageSize: pagination.pageSize,
-      total: pagination.total,
+      current: paginationTable.current,
+      pageSize: paginationTable.pageSize,
+      total: accounts.length,
     });
   };
 
@@ -164,21 +209,6 @@ const AccountList: React.FC = () => {
     },
   ];
 
-  // Filter the data client-side for search and filters
-  // (You might want to move this to server-side filtering later)
-  const filteredData = accounts.filter((account) => {
-    const matchesSearch =
-      searchText === "" ||
-      account.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      account.email.toLowerCase().includes(searchText.toLowerCase());
-
-    const matchesRole = roleFilter === null || account.role === roleFilter;
-    const matchesStatus =
-      statusFilter === null || account.status === statusFilter;
-
-    return matchesSearch && matchesRole && matchesStatus;
-  });
-
   const showModal = () => {
     setIsModalVisible(true);
   };
@@ -206,7 +236,7 @@ const AccountList: React.FC = () => {
               placeholder="Search by name or email"
               prefix={<FaSearch />}
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={handleSearch}
               allowClear
             />
           </Col>
@@ -219,8 +249,8 @@ const AccountList: React.FC = () => {
             >
               <Option value={0}>Admin</Option>
               <Option value={1}>Staff</Option>
-              <Option value={3}>Client</Option>
               <Option value={2}>Freelancer</Option>
+              <Option value={3}>Client</Option>
             </Select>
           </Col>
           <Col span={4}>
@@ -246,23 +276,16 @@ const AccountList: React.FC = () => {
       <Card>
         <Table
           columns={columns}
-          dataSource={filteredData}
+          dataSource={getCurrentPageData()}
           rowKey="accountId"
           loading={loading}
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,
-            total: pagination.total,
+            total: accounts.length, // Use filtered accounts length
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50"],
             showTotal: (total) => `Total ${total} accounts`,
-            onChange: (page, pageSize) => {
-              setPagination({
-                current: page,
-                pageSize: pageSize || 10,
-                total: pagination.total,
-              });
-            },
           }}
           onChange={handleTableChange}
         />
