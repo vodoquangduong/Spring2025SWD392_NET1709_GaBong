@@ -12,7 +12,8 @@ namespace Services.Implements
     public class BidService : IBidService
     {
         //private readonly IUnitOfWork _unitOfWork;
-        private readonly IConfiguration _configuration;
+        //private readonly IConfiguration _configuration;
+        private readonly IAdminConfigService _adminConfigService;
         private readonly IProjectRepository _projectRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly IBidRepository _bidRepository;
@@ -21,7 +22,8 @@ namespace Services.Implements
 
         public BidService(
             //IUnitOfWork unitOfWork, 
-            IConfiguration configuration,
+            //IConfiguration configuration,
+            IAdminConfigService adminConfigService,
             IProjectRepository projectRepository,
             IAccountRepository accountRepository,
             IBidRepository bidRepository,
@@ -29,7 +31,8 @@ namespace Services.Implements
             IMapper mapper)
         {
             //_unitOfWork = unitOfWork;
-            _configuration = configuration;
+            //_configuration = configuration;
+            _adminConfigService = adminConfigService;
             _projectRepository = projectRepository;
             _accountRepository = accountRepository;
             _bidRepository = bidRepository;
@@ -64,10 +67,11 @@ namespace Services.Implements
                 }
 
                 decimal bidFee;
-                if (!decimal.TryParse(_configuration["PaymentPolicy:BidFee"], out bidFee))
-                {
-                    bidFee = 2; //default value
-                }
+                //if (!decimal.TryParse(_configuration["PaymentPolicy:BidFee"], out bidFee))
+                //{
+                //    bidFee = 2; //default value
+                //}
+                bidFee = _adminConfigService.GetConfig().PaymentPolicy.BidFee;
                 if (freelancer.TotalCredit - freelancer.LockCredit < bidFee)
                 {
                     return Result.Failure<BidDTO>(new Error("Can't bid", $"You dont have enough credit to bit on project {bidDto.ProjectId}"));

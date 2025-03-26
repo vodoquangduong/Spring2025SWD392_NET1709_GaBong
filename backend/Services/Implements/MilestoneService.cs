@@ -16,7 +16,8 @@ namespace Services.Implements
         private readonly IMilestoneRepository _milestoneRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly ITransactionRepository _transactionRepository;
-        private readonly IConfiguration _configuration;
+        //private readonly IConfiguration _configuration;
+        private readonly IAdminConfigService _adminConfigService;
         private readonly IMapper _mapper;
         public MilestoneService(
             //IUnitOfWork unitOfWork, 
@@ -24,7 +25,8 @@ namespace Services.Implements
             IMilestoneRepository miletoneRepository,
             IAccountRepository accountRepository,
             ITransactionRepository transactionRepository,
-            IConfiguration configuration,
+            IAdminConfigService adminConfigService,
+            //IConfiguration configuration,
             IMapper mapper)
         {
             //_unitOfWork = unitOfWork;
@@ -32,7 +34,8 @@ namespace Services.Implements
             _milestoneRepository = miletoneRepository;
             _accountRepository = accountRepository;
             _transactionRepository = transactionRepository;
-            _configuration = configuration;
+            //_configuration = configuration;
+            _adminConfigService = adminConfigService;
             _mapper = mapper;
         }
         public async Task<Result<MilestoneDTO>> CreateMilestoneAsync(CreateMilestoneDTO createMilstoneDTO)
@@ -175,31 +178,35 @@ namespace Services.Implements
                         switch (checkDealine)
                         {
                             case -1:
-                                if (!int.TryParse(_configuration["ReputationPolicy:BeforeDeadline"], out reputationPoint))
-                                {
-                                    reputationPoint = 150;
-                                }
+                                //if (!int.TryParse(_configuration["ReputationPolicy:BeforeDeadline"], out reputationPoint))
+                                //{
+                                //    reputationPoint = 150;
+                                //}
+                                reputationPoint = _adminConfigService.GetConfig().ReputationPolicy.BeforeDeadline;
                                 freelancer.ReputationPoint += reputationPoint;
                                 break;
                             case 0:
-                                if (!int.TryParse(_configuration["ReputationPolicy:RightDeadline"], out reputationPoint))
-                                {
-                                    reputationPoint = 100;
-                                }
+                                //if (!int.TryParse(_configuration["ReputationPolicy:RightDeadline"], out reputationPoint))
+                                //{
+                                //    reputationPoint = 100;
+                                //}
+                                reputationPoint = _adminConfigService.GetConfig().ReputationPolicy.RightDeadline;
                                 freelancer.ReputationPoint += reputationPoint;
                                 break;
                             case 1:
-                                if (!int.TryParse(_configuration["ReputationPolicy:EarlylateDeadline"], out reputationPoint))
-                                {
-                                    reputationPoint = 50;
-                                }
+                                //if (!int.TryParse(_configuration["ReputationPolicy:EarlylateDeadline"], out reputationPoint))
+                                //{
+                                //    reputationPoint = 50;
+                                //}
+                                reputationPoint = _adminConfigService.GetConfig().ReputationPolicy.EarlylateDeadline;
                                 freelancer.ReputationPoint -= reputationPoint;
                                 break;
                             case 2:
-                                if (!int.TryParse(_configuration["ReputationPolicy:LateDeadline"], out reputationPoint))
-                                {
-                                    reputationPoint = 150;
-                                }
+                                //if (!int.TryParse(_configuration["ReputationPolicy:LateDeadline"], out reputationPoint))
+                                //{
+                                //    reputationPoint = 150;
+                                //}
+                                reputationPoint = _adminConfigService.GetConfig().ReputationPolicy.LateDeadline;
                                 freelancer.ReputationPoint -= reputationPoint;
                                 break;
                             default:
@@ -234,10 +241,11 @@ namespace Services.Implements
                         {
                             project.Status = ProjectStatus.Completed;
 
-                            if (!int.TryParse(_configuration["ReputationPolicy:CompleteProject"], out reputationPoint))
-                            {
-                                reputationPoint = 200;
-                            }
+                            //if (!int.TryParse(_configuration["ReputationPolicy:CompleteProject"], out reputationPoint))
+                            //{
+                            //    reputationPoint = 200;
+                            //}
+                            reputationPoint = _adminConfigService.GetConfig().ReputationPolicy.CompleteProject;
                             client.ReputationPoint += reputationPoint;
 
                             //await _unitOfWork.GetRepo<Account>().UpdateAsync(client);

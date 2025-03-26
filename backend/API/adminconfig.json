@@ -5,10 +5,10 @@
     "WithdrawalFee": 20
   },
   "ReputationPolicy": {
-    "BeforeDeadline": 100,
+    "BeforeDeadline": 200,
     "RightDeadline": 100,
-    "EarlylateDeadline": 100,
-    "LateDeadline": 100,
+    "EarlylateDeadline": -50,
+    "LateDeadline": -150,
     "CompleteProject": 200
   }
 }
