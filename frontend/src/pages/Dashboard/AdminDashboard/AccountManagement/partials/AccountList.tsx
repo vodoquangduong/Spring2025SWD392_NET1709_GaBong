@@ -18,7 +18,8 @@ import {
 import React, { useEffect, useState } from "react";
 import { FaEye, FaSearch, FaUserPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { Account, PaginationParams } from "../models/types";
+import { Account } from "../models/types";
+import { accountMngService } from "../services/accountMngService";
 import { accountMngUsecase } from "../usecases/accountMngUsecase";
 
 const { Title, Text } = Typography;
@@ -27,8 +28,9 @@ const { Option } = Select;
 const AccountList: React.FC = () => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
-  const [roleFilter, setRoleFilter] = useState<number | null>(null);
-  const [statusFilter, setStatusFilter] = useState<number | null>(null);
+  const [roleFilter, setRoleFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("createdAt");
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -42,18 +44,29 @@ const AccountList: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchAccounts({
-      pageNumber: pagination.current,
-      pageSize: pagination.pageSize,
-    });
-  }, [pagination.current, pagination.pageSize]);
+    fetchAccounts();
+  }, [
+    pagination.current,
+    pagination.pageSize,
+    searchText,
+    roleFilter,
+    statusFilter,
+    sortBy,
+  ]);
 
-  const fetchAccounts = async (params: PaginationParams) => {
+  const fetchAccounts = async () => {
     setLoading(true);
     try {
-      const result = await accountMngUsecase.getAccounts(params);
+      const result = await accountMngService.getFilteredAccounts({
+        pageSize: pagination.pageSize,
+        pageNumber: pagination.current,
+        accountName: searchText || undefined,
+        accountRole: roleFilter || undefined,
+        accountStatus: statusFilter || undefined,
+        sortBy: sortBy,
+      });
 
-      setAccounts(result.accounts);
+      setAccounts(result.items);
       setPagination((prev) => ({
         ...prev,
         total: result.totalCount,
@@ -67,23 +80,6 @@ const AccountList: React.FC = () => {
     }
   };
 
-  // Apply search and filters
-  const handleApplyFilters = () => {
-    // Reset to first page when applying filters
-    fetchAccounts({
-      pageNumber: 1,
-      pageSize: pagination.pageSize,
-      searchText: searchText || undefined,
-      roleFilter: roleFilter !== null ? roleFilter : undefined,
-      statusFilter: statusFilter !== null ? statusFilter : undefined,
-    });
-
-    setPagination((prev) => ({
-      ...prev,
-      current: 1,
-    }));
-  };
-
   // Handle search input change
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -91,7 +87,10 @@ const AccountList: React.FC = () => {
 
   // Handle search submit (on press Enter)
   const handleSearchSubmit = () => {
-    handleApplyFilters();
+    setPagination((prev) => ({
+      ...prev,
+      current: 1,
+    }));
   };
 
   // Handle table pagination change
@@ -215,10 +214,7 @@ const AccountList: React.FC = () => {
       form.resetFields();
 
       // Refresh the account list after adding a new account
-      fetchAccounts({
-        pageNumber: pagination.current,
-        pageSize: pagination.pageSize,
-      });
+      fetchAccounts();
     } catch (error) {
       console.error("Error creating staff account:", error);
       message.error(
@@ -236,9 +232,9 @@ const AccountList: React.FC = () => {
 
       <Card style={{ marginBottom: 16 }}>
         <Row gutter={16}>
-          <Col span={8}>
+          <Col span={6}>
             <Input
-              placeholder="Search by name or email"
+              placeholder="Search by name"
               prefix={<FaSearch />}
               value={searchText}
               onChange={handleSearch}
@@ -251,12 +247,13 @@ const AccountList: React.FC = () => {
               placeholder="Filter by role"
               style={{ width: "100%" }}
               allowClear
+              value={roleFilter}
               onChange={(value) => setRoleFilter(value)}
             >
-              <Option value={0}>Admin</Option>
-              <Option value={1}>Staff</Option>
-              <Option value={2}>Freelancer</Option>
-              <Option value={3}>Client</Option>
+              <Option value="">All</Option>
+              <Option value="1">Staff</Option>
+              <Option value="2">Freelancer</Option>
+              <Option value="3">Client</Option>
             </Select>
           </Col>
           <Col span={4}>
@@ -264,21 +261,27 @@ const AccountList: React.FC = () => {
               placeholder="Filter by status"
               style={{ width: "100%" }}
               allowClear
+              value={statusFilter}
               onChange={(value) => setStatusFilter(value)}
             >
-              <Option value={0}>Active</Option>
-              <Option value={1}>Suspended</Option>
-              <Option value={2}>Banned</Option>
+              <Option value="">All</Option>
+              <Option value="0">Active</Option>
+              <Option value="1">Inactive</Option>
             </Select>
           </Col>
-          <Col span={8} style={{ textAlign: "right" }}>
-            <Button
-              type="primary"
-              onClick={handleApplyFilters}
-              style={{ marginRight: 8 }}
+          <Col span={4}>
+            <Select
+              placeholder="Sort by"
+              style={{ width: "100%" }}
+              value={sortBy}
+              onChange={(value) => setSortBy(value)}
             >
-              Apply Filters
-            </Button>
+              <Option value="reputationPoint">Reputation</Option>
+              <Option value="totalCredit">Total Credit</Option>
+              <Option value="createdAt">Created Date</Option>
+            </Select>
+          </Col>
+          <Col span={6} style={{ textAlign: "right" }}>
             <Button type="primary" icon={<FaUserPlus />} onClick={showModal}>
               Create Staff Account
             </Button>

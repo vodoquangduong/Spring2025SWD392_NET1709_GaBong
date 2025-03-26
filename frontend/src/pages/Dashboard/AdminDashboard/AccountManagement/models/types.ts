@@ -84,3 +84,19 @@ export interface Activity {
   ip: string;
   device: string;
 }
+export interface FilteredAccountsResponse {
+  items: Account[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export interface FilteredAccountsParams {
+  pageSize: number;
+  pageNumber: number;
+  accountName?: string;
+  accountRole?: string;
+  accountStatus?: string;
+  sortBy?: string;
+}
