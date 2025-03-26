@@ -2,7 +2,7 @@ import UploadImage from "@/components/UploadImage";
 import { storage } from "@/modules/firebase";
 import { PUT } from "@/modules/request";
 import useUiStore from "@/stores/uiStore";
-import { Transaction } from "@/types/transaction";
+import { Transaction, TransactionStatus } from "@/types/transaction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { App, Button, UploadFile } from "antd";
 import {
@@ -11,7 +11,7 @@ import {
   ref,
   uploadBytes,
 } from "firebase/storage";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { v4 } from "uuid";
 import { z } from "zod";
@@ -33,6 +33,7 @@ const CreateProofForm = ({
     register,
     handleSubmit,
     setError,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -40,12 +41,27 @@ const CreateProofForm = ({
       proofUrl: "",
     },
   });
+
+  useEffect(() => {
+    setFileList([
+      {
+        uid: "-1",
+        name: "proof.png",
+        status: "done",
+        url: record.detail.split("|")[1],
+      },
+    ]);
+  }, []);
+
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const onSubmit = async (formData: any) => {
     try {
       formData.detail = record.detail;
-      setError("proofUrl", { type: "manual", message: "Required" });
+      if (fileList.length == 0) {
+        setError("proofUrl", { type: "manual", message: "Required" });
+        return;
+      }
       message.open({
         type: "loading",
         content: "Updating profile ...",
@@ -95,10 +111,12 @@ const CreateProofForm = ({
         console.error("Failed to upload image");
       }
 
-      formData["detail"] = formData.detail.split("|")[0] + "|" + urlList[0];
-      console.log("formData", formData.detail);
+      formData["details"] = formData.detail.split("|")[0] + "|" + urlList[0];
+      formData["transactionId"] = record.transactionId;
+      formData["status"] = TransactionStatus.COMPLETED;
+      console.log("formData", formData);
 
-      //   const res = true;
+      // const res = true;
       const res = await PUT(`/api/Transaction`, formData);
       console.log("res", res);
 

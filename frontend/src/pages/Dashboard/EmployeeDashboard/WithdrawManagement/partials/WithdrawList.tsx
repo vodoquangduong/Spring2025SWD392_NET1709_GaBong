@@ -17,7 +17,11 @@ export default function WithdrawList() {
   const { data, isLoading, isRefetching } = useQuery({
     queryKey: ["transactions", revalidate, page],
     queryFn: async () =>
-      await GET(`/api/Transaction?pageNumber=${page || 1}&pageSize=10`),
+      await GET(
+        `/api/Transaction/All transation by type?TransactionType=1&pageNumber=${
+          page || 1
+        }`
+      ),
   });
 
   return (
@@ -42,9 +46,10 @@ export default function WithdrawList() {
       />
       <div className="flex justify-end">
         <Pagination
+          showSizeChanger={false}
           className="py-8"
           showTotal={(total) => `Total ${total} items`}
-          defaultCurrent={data?.pageNumber}
+          defaultCurrent={page || data?.pageNumber}
           total={data?.totalCount}
           onChange={(page) => {
             navigate(`/employee/withdraws?page=${page}`);
