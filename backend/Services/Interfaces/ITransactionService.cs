@@ -1,3 +1,4 @@
+using Helpers.DTOs.Query;
 using Helpers.DTOs.Transaction;
 using Helpers.HelperClasses;
 
@@ -13,5 +14,10 @@ namespace Services.Interfaces
         Task<TransactionDTO> FinishPaymentAsync(long id);
         Task<TransactionDTO> CreateProjectPaymentAsync(long projectId);
         Task<TransactionDTO> CreateBidAsync(long bidId);
+        Task<Result<PaginatedResult<TransactionDTO>>> GetTransactionByTypeAsync(
+            int pageNumber,
+            int pageSize,
+            TransactionFilter filter
+        );
     }
 }

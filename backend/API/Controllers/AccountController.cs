@@ -1,4 +1,5 @@
 ﻿using Helpers.DTOs.Account;
+using Helpers.DTOs.Authentication;
 using Helpers.DTOs.Query;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -69,6 +70,20 @@ namespace API.Controllers
                 return NotFound("Account not found");
             }
             return Ok(account);
+        }
+
+        [HttpPost("Create Account")]
+        public async Task<IActionResult> CreateAccount([FromBody] RegisterDTO registerDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _accountService.CreateAccount(registerDto);
+            if(result == null)
+            {
+                return Ok("Create account failed");
+            }
+            return Ok(result);
         }
 
         [HttpPut]

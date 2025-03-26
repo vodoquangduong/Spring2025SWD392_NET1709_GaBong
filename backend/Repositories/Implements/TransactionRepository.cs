@@ -1,4 +1,6 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
+using Helpers.DTOs.Query;
 using Repositories.Interfaces;
 using Repositories.Queries;
 
@@ -52,6 +54,24 @@ namespace Repositories.Implements
             var transactions = _unitOfWork
                 .GetRepo<Transaction>()
                 .Get(new QueryOptions<Transaction>());
+
+            return transactions;
+        }
+
+        public IQueryable<Transaction> GetTransactionsByTypePaging(TransactionFilter filter)
+        {
+            var filterType = filter.TransactionType.Select(typ => Enum.Parse<TransactionType>(typ));
+
+            var queryOptions = new QueryBuilder<Transaction>()
+                .WithTracking(false)
+                .WithPredicate(trans =>
+                    (filterType.Any(typ => trans.Type.Equals(typ)))
+                ).WithOrderBy(trans =>
+                    trans.OrderByDescending(trans => trans.CreatedAt)
+                ).Build();
+            var transactions = _unitOfWork
+                .GetRepo<Transaction>()
+                .Get(queryOptions);
 
             return transactions;
         }
