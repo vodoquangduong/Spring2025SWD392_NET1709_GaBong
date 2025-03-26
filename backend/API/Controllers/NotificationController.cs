@@ -48,7 +48,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
-        
+
         [HttpPut]
         public async Task<IActionResult> UpdateStatusNotification(
             [FromBody] UpdateStatusNotificationDTO updateDTO
