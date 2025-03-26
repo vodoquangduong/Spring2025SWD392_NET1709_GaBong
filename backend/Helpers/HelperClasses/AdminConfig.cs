@@ -16,20 +16,20 @@ namespace Helpers.HelperClasses
     public class PaymentPolicy
     {
         /// <summary>
-        /// Fee per projec in %
+        /// Fee per project in %
         /// </summary>
         ///<example>10</example>
-        public decimal ProjectFee { get; set; } = 10M;
+        public decimal ProjectFee { get; set; } = 0.1M;
         /// <summary>
         /// Fee per bid in $
         /// </summary>
         ///<example>2</example>
         public decimal BidFee { get; set; } = 2M;
         /// <summary>
-        /// Fee per withdrawal in $
+        /// Fee per withdrawal in %
         /// </summary>
         /// <example>2</example>
-        public decimal WithdrawalFee { get; set; } = 2M;
+        public decimal WithdrawalFee { get; set; } = 0.2M;
     }
 
     public class ReputationPolicy
