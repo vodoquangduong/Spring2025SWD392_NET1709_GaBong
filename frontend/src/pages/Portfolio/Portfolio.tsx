@@ -362,18 +362,14 @@ const Portfolio: React.FC = () => {
     const currentStatus = getCurrentStatus();
     console.log("Current status in handleEdit:", currentStatus);
 
-    if (
-      currentStatus !== PortfolioStatus.Modifying &&
-      currentStatus !== PortfolioStatus.Rejected
-    ) {
-      console.log(
-        `Cannot edit: Portfolio status is ${currentStatus}, not Modifying or Rejected`
+    if (currentStatus === PortfolioStatus.Pending) {
+      console.log("Cannot edit: Portfolio is pending verification");
+      message.warning(
+        "Portfolio is being verified, please wait for the result."
       );
-      message.info("Portfolio is being verified or rejected, please wait.");
       return;
     }
 
-    console.log("Setting isEditing to true");
     setIsEditing(true);
   };
 

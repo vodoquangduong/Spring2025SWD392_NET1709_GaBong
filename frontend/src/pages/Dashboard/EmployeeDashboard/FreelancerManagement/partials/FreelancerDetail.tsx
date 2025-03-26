@@ -198,26 +198,61 @@ const FreelancerDetail: React.FC = () => {
     return <div className="p-6">Portfolio not found</div>;
   }
 
-  // Parse JSON data
-  const worksData =
-    portfolio.works && portfolio.works !== "string"
-      ? JSON.parse(portfolio.works || "{}")
-      : {};
+  // Parse JSON data safely
+  const worksData = (() => {
+    try {
+      if (!portfolio.works) return {};
+      if (typeof portfolio.works === "string") {
+        return JSON.parse(portfolio.works);
+      }
+      return portfolio.works;
+    } catch (error) {
+      console.error("Error parsing works data:", error);
+      return {};
+    }
+  })();
 
-  // Get skills from skillPerform if available, otherwise use works data
-  const skills =
-    portfolio.skillPerform && portfolio.skillPerform.length > 0
-      ? portfolio.skillPerform.map((skillItem) => {
+  // Parse certificates safely
+  const certificates = (() => {
+    try {
+      if (!portfolio.certificate) return [];
+      if (typeof portfolio.certificate === "string") {
+        return JSON.parse(portfolio.certificate);
+      }
+      return portfolio.certificate;
+    } catch (error) {
+      console.error("Error parsing certificates:", error);
+      return [];
+    }
+  })();
+
+  // Get skills safely
+  const skills = (() => {
+    if (
+      portfolio.skillPerform &&
+      Array.isArray(portfolio.skillPerform) &&
+      portfolio.skillPerform.length > 0
+    ) {
+      return portfolio.skillPerform.map((skillItem) => {
+        try {
           const skill = skillItem.skill || skillItem.skills;
           return {
-            name: skill ? skill.skillName : "Unknown Skill",
-            level: skillItem.skillLevel,
+            name: skill?.skillName || "Unknown Skill",
+            level: skillItem.skillLevel || 0,
           };
-        })
-      : worksData.skills || [];
+        } catch (error) {
+          console.error("Error processing skill item:", error);
+          return {
+            name: "Unknown Skill",
+            level: 0,
+          };
+        }
+      });
+    }
+    return worksData.skills || [];
+  })();
 
   const experiences = worksData.experiences || [];
-  const certificates = JSON.parse(portfolio.certificate || "[]");
 
   // Format birthday if available
   const formattedBirthday =
