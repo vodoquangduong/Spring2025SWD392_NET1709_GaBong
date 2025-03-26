@@ -51,6 +51,7 @@ import AdminDashboard, {
   SystemConfiguration,
 } from "@/pages/Dashboard/AdminDashboard";
 import { TransactionList } from "@/pages/Dashboard/EmployeeDashboard/TransactionManagement";
+import ResetStep from "@/pages/ForgotPassword/partials/ResetStep";
 
 export default function MainRoutes() {
   return (
@@ -131,6 +132,7 @@ export default function MainRoutes() {
         <Route path="register" element={<Register />} />
         <Route path="login" element={<Login />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="reset-password" element={<ResetStep />} />
         <Route path="authentication">
           <Route path="" element={<NotifyGmailChecking />} />
           <Route path="verify-gmail" element={<VerifyGmail />} />
