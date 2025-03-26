@@ -46,7 +46,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> CreateFeedback([FromBody] CreateFeedbackDTO createDTO)
         {
@@ -68,7 +68,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
-        
+
         [HttpDelete("{projectId}")]
         public async Task<IActionResult> DeleteFeedbackByProjectId([FromRoute] long projectId)
         {

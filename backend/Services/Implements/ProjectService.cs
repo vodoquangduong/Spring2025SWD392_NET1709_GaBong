@@ -125,6 +125,7 @@ namespace Services.Implements
                         var milestone = _mapper.Map<Milestone>(m);
                         milestone.ProjectId = createProject.ProjectId;
                         milestone.Status = MilestoneStatus.NotStarted;
+                        milestone.DeadlineDate = milestone.DeadlineDate.ToUniversalTime();
                         return milestone;
                     })
                     .ToList();
@@ -271,7 +272,7 @@ namespace Services.Implements
                     );
                 }
                 //var result = _mapper.Map<ProjectDetailDTO>(project);
-                var result = _mapper.Map<Project,ProjectDetailDTO>(project);
+                var result = _mapper.Map<Project, ProjectDetailDTO>(project);
                 return Result.Success(result);
             }
             catch (Exception e)
