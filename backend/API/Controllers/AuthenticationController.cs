@@ -31,7 +31,7 @@ namespace API.Controllers
             var token = await _authenticationService.Login(loginDto);
             if (token == null)
             {
-                return Unauthorized("Email not found or password incorrect");
+                return Unauthorized("Email, password incorrect or account is banned");
             }
             return Ok(token);
         }
