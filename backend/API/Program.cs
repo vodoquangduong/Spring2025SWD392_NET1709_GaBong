@@ -1,5 +1,6 @@
 using AutoMapper;
 using DAOs;
+using Helpers.HelperClasses;
 using Helpers.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -20,9 +21,11 @@ var builder = WebApplication.CreateBuilder(args);
 // read config from appsettings.json
 var configuration = builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("adminconfig.json", optional: false, reloadOnChange: false)
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables().Build();
+
 // config Serilog
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(configuration)
@@ -122,6 +125,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 
 
 // Service
+builder.Services.AddSingleton<IAdminConfigService, AdminConfigService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
