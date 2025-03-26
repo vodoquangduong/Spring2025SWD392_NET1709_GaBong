@@ -24,7 +24,7 @@ export default function MilestonePayment() {
 
   return (
     <>
-      <PaymentSummary project={projectDetail.data?.value} />
+      <PaymentSummary project={projectDetail.data} />
       <div className="dark:bg-white/5 p-6 w-full mb-8 rounded-md shadow-md">
         <div className="text-2xl font-semibold flex justify-between items-center gap-4">
           Milestone Payments

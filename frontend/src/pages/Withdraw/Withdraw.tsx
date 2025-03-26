@@ -80,7 +80,7 @@ export default function Withdraw() {
         type: TransactionType.WITHDRAWAL,
         status: TransactionStatus.PENDING,
       });
-      message.error("Withdraw request sent successfully");
+      message.success("Withdraw request sent successfully");
       navigate("/manage/transaction-history");
       console.log("response: ", response);
     } else {
