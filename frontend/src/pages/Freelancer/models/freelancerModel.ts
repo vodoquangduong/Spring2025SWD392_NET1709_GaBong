@@ -31,15 +31,10 @@ export interface PublicPortfolio {
 
 export interface Feedback {
   feedbackId: number;
-  freelancerId: number;
-  clientId: number;
+  projectId: number;
   rating: number;
   comment: string;
-  createdDate: string;
-  clientName: string;
-  clientAvatar?: string;
-  projectName?: string;
-  projectId?: number;
+  createdAt: string;
 }
 
 export interface FeedbackRequest {

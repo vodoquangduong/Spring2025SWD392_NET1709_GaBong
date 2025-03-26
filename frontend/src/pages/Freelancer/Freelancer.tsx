@@ -16,7 +16,9 @@ import {
   Typography,
 } from "antd";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
+import utc from "dayjs/plugin/utc";
 import { useEffect, useState } from "react";
 import {
   FaCertificate,
@@ -39,9 +41,16 @@ import SkillLegend from "./partials/SkillLegend";
 import { freelancerService } from "./services/freelancerService";
 
 dayjs.extend(relativeTime);
+dayjs.extend(customParseFormat);
+dayjs.extend(utc);
 
 const { Text, Paragraph } = Typography;
 const { TextArea } = Input;
+
+// Update date parsing function to format date only
+const parseFeedbackDate = (dateStr: string) => {
+  return dayjs.utc(dateStr, "DD/MM/YYYY hh:mm:ss A").format("DD/MM/YYYY");
+};
 
 export default function Freelancer() {
   const { id: freelancerId } = useParams<{ id: string }>();
@@ -371,7 +380,7 @@ export default function Freelancer() {
             </div>
           )}
           {/* Feedback Section */}
-          <div className="mt-12">
+          <div>
             <div className="text-2xl font-bold mb-8">Client Feedback</div>
 
             {feedbacks.length === 0 ? (
@@ -389,18 +398,14 @@ export default function Freelancer() {
                   >
                     <div className="flex justify-between">
                       <div className="flex gap-3 items-start">
-                        <Avatar src={feedback.clientAvatar} size={42}>
-                          {feedback.clientName?.charAt(0).toUpperCase()}
-                        </Avatar>
+                        <Avatar size={42}>{"C"}</Avatar>
                         <div>
                           <Text strong className="text-lg">
-                            {feedback.clientName}
+                            Client
                           </Text>
-                          {feedback.projectName && (
-                            <div className="text-sm text-gray-500">
-                              Project: {feedback.projectName}
-                            </div>
-                          )}
+                          <div className="text-sm text-gray-500">
+                            Project ID: {feedback.projectId}
+                          </div>
                           <Rate
                             value={feedback.rating}
                             disabled
@@ -410,10 +415,12 @@ export default function Freelancer() {
                         </div>
                       </div>
                       <Text type="secondary" className="text-xs">
-                        {dayjs(feedback.createdDate).fromNow()}
+                        {parseFeedbackDate(feedback.createdAt)}
                       </Text>
                     </div>
-                    <Paragraph className="mt-4">{feedback.comment}</Paragraph>
+                    {feedback.comment && (
+                      <Paragraph className="mt-4">{feedback.comment}</Paragraph>
+                    )}
                   </Card>
                 ))}
 
