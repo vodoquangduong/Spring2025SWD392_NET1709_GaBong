@@ -54,7 +54,7 @@ namespace Services.Implements
                 {
                     return Result.Failure<FeedbackDTO>(new Error("Create portfolio failed", $"You must be the client of this project to create feedback"));
                 }
-                var newFeedback = _mapper.Map<Feedback>(feedbackDTO);
+                var newFeedback = _mapper.Map<CreateFeedbackDTO ,Feedback>(feedbackDTO);
 
                 //await _unitOfWork.GetRepo<Feedback>().CreateAsync(newFeedback);
                 //await _unitOfWork.SaveChangesAsync();
@@ -102,7 +102,7 @@ namespace Services.Implements
             //.WithOrderBy(o => o.OrderByDescending(f => f.CreatedAt))
             //.Build();
             //var feedbacks = await _unitOfWork.GetRepo<Feedback>().GetAllAsync(queryOptions);
-            var feedbacks = await _feedbackRepository.GetAllByAccountIdAsync(freelancerId);
+            var feedbacks = await _feedbackRepository.GetAllByFreelancerIdAsync(freelancerId);
 
             return Result.Success(feedbacks.Select(_mapper.Map<FeedbackDTO>));
         }

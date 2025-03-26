@@ -43,7 +43,7 @@ namespace Repositories.Implements
             return feedback;
         }
 
-        public async Task<IEnumerable<Feedback>> GetAllByAccountIdAsync(long accountId)
+        public async Task<IEnumerable<Feedback>> GetAllByFreelancerIdAsync(long accountId)
         {
             var queryOptions = new QueryBuilder<Feedback>()
             .WithInclude(p => p.Project)

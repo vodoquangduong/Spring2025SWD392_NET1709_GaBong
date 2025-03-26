@@ -56,6 +56,7 @@ namespace Helpers.Mappers
             CreateMap<Feedback, FeedbackDTO>();
             //FeedbackDTO to Feedback
             CreateMap<FeedbackDTO, Feedback>();
+            CreateMap<CreateFeedbackDTO, Feedback>();
             //UpdateFeedbackDTO to Feedback
             CreateMap<UpdateFeedbackDTO, Feedback>();
 
