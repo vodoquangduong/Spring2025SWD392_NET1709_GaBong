@@ -14,32 +14,37 @@ interface AccountStatsProps {
 }
 
 const AccountDistribution: React.FC<AccountStatsProps> = ({ accountStats }) => {
+  // Helper function to safely calculate percentage and avoid NaN or division by zero
+  const calculatePercentage = (value: number, total: number): number => {
+    if (!total || value === undefined || value === null) return 0;
+    const percentage = (value / total) * 100;
+    return parseFloat(percentage.toFixed(2));
+  };
+
+  const adjustedFreelancers =
+    accountStats.freelancers > 0 ? accountStats.freelancers - 1 : 0;
+  const adjustedTotal =
+    accountStats.total > 0
+      ? accountStats.total - (accountStats.freelancers > 0 ? 1 : 0)
+      : 0;
+
   return (
-    <div className="w-full grid grid-cols-2 gap-6 mt-8">
+    <div className="border p-4 h-full bg-white">
+      <div className="text-xl font-bold mb-4">Account Distribution</div>
+
       {/* Role Distribution */}
-      <div className="border p-4 h-[250px] bg-white">
-        <div className="text-xl font-bold mb-4">Account Role Distribution</div>
+      <div className="mb-6">
+        <h3 className="font-medium text-lg mb-2">Role Distribution</h3>
         <div className="flex flex-col gap-3">
           <div>
             <div className="flex justify-between mb-1">
               <span>Clients: {accountStats.clients}</span>
               <span>
-                {accountStats.total
-                  ? Math.round(
-                      (accountStats.clients / accountStats.total) * 100
-                    )
-                  : 0}
-                %
+                {calculatePercentage(accountStats.clients, adjustedTotal)}%
               </span>
             </div>
             <Progress
-              percent={
-                accountStats.total
-                  ? Math.round(
-                      (accountStats.clients / accountStats.total) * 100
-                    )
-                  : 0
-              }
+              percent={calculatePercentage(accountStats.clients, adjustedTotal)}
               showInfo={false}
               strokeColor="#4096ff"
             />
@@ -47,24 +52,13 @@ const AccountDistribution: React.FC<AccountStatsProps> = ({ accountStats }) => {
 
           <div>
             <div className="flex justify-between mb-1">
-              <span>Freelancers: {accountStats.freelancers}</span>
+              <span>Freelancers: {adjustedFreelancers}</span>
               <span>
-                {accountStats.total
-                  ? Math.round(
-                      (accountStats.freelancers / accountStats.total) * 100
-                    )
-                  : 0}
-                %
+                {calculatePercentage(adjustedFreelancers, adjustedTotal)}%
               </span>
             </div>
             <Progress
-              percent={
-                accountStats.total
-                  ? Math.round(
-                      (accountStats.freelancers / accountStats.total) * 100
-                    )
-                  : 0
-              }
+              percent={calculatePercentage(adjustedFreelancers, adjustedTotal)}
               showInfo={false}
               strokeColor="#52c41a"
             />
@@ -74,49 +68,47 @@ const AccountDistribution: React.FC<AccountStatsProps> = ({ accountStats }) => {
             <div className="flex justify-between mb-1">
               <span>Staff: {accountStats.staff}</span>
               <span>
-                {accountStats.total
-                  ? Math.round((accountStats.staff / accountStats.total) * 100)
-                  : 0}
-                %
+                {calculatePercentage(accountStats.staff, adjustedTotal)}%
               </span>
             </div>
             <Progress
-              percent={
-                accountStats.total
-                  ? Math.round((accountStats.staff / accountStats.total) * 100)
-                  : 0
-              }
+              percent={calculatePercentage(accountStats.staff, adjustedTotal)}
               showInfo={false}
               strokeColor="#722ed1"
             />
           </div>
+
+          {accountStats.admin > 0 && (
+            <div>
+              <div className="flex justify-between mb-1">
+                <span>Admin: {accountStats.admin}</span>
+                <span>
+                  {calculatePercentage(accountStats.admin, adjustedTotal)}%
+                </span>
+              </div>
+              <Progress
+                percent={calculatePercentage(accountStats.admin, adjustedTotal)}
+                showInfo={false}
+                strokeColor="#f5222d"
+              />
+            </div>
+          )}
         </div>
       </div>
 
       {/* Status Distribution */}
-      <div className="border p-4 h-[250px] bg-white">
-        <div className="text-xl font-bold mb-4">
-          Account Status Distribution
-        </div>
+      <div>
+        <h3 className="font-medium text-lg mb-2">Status Distribution</h3>
         <div className="flex flex-col gap-3">
           <div>
             <div className="flex justify-between mb-1">
               <span>Active: {accountStats.active}</span>
               <span>
-                {accountStats.total
-                  ? ((accountStats.active / accountStats.total) * 100).toFixed(
-                      2
-                    )
-                  : 0}
-                %
+                {calculatePercentage(accountStats.active, adjustedTotal)}%
               </span>
             </div>
             <Progress
-              percent={
-                accountStats.total
-                  ? (accountStats.active / accountStats.total) * 100
-                  : 0
-              }
+              percent={calculatePercentage(accountStats.active, adjustedTotal)}
               showInfo={false}
               strokeColor="#52c41a"
             />
@@ -126,21 +118,14 @@ const AccountDistribution: React.FC<AccountStatsProps> = ({ accountStats }) => {
             <div className="flex justify-between mb-1">
               <span>Suspended: {accountStats.suspended}</span>
               <span>
-                {accountStats.total
-                  ? (
-                      (accountStats.suspended / accountStats.total) *
-                      100
-                    ).toFixed(2)
-                  : 0}
-                %
+                {calculatePercentage(accountStats.suspended, adjustedTotal)}%
               </span>
             </div>
             <Progress
-              percent={
-                accountStats.total
-                  ? (accountStats.suspended / accountStats.total) * 100
-                  : 0
-              }
+              percent={calculatePercentage(
+                accountStats.suspended,
+                adjustedTotal
+              )}
               showInfo={false}
               strokeColor="#faad14"
             />
@@ -150,20 +135,11 @@ const AccountDistribution: React.FC<AccountStatsProps> = ({ accountStats }) => {
             <div className="flex justify-between mb-1">
               <span>Banned: {accountStats.banned}</span>
               <span>
-                {accountStats.total
-                  ? ((accountStats.banned / accountStats.total) * 100).toFixed(
-                      2
-                    )
-                  : 0}
-                %
+                {calculatePercentage(accountStats.banned, adjustedTotal)}%
               </span>
             </div>
             <Progress
-              percent={
-                accountStats.total
-                  ? (accountStats.banned / accountStats.total) * 100
-                  : 0
-              }
+              percent={calculatePercentage(accountStats.banned, adjustedTotal)}
               showInfo={false}
               strokeColor="#f5222d"
             />

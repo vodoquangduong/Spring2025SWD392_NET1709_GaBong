@@ -1,8 +1,26 @@
-import { Button, DatePicker, Select, Spin } from "antd";
-import { ApexOptions } from "apexcharts";
+import { Button, DatePicker, Select, Spin, Table } from "antd";
+import {
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  Title,
+  Tooltip,
+} from "chart.js";
 import dayjs from "dayjs";
-import ReactApexChart from "react-apexcharts";
+import { Bar } from "react-chartjs-2";
 import { RevenueDataPoint } from "../services/dashboardChartService";
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface RevenueChartProps {
   startDate: string;
@@ -14,7 +32,6 @@ interface RevenueChartProps {
   setEndDate: (date: string) => void;
   setGroupBy: (groupBy: string) => void;
   fetchRevenueData: () => void;
-  revenueChartOptions: ApexOptions;
   revenueChartSeries: any[];
 }
 
@@ -28,9 +45,77 @@ const RevenueChart: React.FC<RevenueChartProps> = ({
   setEndDate,
   setGroupBy,
   fetchRevenueData,
-  revenueChartOptions,
-  revenueChartSeries,
 }) => {
+  // Define columns for the data table
+  const columns = [
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+    },
+    {
+      title: "Revenue",
+      dataIndex: "revenue",
+      key: "revenue",
+      render: (text: number) => `$${text.toFixed(2)}`,
+    },
+  ];
+
+  // Prepare data for Chart.js
+  const chartData = {
+    labels: revenueGraphData.map((item) => item.date),
+    datasets: [
+      {
+        label: "Revenue",
+        data: revenueGraphData.map((item) => item.revenue),
+        backgroundColor: "rgba(54, 162, 235, 0.5)",
+        borderColor: "rgb(54, 162, 235)",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: "Revenue Over Time",
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context: any) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+              }).format(context.parsed.y);
+            }
+            return label;
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function (value: any) {
+            return "$" + value;
+          },
+        },
+      },
+    },
+  };
+
   return (
     <div className="mt-8 border p-4 bg-white">
       <div className="flex justify-between items-center mb-4">
@@ -71,13 +156,29 @@ const RevenueChart: React.FC<RevenueChartProps> = ({
           <Spin />
         </div>
       ) : revenueGraphData.length > 0 ? (
-        <div className="h-[400px]">
-          <ReactApexChart
-            options={revenueChartOptions}
-            series={revenueChartSeries}
-            type="area"
-            height={350}
-          />
+        <div>
+          {/* Chart component using Chart.js */}
+          <div className="mb-6">
+            <h3 className="text-lg font-medium mb-2">Revenue Chart</h3>
+            <div className="h-[350px]">
+              <Bar data={chartData} options={chartOptions} />
+            </div>
+          </div>
+
+          {/* Data table - More reliable display of data */}
+          <div>
+            <h3 className="text-lg font-medium mb-2">Revenue Data</h3>
+            <Table
+              dataSource={revenueGraphData.map((item, index) => ({
+                key: index,
+                date: item.date,
+                revenue: item.revenue,
+              }))}
+              columns={columns}
+              pagination={false}
+              size="small"
+            />
+          </div>
         </div>
       ) : (
         <div className="flex justify-center items-center h-64">

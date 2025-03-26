@@ -1,5 +1,6 @@
 import {
   Account,
+  CreateAccountRequest,
   PaginationParams,
   UpdateAccountRequest,
 } from "../models/types";
@@ -79,6 +80,22 @@ export const accountMngUsecase = {
       console.error("Error in updateAccountStatus usecase:", error);
       return false;
     }
+  },
+
+  createStaffAccount: async (accountData: {
+    name: string;
+    email: string;
+    password: string;
+  }): Promise<any> => {
+    const createRequest: CreateAccountRequest = {
+      name: accountData.name,
+      email: accountData.email,
+      password: accountData.password,
+      status: 0, // Active status
+      role: 1, // Staff role
+    };
+
+    return await accountMngService.createAccount(createRequest);
   },
 
   // Helper functions for UI display

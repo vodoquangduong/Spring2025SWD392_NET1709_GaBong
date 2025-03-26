@@ -60,6 +60,14 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
+export interface CreateAccountRequest {
+  name: string;
+  email: string;
+  password: string;
+  status: number; // Always 0 for Active
+  role: number; // 1 for Staff
+}
+
 // Helper types for UI
 export interface Transaction {
   id: number;
