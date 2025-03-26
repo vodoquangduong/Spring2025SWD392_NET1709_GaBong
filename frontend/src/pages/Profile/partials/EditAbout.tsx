@@ -101,7 +101,11 @@ const EditAbout = () => {
             phone: profileData?.value?.phone,
             address: profileData?.value?.address,
             avatarURL: profileData?.value?.avatarURL,
-            birthday: dayjs(profileData?.value?.birthday).format("YYYY-MM-DD"),
+            birthday: dayjs(
+              profileData?.value?.birthday == "0001-01-01T00:00:00"
+                ? new Date(1949, 0, 1)
+                : profileData?.value?.birthday
+            ).format("YYYY-MM-DD"),
             nationality: profileData?.value?.nationality,
             gender: profileData?.value?.gender,
           });

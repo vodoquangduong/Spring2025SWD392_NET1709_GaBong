@@ -150,7 +150,7 @@ const UserItem = ({ data }: any) => {
     <div className="space-y-4 py-4">
       <div className="flex gap-4">
         <img
-          className="h-20 rounded-lg border"
+          className="aspect-square h-20 rounded-lg border"
           src={data?.avatarURL || defaultAvatar}
         />
         <div className="flex flex-col gap-2 w-full">

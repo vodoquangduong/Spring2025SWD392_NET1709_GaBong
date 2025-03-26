@@ -110,7 +110,7 @@ export const tableColumns = ({
             }}
           />
         ) : (
-          Number(text).toLocaleString() + "%"
+          Number(text).toFixed(2) + "%"
         ),
     },
     {
@@ -118,7 +118,7 @@ export const tableColumns = ({
       dataIndex: state?.project ? "payAmount" : "amount",
       key: "3",
       render: (text: number, record: any) =>
-        Number((text / 100) * budget).toLocaleString() + " USD",
+        Number((text / 100) * budget).toFixed(2) + " USD",
     },
     {
       title: "Deadline",
@@ -159,17 +159,17 @@ export const tableColumns = ({
                       message.error("Please fill in all fields");
                       return;
                     }
+                    if (updateMilestone.amount < 0) {
+                      message.error("Amount cant be less than 0");
+                      return;
+                    }
                     if (dayjs(updateMilestone.deadline).isBefore(new Date())) {
                       message.error("Deadline cant be a past date");
                       return;
                     }
 
                     const compareMilestone = milestones.filter(
-                      (milestone: CreateMilestoneDTO) =>
-                        dayjs(milestone.deadline).format("YYYY-MM-DD HH:mm") !=
-                        dayjs(updateMilestone.deadline).format(
-                          "YYYY-MM-DD HH:mm"
-                        )
+                      (milestone: CreateMilestoneDTO, i: number) => i != index
                     );
 
                     // console.log(
@@ -180,22 +180,32 @@ export const tableColumns = ({
                     //   }))
                     // );
 
-                    // console.log("compareMilestone", compareMilestone.length);
+                    console.log("compareMilestone", compareMilestone);
+                    for (const milestone of compareMilestone) {
+                      console.log(
+                        "milestone",
+                        dayjs(milestone.deadline).format("YYYY-MM-DD HH:mm")
+                      );
+                      console.log(
+                        "milestone",
+                        dayjs(updateMilestone.deadline).format(
+                          "YYYY-MM-DD HH:mm"
+                        )
+                      );
 
-                    // for (const milestone of compareMilestone) {
-                    //   const diffDay = Math.abs(
-                    //     dayjs(milestone.deadline).diff(
-                    //       dayjs(updateMilestone.deadline),
-                    //       "days"
-                    //     )
-                    //   );
-                    //   console.log("diffDay", diffDay);
+                      const diffDay = Math.abs(
+                        dayjs(milestone.deadline).diff(
+                          dayjs(updateMilestone.deadline),
+                          "days"
+                        )
+                      );
+                      console.log("diffDay", diffDay);
 
-                    //   if (diffDay < 2) {
-                    //     message.error("Deadline cant be less than 2 days");
-                    //     return;
-                    //   }
-                    // }
+                      if (diffDay < 2) {
+                        message.error("Deadline cant be less than 2 days");
+                        return;
+                      }
+                    }
 
                     const totalPercent = milestones
                       .map((milestone: any, i: number) =>
