@@ -51,9 +51,13 @@ namespace Repositories.Implements
 
         public IQueryable<Transaction> GetAllTransactionsPaging()
         {
+            var query = new QueryBuilder<Transaction>()
+                .WithTracking(false)
+                .WithOrderBy(trans => trans.OrderBy(t => t.TransactionId))
+                .Build();
             var transactions = _unitOfWork
                 .GetRepo<Transaction>()
-                .Get(new QueryOptions<Transaction>());
+                .Get(query);
 
             return transactions;
         }
