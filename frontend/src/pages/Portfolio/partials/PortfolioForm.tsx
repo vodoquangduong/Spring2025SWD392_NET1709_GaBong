@@ -659,7 +659,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   <Form.Item
                                     {...restField}
                                     name={[name, "issueDate"]}
-                                    label="Issue Date"
+                                    label="Issue time"
                                     rules={[
                                       {
                                         validator: (_, value) => {
@@ -667,7 +667,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                           if (!isPastDate(value)) {
                                             return Promise.reject(
                                               new Error(
-                                                "Issue date must be in the past"
+                                                "Issue time must be in the past"
                                               )
                                             );
                                           }
@@ -679,7 +679,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                     {isEditing ? (
                                       <Input
                                         type="month"
-                                        placeholder="Issue Date"
+                                        placeholder="Issue time"
                                         style={{ width: "100%" }}
                                         className="bg-white dark:bg-[#27272a]"
                                         max={new Date()
@@ -1208,7 +1208,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 <Form.Item
                                   {...restField}
                                   name={[name, "issueDate"]}
-                                  label="Issue Date"
+                                  label="Issue time"
                                   rules={[
                                     {
                                       validator: (_, value) => {
@@ -1216,7 +1216,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                         if (!isPastDate(value)) {
                                           return Promise.reject(
                                             new Error(
-                                              "Issue date must be in the past"
+                                              "Issue time must be in the past"
                                             )
                                           );
                                         }
@@ -1228,7 +1228,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   {isEditing ? (
                                     <Input
                                       type="month"
-                                      placeholder="Issue Date"
+                                      placeholder="Issue time"
                                       style={{ width: "100%" }}
                                       className="bg-white dark:bg-[#27272a]"
                                       max={new Date()
