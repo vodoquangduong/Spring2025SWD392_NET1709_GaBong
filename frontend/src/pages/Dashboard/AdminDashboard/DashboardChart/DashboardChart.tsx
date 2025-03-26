@@ -6,11 +6,14 @@ import { Account } from "../AccountManagement/models/types";
 import AccountDistribution from "./partials/AccountDistribution";
 import PlatformOverview from "./partials/PlatformOverview";
 import ProjectStatus from "./partials/ProjectStatus";
+import ReportOverview from "./partials/ReportOverview";
 import RevenueChart from "./partials/RevenueChart";
+import SystemOverview from "./partials/SystemOverview";
 import TopFreelancers from "./partials/TopFreelancers";
 import {
   dashboardChartService,
   RevenueDataPoint,
+  SystemConfigData,
   TopFreelancerWithReputation,
 } from "./services/dashboardChartService";
 
@@ -61,6 +64,29 @@ const DashboardChart = () => {
   // Keep these for compatibility with the RevenueChart component
   const revenueChartOptions: ApexOptions = {};
   const revenueChartSeries = [{ name: "Revenue", data: [] }];
+
+  // New state for reports and system configuration
+  const [reportStats, setReportStats] = useState({
+    totalReports: 0,
+    pendingReports: 0,
+    resolvedReports: 0,
+    rejectedReports: 0,
+  });
+
+  const [systemStats, setSystemStats] = useState<SystemConfigData>({
+    paymentPolicy: {
+      projectFee: 0,
+      bidFee: 0,
+      withdrawalFee: 0,
+    },
+    reputationPolicy: {
+      beforeDeadline: 0,
+      rightDeadline: 0,
+      earlylateDeadline: 0,
+      lateDeadline: 0,
+      completeProject: 0,
+    },
+  });
 
   // Fetch all accounts and calculate statistics
   useEffect(() => {
@@ -190,6 +216,29 @@ const DashboardChart = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // New useEffect for reports and system configuration
+  useEffect(() => {
+    const fetchReportAndSystemStats = async () => {
+      try {
+        setLoading(true);
+        const [reportData, systemData] = await Promise.all([
+          dashboardChartService.getReportStatistics(),
+          dashboardChartService.getSystemConfigForDashboard(),
+        ]);
+
+        setReportStats(reportData);
+        setSystemStats(systemData);
+      } catch (error) {
+        message.error("Failed to load report and system statistics");
+        console.error("Error fetching report and system stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReportAndSystemStats();
+  }, []);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -202,6 +251,20 @@ const DashboardChart = () => {
     <div className="geist min-h-screen pt-6 pb-40">
       <PlatformOverview dashboardStats={dashboardStats} />
       <ProjectStatus dashboardStats={dashboardStats} />
+      <div className="mt-8">
+        <RevenueChart
+          startDate={startDate}
+          endDate={endDate}
+          groupBy={groupBy}
+          revenueGraphData={revenueGraphData}
+          loadingRevenue={loadingRevenue}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
+          setGroupBy={setGroupBy}
+          fetchRevenueData={fetchRevenueData}
+          revenueChartSeries={revenueChartSeries}
+        />
+      </div>
 
       <div className="w-full grid grid-cols-2 gap-6 mt-8">
         <div className="col-span-1">
@@ -215,18 +278,14 @@ const DashboardChart = () => {
         </div>
       </div>
 
-      <RevenueChart
-        startDate={startDate}
-        endDate={endDate}
-        groupBy={groupBy}
-        revenueGraphData={revenueGraphData}
-        loadingRevenue={loadingRevenue}
-        setStartDate={setStartDate}
-        setEndDate={setEndDate}
-        setGroupBy={setGroupBy}
-        fetchRevenueData={fetchRevenueData}
-        revenueChartSeries={revenueChartSeries}
-      />
+      <div className="w-full grid grid-cols-2 gap-6 mt-8">
+        <div className="col-span-1">
+          <ReportOverview reportStats={reportStats} />
+        </div>
+        <div className="col-span-1">
+          <SystemOverview systemStats={systemStats} />
+        </div>
+      </div>
     </div>
   );
 };

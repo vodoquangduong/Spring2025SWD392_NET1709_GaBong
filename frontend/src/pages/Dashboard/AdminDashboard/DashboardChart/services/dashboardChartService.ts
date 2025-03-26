@@ -29,6 +29,33 @@ export interface RevenueDataPoint {
   revenue: number;
 }
 
+// Interface for report data
+export interface ReportData {
+  reportId: number;
+  reporterId: number;
+  reportedId: number;
+  reportType: number;
+  reportContent: string;
+  status: number;
+  createdAt: string;
+}
+
+// Interface for system configuration data
+export interface SystemConfigData {
+  paymentPolicy: {
+    projectFee: number;
+    bidFee: number;
+    withdrawalFee: number;
+  };
+  reputationPolicy: {
+    beforeDeadline: number;
+    rightDeadline: number;
+    earlylateDeadline: number;
+    lateDeadline: number;
+    completeProject: number;
+  };
+}
+
 export const dashboardChartService = {
   getAllAccountsForDashboard: async (): Promise<Account[]> => {
     try {
@@ -355,6 +382,115 @@ export const dashboardChartService = {
       return await response.json();
     } catch (error) {
       console.error("Error fetching revenue list:", error);
+      throw error;
+    }
+  },
+
+  // Get all reports without pagination
+  getAllReportsForDashboard: async (): Promise<ReportData[]> => {
+    try {
+      const token = getCookie("accessToken");
+      if (!token) {
+        throw new Error("Authentication required. Please login.");
+      }
+
+      const url = `${API_URL}/api/Report?pageNumber=1&pageSize=10000`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        let errorMessage;
+        try {
+          const errorData = await response.json();
+          errorMessage =
+            errorData.message ||
+            errorData.error ||
+            "Failed to fetch reports for dashboard";
+        } catch {
+          errorMessage =
+            response.status >= 500
+              ? "Server error. Please try again later."
+              : "Failed to fetch reports for dashboard";
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return data.items || [];
+    } catch (error) {
+      console.error("Error fetching reports for dashboard:", error);
+      throw error;
+    }
+  },
+
+  // Get system configuration data
+  getSystemConfigForDashboard: async (): Promise<SystemConfigData> => {
+    try {
+      const token = getCookie("accessToken");
+      if (!token) {
+        throw new Error("Authentication required. Please login.");
+      }
+
+      const response = await fetch(`${API_URL}/api/Admin/get-admin-config`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        let errorMessage;
+        try {
+          const errorData = await response.json();
+          errorMessage =
+            errorData.message ||
+            errorData.error ||
+            "Failed to get configuration";
+        } catch {
+          try {
+            errorMessage = await response.text();
+          } catch {
+            errorMessage =
+              response.status >= 500
+                ? "Server error. Please try again later."
+                : "Failed to get configuration";
+          }
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return data; // Trả về trực tiếp vì cấu trúc đã đúng
+    } catch (error) {
+      console.error("Error fetching system configuration:", error);
+      throw error;
+    }
+  },
+
+  // Get report statistics
+  getReportStatistics: async () => {
+    try {
+      const reports = await dashboardChartService.getAllReportsForDashboard();
+
+      const totalReports = reports.length;
+      const pendingReports = reports.filter((r) => r.status === 1).length;
+      const resolvedReports = reports.filter((r) => r.status === 2).length;
+      const rejectedReports = reports.filter((r) => r.status === 3).length;
+
+      return {
+        totalReports,
+        pendingReports,
+        resolvedReports,
+        rejectedReports,
+      };
+    } catch (error) {
+      console.error("Error calculating report statistics:", error);
       throw error;
     }
   },
