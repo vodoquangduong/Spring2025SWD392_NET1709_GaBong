@@ -14,9 +14,11 @@ import {
   Empty,
   Form,
   Input,
+  Modal,
   Row,
   Space,
   Typography,
+  message,
 } from "antd";
 import { FormInstance } from "antd/lib/form";
 import { useState } from "react";
@@ -101,13 +103,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
   submitting,
   submittingForVerification,
   portfolio,
-  handleSave,
-  handleEdit,
+  handleSave: originalHandleSave,
+  handleEdit: originalHandleEdit,
   handleCancel,
-  handleSubmitForReview,
+  handleSubmitForReview: originalHandleSubmitForReview,
   handleSubmit,
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [isSubmittingForVerification, setIsSubmittingForVerification] =
+    useState<boolean>(false);
 
   console.log("Portfolio in PortfolioForm:", portfolio);
   console.log("Portfolio status:", portfolio?.status);
@@ -127,8 +131,138 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
   const canEdit = () => {
     return (
       currentStatus === PortfolioStatus.Modifying ||
+      currentStatus === PortfolioStatus.Verified ||
       currentStatus === PortfolioStatus.Rejected
     );
+  };
+
+  // Thêm hàm validate form trước khi submit
+  const validateForm = async () => {
+    try {
+      const values = await form.validateFields();
+
+      // Validate title
+      if (!values.title || values.title.length > 50) {
+        message.error("Title must be between 1 and 50 characters");
+        return false;
+      }
+
+      // Validate about/description
+      if (!values.description || values.description.length > 500) {
+        message.error("About must be between 1 and 500 characters");
+        return false;
+      }
+
+      // Validate skills - chỉ kiểm tra skillPerforms
+      if (
+        !values.skillPerforms ||
+        !Array.isArray(values.skillPerforms) ||
+        values.skillPerforms.length === 0
+      ) {
+        message.error("Please add at least one skill");
+        return false;
+      }
+
+      // Kiểm tra từng skill có đủ skillId và level
+      for (const skillPerform of values.skillPerforms) {
+        if (!skillPerform.skillId || skillPerform.level === undefined) {
+          message.error("Please select both skill and skill level");
+          return false;
+        }
+      }
+
+      // Validate experiences
+      if (values.experiences && values.experiences.length > 0) {
+        for (const exp of values.experiences) {
+          if (
+            !exp.position ||
+            !exp.company ||
+            !exp.startDate ||
+            !exp.description
+          ) {
+            message.error("Please fill in all required fields for experiences");
+            return false;
+          }
+        }
+      }
+
+      // Validate certificates
+      if (values.certificates && values.certificates.length > 0) {
+        for (const cert of values.certificates) {
+          if (!cert.title || !cert.issueDate) {
+            message.error(
+              "Please fill in all required fields for certificates"
+            );
+            return false;
+          }
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Form validation error:", error);
+      if (error instanceof Error) {
+        message.error(error.message);
+      } else {
+        message.error(
+          "Form validation failed. Please check all required fields."
+        );
+      }
+      return false;
+    }
+  };
+
+  // Cập nhật handleSave
+  const handleSave = async () => {
+    if (!(await validateForm())) return;
+
+    try {
+      setLoading(true);
+      await originalHandleSave();
+      message.success("Portfolio saved successfully");
+    } catch (error) {
+      message.error("Failed to save portfolio");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cập nhật handleSubmitForReview
+  const handleSubmitForReview = async () => {
+    if (!(await validateForm())) return;
+
+    try {
+      setIsSubmittingForVerification(true);
+      await originalHandleSubmitForReview();
+      message.success("Portfolio submitted for review");
+    } catch (error) {
+      message.error("Failed to submit portfolio for review");
+    } finally {
+      setIsSubmittingForVerification(false);
+    }
+  };
+
+  // Cập nhật handleEdit
+  const handleEdit = () => {
+    if (currentStatus === PortfolioStatus.Pending) {
+      message.warning(
+        "Portfolio is being verified, please wait for the result."
+      );
+      return;
+    }
+
+    if (currentStatus === PortfolioStatus.Verified) {
+      Modal.confirm({
+        title: "Edit Verified Portfolio",
+        content:
+          "Editing a verified portfolio will require re-verification. Do you want to continue?",
+        onOk: () => {
+          originalHandleEdit();
+        },
+      });
+    } else {
+      originalHandleEdit();
+    }
   };
 
   if (!portfolio && isEditing) {
@@ -1101,7 +1235,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                         .toISOString()
                                         .split("-")
                                         .slice(0, 2)
-                                        .join("-")} // Giới hạn ngày tối đa là ngày hiện tại
+                                        .join("-")}
                                     />
                                   ) : (
                                     <div>
@@ -1204,9 +1338,11 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                       </Typography.Title>
                       <Typography.Paragraph className="text-gray-600 dark:text-gray-300">
                         {currentStatus === PortfolioStatus.Rejected
-                          ? "Your portfolio has been rejected. Please revise and resubmit for verification."
+                          ? "Your portfolio has been rejected. Please submit for verification first."
                           : currentStatus === PortfolioStatus.Pending
                           ? "Portfolio is being verified. Please wait for verification."
+                          : currentStatus === PortfolioStatus.Verified
+                          ? "Your portfolio has been verified. You can edit it but will need to submit for re-verification."
                           : "Submit your portfolio for staff review to get verified status."}
                       </Typography.Paragraph>
                     </div>
@@ -1216,8 +1352,8 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                       onClick={handleSubmitForReview}
                       disabled={
                         isEditing ||
-                        (currentStatus !== PortfolioStatus.Modifying &&
-                          currentStatus !== PortfolioStatus.Rejected) ||
+                        currentStatus === PortfolioStatus.Pending ||
+                        currentStatus === PortfolioStatus.Verified ||
                         submittingForVerification
                       }
                       icon={<CheckOutlined />}
