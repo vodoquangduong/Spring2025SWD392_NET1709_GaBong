@@ -80,10 +80,10 @@ export default function Sidebar({ clientId }: { clientId: any }) {
       <div className="font-bold mt-8 mb-2 text-lg">Client Verification</div>
       {data?.value?.name ? (
         <div className="flex flex-col gap-3">
-          <div className="flex gap-3 items-center">
+          {/* <div className="flex gap-3 items-center">
             <HiIdentification color="green" />
             Identity verified
-          </div>
+          </div> */}
           {/* <div className="flex gap-3 items-center">
             <RiShieldCheckFill color="green" />
             Payment verified
@@ -94,12 +94,12 @@ export default function Sidebar({ clientId }: { clientId: any }) {
               Email verified
             </div>
           )}
-          {data?.value?.phone && (
+          {/* {data?.value?.phone && (
             <div className="flex gap-3 items-center">
               <FaPhone color="green" />
               Phone verified
             </div>
-          )}
+          )} */}
           <div className="flex gap-3 items-center">
             <FaUser color="green" />
             Profile completed

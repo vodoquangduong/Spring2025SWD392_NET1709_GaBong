@@ -149,11 +149,11 @@ export default function ProposalItem({
       </div>
       <div className="my-4">{item?.bidDescription}</div>
       <div className="flex items-center justify-between">
-        <Rate
+        {/* <Rate
           defaultValue={getRandomInt(1, 5)}
           disabled
           character={<FaStar size={16} />}
-        />
+        /> */}
         {/* <div className="space-x-4">
           <CreateModal
             icon={<FaFlag />}

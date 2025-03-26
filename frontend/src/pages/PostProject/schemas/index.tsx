@@ -12,10 +12,12 @@ export const formSchema = () => {
   return z.object({
     projectName: z
       .string()
+      .trim()
       .min(3, "Name must be at least 3 characters")
       .max(50, "Name must be less than 50 characters"),
     projectDescription: z
       .string()
+      .trim()
       .min(20, "Description must be at least 20 characters")
       .max(1000, "Description must be less than 1000 characters"),
     location: z.string().min(1, "Required"),
@@ -152,15 +154,15 @@ export const tableColumns = ({
                 <Button
                   onClick={() => {
                     if (
-                      !updateMilestone.milestoneName ||
-                      !updateMilestone.description ||
-                      !updateMilestone.deadline
+                      !updateMilestone.milestoneName.trim() ||
+                      !updateMilestone.description.trim() ||
+                      !updateMilestone.deadline.trim()
                     ) {
                       message.error("Please fill in all fields");
                       return;
                     }
-                    if (updateMilestone.amount < 0) {
-                      message.error("Amount cant be less than 0");
+                    if (updateMilestone.amount <= 0) {
+                      message.error("Amount cant be less than 0%");
                       return;
                     }
                     if (dayjs(updateMilestone.deadline).isBefore(new Date())) {
