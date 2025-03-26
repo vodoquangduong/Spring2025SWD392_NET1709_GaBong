@@ -1,6 +1,7 @@
 using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using Helpers.DTOs.Milestone;
 using Helpers.DTOs.Project;
 using Helpers.DTOs.Query;
 using Helpers.HelperClasses;
@@ -122,7 +123,7 @@ namespace Services.Implements
                 //<==Create Milestone==>
                 var milestones = projectDto.Milestones.Select(m =>
                     {
-                        var milestone = _mapper.Map<Milestone>(m);
+                        var milestone = _mapper.Map<CreateMilestoneWithProjectDTO ,Milestone>(m);
                         milestone.ProjectId = createProject.ProjectId;
                         milestone.Status = MilestoneStatus.NotStarted;
                         milestone.DeadlineDate = milestone.DeadlineDate.ToUniversalTime();

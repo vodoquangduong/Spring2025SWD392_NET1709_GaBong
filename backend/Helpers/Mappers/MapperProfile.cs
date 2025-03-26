@@ -74,7 +74,11 @@ namespace Helpers.Mappers
             //CreateMilestoneDTO to Milestone
             CreateMap<CreateMilestoneDTO, Milestone>();
             //CreateMilestoneWithProjectDTO to Milestone
-            CreateMap<CreateMilestoneWithProjectDTO, Milestone>();
+            CreateMap<CreateMilestoneWithProjectDTO, Milestone>()
+                .ForMember(dest => dest.MilestoneName, opt => opt.MapFrom(src => src.MilestoneName))
+                .ForMember(dest => dest.MilestoneDescription, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.DeadlineDate, opt => opt.MapFrom(src => src.Deadline))
+                .ForMember(dest => dest.PayAmount, opt => opt.MapFrom(src => src.Amount))                ;
             //UpdateMilestoneDTO to Milestone
             CreateMap<UpdateMilestoneDTO, Milestone>();
 
