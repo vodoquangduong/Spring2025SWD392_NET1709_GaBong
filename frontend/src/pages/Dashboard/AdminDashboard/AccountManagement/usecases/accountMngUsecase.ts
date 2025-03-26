@@ -1,7 +1,10 @@
 import {
   Account,
   CreateAccountRequest,
+  FilteredAccountsParams,
+  FilteredAccountsResponse,
   PaginationParams,
+  Transaction,
   UpdateAccountRequest,
 } from "../models/types";
 import { accountMngService } from "../services/accountMngService";
@@ -138,5 +141,15 @@ export const accountMngUsecase = {
       default:
         return "Not specified";
     }
+  },
+
+  getFilteredAccounts: async (
+    params: FilteredAccountsParams
+  ): Promise<FilteredAccountsResponse> => {
+    return await accountMngService.getFilteredAccounts(params);
+  },
+
+  getAccountTransactions: async (accountId: number): Promise<Transaction[]> => {
+    return await accountMngService.getAccountTransactions(accountId);
   },
 };
