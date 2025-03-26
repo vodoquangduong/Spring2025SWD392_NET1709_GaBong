@@ -12,31 +12,34 @@ namespace Services.Implements
     public class ContractService : IContractService
     {
         //private readonly IUnitOfWork _unitOfWork;
-        private readonly IConfiguration _configuration;
+        //private readonly IConfiguration _configuration;
         private readonly IProjectRepository _projectRepository;
         private readonly IBidRepository _bidRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly IContractRepository _contractRepository;
+        private readonly IAdminConfigService _adminConfigService;
         private readonly IMapper _mapper;
         public ContractService(
             //IUnitOfWork unitOfWork,
-            IConfiguration configuration,
+            //IConfiguration configuration,
             IProjectRepository projectRepository,
             IBidRepository bidRepository,
             IAccountRepository accountRepository,
             ITransactionRepository transactionRepository,
             IContractRepository contractRepository,
+            IAdminConfigService adminConfigService,
             IMapper mapper
             )
         {
             //_unitOfWork = unitOfWork;
-            _configuration = configuration;
+            //_configuration = configuration;
             _projectRepository = projectRepository;
             _bidRepository = bidRepository;
             _accountRepository = accountRepository;
             _transactionRepository = transactionRepository;
             _contractRepository = contractRepository;
+            _adminConfigService = adminConfigService;
             _mapper = mapper;
         }
 
@@ -99,10 +102,11 @@ namespace Services.Implements
                 var clientAvailable = client.TotalCredit - client.LockCredit;
 
                 decimal projectFee;
-                if (!decimal.TryParse(_configuration["PaymentPolicy:ProjectFee"], out projectFee))
-                {
-                    projectFee = 0.1m;
-                }
+                //if (!decimal.TryParse(_configuration["PaymentPolicy:ProjectFee"], out projectFee))
+                //{
+                //    projectFee = 0.1m;
+                //}
+                projectFee = _adminConfigService.GetConfig().PaymentPolicy.ProjectFee;
                 if (clientAvailable < choosenBid.BidOffer * projectFee)
                 {
                     Console.WriteLine("Project not found");
@@ -287,10 +291,11 @@ namespace Services.Implements
                     freelancer = await _accountRepository.GetSingleByAccountIdAsync(item.BidOwnerId);
 
                     decimal bidFee;
-                    if (!decimal.TryParse(_configuration["PaymentPolicy:BidFee"], out bidFee))
-                    {
-                        bidFee = 2m;
-                    }
+                    //if (!decimal.TryParse(_configuration["PaymentPolicy:BidFee"], out bidFee))
+                    //{
+                    //    bidFee = 2m;
+                    //}
+                    bidFee = _adminConfigService.GetConfig().PaymentPolicy.BidFee;
                     //<======Transaction for refund fee(2$ to bid)=======>
                     var transactionRefundFee = new Transaction()
                     {

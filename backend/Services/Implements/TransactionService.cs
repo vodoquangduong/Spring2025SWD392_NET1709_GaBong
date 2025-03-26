@@ -16,14 +16,16 @@ namespace Services.Implements
         private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IConfiguration _configuration;
+        //private readonly IConfiguration _configuration;
+        //private readonly IAdminConfigService _adminConfigService;
 
         public TransactionService(
             //IUnitOfWork unitOfWork,
             ITransactionRepository transactionRepository,
             IAccountRepository accountRepository,
             ICurrentUserService currentUserService,
-            IConfiguration configuration,
+            //IConfiguration configuration,
+            //IAdminConfigService adminConfigService,
             IMapper mapper
         )
         {
@@ -31,7 +33,8 @@ namespace Services.Implements
             _transactionRepository = transactionRepository;
             _accountRepository = accountRepository;
             _currentUserService = currentUserService;
-            _configuration = configuration;
+            //_configuration = configuration;
+            //_adminConfigService = adminConfigService;
             _mapper = mapper;
         }
 
