@@ -180,7 +180,7 @@ const SystemConfiguration: React.FC = () => {
                   label={
                     <Space>
                       <PercentageOutlined className="text-green-500" />
-                      <Text strong>Project Fee (%)</Text>
+                      <Text strong>Project Fee (% per project)</Text>
                     </Space>
                   }
                   name={["paymentPolicy", "projectFee"]}
@@ -191,7 +191,7 @@ const SystemConfiguration: React.FC = () => {
                   {!isEditMode ? (
                     renderReadOnlyValue(
                       form.getFieldValue(["paymentPolicy", "projectFee"]) || 0,
-                      "%"
+                      "% per project"
                     )
                   ) : (
                     <Input
@@ -199,7 +199,7 @@ const SystemConfiguration: React.FC = () => {
                       min={0}
                       max={100}
                       className="rounded-lg text-lg"
-                      suffix="%"
+                      suffix="% per project"
                     />
                   )}
                 </Form.Item>
@@ -208,8 +208,8 @@ const SystemConfiguration: React.FC = () => {
                 <Form.Item
                   label={
                     <Space>
-                      <PercentageOutlined className="text-green-500" />
-                      <Text strong>Bid Fee (%)</Text>
+                      <DollarOutlined className="text-green-500" />
+                      <Text strong>Bid Fee ($)</Text>
                     </Space>
                   }
                   name={["paymentPolicy", "bidFee"]}
@@ -218,15 +218,14 @@ const SystemConfiguration: React.FC = () => {
                   {!isEditMode ? (
                     renderReadOnlyValue(
                       form.getFieldValue(["paymentPolicy", "bidFee"]) || 0,
-                      "%"
+                      "$"
                     )
                   ) : (
                     <Input
                       type="number"
                       min={0}
-                      max={100}
                       className="rounded-lg text-lg"
-                      suffix="%"
+                      prefix="$"
                     />
                   )}
                 </Form.Item>
@@ -236,7 +235,7 @@ const SystemConfiguration: React.FC = () => {
                   label={
                     <Space>
                       <PercentageOutlined className="text-green-500" />
-                      <Text strong>Withdrawal Fee (%)</Text>
+                      <Text strong>Withdrawal Fee (% per transaction)</Text>
                     </Space>
                   }
                   name={["paymentPolicy", "withdrawalFee"]}
@@ -248,7 +247,7 @@ const SystemConfiguration: React.FC = () => {
                     renderReadOnlyValue(
                       form.getFieldValue(["paymentPolicy", "withdrawalFee"]) ||
                         0,
-                      "%"
+                      "% per transaction"
                     )
                   ) : (
                     <Input
@@ -256,7 +255,7 @@ const SystemConfiguration: React.FC = () => {
                       min={0}
                       max={100}
                       className="rounded-lg text-lg"
-                      suffix="%"
+                      suffix="% per transaction"
                     />
                   )}
                 </Form.Item>

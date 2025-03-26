@@ -2,11 +2,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import PageNotFound from "../components/PageNotFound";
 import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
 import { FreelancerManagement } from "../pages/Dashboard/EmployeeDashboard/FreelancerManagement";
-import {
-  ProjectDetail as DashboardProjectDetail,
-  ProjectList,
-} from "../pages/Dashboard/EmployeeDashboard/ProjectManagement";
-import PendingServiceList from "../pages/Dashboard/EmployeeDashboard/ProjectManagement/partials/PendingServiceList";
 import { ReportManagement } from "../pages/Dashboard/EmployeeDashboard/ReportManagement";
 import { ServiceManagement } from "../pages/Dashboard/EmployeeDashboard/ServiceManagement";
 // import { UserDetail, UserList } from "../pages/Dashboard/UserManager";
@@ -147,13 +142,8 @@ export default function MainRoutes() {
           <Route path="reports/*" element={<ReportManagement />} />
           <Route path="freelancers/*" element={<FreelancerManagement />} />
           <Route path="categories" element={<CategoryManagement />} />
-          <Route path="projects">
-            <Route index element={<ProjectList />} />
-            <Route path=":id" element={<DashboardProjectDetail />} />
-          </Route>
           <Route path="withdraws" element={<WithdrawList />} />
           <Route path="transactions" element={<TransactionList />} />
-          <Route path="pending-services" element={<PendingServiceList />} />
         </Route>
         <Route path="admin">
           <Route path="" element={<AdminDashboard />} />
