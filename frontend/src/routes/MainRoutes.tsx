@@ -52,7 +52,10 @@ import ProjectList from "@/pages/Dashboard/EmployeeDashboard/ProjectManagement/p
 export default function MainRoutes() {
   return (
     <Routes>
+
       <Route path="/" element={<GlobalLayout />}>
+        <Route path="make-contract" element={<MakeContract />} />
+        <Route path="post-project" element={<PostProject />} />
         <Route path="/" element={<NormalLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="portfolio" element={<Portfolio />} />
@@ -70,8 +73,7 @@ export default function MainRoutes() {
               <Route path="contract" element={<ProjectContract />} />
             </Route>
           </Route>
-          <Route path="post-project" element={<PostProject />} />
-          <Route path="make-contract" element={<MakeContract />} />
+
           <Route path="freelancers">
             <Route path="" element={<Navigate to="/search/freelancers" />} />
             <Route path=":id" element={<Freelancer />} />

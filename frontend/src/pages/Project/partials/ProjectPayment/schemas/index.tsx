@@ -179,6 +179,7 @@ export const tableColumns = (project: any) => {
                         amount: record.payAmount,
                         status: record.status,
                       };
+                      console.log("value", value);
                       if (value == 1) {
                         await PUT(`/api/Milestone/finish-milestone`, {
                           milestoneId: record.milestoneId,
@@ -197,6 +198,7 @@ export const tableColumns = (project: any) => {
                       requestRevalidate();
                     }}
                   >
+                    <div key ={"Review"}></div>
                     <div key={"1"}>Approve</div>
                     <div key={"2"}>Reject</div>
                   </Select>

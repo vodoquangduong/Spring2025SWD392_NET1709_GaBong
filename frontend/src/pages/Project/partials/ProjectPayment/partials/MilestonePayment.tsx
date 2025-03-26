@@ -46,12 +46,12 @@ export default function MilestonePayment() {
           <Table
             loading={projectDetail.isLoading || projectDetail.isRefetching}
             className="pt-10"
-            dataSource={projectDetail?.data?.value?.milestones.sort(
+            dataSource={projectDetail?.data?.milestones.sort(
               (a: any, b: any) => {
                 return a.deadlineDate.localeCompare(b.deadlineDate);
               }
             )}
-            columns={tableColumns(projectDetail?.data?.value)}
+            columns={tableColumns(projectDetail?.data)}
             rowKey={(record: any) => record.milestoneId}
           />
         </div>

@@ -148,7 +148,7 @@ export default function MakeContract() {
                     {project.isLoading ? (
                       <Skeleton.Input active />
                     ) : (
-                      project?.data?.value?.estimateBudget.toLocaleString()
+                      project?.data?.estimateBudget.toLocaleString()
                     )}
                   </div>
                   <span className="text-zinc-500 text-sm">USD</span>
