@@ -201,11 +201,33 @@ const AccountList: React.FC = () => {
     form.resetFields();
   };
 
-  const handleAddAccount = (values: any) => {
-    console.log("Form values:", values);
-    message.success("Account added successfully!");
-    setIsModalVisible(false);
-    form.resetFields();
+  const handleAddAccount = async (values: any) => {
+    try {
+      setLoading(true);
+      await accountMngUsecase.createStaffAccount({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
+
+      message.success("Staff account added successfully!");
+      setIsModalVisible(false);
+      form.resetFields();
+
+      // Refresh the account list after adding a new account
+      fetchAccounts({
+        pageNumber: pagination.current,
+        pageSize: pagination.pageSize,
+      });
+    } catch (error) {
+      console.error("Error creating staff account:", error);
+      message.error(
+        "Failed to create staff account: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -258,7 +280,7 @@ const AccountList: React.FC = () => {
               Apply Filters
             </Button>
             <Button type="primary" icon={<FaUserPlus />} onClick={showModal}>
-              Add Staff - Chua lam
+              Create Staff Account
             </Button>
           </Col>
         </Row>
@@ -283,10 +305,11 @@ const AccountList: React.FC = () => {
       </Card>
 
       <Modal
-        title="Add New Account"
+        title="Add Staff Account"
         open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
+        maskClosable={false}
       >
         <Form form={form} layout="vertical" onFinish={handleAddAccount}>
           <Form.Item
@@ -307,28 +330,12 @@ const AccountList: React.FC = () => {
             <Input />
           </Form.Item>
           <Form.Item
-            name="phone"
-            label="Phone Number"
-            rules={[{ required: true, message: "Please enter phone number" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="role"
-            label="Role"
-            rules={[{ required: true, message: "Please select role" }]}
-          >
-            <Select>
-              <Option value={0}>Admin</Option>
-              <Option value={1}>Staff</Option>
-              <Option value={2}>Client</Option>
-              <Option value={3}>Freelancer</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
             name="password"
             label="Password"
-            rules={[{ required: true, message: "Please enter password" }]}
+            rules={[
+              { required: true, message: "Please enter password" },
+              { min: 6, message: "Password must be at least 6 characters" },
+            ]}
           >
             <Input.Password />
           </Form.Item>
@@ -353,13 +360,13 @@ const AccountList: React.FC = () => {
 
           <Row gutter={16}>
             <Col span={12}>
-              <Button block onClick={handleCancel}>
+              <Button block onClick={handleCancel} disabled={loading}>
                 Cancel
               </Button>
             </Col>
             <Col span={12}>
-              <Button type="primary" htmlType="submit" block>
-                Add Account
+              <Button type="primary" htmlType="submit" block loading={loading}>
+                Add Staff Account
               </Button>
             </Col>
           </Row>

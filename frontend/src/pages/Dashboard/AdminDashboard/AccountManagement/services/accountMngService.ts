@@ -2,6 +2,7 @@ import { getCookie } from "@/modules/cookie";
 import {
   AccountDetailResponse,
   AccountsResponse,
+  CreateAccountRequest,
   PaginationParams,
   UpdateAccountRequest,
 } from "../models/types";
@@ -108,6 +109,46 @@ export const accountMngService = {
       return data;
     } catch (error) {
       console.error(`Error fetching account with ID ${accountId}:`, error);
+      throw error;
+    }
+  },
+
+  createAccount: async (accountData: CreateAccountRequest): Promise<any> => {
+    try {
+      const token = getCookie("accessToken");
+      if (!token) {
+        throw new Error("Authentication required. Please login.");
+      }
+
+      // Fix: Include "Account" in the URL path
+      const response = await fetch(`${API_URL}/api/Account/Create Account`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(accountData),
+      });
+
+      if (!response.ok) {
+        let errorMessage;
+        try {
+          const errorData = await response.json();
+          errorMessage =
+            errorData.message || errorData.error || "Failed to create account";
+        } catch {
+          errorMessage =
+            response.status >= 500
+              ? "Server error. Please try again later."
+              : "Failed to create account";
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error creating account:", error);
       throw error;
     }
   },
