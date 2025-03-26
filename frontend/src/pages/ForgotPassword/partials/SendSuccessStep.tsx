@@ -24,7 +24,8 @@ const SendSuccessStep = ({ onNext, onBack }: OtpStepProps) => {
         <div className="mb-6">
           <a
             href="https://mail.google.com/mail/u"
-            className="block text-center w-full py-3 px-4 text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg font-semibold transition-colors duration-200 mb-3"
+            target="_blank"
+            className="block text-center w-full py-3 px-4 text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg font-semibold transition-colors duration-200 mb-3 hover:text-white"
           >
             Check Email
           </a>

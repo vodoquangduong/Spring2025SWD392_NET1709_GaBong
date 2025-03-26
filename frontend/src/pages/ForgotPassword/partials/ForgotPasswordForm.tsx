@@ -17,7 +17,6 @@ const ForgotPasswordForm = () => {
             onBack={() => setStep(1)}
           />
         )}
-        {step === 3 && <ResetStep onBack={() => setStep(2)} />}
       </div>
     </div>
   );

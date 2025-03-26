@@ -39,6 +39,7 @@ import { defaultAvatar } from "@/modules/default";
 import UploadImage from "@/components/UploadImage";
 import CreateModal from "@/components/CreateModal";
 import CreateProofForm from "../forms/CreateProofForm";
+import UserPopover from "../partials/UserPopover";
 
 // export const formSchema = () => {
 //   return z.object({
@@ -115,10 +116,9 @@ export const withdrawColumns = (): ColumnType<Transaction>[] => {
       dataIndex: "accountId",
       key: "accountId",
       render: (text: string) => (
-        <Link
-          to={`/manage/dashboard/employee/accounts/${text}`}
-          className="text-xs"
-        >{`#${text}`}</Link>
+        <Popover content={<UserPopover accountId={text} />}>
+          <div className="text-xs">{`#${text}`}</div>
+        </Popover>
       ),
     },
     {
@@ -193,34 +193,37 @@ export const withdrawColumns = (): ColumnType<Transaction>[] => {
       title: "Detail",
       dataIndex: "detail",
       key: "detail",
-      render: (date: string) => date,
+      render: (value: string) => value.split("|")[0],
     },
     {
       title: "Withdraw Proof",
-      dataIndex: "",
+      dataIndex: "detail",
       key: "withdrawProof",
       render: (_: any, record: Transaction) => {
-        return record.status != TransactionStatus.COMPLETED ? (
-          <Image src={defaultAvatar} width={150} alt="" />
-        ) : (
-          <CreateModal
-            type="default"
-            children={
-              <span className="text-sm flex items-center gap-2">
-                <FaPen />
-                Proof
-              </span>
-            }
-            modalTitle={"Upload Withdraw Proof Image"}
-            form={(
-              setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
-            ) => (
-              <CreateProofForm
-                setIsModalOpen={setIsModalOpen}
-                record={record}
-              />
+        return (
+          <div className="flex items-center gap-4">
+            {record.status == TransactionStatus.COMPLETED && (
+              <Image src={record.detail.split("|")[1]} width={50} alt="" />
             )}
-          />
+            <CreateModal
+              type="default"
+              children={
+                <span className="text-sm flex items-center gap-2">
+                  <FaPen />
+                  Upload
+                </span>
+              }
+              modalTitle={"Upload Withdraw Proof Image"}
+              form={(
+                setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+              ) => (
+                <CreateProofForm
+                  setIsModalOpen={setIsModalOpen}
+                  record={record}
+                />
+              )}
+            />
+          </div>
         );
       },
     },
