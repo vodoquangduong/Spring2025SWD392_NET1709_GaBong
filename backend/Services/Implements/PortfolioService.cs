@@ -353,7 +353,7 @@ namespace Services.Implements
                     return Result.Failure<PortfolioDTO>(new Error("Update portfolio failed", $"Portfolio with freelancer id {_currentUserService.AccountId} not found"));
                 }
                 _mapper.Map(updatePortfolioDto, portfolio);
-
+                portfolio.Status = PortfolioStatus.Modifying;
                 //await _unitOfWork.GetRepo<Portfolio>().UpdateAsync(portfolio);
                 await _porfolioRepository.UpdateAsync(portfolio);
 
