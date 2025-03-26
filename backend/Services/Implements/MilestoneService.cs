@@ -217,6 +217,7 @@ namespace Services.Implements
                         //await _unitOfWork.GetRepo<Account>().UpdateAsync(freelancer);
                         //await _unitOfWork.SaveChangesAsync();
                         await _accountRepository.UpdateAsync(client);
+                        await _accountRepository.UpdateAsync(freelancer);
 
                         //<===Change Transaction status===>
                         clientTransaction.Status = TransactionStatus.Completed;
