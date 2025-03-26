@@ -34,10 +34,11 @@ const EmailStep = ({ onNext }: EmailStepProps) => {
             message.destroy();
             if (response == "Email hasn't been registered") {
               message.error("Email hasn't been registered");
+              return;
             }
+            onNext();
             console.log(response);
           });
-          // onNext();
         }}
       >
         <div className="mb-6">
