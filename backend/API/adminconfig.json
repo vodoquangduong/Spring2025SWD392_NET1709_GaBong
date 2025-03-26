@@ -1,0 +1,14 @@
+{
+  "PaymentPolicy": {
+    "ProjectFee": 10,
+    "BidFee": 10,
+    "WithdrawalFee": 20
+  },
+  "ReputationPolicy": {
+    "BeforeDeadline": 100,
+    "RightDeadline": 100,
+    "EarlylateDeadline": 100,
+    "LateDeadline": 100,
+    "CompleteProject": 200
+  }
+}

@@ -125,6 +125,7 @@ namespace Services.Implements
                         var milestone = _mapper.Map<Milestone>(m);
                         milestone.ProjectId = createProject.ProjectId;
                         milestone.Status = MilestoneStatus.NotStarted;
+                        milestone.DeadlineDate = milestone.DeadlineDate.ToUniversalTime();
                         return milestone;
                     })
                     .ToList();

@@ -79,7 +79,7 @@ namespace API.Controllers
                 return BadRequest(ModelState);
 
             var result = await _accountService.CreateAccount(registerDto);
-            if(result == null)
+            if (result == null)
             {
                 return Ok("Create account failed");
             }
