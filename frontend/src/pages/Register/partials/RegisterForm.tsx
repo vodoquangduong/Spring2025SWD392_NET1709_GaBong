@@ -51,7 +51,12 @@ const RegisterForm = () => {
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (!formData.password.trim() || !formData.confirmPassword.trim()) {
+      message.error("Passwords cant be empty");
+      return;
+    }
+
+    if (formData.password.trim() !== formData.confirmPassword.trim()) {
       message.error("Passwords do not match");
       return;
     }
