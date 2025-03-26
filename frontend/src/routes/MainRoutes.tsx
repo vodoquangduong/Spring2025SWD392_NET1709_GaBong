@@ -47,6 +47,7 @@ import AdminDashboard, {
 } from "@/pages/Dashboard/AdminDashboard";
 import { TransactionList } from "@/pages/Dashboard/EmployeeDashboard/TransactionManagement";
 import ResetStep from "@/pages/ForgotPassword/partials/ResetStep";
+import ProjectList from "@/pages/Dashboard/EmployeeDashboard/ProjectManagement/partials/ProjectList";
 
 export default function MainRoutes() {
   return (
@@ -144,6 +145,7 @@ export default function MainRoutes() {
           <Route path="categories" element={<CategoryManagement />} />
           <Route path="withdraws" element={<WithdrawList />} />
           <Route path="transactions" element={<TransactionList />} />
+          <Route path="projects" element={<ProjectList />} />
         </Route>
         <Route path="admin">
           <Route path="" element={<AdminDashboard />} />
