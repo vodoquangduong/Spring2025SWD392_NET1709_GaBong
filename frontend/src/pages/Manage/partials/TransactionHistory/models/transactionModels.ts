@@ -20,9 +20,9 @@ export enum TransactionType {
   Deposit = 0, // Nạp tiền vào hệ thống
   Withdrawal = 1, // Rút tiền ra khỏi hệ thống
   Earnings = 2, // Nhận tiền từ client (for freelancer)
-  Payment = 3, // Chuyển tiền cho freelancer (for client)
-  Fee = 5, // Phí bid, phí tạo contract, phí hệ thống, ...
-  Refund = 6, // Hoàn lại tiền cho freelancer
+  Payment = 3, // Chuyển tiền cho freelancer (for client)99
+  Fee = 4, // Phí bid, phí tạo contract, phí hệ thống, ...
+  Refund = 5, // Hoàn lại tiền cho freelancer
 }
 
 export enum TransactionStatus {
