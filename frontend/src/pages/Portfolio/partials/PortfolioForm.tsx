@@ -57,11 +57,18 @@ interface PortfolioFormProps {
   accountId?: number;
 }
 
+// Update the date validation functions to work with month-year format
 const isPastDate = (date: string | null | undefined): boolean => {
   if (!date) return true;
-  const selectedDate = new Date(date);
+
+  // Format is YYYY-MM for month input
+  const [year, month] = date.split("-").map(Number);
+  const selectedDate = new Date(year, month - 1); // month is 0-indexed in JS Date
+
   const today = new Date();
+  today.setDate(1); // Set to first day of month
   today.setHours(0, 0, 0, 0);
+
   return selectedDate <= today;
 };
 
@@ -70,9 +77,22 @@ const isStartBeforeEnd = (
   endDate: string | null | undefined
 ): boolean => {
   if (!startDate || !endDate) return true;
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+
+  const [startYear, startMonth] = startDate.split("-").map(Number);
+  const [endYear, endMonth] = endDate.split("-").map(Number);
+
+  const start = new Date(startYear, startMonth - 1);
+  const end = new Date(endYear, endMonth - 1);
+
   return start <= end;
+};
+
+// Helper to format month-year date for display
+const formatMonthYear = (dateString: string): string => {
+  if (!dateString) return "";
+  const [year, month] = dateString.split("-");
+  const date = new Date(Number(year), Number(month) - 1);
+  return date.toLocaleDateString(undefined, { year: "numeric", month: "long" });
 };
 
 const PortfolioForm: React.FC<PortfolioFormProps> = ({
@@ -310,13 +330,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   >
                                     {isEditing ? (
                                       <Input
-                                        type="date"
+                                        type="month"
                                         placeholder="Start Date"
                                         style={{ width: "100%" }}
                                         className="bg-white dark:bg-[#27272a]"
-                                        max={
-                                          new Date().toISOString().split("T")[0]
-                                        } // Giới hạn ngày tối đa là ngày hiện tại
+                                        max={new Date()
+                                          .toISOString()
+                                          .split("-")
+                                          .slice(0, 2)
+                                          .join("-")}
                                       />
                                     ) : (
                                       <div>
@@ -325,13 +347,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                           name,
                                           "startDate",
                                         ]) &&
-                                          new Date(
+                                          formatMonthYear(
                                             form.getFieldValue([
                                               "experiences",
                                               name,
                                               "startDate",
                                             ])
-                                          ).toLocaleDateString()}
+                                          )}
                                       </div>
                                     )}
                                   </Form.Item>
@@ -344,7 +366,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                     rules={[
                                       {
                                         validator: (_, value) => {
-                                          if (!value) return Promise.resolve();
+                                          if (!value) return Promise.resolve(); // Cho phép trống (vì có thể là vị trí hiện tại)
 
                                           if (!isPastDate(value)) {
                                             return Promise.reject(
@@ -354,6 +376,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                             );
                                           }
 
+                                          // Kiểm tra start date < end date
                                           const startDate = form.getFieldValue([
                                             "experiences",
                                             name,
@@ -377,13 +400,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   >
                                     {isEditing ? (
                                       <Input
-                                        type="date"
+                                        type="month"
                                         placeholder="End Date (leave empty if current)"
                                         style={{ width: "100%" }}
                                         className="bg-white dark:bg-[#27272a]"
-                                        max={
-                                          new Date().toISOString().split("T")[0]
-                                        }
+                                        max={new Date()
+                                          .toISOString()
+                                          .split("-")
+                                          .slice(0, 2)
+                                          .join("-")}
                                       />
                                     ) : (
                                       <div>
@@ -392,13 +417,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                           name,
                                           "endDate",
                                         ])
-                                          ? new Date(
+                                          ? formatMonthYear(
                                               form.getFieldValue([
                                                 "experiences",
                                                 name,
                                                 "endDate",
                                               ])
-                                            ).toLocaleDateString()
+                                            )
                                           : "Present"}
                                       </div>
                                     )}
@@ -519,13 +544,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   >
                                     {isEditing ? (
                                       <Input
-                                        type="date"
+                                        type="month"
                                         placeholder="Issue Date"
                                         style={{ width: "100%" }}
                                         className="bg-white dark:bg-[#27272a]"
-                                        max={
-                                          new Date().toISOString().split("T")[0]
-                                        }
+                                        max={new Date()
+                                          .toISOString()
+                                          .split("-")
+                                          .slice(0, 2)
+                                          .join("-")}
                                       />
                                     ) : (
                                       <div>
@@ -534,13 +561,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                           name,
                                           "issueDate",
                                         ]) &&
-                                          new Date(
+                                          formatMonthYear(
                                             form.getFieldValue([
                                               "certificates",
                                               name,
                                               "issueDate",
                                             ])
-                                          ).toLocaleDateString()}
+                                          )}
                                       </div>
                                     )}
                                   </Form.Item>
@@ -825,13 +852,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 >
                                   {isEditing ? (
                                     <Input
-                                      type="date"
+                                      type="month"
                                       placeholder="Start Date"
                                       style={{ width: "100%" }}
                                       className="bg-white dark:bg-[#27272a]"
-                                      max={
-                                        new Date().toISOString().split("T")[0]
-                                      }
+                                      max={new Date()
+                                        .toISOString()
+                                        .split("-")
+                                        .slice(0, 2)
+                                        .join("-")}
                                     />
                                   ) : (
                                     <div>
@@ -840,13 +869,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                         name,
                                         "startDate",
                                       ]) &&
-                                        new Date(
+                                        formatMonthYear(
                                           form.getFieldValue([
                                             "experiences",
                                             name,
                                             "startDate",
                                           ])
-                                        ).toLocaleDateString()}
+                                        )}
                                     </div>
                                   )}
                                 </Form.Item>
@@ -893,13 +922,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 >
                                   {isEditing ? (
                                     <Input
-                                      type="date"
+                                      type="month"
                                       placeholder="End Date (leave empty if current)"
                                       style={{ width: "100%" }}
                                       className="bg-white dark:bg-[#27272a]"
-                                      max={
-                                        new Date().toISOString().split("T")[0]
-                                      }
+                                      max={new Date()
+                                        .toISOString()
+                                        .split("-")
+                                        .slice(0, 2)
+                                        .join("-")}
                                     />
                                   ) : (
                                     <div>
@@ -908,13 +939,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                         name,
                                         "endDate",
                                       ])
-                                        ? new Date(
+                                        ? formatMonthYear(
                                             form.getFieldValue([
                                               "experiences",
                                               name,
                                               "endDate",
                                             ])
-                                          ).toLocaleDateString()
+                                          )
                                         : "Present"}
                                     </div>
                                   )}
@@ -1062,13 +1093,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 >
                                   {isEditing ? (
                                     <Input
-                                      type="date"
+                                      type="month"
                                       placeholder="Issue Date"
                                       style={{ width: "100%" }}
                                       className="bg-white dark:bg-[#27272a]"
-                                      max={
-                                        new Date().toISOString().split("T")[0]
-                                      } // Giới hạn ngày tối đa là ngày hiện tại
+                                      max={new Date()
+                                        .toISOString()
+                                        .split("-")
+                                        .slice(0, 2)
+                                        .join("-")} // Giới hạn ngày tối đa là ngày hiện tại
                                     />
                                   ) : (
                                     <div>
@@ -1077,13 +1110,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                         name,
                                         "issueDate",
                                       ]) &&
-                                        new Date(
+                                        formatMonthYear(
                                           form.getFieldValue([
                                             "certificates",
                                             name,
                                             "issueDate",
                                           ])
-                                        ).toLocaleDateString()}
+                                        )}
                                     </div>
                                   )}
                                 </Form.Item>

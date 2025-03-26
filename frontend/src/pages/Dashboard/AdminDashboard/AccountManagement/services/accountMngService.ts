@@ -3,6 +3,8 @@ import {
   AccountDetailResponse,
   AccountsResponse,
   CreateAccountRequest,
+  FilteredAccountsParams,
+  FilteredAccountsResponse,
   PaginationParams,
   UpdateAccountRequest,
 } from "../models/types";
@@ -238,6 +240,71 @@ export const accountMngService = {
       return data;
     } catch (error) {
       console.error("Error updating account status:", error);
+      throw error;
+    }
+  },
+
+  getFilteredAccounts: async (
+    params: FilteredAccountsParams
+  ): Promise<FilteredAccountsResponse> => {
+    try {
+      const token = getCookie("accessToken");
+      if (!token) {
+        throw new Error("Authentication required. Please login.");
+      }
+
+      // Build query string with filter parameters
+      const queryParams = new URLSearchParams();
+      queryParams.append("pageSize", params.pageSize.toString());
+      queryParams.append("pageNumber", params.pageNumber.toString());
+
+      if (params.accountName) {
+        queryParams.append("accountName", params.accountName);
+      }
+      if (params.accountRole) {
+        queryParams.append("accountRole", params.accountRole);
+      }
+      if (params.accountStatus) {
+        queryParams.append("accountStatus", params.accountStatus);
+      }
+      if (params.sortBy) {
+        queryParams.append("sortBy", params.sortBy);
+      }
+
+      const queryString = queryParams.toString();
+      const url = `${API_URL}/api/Account/get-all-account-filtered${
+        queryString ? `?${queryString}` : ""
+      }`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        let errorMessage;
+        try {
+          const errorData = await response.json();
+          errorMessage =
+            errorData.message ||
+            errorData.error ||
+            "Failed to fetch filtered accounts";
+        } catch {
+          errorMessage =
+            response.status >= 500
+              ? "Server error. Please try again later."
+              : "Failed to fetch filtered accounts";
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching filtered accounts:", error);
       throw error;
     }
   },

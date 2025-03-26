@@ -192,8 +192,13 @@ const Portfolio: React.FC = () => {
           const exp = values.experiences[i];
 
           if (exp.startDate) {
-            const startDate = new Date(exp.startDate);
+            const [startYear, startMonth] = exp.startDate
+              .split("-")
+              .map(Number);
+            const startDate = new Date(startYear, startMonth - 1);
+
             const today = new Date();
+            today.setDate(1); // Set to first day of current month
             today.setHours(0, 0, 0, 0);
 
             if (startDate > today) {
@@ -206,8 +211,11 @@ const Portfolio: React.FC = () => {
           }
 
           if (exp.endDate) {
-            const endDate = new Date(exp.endDate);
+            const [endYear, endMonth] = exp.endDate.split("-").map(Number);
+            const endDate = new Date(endYear, endMonth - 1);
+
             const today = new Date();
+            today.setDate(1);
             today.setHours(0, 0, 0, 0);
 
             if (endDate > today) {
@@ -219,7 +227,11 @@ const Portfolio: React.FC = () => {
             }
 
             if (exp.startDate) {
-              const startDate = new Date(exp.startDate);
+              const [startYear, startMonth] = exp.startDate
+                .split("-")
+                .map(Number);
+              const startDate = new Date(startYear, startMonth - 1);
+
               if (startDate > endDate) {
                 message.error(
                   `Experience ${i + 1}: Start date must be before end date`
@@ -240,8 +252,13 @@ const Portfolio: React.FC = () => {
         for (let i = 0; i < values.certificates.length; i++) {
           const cert = values.certificates[i];
           if (cert.issueDate) {
-            const issueDate = new Date(cert.issueDate);
+            const [issueYear, issueMonth] = cert.issueDate
+              .split("-")
+              .map(Number);
+            const issueDate = new Date(issueYear, issueMonth - 1);
+
             const today = new Date();
+            today.setDate(1);
             today.setHours(0, 0, 0, 0);
 
             if (issueDate > today) {
