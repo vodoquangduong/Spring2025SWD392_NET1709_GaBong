@@ -80,19 +80,20 @@ export default function MainRoutes() {
             <Route path="" element={<Navigate to="/search/freelancers" />} />
             <Route path=":id" element={<Freelancer />} />
           </Route>
-          <Route path="manage" element={<Manage />}>
-            <Route path="" element={<Navigate to="/manage/projects" />} />
-            <Route path="dashboard" element={<UserDashboard />} />
-            <Route path="projects" element={<MyProject />} />
-            {/* <Route path="bookmarks" element={<Bookmark />} /> */}
-            <Route path="notifications" element={<Notification />} />
-            <Route path="transaction-history" element={<Transaction />} />
-          </Route>
           <Route path="profile">
             <Route index element={<UserProfile />} />
             <Route path="edit" element={<EditProfile />} />
           </Route>
           <Route path="policy" element={<Policy />} />
+          <Route path="manage" element={<Manage />}>
+            <Route path="" element={<Navigate to="/manage/projects" />} />
+            <Route path="dashboard" element={<UserDashboard />} />
+            <Route path="projects" element={<MyProject />} />
+            <Route path="notifications" element={<Notification />} />
+            <Route path="proposals" element={<Proposal />} />
+            <Route path="feedbacks" element={<Feedback />} />
+            <Route path="transaction-history" element={<Transaction />} />
+          </Route>
         </Route>
         {/* <Route path="search" element={<Search />}></Route> */}
         <Route path="projects">
@@ -108,14 +109,7 @@ export default function MainRoutes() {
           <Route path="" element={<Navigate to="/search/freelancers" />} />
           <Route path=":id" element={<Freelancer />} />
         </Route>
-        <Route path="manage" element={<Manage />}>
-          <Route path="" element={<Navigate to="/manage/projects" />} />
-          <Route path="dashboard" element={<UserDashboard />} />
-          <Route path="projects" element={<MyProject />} />
-          <Route path="notifications" element={<Notification />} />
-          <Route path="proposals" element={<Proposal />} />
-          <Route path="feedbacks" element={<Feedback />} />
-        </Route>
+
         <Route path="profile">
           <Route index element={<UserProfile />} />
           <Route path="edit" element={<EditProfile />} />
