@@ -1,5 +1,6 @@
 using AutoMapper;
 using BusinessObjects.Models;
+using Helpers.DTOs.Query;
 using Helpers.DTOs.Transaction;
 using Helpers.HelperClasses;
 using Microsoft.Extensions.Configuration;
@@ -159,6 +160,32 @@ namespace Services.Implements
             {
                 return Result.Failure<PaginatedResult<TransactionDTO>>(
                     new Error("Get all transaction failed", $"{e.Message}")
+                );
+            }
+        }
+
+        public async Task<Result<PaginatedResult<TransactionDTO>>> GetTransactionByTypeAsync(
+            int pageNumber,
+            int pageSize,
+            TransactionFilter filter
+        )
+        {
+            try
+            {
+                var transactions = _transactionRepository.GetTransactionsByTypePaging(filter);
+
+                var paginatedTransactions = await Pagination.ApplyPaginationAsync(
+                    transactions,
+                    pageNumber,
+                    pageSize,
+                    _mapper.Map<TransactionDTO>
+                );
+                return Result.Success(paginatedTransactions);
+            }
+            catch (Exception e)
+            {
+                return Result.Failure<PaginatedResult<TransactionDTO>>(
+                    new Error("Get all transaction by type failed", $"{e.Message}")
                 );
             }
         }

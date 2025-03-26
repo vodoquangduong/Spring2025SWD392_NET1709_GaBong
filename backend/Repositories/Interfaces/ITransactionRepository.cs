@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Helpers.DTOs.Query;
 
 namespace Repositories.Interfaces
 {
@@ -10,5 +11,6 @@ namespace Repositories.Interfaces
         Task UpdateAsync(Transaction transaction);
         IQueryable<Transaction> GetAllTransactionsPaging();
         Task<IEnumerable<Transaction>> GetAllTransactionByAccountIdAsync(long accountId);
+        IQueryable<Transaction> GetTransactionsByTypePaging(TransactionFilter filter);
     }
 }
