@@ -82,5 +82,25 @@ namespace Services.Implements
             int totalProjects = await _adminRepository.GetTotalOngoingProjectsById(accountId);
             return Result.Success(totalProjects);
         }
+        public async Task<Result<int>> GetPendingReports()
+        {
+            int totalReports = await _adminRepository.GetReportByStatus(ReportStatus.Pending);
+            return Result.Success(totalReports);
+        }
+        public async Task<Result<int>> GetApprovedReports()
+        {
+            int totalReports = await _adminRepository.GetReportByStatus(ReportStatus.Approved);
+            return Result.Success(totalReports);
+        }
+        public async Task<Result<int>> GetRejectedReports()
+        {
+            int totalReports = await _adminRepository.GetReportByStatus(ReportStatus.Rejected);
+            return Result.Success(totalReports);
+        }
+        public async Task<Result<int>> GetTotalReports()
+        {
+            int totalReports = await _adminRepository.GetReportByStatus();
+            return Result.Success(totalReports);
+        }
     }
 }

@@ -20,5 +20,9 @@ namespace Services.Interfaces
         Task<Result<IEnumerable<TransactionDTO>>> GetRevenueList(DateTime startDate, DateTime endDate);
         Task<Result<int>> GetTotalCompletedProjectsById(long accountId);
         Task<Result<int>> GetTotalOngoingProjectsById(long accountId);
+        Task<Result<int>> GetPendingReports();
+        Task<Result<int>> GetApprovedReports();
+        Task<Result<int>> GetRejectedReports();
+        Task<Result<int>> GetTotalReports();
     }
 }

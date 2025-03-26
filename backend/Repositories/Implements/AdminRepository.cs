@@ -143,5 +143,14 @@ namespace Repositories.Implements
             var projects = await _unitOfWork.GetRepo<Project>().GetAllAsync(queryOptions);
             return projects.Count();
         }
+            public async Task<int> GetReportByStatus(ReportStatus? status = null)
+    {
+        var queryOptions = new QueryBuilder<Report>()
+            .WithTracking(false)
+            .WithPredicate(r => status == null || r.Status == status)
+            .Build();
+        var reports = await _unitOfWork.GetRepo<Report>().GetAllAsync(queryOptions);
+        return reports.Count();
+    }
     }
 }

@@ -155,5 +155,29 @@ namespace API.Controllers
             }
             return Ok(new { message = "Fail to update admin config" });
         }
+        [HttpGet("pending-reports")]
+        public async Task<IActionResult> GetPendingReports()
+        {
+            var result = await _adminService.GetPendingReports();
+            return Ok(result);
+        }
+        [HttpGet("approved-reports")]
+        public async Task<IActionResult> GetApprovedReports()
+        {
+            var result = await _adminService.GetApprovedReports();
+            return Ok(result);
+        }
+        [HttpGet("rejected-reports")]
+        public async Task<IActionResult> GetRejectedReports()
+        {
+            var result = await _adminService.GetRejectedReports();
+            return Ok(result);
+        }
+        [HttpGet("total-reports")]
+        public async Task<IActionResult> GetTotalReports()
+        {
+            var result = await _adminService.GetTotalReports();
+            return Ok(result);
+        }
     }
 }
