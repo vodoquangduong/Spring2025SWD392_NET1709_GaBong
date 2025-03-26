@@ -226,7 +226,7 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<ProjectDetailDTO>> GetProjectByIdAsync(long projectId)
+        public async Task<Result<ProjectDTO>> GetProjectByIdAsync(long projectId)
         {
             try
             {
@@ -266,17 +266,17 @@ namespace Services.Implements
 
                 if (project == null)
                 {
-                    return Result.Failure<ProjectDetailDTO>(
+                    return Result.Failure<ProjectDTO>(
                         new Error("Get project failed", "Project not found")
                     );
                 }
                 //var result = _mapper.Map<ProjectDetailDTO>(project);
-                var result = _mapper.Map<Project,ProjectDetailDTO>(project);
+                var result = _mapper.Map<ProjectDTO>(project);
                 return Result.Success(result);
             }
             catch (Exception e)
             {
-                return Result.Failure<ProjectDetailDTO>(
+                return Result.Failure<ProjectDTO>(
                     new Error("Get project failed", $"{e.Message}")
                 );
             }

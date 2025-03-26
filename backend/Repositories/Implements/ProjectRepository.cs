@@ -51,7 +51,7 @@ namespace Repositories.Implements
         public async Task<Project?> GetProjectWithSkillMilestoneBidAsync(long projectId)
         {
             var projectQueryOptions = new QueryBuilder<Project>()
-                .WithTracking(false) // No tracking for efficient
+                .WithTracking(false)
                 .WithInclude(p => p.SkillRequired)
                 .WithInclude(p => p.Milestones)
                 .WithInclude(p => p.Bids)
@@ -61,9 +61,7 @@ namespace Repositories.Implements
                     && project.SkillRequired.Any()
                 )
                 .Build();
-            var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(projectQueryOptions);
-
-            return project;
+            return await _unitOfWork.GetRepo<Project>().GetSingleAsync(projectQueryOptions);
         }
 
         //public async Task<IEnumerable<Project>> GetAllAsync(QueryOptions<Project> queryOptions)
