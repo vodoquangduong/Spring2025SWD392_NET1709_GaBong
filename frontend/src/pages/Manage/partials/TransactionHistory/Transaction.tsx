@@ -101,7 +101,7 @@ const TransactionHistory: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return dayjs(dateString, "DD-MM-YYYY").format("MM/DD/YYYY");
+    return dayjs(dateString, "M/D/YYYY h:mm:ss A").format("MM/DD/YYYY");
   };
 
   const columns = [
@@ -172,9 +172,26 @@ const TransactionHistory: React.FC = () => {
       key: "createdAt",
       render: (date: string) => formatDate(date),
       sorter: (a: TransactionData, b: TransactionData) =>
-        dayjs(a.createdAt, "DD-MM-YYYY").unix() -
-        dayjs(b.createdAt, "DD-MM-YYYY").unix(),
+        dayjs(a.createdAt, "M/D/YYYY h:mm:ss A").unix() -
+        dayjs(b.createdAt, "M/D/YYYY h:mm:ss A").unix(),
       defaultSortOrder: "descend" as const,
+    },
+    {
+      title: "Detail",
+      dataIndex: "detail",
+      key: "detail",
+      width: 300, // 👈 bạn có thể điều chỉnh: 200, 250, 300...
+      render: (value: string) => (
+        <div
+          style={{
+            maxWidth: 300,
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+          }}
+        >
+          {value}
+        </div>
+      ),
     },
   ];
 

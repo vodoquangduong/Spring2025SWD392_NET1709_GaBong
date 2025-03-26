@@ -7,6 +7,7 @@ export interface TransactionData {
   amount: number;
   status: number;
   type: number;
+  detail: string;
 }
 
 export interface TransactionFilters {
