@@ -58,7 +58,7 @@ export default function SearchProject() {
           </div>
         </div>
         <div className="col-span-9 rounded-md dark:bg-zinc-900 shadow-lg">
-          <ProjectListing query={query} />
+          <ProjectListing query={query} setQuery={setQuery} />
         </div>
       </div>
     </div>

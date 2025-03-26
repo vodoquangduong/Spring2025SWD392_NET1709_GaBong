@@ -13,9 +13,17 @@ import { SkillType } from "@/types/skills";
 import { Bid } from "@/types/bid";
 import { PaginatedResult, ResultServerResponse } from "@/types/serverResponse";
 import { CiBookmark } from "react-icons/ci";
+import useQueryParams from "@/hooks/useQueryParams";
 
-export default function ProjectListing({ query }: { query: any }) {
+export default function ProjectListing({
+  query,
+  setQuery,
+}: {
+  query: any;
+  setQuery: any;
+}) {
   const navigate = useNavigate();
+  const { pageNumber } = useQueryParams();
   const [skillCategory, projects] = useQueries({
     queries: [
       {
@@ -24,7 +32,7 @@ export default function ProjectListing({ query }: { query: any }) {
           await GET(`/api/SkillCategory`, false),
       },
       {
-        queryKey: ["publicProjects", query],
+        queryKey: ["publicProjects", query, pageNumber],
         queryFn: async (): Promise<
           ResultServerResponse<PaginatedResult<ProjectDetail>>
         > => await GET(`/api/Project/verified?${getQueryString(query)}`, false),
@@ -77,7 +85,10 @@ export default function ProjectListing({ query }: { query: any }) {
               defaultCurrent={projects?.data?.value?.pageNumber}
               total={projects?.data?.value?.totalCount}
               onChange={(page) => {
-                navigate(`/search/projects?page=${page}`);
+                setQuery((prev: any) => ({
+                  ...prev,
+                  pageNumber: page,
+                }));
               }}
             />
           </div>

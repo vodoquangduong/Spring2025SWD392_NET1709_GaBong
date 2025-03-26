@@ -48,20 +48,19 @@ export default function Project() {
     },
     {
       name:
-        data?.value?.clientId == accountId ||
-        data?.value?.freelancerId == accountId
+        data?.clientId == accountId || data?.freelancerId == accountId
           ? "Milestones"
           : "",
       path: `/projects/${projectId}/milestones`,
     },
     {
-      name: data?.value?.freelancerId ? "Contract" : "",
+      name: data?.freelancerId ? "Contract" : "",
       path: `/projects/${projectId}/contract`,
     },
   ];
 
   const outletContext = {
-    project: data?.value,
+    project: data,
     isLoading,
     accountId,
   };
@@ -118,8 +117,8 @@ export default function Project() {
                   <Skeleton.Input active style={{ width: 400 }} />
                 ) : (
                   <>
-                    {data?.value?.projectName}
-                    {mapProjectStatusToTag(data?.value?.status)}
+                    {data?.projectName}
+                    {mapProjectStatusToTag(data?.status)}
                   </>
                 )}
               </div>
@@ -133,17 +132,17 @@ export default function Project() {
                 <div className="flex gap-10 items-end">
                   <div className="font-semibold flex flex-col gap-2 justify-center">
                     <span>Bids</span>
-                    <span className="text-xl">{data?.value?.bids?.length}</span>
+                    <span className="text-xl">{data?.bids?.length}</span>
                   </div>
                   <div className="font-semibold flex flex-col gap-2 justify-center">
                     <span>Average Bid</span>
                     <span className="text-xl">
-                      {data?.value?.bids?.length
+                      {data?.bids?.length
                         ? (
-                            data?.value?.bids?.reduce(
+                            data?.bids?.reduce(
                               (a: any, b: any) => a + b.bidOffer,
                               0
-                            ) / data?.value?.bids?.length
+                            ) / data?.bids?.length
                           ).toLocaleString()
                         : 0}{" "}
                       USD
@@ -160,14 +159,14 @@ export default function Project() {
                   <div className="flex items-center justify-between">
                     <div className={"py-2 flex gap-2 items-center"}>
                       <FaLocationDot className="text-emerald-500" />
-                      {data?.value?.location}
+                      {data?.location}
                     </div>
-                    {data.value.status == ProjectStatus.PENDING && (
+                    {data?.status == ProjectStatus.PENDING && (
                       <Button onClick={onCancelProject}>Cancel Project</Button>
                     )}
                   </div>
                   {`Posted ${formatTimeAgo(
-                    dayjs(data?.value?.postDate, "DD-MM-YYYY").toISOString()
+                    dayjs(data?.postDate, "DD-MM-YYYY").toISOString()
                   )}`}
                 </div>
               )}
@@ -197,7 +196,7 @@ export default function Project() {
           <Outlet context={outletContext} />
         </div>
         <div className="col-span-3 dark:bg-white/5 rounded-md">
-          <Sidebar clientId={data?.value?.clientId} />
+          <Sidebar clientId={data?.clientId} />
         </div>
       </div>
     </div>

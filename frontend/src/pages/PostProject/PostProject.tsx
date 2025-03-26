@@ -185,14 +185,13 @@ export default function PostProject() {
         <div className="col-span-2">
           <div className="font-semibold text-base pb-2">Estimate budget</div>
           <div className="input-style flex gap-2 py-[10px]">
-            <div className="px-1">$</div>
+            <div className="px-1">USD</div>
             <input
               {...register("estimateBudget")}
               className="no-ring grow no-scrollbar"
               placeholder="Enter estimated budget"
               type="number"
             />
-            <div className="px-2">USD</div>
           </div>
           {errors.estimateBudget && (
             <div className="error-msg">{errors.estimateBudget.message}</div>
@@ -281,7 +280,9 @@ export default function PostProject() {
                     milestoneName: "New milestone",
                     description: "New milestone description",
                     amount: 1,
-                    deadline: new Date().toISOString(),
+                    deadline: dayjs(milestones[milestones.length - 1].deadline)
+                      .add(2, "day")
+                      .toISOString(),
                   },
                 ]);
               }}
