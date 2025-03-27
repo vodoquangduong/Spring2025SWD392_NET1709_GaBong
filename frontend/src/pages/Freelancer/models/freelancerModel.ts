@@ -27,6 +27,7 @@ export interface PublicPortfolio {
   avatarURL: string;
   reputationPoint: number;
   skillPerform?: SkillPerform[];
+  code: string;
 }
 
 export interface Feedback {

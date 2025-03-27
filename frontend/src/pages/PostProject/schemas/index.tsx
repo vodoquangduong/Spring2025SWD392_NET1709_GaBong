@@ -161,8 +161,8 @@ export const tableColumns = ({
                       message.error("Please fill in all fields");
                       return;
                     }
-                    if (updateMilestone.amount <= 0) {
-                      message.error("Amount cant be less than 0%");
+                    if (updateMilestone.amount < 5) {
+                      message.error("Each percent cant be less than 5%");
                       return;
                     }
                     if (dayjs(updateMilestone.deadline).isBefore(new Date())) {
@@ -182,26 +182,13 @@ export const tableColumns = ({
                     //   }))
                     // );
 
-                    console.log("compareMilestone", compareMilestone);
                     for (const milestone of compareMilestone) {
-                      console.log(
-                        "milestone",
-                        dayjs(milestone.deadline).format("YYYY-MM-DD HH:mm")
-                      );
-                      console.log(
-                        "milestone",
-                        dayjs(updateMilestone.deadline).format(
-                          "YYYY-MM-DD HH:mm"
-                        )
-                      );
-
                       const diffDay = Math.abs(
                         dayjs(milestone.deadline).diff(
                           dayjs(updateMilestone.deadline),
                           "days"
                         )
                       );
-                      console.log("diffDay", diffDay);
 
                       if (diffDay < 2) {
                         message.error("Deadline cant be less than 2 days");

@@ -10,6 +10,7 @@ import {
   Input,
   Pagination,
   Rate,
+  Result,
   Spin,
   Tag,
   Timeline,
@@ -115,8 +116,12 @@ export default function Freelancer() {
     );
   }
 
-  if (!portfolio) {
-    return <div className="p-6">Portfolio not found</div>;
+  if (portfolio?.code) {
+    return (
+      <div className="justify-center items-center text-3xl mt-44">
+        <Result status="404" title="Portfolio not found" />
+      </div>
+    );
   }
 
   // Parse JSON data
@@ -160,6 +165,10 @@ export default function Freelancer() {
     { title: <Link to="/search/freelancers">Freelancers</Link> },
     { title: portfolio.name },
   ];
+
+  if (portfolio?.code) {
+    return <div className="p-6">Portfolio not found</div>;
+  }
 
   return (
     <div className="mx-container">

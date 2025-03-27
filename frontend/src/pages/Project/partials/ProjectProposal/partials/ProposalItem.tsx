@@ -116,7 +116,7 @@ export default function ProposalItem({
       <div className="flex justify-between">
         <div
           className="flex gap-4 cursor-pointer"
-          onClick={() => navigate("/freelancers/1")}
+          onClick={() => navigate(`/freelancers/${item.bidOwnerId}`)}
         >
           <div
             className="h-16 aspect-square rounded-full bg-center bg-no-repeat bg-cover bg-white border"

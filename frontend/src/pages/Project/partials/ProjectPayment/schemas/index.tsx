@@ -4,13 +4,14 @@ import { PUT } from "@/modules/request";
 import useAuthStore from "@/stores/authStore";
 import useUiStore from "@/stores/uiStore";
 import { Role } from "@/types";
-import { MilestoneStatus } from "@/types/milestone";
+import { Milestone, MilestoneStatus } from "@/types/milestone";
 import { App, Button, Dropdown, Popconfirm, Select } from "antd";
 import dayjs from "dayjs";
 import { z } from "zod";
 import { FaPen } from "react-icons/fa";
 import CreateMilestoneForm from "../forms/CreateMileStoneForm";
 import InvoiceModal from "@/pages/Project/partials/ProjectPayment/partials/InvoiceModal";
+import { ColumnType } from "antd/es/table";
 
 export const schema = () => {
   return z.object({
