@@ -17,7 +17,9 @@ export const schema = () => {
     milestoneName: z.string().optional(),
     description: z.string().optional(),
     amount: z.coerce.number().optional(),
-    deadline: z.string().optional(),
+    deadline: z.string().refine((value) => new Date(value) > new Date(), {
+      message: "Deadline cant be in the past",
+    }),
   });
 };
 
@@ -198,7 +200,7 @@ export const tableColumns = (project: any) => {
                       requestRevalidate();
                     }}
                   >
-                    <div key ={"Review"}></div>
+                    <div key={"Review"}>Review</div>
                     <div key={"1"}>Approve</div>
                     <div key={"2"}>Reject</div>
                   </Select>

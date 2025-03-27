@@ -5,15 +5,16 @@ import { useForm } from "react-hook-form";
 import { schema } from "../schemas";
 import { useEffect } from "react";
 import useUiStore from "@/stores/uiStore";
-import { PUT } from "@/modules/request";
+import { GET, PUT } from "@/modules/request";
 import { useParams } from "react-router-dom";
+import { Milestone } from "@/types/milestone";
 
 export default function CreateMilestoneForm({
   setIsModalOpen,
   record,
 }: {
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  record?: any;
+  record?: Milestone;
 }) {
   const { message } = App.useApp();
   const { id: projectId } = useParams();
@@ -45,11 +46,28 @@ export default function CreateMilestoneForm({
       milestoneName: record?.milestoneName,
       deadline: dayjs(record?.deadlineDate).format("YYYY-MM-DD HH:mm"),
       description: record?.milestoneDescription,
-      amount: record?.payAmount,
+      amount: record?.payAmount + "",
     });
   }, []);
 
   const onSubmit = async (formData: any) => {
+    let milestones: Milestone[] = (
+      await GET(`/api/Project/${record?.projectId}`)
+    )?.milestones?.filter(
+      (milestone: Milestone) => milestone?.milestoneId != record?.milestoneId
+    );
+
+    for (const milestone of milestones) {
+      const diffDay = Math.abs(
+        dayjs(milestone.deadlineDate).diff(dayjs(formData.deadline), "days")
+      );
+
+      if (diffDay < 2) {
+        message.error("Deadline gap cant be less than 2 days");
+        return;
+      }
+    }
+
     formData.status = record?.status;
     formData.deadline = dayjs(formData.deadline).toISOString();
     message.open({
@@ -97,26 +115,18 @@ export default function CreateMilestoneForm({
             <div className="error-msg">{errors.description.message}</div>
           )}
         </div>
-        {/* <div>
-          <div className="font-semibold text-base pb-2">Percent</div>
-          <div className="input-style flex gap-2 py-[10px]">
-            <input
-              {...register("amount")}
-              className="no-ring grow"
-              placeholder="Enter percent amount"
-              type="number"
-            />
-            <div className="px-2">%</div>
-          </div>
-        </div> */}
         <div>
           <div className="font-semibold text-base pb-2">Deadline</div>
           <input
             {...register("deadline")}
+            min={dayjs().format("YYYY-MM-DD")}
             type="datetime-local"
             placeholder="Enter milestone deadline"
             className="input-style py-[9px] px-2 text-sm"
           />
+          {errors.deadline && (
+            <div className="error-msg">{errors.deadline.message}</div>
+          )}
         </div>
       </div>
       <div className="flex justify-end pt-4">

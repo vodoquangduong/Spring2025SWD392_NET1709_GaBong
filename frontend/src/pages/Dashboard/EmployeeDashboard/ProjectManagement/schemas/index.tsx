@@ -115,7 +115,11 @@ export const projectColumns = () => {
       title: "Post Date",
       dataIndex: "postDate",
       key: "postDate",
-      render: (text: string) => dayjs(text).format("DD-MM-YYYY"),
+      render: (text: string) => (
+        <div className="w-[100px]">
+          {dayjs(text, "DD-MM-YYYY").format("DD-MM-YYYY")}
+        </div>
+      ),
     },
     {
       title: "Status",
