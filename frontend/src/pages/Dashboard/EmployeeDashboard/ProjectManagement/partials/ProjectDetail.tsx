@@ -17,7 +17,7 @@ import {
 } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 
-const mockProjectDetail: IProjectDetail = {
+const mockProjectDetail: any  = {
   id: "PRJ001",
   title: "E-commerce Website Development",
   description:
@@ -155,13 +155,12 @@ const ProjectDetail: React.FC = () => {
     }
   };
 
-  const formatBudget = (budget: IProjectDetail["budget"]) => {
+  const formatBudget = (budget: any["budget"]) => {
     return `${
       budget.currency
     } ${budget.min.toLocaleString()} - ${budget.max.toLocaleString()}`;
   };
-
-  const formatDuration = (duration: IProjectDetail["duration"]) => {
+   const formatDuration = (duration: any["duration"]) => {
     return `${duration.value} ${duration.unit}`;
   };
 
