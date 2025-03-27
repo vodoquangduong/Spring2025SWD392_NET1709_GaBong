@@ -7,7 +7,7 @@ namespace Services.Interfaces
     {
         Task<Result<IEnumerable<FeedbackDTO>>> GetAllFeedbacksAsync();
         Task<Result<FeedbackDTO>> GetFeedbackByProjectIdAsync(long projectId);
-        Task<Result<IEnumerable<FeedbackDTO>>> GetFeedbacksByFreelancerIdAsync(long freelancerId);
+        Task<Result<IEnumerable<FeedbackPortfolioViewDTO>>> GetFeedbacksByFreelancerIdAsync(long freelancerId);
         Task<Result<FeedbackDTO>> CreateFeedbackAsync(CreateFeedbackDTO feedbackDTO);
         Task<Result<FeedbackDTO>> UpdateFeedback(UpdateFeedbackDTO updateDTO);
         Task<Result> DeleteFeedback(long projectId);

@@ -392,36 +392,60 @@ export default function Freelancer() {
             ) : (
               <div className="space-y-6">
                 {paginatedFeedbacks.map((feedback) => (
-                  <Card
-                    key={feedback.feedbackId}
-                    className="bg-gray-50 dark:bg-zinc-800 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex justify-between">
-                      <div className="flex gap-3 items-start">
-                        <Avatar size={42}>{"C"}</Avatar>
-                        <div>
-                          <Text strong className="text-lg">
-                            Client
-                          </Text>
-                          <div className="text-sm text-gray-500">
-                            Project ID: {feedback.projectId}
-                          </div>
-                          <Rate
-                            value={feedback.rating}
-                            disabled
-                            character={<FaStar size={16} />}
-                            className="mt-1"
-                          />
-                        </div>
-                      </div>
-                      <Text type="secondary" className="text-xs">
-                        {parseFeedbackDate(feedback.createdAt)}
-                      </Text>
-                    </div>
-                    {feedback.comment && (
-                      <Paragraph className="mt-4">{feedback.comment}</Paragraph>
-                    )}
-                  </Card>
+                   <Card
+                   key={feedback.feedbackId}
+                   className="bg-white dark:bg-zinc-800 hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-600"
+                   bodyStyle={{ padding: "20px" }}
+                 >
+                   {/* Header */}
+                   <div className="flex justify-between items-start">
+                     {/* Left side: Avatar + client info */}
+                     <div className="flex gap-4">
+                       <Avatar size={48} src={feedback.clientAvatarUrl}>
+                         {feedback.clientName?.charAt(0).toUpperCase()}
+                       </Avatar>
+                       <div>
+                         <div className="font-semibold text-lg">{feedback.clientName}</div>
+                         <div className="text-sm text-gray-500">
+                           Project:{" "}
+                           <span className="text-base text-zinc-800 dark:text-white font-medium">
+                             {feedback.projectName}
+                           </span>
+                         </div>
+                         <div className="text-sm text-gray-500">
+                           Earning:{" "}
+                           <span className="text-emerald-600 font-semibold">
+                             {feedback.projectEarning.toLocaleString()} USD
+                           </span>
+                         </div>
+                       </div>
+                     </div>
+               
+                     {/* Right side: Rating + time */}
+                     <div className="text-right">
+                       <Rate
+                         value={feedback.rating}
+                         disabled
+                         character={<FaStar size={14} />}
+                         className="mb-1"
+                       />
+                       <div className="text-xs text-gray-400">
+                         {parseFeedbackDate(feedback.createdAt)}
+                       </div>
+                     </div>
+                   </div>
+               
+                   {/* Comment */}
+                   <div className="mt-4 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                     {feedback.comment ? (
+                       <Paragraph className="!mb-0">{feedback.comment}</Paragraph>
+                     ) : (
+                       <Paragraph className="italic text-gray-400 !mb-0">
+                         No comment provided.
+                       </Paragraph>
+                     )}
+                   </div>
+                 </Card>
                 ))}
 
                 {feedbacks.length > pageSize && (
