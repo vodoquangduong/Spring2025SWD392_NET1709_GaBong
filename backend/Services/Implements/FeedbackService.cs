@@ -84,7 +84,7 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<IEnumerable<FeedbackDTO>>> GetFeedbacksByFreelancerIdAsync(long freelancerId)
+        public async Task<Result<IEnumerable<FeedbackPortfolioViewDTO>>> GetFeedbacksByFreelancerIdAsync(long freelancerId)
         {
             //var freelancer = await _unitOfWork.GetRepo<Account>().GetSingleAsync(new QueryOptions<Account>{
             //    Predicate = a => a.AccountId == freelancerId
@@ -93,7 +93,7 @@ namespace Services.Implements
 
             if (freelancer == null)
             {
-                return Result.Failure<IEnumerable<FeedbackDTO>>(new Error("Get feedback failed", $"Freelancer with id {freelancerId} not found"));
+                return Result.Failure<IEnumerable<FeedbackPortfolioViewDTO>>(new Error("Get feedback failed", $"Freelancer with id {freelancerId} not found"));
             }
 
             //var queryOptions = new QueryBuilder<Feedback>()
@@ -104,7 +104,21 @@ namespace Services.Implements
             //var feedbacks = await _unitOfWork.GetRepo<Feedback>().GetAllAsync(queryOptions);
             var feedbacks = await _feedbackRepository.GetAllByFreelancerIdAsync(freelancerId);
 
-            return Result.Success(feedbacks.Select(_mapper.Map<FeedbackDTO>));
+            var result = feedbacks.Select(f => new FeedbackPortfolioViewDTO
+            {
+                FeedbackId = f.FeedbackId,
+                ProjectId = f.Project.ProjectId,
+                ProjectName = f.Project.ProjectName,
+                Rating = f.Rating,
+                Comment = f.FeedbackComment,
+                CreatedAt = f.CreatedAt.ToString("M/d/yyyy h:mm:ss tt"),
+                ProjectEarning = f.Project.EstimateBudget,
+                ClientId = f.Project.Client.AccountId,
+                ClientName = f.Project.Client.Name,
+                ClientAvatarUrl = f.Project.Client.AvatarURL
+            });
+
+            return Result.Success(result);
         }
 
         public async Task<Result<FeedbackDTO>> GetFeedbackByProjectIdAsync(long projectId)

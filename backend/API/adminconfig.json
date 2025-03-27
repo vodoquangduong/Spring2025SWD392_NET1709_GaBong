@@ -2,7 +2,7 @@
   "PaymentPolicy": {
     "ProjectFee": 0.1,
     "BidFee": 2,
-    "WithdrawalFee": 20
+    "WithdrawalFee": 0.2
   },
   "ReputationPolicy": {
     "BeforeDeadline": 200,

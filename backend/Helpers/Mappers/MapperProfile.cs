@@ -53,12 +53,21 @@ namespace Helpers.Mappers
 
             //Feedback Mappings
             //Feedback to FeedbackDTO
-            CreateMap<Feedback, FeedbackDTO>();
-            //FeedbackDTO to Feedback
-            CreateMap<FeedbackDTO, Feedback>();
-            CreateMap<CreateFeedbackDTO, Feedback>();
-            //UpdateFeedbackDTO to Feedback
-            CreateMap<UpdateFeedbackDTO, Feedback>();
+            CreateMap<Feedback, FeedbackDTO>()
+                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.FeedbackComment))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt.ToString("M/d/yyyy h:mm:ss tt")));
+
+            CreateMap<FeedbackDTO, Feedback>()
+                .ForMember(dest => dest.FeedbackComment, opt => opt.MapFrom(src => src.Comment));
+
+            // CREATE
+            CreateMap<CreateFeedbackDTO, Feedback>()
+                .ForMember(dest => dest.FeedbackComment, opt => opt.MapFrom(src => src.Comment));
+
+            // UPDATE
+            CreateMap<UpdateFeedbackDTO, Feedback>()
+                .ForMember(dest => dest.FeedbackComment, opt => opt.MapFrom(src => src.FeedbackComment));
+
 
             //Message Mappings
             //Message to MessageDTO

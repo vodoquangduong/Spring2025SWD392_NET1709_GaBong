@@ -47,8 +47,9 @@ namespace Repositories.Implements
         {
             var queryOptions = new QueryBuilder<Feedback>()
             .WithInclude(p => p.Project)
-            .WithPredicate(p => p.Project.FreelancerId == accountId)
-            .WithOrderBy(o => o.OrderByDescending(f => f.CreatedAt))
+            .WithInclude(p => p.Project.Client)
+            .WithPredicate(f => f.Project.FreelancerId == accountId)
+            .WithOrderBy(f => f.OrderByDescending(f => f.CreatedAt))
             .Build();
             var feedbacks = await _unitOfWork.GetRepo<Feedback>().GetAllAsync(queryOptions);
 

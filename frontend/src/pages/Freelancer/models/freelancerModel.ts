@@ -33,6 +33,11 @@ export interface PublicPortfolio {
 export interface Feedback {
   feedbackId: number;
   projectId: number;
+  clientId : string;
+  clientAvatarUrl: string;
+  clientName : string;
+  projectName: string;
+  projectEarning: number;
   rating: number;
   comment: string;
   createdAt: string;
