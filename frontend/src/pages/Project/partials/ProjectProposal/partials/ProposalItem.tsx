@@ -14,8 +14,8 @@ import {
 import { FaFlag, FaStar } from "react-icons/fa6";
 import CreateModal from "../../../../../components/CreateModal";
 import CreateReportFreelancerForm from "../forms/CreateReportFreelancerForm";
-import { useMutation } from "@tanstack/react-query";
-import { POST, PUT } from "@/modules/request";
+import { useMutation, useQueries } from "@tanstack/react-query";
+import { GET, POST, PUT } from "@/modules/request";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import useUiStore from "@/stores/uiStore";
 import useContractStore from "@/pages/MakeContract/store/contractStore";
@@ -24,6 +24,7 @@ import { Role } from "@/types";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
 import { NotificationType } from "@/types/notification";
 import { defaultAvatar } from "@/modules/default";
+import { ProjectStatus } from "@/types/project";
 
 export default function ProposalItem({
   item,
@@ -54,6 +55,15 @@ export default function ProposalItem({
       message.destroy();
       message.success("Choose freelancer successfully");
     },
+  });
+
+  const [projectDetail] = useQueries({
+    queries: [
+      {
+        queryKey: ["projectDetail", projectId],
+        queryFn: async () => await GET(`/api/Project/${projectId}`),
+      },
+    ],
   });
 
   const items: MenuProps["items"] = [
@@ -137,13 +147,15 @@ export default function ProposalItem({
             ${item?.bidOffer.toLocaleString()} USD
           </div>
           <div>
-            {role == Role.CLIENT && clientId == accountId + "" && (
-              <Dropdown menu={{ items }}>
-                <div className="p-2 rounded-full bg-slate-200 dark:bg-black/20 transition-all">
-                  <HiOutlineDotsHorizontal />
-                </div>
-              </Dropdown>
-            )}
+            {role == Role.CLIENT &&
+              clientId == accountId + "" &&
+              projectDetail.data?.status == ProjectStatus.VERIFIED && (
+                <Dropdown menu={{ items }}>
+                  <div className="p-2 rounded-full bg-slate-200 dark:bg-black/20 transition-all">
+                    <HiOutlineDotsHorizontal />
+                  </div>
+                </Dropdown>
+              )}
           </div>
         </div>
       </div>
