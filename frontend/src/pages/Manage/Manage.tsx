@@ -8,7 +8,7 @@ export default function Manage() {
 
   const items = [
     {
-      name: "Dashboard",
+      name: role == Role.FREELANCER || role == Role.CLIENT ? "" : "Dashboard",
       path: "/manage/dashboard",
     },
     {

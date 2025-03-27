@@ -13,10 +13,12 @@ import {
 import { ProjectDetail, ProjectStatus } from "@/types/project";
 import { PaginatedResult, ResultServerResponse } from "@/types/serverResponse";
 import { Bid } from "@/types/bid";
+import { Role } from "@/types";
+import { Account } from "@/types/account";
 
 export default function Dashboard() {
-  const { accountId } = useAuthStore();
-  const [transactions, projects, bids] = useQueries({
+  const { accountId, role } = useAuthStore();
+  const [transactions, projects, bids, account] = useQueries({
     queries: [
       {
         queryKey: ["transactions"],
@@ -32,6 +34,12 @@ export default function Dashboard() {
         queryKey: ["bids"],
         queryFn: async (): Promise<PaginatedResult<Bid>> =>
           await GET(`/api/Bid/freelancer/${accountId}`),
+        staleTime: 0,
+      },
+      {
+        queryKey: ["account"],
+        queryFn: async (): Promise<any> =>
+          await GET(`/api/Account/${accountId}`),
         staleTime: 0,
       },
     ],
@@ -56,15 +64,25 @@ export default function Dashboard() {
     if (!projects?.data?.value) {
       return 0;
     }
-    return projects?.data?.value?.filter((p) => p.freelancerId == accountId)
-      ?.length;
+    return projects?.data?.value?.filter(
+      (p) => p.freelancerId == accountId || p.clientId == accountId
+    )?.length;
+  };
+
+  const getTotalMilestones = () => {
+    if (!projects?.data?.value) {
+      return 0;
+    }
+    return projects?.data?.value
+      ?.filter((p) => p.freelancerId == accountId || p.clientId == accountId)
+      .reduce((a, b) => a + b.milestones.length, 0);
   };
 
   return (
     <div className="geist min-h-screen py-8 pb-40">
       <div>
         <div className="text-3xl font-bold chivo">Dashboard</div>
-        <div className="grid grid-cols-5 gap-4 mt-4">
+        <div className="grid grid-cols-4 gap-4 mt-4">
           <div className="dark:bg-black/20 border shadow rounded-lg p-4">
             <div className="text-sm font-semibold text-gray-500">
               Total Projects
@@ -75,25 +93,21 @@ export default function Dashboard() {
             <div className="text-sm font-semibold text-gray-500">
               Completed Milestones
             </div>
-            <div className="text-2xl font-bold">340</div>
+            <div className="text-2xl font-bold">{getTotalMilestones()}</div>
           </div>
           <div className="dark:bg-black/20 border shadow rounded-lg p-4">
             <div className="text-sm font-semibold text-gray-500">
-              Pending Approvals
+              Total Proposals
             </div>
-            <div className="text-2xl font-bold">15</div>
+            <div className="text-2xl font-bold">{bids?.data?.totalCount}</div>
           </div>
           <div className="dark:bg-black/20 border shadow rounded-lg p-4">
             <div className="text-sm font-semibold text-gray-500">
-              New Messages
+              Total Reputation
             </div>
-            <div className="text-2xl font-bold">8</div>
-          </div>
-          <div className="dark:bg-black/20 border shadow rounded-lg p-4">
-            <div className="text-sm font-semibold text-gray-500">
-              Upcoming Deadlines
+            <div className="text-2xl font-bold">
+              {account?.data?.value?.reputationPoint}
             </div>
-            <div className="text-2xl font-bold">5</div>
           </div>
         </div>
       </div>
