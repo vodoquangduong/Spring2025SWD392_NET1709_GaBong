@@ -161,9 +161,10 @@ export default function Project() {
                       <FaLocationDot className="text-emerald-500" />
                       {data?.location}
                     </div>
-                    {data?.status == ProjectStatus.PENDING && (
+                    <div></div>
+                    {/* {data?.status == ProjectStatus.PENDING && (
                       <Button onClick={onCancelProject}>Cancel Project</Button>
-                    )}
+                    )} */}
                   </div>
                   {`Posted ${formatTimeAgo(
                     dayjs(data?.postDate, "DD-MM-YYYY").toISOString()

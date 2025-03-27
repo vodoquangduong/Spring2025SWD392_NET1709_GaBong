@@ -47,9 +47,9 @@ export default function PaymentSummary({ project }: { project: any }) {
     <div className="dark:bg-white/5 p-6 w-full mb-6 rounded-md shadow-md">
       <div className="text-2xl font-semibold flex items-center gap-4 justify-between">
         Payment Summary
-        {project?.status == ProjectStatus.ON_GOING && (
+        {/* {project?.status == ProjectStatus.ON_GOING && (
           <Button onClick={onCancelProject}>Cancel Project</Button>
-        )}
+        )} */}
       </div>
       {!project?.estimateBudget ? (
         <div>
