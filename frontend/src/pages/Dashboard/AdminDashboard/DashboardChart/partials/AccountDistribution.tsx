@@ -97,7 +97,7 @@ const AccountDistribution: React.FC<AccountStatsProps> = ({ accountStats }) => {
       </div>
 
       {/* Status Distribution */}
-      <div>
+      {/* <div>
         <h3 className="font-medium text-lg mb-2">Status Distribution</h3>
         <div className="flex flex-col gap-3">
           <div>
@@ -145,7 +145,7 @@ const AccountDistribution: React.FC<AccountStatsProps> = ({ accountStats }) => {
             />
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

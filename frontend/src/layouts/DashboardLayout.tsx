@@ -48,7 +48,7 @@ export default function DashboardLayout() {
       allowedroles: [Role.STAFF],
     },
     {
-      label: "Freelancers",
+      label: "Pending Portfolios",
       key: "/employee/freelancers",
       icon: <FaUsers />,
       className:

@@ -190,7 +190,8 @@ const SystemConfiguration: React.FC = () => {
                 >
                   {!isEditMode ? (
                     renderReadOnlyValue(
-                      form.getFieldValue(["paymentPolicy", "projectFee"]) || 0,
+                      form.getFieldValue(["paymentPolicy", "projectFee"]) *
+                        100 || 0,
                       "% per project"
                     )
                   ) : (

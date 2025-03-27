@@ -16,18 +16,21 @@ namespace Services.Implements
         private readonly IMilestoneRepository _milestoneRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly ITransactionRepository _transactionRepository;
+
         //private readonly IConfiguration _configuration;
         private readonly IAdminConfigService _adminConfigService;
         private readonly IMapper _mapper;
+
         public MilestoneService(
-            //IUnitOfWork unitOfWork, 
+            //IUnitOfWork unitOfWork,
             IProjectRepository projectRepository,
             IMilestoneRepository miletoneRepository,
             IAccountRepository accountRepository,
             ITransactionRepository transactionRepository,
             IAdminConfigService adminConfigService,
             //IConfiguration configuration,
-            IMapper mapper)
+            IMapper mapper
+        )
         {
             //_unitOfWork = unitOfWork;
             _projectRepository = projectRepository;
@@ -38,7 +41,10 @@ namespace Services.Implements
             _adminConfigService = adminConfigService;
             _mapper = mapper;
         }
-        public async Task<Result<MilestoneDTO>> CreateMilestoneAsync(CreateMilestoneDTO createMilstoneDTO)
+
+        public async Task<Result<MilestoneDTO>> CreateMilestoneAsync(
+            CreateMilestoneDTO createMilstoneDTO
+        )
         {
             try
             {
@@ -46,27 +52,48 @@ namespace Services.Implements
                 //{
                 //    Predicate = p => p.ProjectId == createMilstoneDTO.ProjectId
                 //});
-                var project = await _projectRepository.GetSingleByIdAsync(createMilstoneDTO.ProjectId);
+                var project = await _projectRepository.GetSingleByIdAsync(
+                    createMilstoneDTO.ProjectId
+                );
 
                 if (project == null)
                 {
-                    return Result.Failure<MilestoneDTO>(new Error("Project not found", $"Project with project id {createMilstoneDTO.ProjectId}"));
+                    return Result.Failure<MilestoneDTO>(
+                        new Error(
+                            "Project not found",
+                            $"Project with project id {createMilstoneDTO.ProjectId}"
+                        )
+                    );
                 }
                 if (string.IsNullOrWhiteSpace(createMilstoneDTO.MilestoneName))
                 {
-                    return Result.Failure<MilestoneDTO>(new Error("Create milestone failed", "Milestone name can't be empty"));
+                    return Result.Failure<MilestoneDTO>(
+                        new Error("Create milestone failed", "Milestone name can't be empty")
+                    );
                 }
                 if (createMilstoneDTO.Deadline < DateTime.UtcNow)
                 {
-                    return Result.Failure<MilestoneDTO>(new Error("Create milestone failed", "Deadline must be greater than current date"));
+                    return Result.Failure<MilestoneDTO>(
+                        new Error(
+                            "Create milestone failed",
+                            "Deadline must be greater than current date"
+                        )
+                    );
                 }
                 if (createMilstoneDTO.Amount <= 0)
                 {
-                    return Result.Failure<MilestoneDTO>(new Error("Create milestone failed", "Amount must be greater than 0"));
+                    return Result.Failure<MilestoneDTO>(
+                        new Error("Create milestone failed", "Amount must be greater than 0")
+                    );
                 }
                 if (createMilstoneDTO.Amount > project.EstimateBudget)
                 {
-                    return Result.Failure<MilestoneDTO>(new Error("Create milestone failed", "Amount must be less than or equal to project budget"));
+                    return Result.Failure<MilestoneDTO>(
+                        new Error(
+                            "Create milestone failed",
+                            "Amount must be less than or equal to project budget"
+                        )
+                    );
                 }
                 var milestone = _mapper.Map<Milestone>(createMilstoneDTO);
                 milestone.Status = MilestoneStatus.NotStarted;
@@ -79,7 +106,9 @@ namespace Services.Implements
             }
             catch (Exception e)
             {
-                return Result.Failure<MilestoneDTO>(new Error("Create milestone failed", $"{e.Message}"));
+                return Result.Failure<MilestoneDTO>(
+                    new Error("Create milestone failed", $"{e.Message}")
+                );
             }
         }
 
@@ -88,7 +117,9 @@ namespace Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<Result<MilestoneDTO>> FinishMileStone(FinishMilestoneDTO finishMilestoneDTO)
+        public async Task<Result<MilestoneDTO>> FinishMileStone(
+            FinishMilestoneDTO finishMilestoneDTO
+        )
         {
             try
             {
@@ -99,11 +130,18 @@ namespace Services.Implements
                 //.WithPredicate(a => a.MilestoneId == finishMilestoneDTO.milestoneId) // Filter by ID
                 //.Build();
                 //var milestone = await _unitOfWork.GetRepo<Milestone>().GetSingleAsync(queryOptions);
-                var milestone = await _milestoneRepository.GetSingleByIdAsync(finishMilestoneDTO.milestoneId);
+                var milestone = await _milestoneRepository.GetSingleByIdAsync(
+                    finishMilestoneDTO.milestoneId
+                );
 
                 if (milestone == null)
                 {
-                    return Result.Failure<MilestoneDTO>(new Error("Milestone not found", $"Milestone with id {finishMilestoneDTO.milestoneId}"));
+                    return Result.Failure<MilestoneDTO>(
+                        new Error(
+                            "Milestone not found",
+                            $"Milestone with id {finishMilestoneDTO.milestoneId}"
+                        )
+                    );
                 }
 
                 switch (finishMilestoneDTO.milestoneStatus)
@@ -122,7 +160,9 @@ namespace Services.Implements
                         //    .WithPredicate(p => p.AccountId == milestone.Project.ClientId)
                         //    .Build();
                         //var client = await _unitOfWork.GetRepo<Account>().GetSingleAsync(clientQueryOptions);
-                        var client = await _accountRepository.GetSingleByAccountIdAsync(milestone.Project.ClientId);
+                        var client = await _accountRepository.GetSingleByAccountIdAsync(
+                            milestone.Project.ClientId
+                        );
 
                         //<===Freelancer Query===>
                         //var freelancerQueryOptions = new QueryBuilder<Account>()
@@ -130,7 +170,9 @@ namespace Services.Implements
                         //    .WithPredicate(a => a.AccountId == milestone.Project.FreelancerId)
                         //    .Build();
                         //var freelancer = await _unitOfWork.GetRepo<Account>().GetSingleAsync(freelancerQueryOptions);
-                        var freelancer = await _accountRepository.GetSingleByAccountIdAsync(milestone.Project.FreelancerId);
+                        var freelancer = await _accountRepository.GetSingleByAccountIdAsync(
+                            milestone.Project.FreelancerId
+                        );
 
                         //<==Project Query==>
                         //var projectQueryOptions = new QueryBuilder<Project>()
@@ -139,7 +181,9 @@ namespace Services.Implements
                         //    .WithPredicate(p => p.ProjectId == milestone.Project.ProjectId)
                         //    .Build();
                         //var project = await _unitOfWork.GetRepo<Project>().GetSingleAsync(projectQueryOptions);
-                        var project = await _projectRepository.GetSingleByIdAsync(milestone.Project.ProjectId);
+                        var project = await _projectRepository.GetSingleByIdAsync(
+                            milestone.Project.ProjectId
+                        );
 
                         //<==Create transaction==>
                         var clientTransaction = new Transaction()
@@ -148,7 +192,19 @@ namespace Services.Implements
                             CreatedAt = DateTime.UtcNow,
                             Amount = milestone.Project.EstimateBudget * milestone.PayAmount / 100,
                             Status = TransactionStatus.Pending,
-                            Detail = "Payment for Milestone " + milestone.MilestoneId + ": " + milestone.MilestoneName + "of project" + milestone.Project.ProjectId + ": " + milestone.Project.ProjectName + "for frelancer " + freelancer.AccountId + ": " + freelancer.Name,
+                            Detail =
+                                "Payment for Milestone "
+                                + milestone.MilestoneId
+                                + ": "
+                                + milestone.MilestoneName
+                                + " of project"
+                                + milestone.Project.ProjectId
+                                + ": "
+                                + milestone.Project.ProjectName
+                                + " for freelancer "
+                                + freelancer.AccountId
+                                + ": "
+                                + freelancer.Name,
                             Type = TransactionType.Payment,
                         };
                         var freelancerTransaction = new Transaction()
@@ -157,23 +213,36 @@ namespace Services.Implements
                             CreatedAt = DateTime.UtcNow,
                             Amount = milestone.Project.EstimateBudget * milestone.PayAmount / 100,
                             Status = TransactionStatus.Pending,
-                            Detail = "Earning from Milestone " + milestone.MilestoneId + ": " + milestone.MilestoneName + "of project" + milestone.Project.ProjectId + ": " + milestone.Project.ProjectName,
+                            Detail =
+                                "Earning from Milestone "
+                                + milestone.MilestoneId
+                                + ": "
+                                + milestone.MilestoneName
+                                + " of project"
+                                + milestone.Project.ProjectId
+                                + ": "
+                                + milestone.Project.ProjectName,
                             Type = TransactionType.Earnings,
                         };
                         //await _unitOfWork.GetRepo<Transaction>().CreateAllAsync(new List<Transaction> { freelancerTransaction, clientTransaction });
                         //await _unitOfWork.SaveChangesAsync();
                         await _transactionRepository.CreateAllTransationAsync(
-                            new List<Transaction>
-                                { freelancerTransaction, clientTransaction }
-                            );
+                            new List<Transaction> { freelancerTransaction, clientTransaction }
+                        );
 
-                        //<==Change credit==> 
-                        client.LockCredit -= milestone.Project.EstimateBudget * milestone.PayAmount / 100;
-                        client.TotalCredit -= milestone.Project.EstimateBudget * milestone.PayAmount / 100;
+                        //<==Change credit==>
+                        client.LockCredit -=
+                            milestone.Project.EstimateBudget * milestone.PayAmount / 100;
+                        client.TotalCredit -=
+                            milestone.Project.EstimateBudget * milestone.PayAmount / 100;
 
-                        freelancer.TotalCredit += milestone.Project.EstimateBudget * milestone.PayAmount / 100;
+                        freelancer.TotalCredit +=
+                            milestone.Project.EstimateBudget * milestone.PayAmount / 100;
                         //<===TODO: update reputation point==>
-                        var checkDealine = CheckDeadlineStatus(finishMilestoneDTO.UpdateDate, milestone.DeadlineDate);
+                        var checkDealine = CheckDeadlineStatus(
+                            finishMilestoneDTO.UpdateDate,
+                            milestone.DeadlineDate
+                        );
                         int reputationPoint;
                         switch (checkDealine)
                         {
@@ -182,7 +251,9 @@ namespace Services.Implements
                                 //{
                                 //    reputationPoint = 150;
                                 //}
-                                reputationPoint = _adminConfigService.GetConfig().ReputationPolicy.BeforeDeadline;
+                                reputationPoint = _adminConfigService
+                                    .GetConfig()
+                                    .ReputationPolicy.BeforeDeadline;
                                 freelancer.ReputationPoint += reputationPoint;
                                 break;
                             case 0:
@@ -190,7 +261,9 @@ namespace Services.Implements
                                 //{
                                 //    reputationPoint = 100;
                                 //}
-                                reputationPoint = _adminConfigService.GetConfig().ReputationPolicy.RightDeadline;
+                                reputationPoint = _adminConfigService
+                                    .GetConfig()
+                                    .ReputationPolicy.RightDeadline;
                                 freelancer.ReputationPoint += reputationPoint;
                                 break;
                             case 1:
@@ -198,7 +271,9 @@ namespace Services.Implements
                                 //{
                                 //    reputationPoint = 50;
                                 //}
-                                reputationPoint = _adminConfigService.GetConfig().ReputationPolicy.EarlylateDeadline;
+                                reputationPoint = _adminConfigService
+                                    .GetConfig()
+                                    .ReputationPolicy.EarlylateDeadline;
                                 freelancer.ReputationPoint -= reputationPoint;
                                 break;
                             case 2:
@@ -206,7 +281,9 @@ namespace Services.Implements
                                 //{
                                 //    reputationPoint = 150;
                                 //}
-                                reputationPoint = _adminConfigService.GetConfig().ReputationPolicy.LateDeadline;
+                                reputationPoint = _adminConfigService
+                                    .GetConfig()
+                                    .ReputationPolicy.LateDeadline;
                                 freelancer.ReputationPoint -= reputationPoint;
                                 break;
                             default:
@@ -246,7 +323,9 @@ namespace Services.Implements
                             //{
                             //    reputationPoint = 200;
                             //}
-                            reputationPoint = _adminConfigService.GetConfig().ReputationPolicy.CompleteProject;
+                            reputationPoint = _adminConfigService
+                                .GetConfig()
+                                .ReputationPolicy.CompleteProject;
                             client.ReputationPoint += reputationPoint;
 
                             //await _unitOfWork.GetRepo<Account>().UpdateAsync(client);
@@ -254,17 +333,20 @@ namespace Services.Implements
                             //await _unitOfWork.SaveChangesAsync();
                             await _accountRepository.UpdateAsync(client);
                             await _projectRepository.UpdateAsync(project);
-
                         }
                         break;
                     default:
-                        return Result.Failure<MilestoneDTO>(new Error("Status not found", $"Only Cancalled and Complete input"));
+                        return Result.Failure<MilestoneDTO>(
+                            new Error("Status not found", $"Only Cancalled and Complete input")
+                        );
                 }
                 return _mapper.Map<MilestoneDTO>(milestone);
             }
             catch (Exception e)
             {
-                return Result.Failure<MilestoneDTO>(new Error("Finish milestone failed", $"{e.Message}"));
+                return Result.Failure<MilestoneDTO>(
+                    new Error("Finish milestone failed", $"{e.Message}")
+                );
             }
         }
 
@@ -279,7 +361,9 @@ namespace Services.Implements
             }
             catch (Exception e)
             {
-                return Result.Failure<IEnumerable<MilestoneDTO>>(new Error("Get all milestone failed", $"{e.Message}"));
+                return Result.Failure<IEnumerable<MilestoneDTO>>(
+                    new Error("Get all milestone failed", $"{e.Message}")
+                );
             }
         }
 
@@ -296,17 +380,24 @@ namespace Services.Implements
 
                 if (milestone == null)
                 {
-                    return Result.Failure<MilestoneDTO>(new Error("Milestone not found", $"Milestone with project id {id}"));
+                    return Result.Failure<MilestoneDTO>(
+                        new Error("Milestone not found", $"Milestone with project id {id}")
+                    );
                 }
                 return Result.Success(_mapper.Map<MilestoneDTO>(milestone));
             }
             catch (Exception e)
             {
-                return Result.Failure<MilestoneDTO>(new Error("Get milestone by project id failed", $"{e.Message}"));
+                return Result.Failure<MilestoneDTO>(
+                    new Error("Get milestone by project id failed", $"{e.Message}")
+                );
             }
         }
 
-        public async Task<Result<MilestoneDTO>> UpdateMilestoneAsync(UpdateMilestoneDTO updateMilestoneDTO, long milestoneId)
+        public async Task<Result<MilestoneDTO>> UpdateMilestoneAsync(
+            UpdateMilestoneDTO updateMilestoneDTO,
+            long milestoneId
+        )
         {
             try
             {
@@ -319,7 +410,9 @@ namespace Services.Implements
 
                 if (milestone == null)
                 {
-                    return Result.Failure<MilestoneDTO>(new Error("Milestone not found", $"Milestone with id {milestoneId}"));
+                    return Result.Failure<MilestoneDTO>(
+                        new Error("Milestone not found", $"Milestone with id {milestoneId}")
+                    );
                 }
                 _mapper.Map(updateMilestoneDTO, milestone);
 
@@ -331,7 +424,9 @@ namespace Services.Implements
             }
             catch (Exception e)
             {
-                return Result.Failure<MilestoneDTO>(new Error("Update milestone failed", $"{e.Message}"));
+                return Result.Failure<MilestoneDTO>(
+                    new Error("Update milestone failed", $"{e.Message}")
+                );
             }
         }
 

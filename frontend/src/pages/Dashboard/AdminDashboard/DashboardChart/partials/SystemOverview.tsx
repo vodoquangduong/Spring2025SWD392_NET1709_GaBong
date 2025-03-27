@@ -33,7 +33,7 @@ const SystemOverview = ({ systemStats }: SystemOverviewProps) => {
             <Col span={8}>
               <Statistic
                 title="Project Fee"
-                value={systemStats.paymentPolicy.projectFee}
+                value={systemStats.paymentPolicy.projectFee * 100}
                 suffix="% per project"
                 valueStyle={{ color: "#1890ff" }}
               />
@@ -41,7 +41,7 @@ const SystemOverview = ({ systemStats }: SystemOverviewProps) => {
             <Col span={8}>
               <Statistic
                 title="Bid Fee"
-                value={systemStats.paymentPolicy.bidFee}
+                value={systemStats.paymentPolicy.bidFee * 100}
                 prefix="$"
                 valueStyle={{ color: "#52c41a" }}
               />

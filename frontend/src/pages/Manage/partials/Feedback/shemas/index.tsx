@@ -18,9 +18,9 @@ export const proposalColumns = (): ColumnsType<FeedbackType> => {
       title: "Comment",
       dataIndex: "comment",
       key: "comment",
-      render: (text: string, record) => (
-        <Link to={`/projects/${record.projectId}/proposals`}>{text}</Link>
-      ),
+      render: (text: string, record) =>
+        text,
+        // <Link to={`/projects/${record.projectId}/proposals`}>{text}</Link>
     },
     {
       title: "Rating",
