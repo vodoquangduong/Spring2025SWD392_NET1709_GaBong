@@ -31,6 +31,7 @@ export default function EarningChart({ data }: { data: ChartLineData }) {
       shared: false,
       x: {
         formatter: function (val) {
+          console.log("val", val);
           return dayjs(val).format("DD-MM-YYYY");
         },
       },
