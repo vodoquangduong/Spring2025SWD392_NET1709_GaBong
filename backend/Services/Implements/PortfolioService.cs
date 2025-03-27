@@ -275,7 +275,10 @@ namespace Services.Implements
                 //    .Build();
                 //var portfolio = await _unitOfWork.GetRepo<Portfolio>().GetSingleAsync(queryOptions);
                 var portfolio = await _porfolioRepository.GetSingleByFreelancerIdAsync(id, PortfolioStatus.Verified);
-
+                if (portfolio == null)
+                {
+                    return Result.Failure<PublicPortfolioDTO>(new Error("Portfolio not found", $"Portfolio with Freelancer Id {id} not found"));
+                }
                 //var SkillQuery = new QueryBuilder<SkillPerform>()
                 //  .WithTracking(false)
                 //  .WithInclude(s => s.SkillCategory)
@@ -284,10 +287,6 @@ namespace Services.Implements
                 //var skillPerform = await _unitOfWork.GetRepo<SkillPerform>().GetAllAsync(SkillQuery);
                 var skillPerform = await _skillPerformRepository.GetAllByAccountIdAsync(portfolio!.FreelancerId);
 
-                if (portfolio == null)
-                {
-                    return Result.Failure<PublicPortfolioDTO>(new Error("Portfolio not found", $"Portfolio with Freelancer Id {id} not found"));
-                }
                 var portfolioDto = _mapper.Map<PublicPortfolioDTO>(portfolio);
                 portfolioDto.SkillPerform = skillPerform.Select(s => _mapper.Map<SkillPerformDTO>(s)).ToList();
                 return Result.Success(portfolioDto);
