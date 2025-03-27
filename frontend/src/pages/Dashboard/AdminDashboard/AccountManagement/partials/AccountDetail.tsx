@@ -16,7 +16,6 @@ import {
   Table,
   Tabs,
   Tag,
-  Timeline,
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
@@ -26,10 +25,8 @@ import {
   FaCalendarAlt,
   FaCheck,
   FaDollarSign,
-  FaEdit,
   FaEnvelope,
   FaFlag,
-  FaKey,
   FaLock,
   FaMapMarkerAlt,
   FaPhone,
@@ -41,38 +38,6 @@ import { Account, Activity, Transaction } from "../models/types";
 import { accountMngUsecase } from "../usecases/accountMngUsecase";
 
 const { Title, Text } = Typography;
-
-// Mock transaction history data - these could be from another API endpoint in the future
-const mockTransactions: Transaction[] = [
-  {
-    id: 1,
-    type: "Deposit",
-    amount: 1000,
-    date: "2023-05-10",
-    status: "Completed",
-  },
-  {
-    id: 2,
-    type: "Withdrawal",
-    amount: -500,
-    date: "2023-05-15",
-    status: "Completed",
-  },
-  {
-    id: 3,
-    type: "Project Payment",
-    amount: -250,
-    date: "2023-05-20",
-    status: "Completed",
-  },
-  {
-    id: 4,
-    type: "Earnings",
-    amount: 750,
-    date: "2023-05-25",
-    status: "Completed",
-  },
-];
 
 // Mock activity data - these could be from another API endpoint in the future
 const mockActivities: Activity[] = [
@@ -111,6 +76,8 @@ const AccountDetail: React.FC = () => {
   const [resetPasswordForm] = Form.useForm();
   const [isEditing, setIsEditing] = useState(false);
   const [editForm] = Form.useForm();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
 
   useEffect(() => {
     const fetchAccountDetails = async () => {
@@ -141,6 +108,27 @@ const AccountDetail: React.FC = () => {
 
     fetchAccountDetails();
   }, [accountId, editForm]);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      if (!accountId) return;
+
+      setLoadingTransactions(true);
+      try {
+        const data = await accountMngUsecase.getAccountTransactions(accountId);
+        setTransactions(data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+        message.error("Failed to load transactions");
+      } finally {
+        setLoadingTransactions(false);
+      }
+    };
+
+    if (activeTab === "2") {
+      fetchTransactions();
+    }
+  }, [accountId, activeTab]);
 
   const handleResetPassword = async (values: any) => {
     if (!account) return;
@@ -208,27 +196,39 @@ const AccountDetail: React.FC = () => {
     }
   };
 
-  // Function to handle the demonstration of account status changes (without real API call)
+  // Updated function to handle account status changes with real API call
   const handleStatusAction = (newStatus: number) => {
     if (!account) return;
 
+    // Status change is only between Active (0) and Suspended (1) as per requirements
     const action = newStatus === 0 ? "activate" : "suspend";
+    const statusText = newStatus === 0 ? "active" : "suspended";
 
     Modal.confirm({
       title: `Are you sure you want to ${action} this account?`,
-      content: `This will ${action} the account for ${account.name}.`,
-      onOk: () => {
-        // Simulate a success response
-        message.info(
-          `Status change API not implemented yet. Would ${action} account ID ${account.accountId}`
-        );
+      content: `This will change the account status for ${account.name} to ${statusText}.`,
+      onOk: async () => {
+        try {
+          const success = await accountMngUsecase.updateAccountStatus(
+            account.accountId,
+            newStatus
+          );
 
-        // For UI demonstration purposes, we update the local state
-        // In a real implementation, this would only happen after API call success
-        setAccount({
-          ...account,
-          status: newStatus,
-        });
+          if (success) {
+            message.success(`Account successfully ${action}ed`);
+
+            // Update local state after API call success
+            setAccount({
+              ...account,
+              status: newStatus,
+            });
+          } else {
+            message.error(`Failed to ${action} account`);
+          }
+        } catch (error) {
+          console.error(`Error ${action}ing account:`, error);
+          message.error(`Failed to ${action} account: ${error}`);
+        }
       },
     });
   };
@@ -274,20 +274,27 @@ const AccountDetail: React.FC = () => {
   const transactionColumns = [
     {
       title: "ID",
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "transactionId",
+      key: "transactionId",
     },
     {
       title: "Type",
       dataIndex: "type",
       key: "type",
-      render: (text: string) => (
-        <Tag
-          color={text === "Deposit" || text === "Earnings" ? "green" : "red"}
-        >
-          {text}
-        </Tag>
-      ),
+      render: (type: number) => {
+        const typeMap = {
+          0: { text: "Deposit", color: "green" },
+          1: { text: "Withdrawal", color: "red" },
+          2: { text: "Project Payment", color: "blue" },
+          3: { text: "Earnings", color: "green" },
+          4: { text: "Bid", color: "orange" },
+        };
+        const typeInfo = typeMap[type as keyof typeof typeMap] || {
+          text: "Unknown",
+          color: "default",
+        };
+        return <Tag color={typeInfo.color}>{typeInfo.text}</Tag>;
+      },
     },
     {
       title: "Amount",
@@ -301,16 +308,23 @@ const AccountDetail: React.FC = () => {
     },
     {
       title: "Date",
-      dataIndex: "date",
-      key: "date",
+      dataIndex: "createdAt",
+      key: "createdAt",
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => (
-        <Tag color={status === "Completed" ? "green" : "orange"}>{status}</Tag>
+      render: (status: number) => (
+        <Tag color={status === 1 ? "green" : "orange"}>
+          {status === 1 ? "Completed" : "Pending"}
+        </Tag>
       ),
+    },
+    {
+      title: "Detail",
+      dataIndex: "detail",
+      key: "detail",
     },
   ];
 
@@ -504,27 +518,12 @@ const AccountDetail: React.FC = () => {
                 <Divider />
 
                 <Space direction="vertical" style={{ width: "100%" }}>
-                  <Button
-                    icon={<FaEdit />}
-                    type="primary"
-                    block
-                    onClick={handleEditProfile}
-                  >
-                    Edit Profile
-                  </Button>
-                  <Button
-                    icon={<FaKey />}
-                    block
-                    onClick={() => setIsResetPasswordModalVisible(true)}
-                  >
-                    Reset Password
-                  </Button>
                   {account.status === 0 ? (
                     <Button
                       icon={<FaBan />}
                       danger
                       block
-                      onClick={() => handleStatusAction(2)}
+                      onClick={() => handleStatusAction(1)}
                     >
                       Suspend Account
                     </Button>
@@ -614,32 +613,12 @@ const AccountDetail: React.FC = () => {
               </Tabs.TabPane>
               <Tabs.TabPane tab="Transactions" key="2">
                 <Table
-                  dataSource={mockTransactions}
+                  dataSource={transactions}
                   columns={transactionColumns}
-                  rowKey="id"
+                  rowKey="transactionId"
                   pagination={{ pageSize: 5 }}
+                  loading={loadingTransactions}
                 />
-              </Tabs.TabPane>
-              <Tabs.TabPane tab="Activity Log" key="3">
-                <Table
-                  dataSource={mockActivities}
-                  columns={activityColumns}
-                  rowKey="id"
-                  pagination={{ pageSize: 5 }}
-                />
-                <Divider>Activity Timeline</Divider>
-                <Timeline mode="left">
-                  {mockActivities.map((activity) => (
-                    <Timeline.Item key={activity.id} label={activity.timestamp}>
-                      <p>
-                        <strong>{activity.action}</strong>
-                      </p>
-                      <p>
-                        IP: {activity.ip} | Device: {activity.device}
-                      </p>
-                    </Timeline.Item>
-                  ))}
-                </Timeline>
               </Tabs.TabPane>
             </Tabs>
           </Card>

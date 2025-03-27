@@ -11,7 +11,7 @@ export default function Feedback() {
   const [feedbacks] = useQueries({
     queries: [
       {
-        queryKey: ["bids"],
+        queryKey: ["feedbacks"],
         queryFn: async (): Promise<FeedbackType[]> =>
           await GET(`/api/Feedback/freelancer/${accountId}`),
       },

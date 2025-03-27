@@ -14,7 +14,7 @@ namespace API.Controllers
         {
             _portfolioService = portfolioService;
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> CreatePortfolio([FromBody] CreatePortfolioDTO portfolioDto)
         {
@@ -124,7 +124,7 @@ namespace API.Controllers
             }
             return Ok(response);
         }
-        
+
         [HttpGet("verified")]
         public async Task<IActionResult> GetPublicPortfolioVerifiedList([FromQuery] Query query)
         {

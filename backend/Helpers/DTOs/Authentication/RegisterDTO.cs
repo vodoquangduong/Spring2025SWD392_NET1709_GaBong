@@ -18,6 +18,6 @@ namespace Helpers.DTOs.Authentication
         public AccountStatus Status { get; set; } = AccountStatus.Active;
         [Required(ErrorMessage = "Role is required")]
         [EnumDataType(typeof(AccountRole))]
-        public AccountRole Role { get; set; } = AccountRole.Client;
+        public AccountRole Role { get; set; }
     }
 }

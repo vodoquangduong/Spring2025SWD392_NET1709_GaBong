@@ -43,12 +43,13 @@ namespace Repositories.Implements
             return feedback;
         }
 
-        public async Task<IEnumerable<Feedback>> GetAllByAccountIdAsync(long accountId)
+        public async Task<IEnumerable<Feedback>> GetAllByFreelancerIdAsync(long accountId)
         {
             var queryOptions = new QueryBuilder<Feedback>()
             .WithInclude(p => p.Project)
-            .WithPredicate(p => p.Project.FreelancerId == accountId)
-            .WithOrderBy(o => o.OrderByDescending(f => f.CreatedAt))
+            .WithInclude(p => p.Project.Client)
+            .WithPredicate(f => f.Project.FreelancerId == accountId)
+            .WithOrderBy(f => f.OrderByDescending(f => f.CreatedAt))
             .Build();
             var feedbacks = await _unitOfWork.GetRepo<Feedback>().GetAllAsync(queryOptions);
 

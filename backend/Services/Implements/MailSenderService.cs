@@ -1,8 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
-using Services.Interfaces;
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
-
+using Microsoft.Extensions.Configuration;
+using Services.Interfaces;
 
 namespace Services.Implements
 {
@@ -345,7 +344,7 @@ namespace Services.Implements
         //                   <table cellpadding=""0"" cellspacing=""0"" width=""100%"" style=""mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px"">
         //                     <tr>
         //                      <td align=""right"" style=""padding:0;Margin:0;padding-top:10px""><!--[if mso]><a href=""https://GigsHub.id.vn/account/order-history"" target=""_blank"" hidden>
-        //	<v:roundrect xmlns:v=""urn:schemas-microsoft-com:vml"" xmlns:w=""urn:schemas-microsoft-com:office:word"" esdevVmlButton href=""https://GigsHub.id.vn/account/order-history"" 
+        //	<v:roundrect xmlns:v=""urn:schemas-microsoft-com:vml"" xmlns:w=""urn:schemas-microsoft-com:office:word"" esdevVmlButton href=""https://GigsHub.id.vn/account/order-history""
         //                style=""height:39px; v-text-anchor:middle; width:168px"" arcsize=""38%"" stroke=""f""  fillcolor=""#a797f2"">
         //		<w:anchorlock></w:anchorlock>
         //		<center style='color:#ffffff; font-family:Manrope, sans-serif; font-size:14px; font-weight:700; line-height:14px;  mso-text-raise:1px'>View your order</center>
@@ -399,7 +398,7 @@ namespace Services.Implements
         {
             try
             {
-                string url = $"{_config["ClientUrl"]}/authentication/reset-password?token={token}";
+                string url = $"{_config["ClientUrl"]}/reset-password?token={token}";
                 var message = new MailMessage()
                 {
                     From = new MailAddress(_config["Mail:Address"], _config["Mail:DisplayName"]),

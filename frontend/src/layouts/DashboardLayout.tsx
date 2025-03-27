@@ -14,6 +14,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import DashboardHeader from "../components/DashboardHeader";
 import Logo from "../components/Logo";
 import { Role } from "../types";
+import { RiMoneyCnyCircleLine } from "react-icons/ri";
 
 export default function DashboardLayout() {
   const location = useLocation();
@@ -24,11 +25,11 @@ export default function DashboardLayout() {
   const items = [
     {
       label: "Dashboard",
-      key: "/employee",
+      key: "/admin",
       icon: <FaBox />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
-      allowedroles: [Role.STAFF],
+      allowedroles: [Role.ADMIN],
     },
     {
       label: "Project",
@@ -47,12 +48,20 @@ export default function DashboardLayout() {
       allowedroles: [Role.STAFF],
     },
     {
-      label: "Freelancers",
+      label: "Pending Portfolios",
       key: "/employee/freelancers",
       icon: <FaUsers />,
       className:
         "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
       allowedroles: [Role.STAFF],
+    },
+    {
+      label: "Transactions",
+      key: "/employee/transactions",
+      icon: <RiMoneyCnyCircleLine />,
+      className:
+        "w-full flex font-semibold !text-zinc-200 hover:!bg-emerald-600",
+      allowedroles: [Role.STAFF, Role.ADMIN],
     },
     {
       label: "Withdraws",
@@ -113,7 +122,7 @@ export default function DashboardLayout() {
           <Layout.Header className="p-4 bg-white flex justify-between items-center dark:bg-zinc-800 border-b border-zinc-300 dark:border-zinc-600">
             <DashboardHeader />
           </Layout.Header>
-          <div className="m-16 !mb-0">
+          <div className="mx-14 my-10 !mb-0">
             {/* <div className="min-h-screen"> */}
             <Outlet />
             {/* </div> */}

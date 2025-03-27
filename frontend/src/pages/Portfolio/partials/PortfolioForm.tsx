@@ -14,9 +14,11 @@ import {
   Empty,
   Form,
   Input,
+  Modal,
   Row,
   Space,
   Typography,
+  message,
 } from "antd";
 import { FormInstance } from "antd/lib/form";
 import { useState } from "react";
@@ -57,11 +59,18 @@ interface PortfolioFormProps {
   accountId?: number;
 }
 
+// Update the date validation functions to work with month-year format
 const isPastDate = (date: string | null | undefined): boolean => {
   if (!date) return true;
-  const selectedDate = new Date(date);
+
+  // Format is YYYY-MM for month input
+  const [year, month] = date.split("-").map(Number);
+  const selectedDate = new Date(year, month - 1); // month is 0-indexed in JS Date
+
   const today = new Date();
+  today.setDate(1); // Set to first day of month
   today.setHours(0, 0, 0, 0);
+
   return selectedDate <= today;
 };
 
@@ -70,9 +79,22 @@ const isStartBeforeEnd = (
   endDate: string | null | undefined
 ): boolean => {
   if (!startDate || !endDate) return true;
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+
+  const [startYear, startMonth] = startDate.split("-").map(Number);
+  const [endYear, endMonth] = endDate.split("-").map(Number);
+
+  const start = new Date(startYear, startMonth - 1);
+  const end = new Date(endYear, endMonth - 1);
+
   return start <= end;
+};
+
+// Helper to format month-year date for display
+const formatMonthYear = (dateString: string): string => {
+  if (!dateString) return "";
+  const [year, month] = dateString.split("-");
+  const date = new Date(Number(year), Number(month) - 1);
+  return date.toLocaleDateString(undefined, { year: "numeric", month: "long" });
 };
 
 const PortfolioForm: React.FC<PortfolioFormProps> = ({
@@ -81,13 +103,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
   submitting,
   submittingForVerification,
   portfolio,
-  handleSave,
-  handleEdit,
+  handleSave: originalHandleSave,
+  handleEdit: originalHandleEdit,
   handleCancel,
-  handleSubmitForReview,
+  handleSubmitForReview: originalHandleSubmitForReview,
   handleSubmit,
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [isSubmittingForVerification, setIsSubmittingForVerification] =
+    useState<boolean>(false);
 
   console.log("Portfolio in PortfolioForm:", portfolio);
   console.log("Portfolio status:", portfolio?.status);
@@ -107,8 +131,138 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
   const canEdit = () => {
     return (
       currentStatus === PortfolioStatus.Modifying ||
+      currentStatus === PortfolioStatus.Verified ||
       currentStatus === PortfolioStatus.Rejected
     );
+  };
+
+  // Thêm hàm validate form trước khi submit
+  const validateForm = async () => {
+    try {
+      const values = await form.validateFields();
+
+      // Validate title
+      if (!values.title || values.title.length > 50) {
+        message.error("Title must be between 1 and 50 characters");
+        return false;
+      }
+
+      // Validate about/description
+      if (!values.description || values.description.length > 500) {
+        message.error("About must be between 1 and 500 characters");
+        return false;
+      }
+
+      // Validate skills - chỉ kiểm tra skillPerforms
+      if (
+        !values.skillPerforms ||
+        !Array.isArray(values.skillPerforms) ||
+        values.skillPerforms.length === 0
+      ) {
+        message.error("Please add at least one skill");
+        return false;
+      }
+
+      // Kiểm tra từng skill có đủ skillId và level
+      for (const skillPerform of values.skillPerforms) {
+        if (!skillPerform.skillId || skillPerform.level === undefined) {
+          message.error("Please select both skill and skill level");
+          return false;
+        }
+      }
+
+      // Validate experiences
+      if (values.experiences && values.experiences.length > 0) {
+        for (const exp of values.experiences) {
+          if (
+            !exp.position ||
+            !exp.company ||
+            !exp.startDate ||
+            !exp.description
+          ) {
+            message.error("Please fill in all required fields for experiences");
+            return false;
+          }
+        }
+      }
+
+      // Validate certificates
+      if (values.certificates && values.certificates.length > 0) {
+        for (const cert of values.certificates) {
+          if (!cert.title || !cert.issueDate) {
+            message.error(
+              "Please fill in all required fields for certificates"
+            );
+            return false;
+          }
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Form validation error:", error);
+      if (error instanceof Error) {
+        message.error(error.message);
+      } else {
+        message.error(
+          "Form validation failed. Please check all required fields."
+        );
+      }
+      return false;
+    }
+  };
+
+  // Cập nhật handleSave
+  const handleSave = async () => {
+    if (!(await validateForm())) return;
+
+    try {
+      setLoading(true);
+      await originalHandleSave();
+      message.success("Portfolio saved successfully");
+    } catch (error) {
+      message.error("Failed to save portfolio");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cập nhật handleSubmitForReview
+  const handleSubmitForReview = async () => {
+    if (!(await validateForm())) return;
+
+    try {
+      setIsSubmittingForVerification(true);
+      await originalHandleSubmitForReview();
+      message.success("Portfolio submitted for review");
+    } catch (error) {
+      message.error("Failed to submit portfolio for review");
+    } finally {
+      setIsSubmittingForVerification(false);
+    }
+  };
+
+  // Cập nhật handleEdit
+  const handleEdit = () => {
+    if (currentStatus === PortfolioStatus.Pending) {
+      message.warning(
+        "Portfolio is being verified, please wait for the result."
+      );
+      return;
+    }
+
+    if (currentStatus === PortfolioStatus.Verified) {
+      Modal.confirm({
+        title: "Edit Verified Portfolio",
+        content:
+          "Editing a verified portfolio will require re-verification. Do you want to continue?",
+        onOk: () => {
+          originalHandleEdit();
+        },
+      });
+    } else {
+      originalHandleEdit();
+    }
   };
 
   if (!portfolio && isEditing) {
@@ -310,13 +464,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   >
                                     {isEditing ? (
                                       <Input
-                                        type="date"
+                                        type="month"
                                         placeholder="Start Date"
                                         style={{ width: "100%" }}
                                         className="bg-white dark:bg-[#27272a]"
-                                        max={
-                                          new Date().toISOString().split("T")[0]
-                                        } // Giới hạn ngày tối đa là ngày hiện tại
+                                        max={new Date()
+                                          .toISOString()
+                                          .split("-")
+                                          .slice(0, 2)
+                                          .join("-")}
                                       />
                                     ) : (
                                       <div>
@@ -325,13 +481,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                           name,
                                           "startDate",
                                         ]) &&
-                                          new Date(
+                                          formatMonthYear(
                                             form.getFieldValue([
                                               "experiences",
                                               name,
                                               "startDate",
                                             ])
-                                          ).toLocaleDateString()}
+                                          )}
                                       </div>
                                     )}
                                   </Form.Item>
@@ -344,7 +500,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                     rules={[
                                       {
                                         validator: (_, value) => {
-                                          if (!value) return Promise.resolve();
+                                          if (!value) return Promise.resolve(); // Cho phép trống (vì có thể là vị trí hiện tại)
 
                                           if (!isPastDate(value)) {
                                             return Promise.reject(
@@ -354,6 +510,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                             );
                                           }
 
+                                          // Kiểm tra start date < end date
                                           const startDate = form.getFieldValue([
                                             "experiences",
                                             name,
@@ -377,13 +534,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   >
                                     {isEditing ? (
                                       <Input
-                                        type="date"
+                                        type="month"
                                         placeholder="End Date (leave empty if current)"
                                         style={{ width: "100%" }}
                                         className="bg-white dark:bg-[#27272a]"
-                                        max={
-                                          new Date().toISOString().split("T")[0]
-                                        }
+                                        max={new Date()
+                                          .toISOString()
+                                          .split("-")
+                                          .slice(0, 2)
+                                          .join("-")}
                                       />
                                     ) : (
                                       <div>
@@ -392,13 +551,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                           name,
                                           "endDate",
                                         ])
-                                          ? new Date(
+                                          ? formatMonthYear(
                                               form.getFieldValue([
                                                 "experiences",
                                                 name,
                                                 "endDate",
                                               ])
-                                            ).toLocaleDateString()
+                                            )
                                           : "Present"}
                                       </div>
                                     )}
@@ -500,7 +659,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   <Form.Item
                                     {...restField}
                                     name={[name, "issueDate"]}
-                                    label="Issue Date"
+                                    label="Issue time"
                                     rules={[
                                       {
                                         validator: (_, value) => {
@@ -508,7 +667,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                           if (!isPastDate(value)) {
                                             return Promise.reject(
                                               new Error(
-                                                "Issue date must be in the past"
+                                                "Issue time must be in the past"
                                               )
                                             );
                                           }
@@ -519,13 +678,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                   >
                                     {isEditing ? (
                                       <Input
-                                        type="date"
-                                        placeholder="Issue Date"
+                                        type="month"
+                                        placeholder="Issue time"
                                         style={{ width: "100%" }}
                                         className="bg-white dark:bg-[#27272a]"
-                                        max={
-                                          new Date().toISOString().split("T")[0]
-                                        }
+                                        max={new Date()
+                                          .toISOString()
+                                          .split("-")
+                                          .slice(0, 2)
+                                          .join("-")}
                                       />
                                     ) : (
                                       <div>
@@ -534,13 +695,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                           name,
                                           "issueDate",
                                         ]) &&
-                                          new Date(
+                                          formatMonthYear(
                                             form.getFieldValue([
                                               "certificates",
                                               name,
                                               "issueDate",
                                             ])
-                                          ).toLocaleDateString()}
+                                          )}
                                       </div>
                                     )}
                                   </Form.Item>
@@ -825,13 +986,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 >
                                   {isEditing ? (
                                     <Input
-                                      type="date"
+                                      type="month"
                                       placeholder="Start Date"
                                       style={{ width: "100%" }}
                                       className="bg-white dark:bg-[#27272a]"
-                                      max={
-                                        new Date().toISOString().split("T")[0]
-                                      }
+                                      max={new Date()
+                                        .toISOString()
+                                        .split("-")
+                                        .slice(0, 2)
+                                        .join("-")}
                                     />
                                   ) : (
                                     <div>
@@ -840,13 +1003,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                         name,
                                         "startDate",
                                       ]) &&
-                                        new Date(
+                                        formatMonthYear(
                                           form.getFieldValue([
                                             "experiences",
                                             name,
                                             "startDate",
                                           ])
-                                        ).toLocaleDateString()}
+                                        )}
                                     </div>
                                   )}
                                 </Form.Item>
@@ -893,13 +1056,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 >
                                   {isEditing ? (
                                     <Input
-                                      type="date"
+                                      type="month"
                                       placeholder="End Date (leave empty if current)"
                                       style={{ width: "100%" }}
                                       className="bg-white dark:bg-[#27272a]"
-                                      max={
-                                        new Date().toISOString().split("T")[0]
-                                      }
+                                      max={new Date()
+                                        .toISOString()
+                                        .split("-")
+                                        .slice(0, 2)
+                                        .join("-")}
                                     />
                                   ) : (
                                     <div>
@@ -908,13 +1073,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                         name,
                                         "endDate",
                                       ])
-                                        ? new Date(
+                                        ? formatMonthYear(
                                             form.getFieldValue([
                                               "experiences",
                                               name,
                                               "endDate",
                                             ])
-                                          ).toLocaleDateString()
+                                          )
                                         : "Present"}
                                     </div>
                                   )}
@@ -1043,7 +1208,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 <Form.Item
                                   {...restField}
                                   name={[name, "issueDate"]}
-                                  label="Issue Date"
+                                  label="Issue time"
                                   rules={[
                                     {
                                       validator: (_, value) => {
@@ -1051,7 +1216,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                         if (!isPastDate(value)) {
                                           return Promise.reject(
                                             new Error(
-                                              "Issue date must be in the past"
+                                              "Issue time must be in the past"
                                             )
                                           );
                                         }
@@ -1062,13 +1227,15 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                 >
                                   {isEditing ? (
                                     <Input
-                                      type="date"
-                                      placeholder="Issue Date"
+                                      type="month"
+                                      placeholder="Issue time"
                                       style={{ width: "100%" }}
                                       className="bg-white dark:bg-[#27272a]"
-                                      max={
-                                        new Date().toISOString().split("T")[0]
-                                      } // Giới hạn ngày tối đa là ngày hiện tại
+                                      max={new Date()
+                                        .toISOString()
+                                        .split("-")
+                                        .slice(0, 2)
+                                        .join("-")}
                                     />
                                   ) : (
                                     <div>
@@ -1077,13 +1244,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                                         name,
                                         "issueDate",
                                       ]) &&
-                                        new Date(
+                                        formatMonthYear(
                                           form.getFieldValue([
                                             "certificates",
                                             name,
                                             "issueDate",
                                           ])
-                                        ).toLocaleDateString()}
+                                        )}
                                     </div>
                                   )}
                                 </Form.Item>
@@ -1171,9 +1338,11 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                       </Typography.Title>
                       <Typography.Paragraph className="text-gray-600 dark:text-gray-300">
                         {currentStatus === PortfolioStatus.Rejected
-                          ? "Your portfolio has been rejected. Please revise and resubmit for verification."
+                          ? "Your portfolio has been rejected. Please submit for verification first."
                           : currentStatus === PortfolioStatus.Pending
                           ? "Portfolio is being verified. Please wait for verification."
+                          : currentStatus === PortfolioStatus.Verified
+                          ? "Your portfolio has been verified. You can edit it but will need to submit for re-verification."
                           : "Submit your portfolio for staff review to get verified status."}
                       </Typography.Paragraph>
                     </div>
@@ -1183,8 +1352,8 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({
                       onClick={handleSubmitForReview}
                       disabled={
                         isEditing ||
-                        (currentStatus !== PortfolioStatus.Modifying &&
-                          currentStatus !== PortfolioStatus.Rejected) ||
+                        currentStatus === PortfolioStatus.Pending ||
+                        currentStatus === PortfolioStatus.Verified ||
                         submittingForVerification
                       }
                       icon={<CheckOutlined />}

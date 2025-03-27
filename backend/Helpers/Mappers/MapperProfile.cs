@@ -53,11 +53,21 @@ namespace Helpers.Mappers
 
             //Feedback Mappings
             //Feedback to FeedbackDTO
-            CreateMap<Feedback, FeedbackDTO>();
-            //FeedbackDTO to Feedback
-            CreateMap<FeedbackDTO, Feedback>();
-            //UpdateFeedbackDTO to Feedback
-            CreateMap<UpdateFeedbackDTO, Feedback>();
+            CreateMap<Feedback, FeedbackDTO>()
+                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.FeedbackComment))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt.ToString("M/d/yyyy h:mm:ss tt")));
+
+            CreateMap<FeedbackDTO, Feedback>()
+                .ForMember(dest => dest.FeedbackComment, opt => opt.MapFrom(src => src.Comment));
+
+            // CREATE
+            CreateMap<CreateFeedbackDTO, Feedback>()
+                .ForMember(dest => dest.FeedbackComment, opt => opt.MapFrom(src => src.Comment));
+
+            // UPDATE
+            CreateMap<UpdateFeedbackDTO, Feedback>()
+                .ForMember(dest => dest.FeedbackComment, opt => opt.MapFrom(src => src.FeedbackComment));
+
 
             //Message Mappings
             //Message to MessageDTO
@@ -73,7 +83,11 @@ namespace Helpers.Mappers
             //CreateMilestoneDTO to Milestone
             CreateMap<CreateMilestoneDTO, Milestone>();
             //CreateMilestoneWithProjectDTO to Milestone
-            CreateMap<CreateMilestoneWithProjectDTO, Milestone>();
+            CreateMap<CreateMilestoneWithProjectDTO, Milestone>()
+                .ForMember(dest => dest.MilestoneName, opt => opt.MapFrom(src => src.MilestoneName))
+                .ForMember(dest => dest.MilestoneDescription, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.DeadlineDate, opt => opt.MapFrom(src => src.Deadline))
+                .ForMember(dest => dest.PayAmount, opt => opt.MapFrom(src => src.Amount))                ;
             //UpdateMilestoneDTO to Milestone
             CreateMap<UpdateMilestoneDTO, Milestone>();
 

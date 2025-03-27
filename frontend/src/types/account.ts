@@ -10,8 +10,11 @@ export interface Account {
 }
 
 export interface AccountDetail {
+  nationality: string;
+  address: string;
   id: string;
   username: string;
+  name: string;
   email: string;
   fullName: string;
   phone: string;

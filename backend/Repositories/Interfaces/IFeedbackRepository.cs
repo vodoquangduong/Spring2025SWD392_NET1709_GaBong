@@ -8,7 +8,7 @@ namespace Repositories.Interfaces
         Task UpdateAsync(Feedback feedback);
         Task DeleteAsync(Feedback feedback);
         Task<Feedback?> GetSingleByProjecIdAsync(long projectId);
-        Task<IEnumerable<Feedback>> GetAllByAccountIdAsync(long accountId);
+        Task<IEnumerable<Feedback>> GetAllByFreelancerIdAsync(long accountId);
 
         Task<IEnumerable<Feedback>> GetAllAsync();
     }

@@ -1,6 +1,7 @@
 using AutoMapper;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using Helpers.DTOs.Milestone;
 using Helpers.DTOs.Project;
 using Helpers.DTOs.Query;
 using Helpers.HelperClasses;
@@ -122,9 +123,10 @@ namespace Services.Implements
                 //<==Create Milestone==>
                 var milestones = projectDto.Milestones.Select(m =>
                     {
-                        var milestone = _mapper.Map<Milestone>(m);
+                        var milestone = _mapper.Map<CreateMilestoneWithProjectDTO ,Milestone>(m);
                         milestone.ProjectId = createProject.ProjectId;
                         milestone.Status = MilestoneStatus.NotStarted;
+                        milestone.DeadlineDate = milestone.DeadlineDate.ToUniversalTime();
                         return milestone;
                     })
                     .ToList();
@@ -226,7 +228,7 @@ namespace Services.Implements
             }
         }
 
-        public async Task<Result<ProjectDetailDTO>> GetProjectByIdAsync(long projectId)
+        public async Task<Result<ProjectDTO>> GetProjectByIdAsync(long projectId)
         {
             try
             {
@@ -266,17 +268,17 @@ namespace Services.Implements
 
                 if (project == null)
                 {
-                    return Result.Failure<ProjectDetailDTO>(
+                    return Result.Failure<ProjectDTO>(
                         new Error("Get project failed", "Project not found")
                     );
                 }
                 //var result = _mapper.Map<ProjectDetailDTO>(project);
-                var result = _mapper.Map<Project,ProjectDetailDTO>(project);
+                var result = _mapper.Map<ProjectDTO>(project);
                 return Result.Success(result);
             }
             catch (Exception e)
             {
-                return Result.Failure<ProjectDetailDTO>(
+                return Result.Failure<ProjectDTO>(
                     new Error("Get project failed", $"{e.Message}")
                 );
             }

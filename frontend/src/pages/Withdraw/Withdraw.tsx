@@ -2,7 +2,7 @@ import Back from "@/components/Back";
 import Logo from "@/components/Logo";
 import { App, Button, Skeleton } from "antd";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { GET, POST, PUT } from "@/modules/request";
 import useAuthStore from "@/stores/authStore";
@@ -14,6 +14,7 @@ import { useQueries } from "@tanstack/react-query";
 import PaymentSuccess from "./partials/PaymentSuccess";
 import { AccountDetail } from "@/types/account";
 import { ResultServerResponse } from "@/types/serverResponse";
+import { TransactionStatus, TransactionType } from "@/types/transaction";
 
 const schema = z.object({
   amount: z.coerce
@@ -32,6 +33,7 @@ const schema = z.object({
 });
 
 export default function Withdraw() {
+  const navigate = useNavigate();
   let transactionId = 0;
   const {
     watch,
@@ -58,19 +60,32 @@ export default function Withdraw() {
     ],
   });
 
-  const initialOptions = {
-    clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
-    currency: "USD",
-    "data-page-type": "payment",
-    components: "buttons",
-    "data-sdk-integration-source": "developer-studio",
-  };
-
   const getCurrentBalance = () => {
     return profileDetail?.data
       ? profileDetail?.data?.value?.totalCredit -
           profileDetail?.data?.value?.lockCredit
       : 0;
+  };
+
+  const createWithdrawRequest = async () => {
+    const accountData = await GET(`/api/Account/${accountId}`);
+    console.log("accountData: ", accountData);
+    if (
+      accountData?.value?.totalCredit - accountData?.value?.lockCredit >
+      Number(amount)
+    ) {
+      const response = await POST("/api/Transaction", {
+        accountId: accountId,
+        amount: Number(amount),
+        type: TransactionType.WITHDRAWAL,
+        status: TransactionStatus.PENDING,
+      });
+      message.success("Withdraw request sent successfully");
+      navigate("/manage/transaction-history");
+      console.log("response: ", response);
+    } else {
+      message.error("You don't have enough balance");
+    }
   };
 
   return (
@@ -170,120 +185,15 @@ export default function Withdraw() {
                   I agree to the terms and conditions
                 </label>
               </div>
-              <PayPalScriptProvider options={initialOptions}>
-                <PayPalButtons
-                  className={`transition-all hover:scale-105 py-4 flex items-center justify-center w-full h-0 mt-4 ${
-                    agree ? "" : "hidden"
-                  }`}
-                  style={{
-                    shape: "rect",
-                    layout: "horizontal",
-                    color: "white",
-                    label: "paypal",
-                    disableMaxWidth: true,
-                    tagline: false,
-                  }}
-                  //Tạo Tạo transaction, gửi giao dịch lên PayPal
-                  createOrder={async (): Promise<string> => {
-                    try {
-                      console.log(
-                        "Bắt đầu tạo transaction với số tiền: ",
-                        amount
-                      );
-                      // Gửi yêu cầu tạo transaction lên backend
-                      const transactionResponse = await POST(
-                        "/api/Transaction",
-                        {
-                          accountId: useAuthStore.getState().accountId,
-                          amount: amount,
-                          status: 0,
-                          type: 0,
-                        }
-                      );
-                      console.log(
-                        "transactionResponse: ",
-                        transactionResponse.transactionId
-                      );
-                      if (!transactionResponse?.transactionId) {
-                        throw new Error("Không lấy được transactionId");
-                      }
-                      transactionId = transactionResponse.transactionId;
-
-                      // Gọi API của backend để tạo order trên PayPal
-                      const orderResponse = await POST(
-                        "/api/PayPal/create-order",
-                        {
-                          transactionId: transactionResponse.transactionId,
-                        }
-                      );
-                      console.log("orderResponse: ", orderResponse);
-                      if (!orderResponse?.id) {
-                        throw new Error("Không lấy được orderID từ PayPal");
-                      }
-                      console.log("Order Response: ", orderResponse);
-                      return orderResponse.id;
-                    } catch (error) {
-                      message.error(
-                        `Sorry, your transaction could not be processed...`
-                      );
-                      throw error;
-                    }
-                  }}
-                  //Tiep nhận phản hồi từ PayPal, gửi giao dịch lên backend
-                  onApprove={async (data, actions) => {
-                    try {
-                      console.log(
-                        "Thanh toán được chấp nhận, OrderID: ",
-                        data.orderID
-                      );
-                      const orderID = data.orderID;
-
-                      // Gọi PayPal để xác nhận thanh toán
-                      const response = await POST("/api/PayPal/capture-order", {
-                        orderID: orderID,
-                      });
-                      console.log("Ket qua tra ve: ", response);
-                      const orderData = response?.data?.[0];
-                      console.log("orderData: ", orderData);
-
-                      // Three cases to handle:
-                      //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-                      //   (2) Other non-recoverable errors -> Show a failure message
-                      //   (3) Successful transaction -> Show confirmation or thank you message
-
-                      const errorDetail = orderData?.details?.[0];
-
-                      if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
-                        // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-                        // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
-                        return actions.restart();
-                      } else if (errorDetail) {
-                        // (2) Other non-recoverable errors -> Show a failure message
-                        throw new Error(
-                          `${errorDetail.description} (${orderData.debug_id})`
-                        );
-                      } else {
-                        // (3) Successful transaction -> Show confirmation or thank you message
-                        // Or go to another URL:  actions.redirect('thank_you.html');
-                        if (response?.status == "COMPLETED") {
-                          console.log("Ahihi");
-                          const completePaymentTransactionResponse = await PUT(
-                            "/api/PayPal/completePayment/" + transactionId,
-                            {}
-                          );
-                          location.href = "/payment-success";
-                        }
-                        console.log("Thanh cong");
-                      }
-                    } catch (error) {
-                      console.error(error);
-                      message.error(
-                        `Sorry, your transaction could not be processed...${error}`
-                      );
-                    }
-                  }}
-                />
-              </PayPalScriptProvider>
+              <Button
+                className={`text-lg font-bold transition-all hover:scale-105 py-6 flex items-center justify-center w-full h-0 mt-4 ${
+                  agree ? "" : "hidden"
+                }`}
+                type="primary"
+                onClick={() => createWithdrawRequest()}
+              >
+                Request Withdraw
+              </Button>
               <div className="text-sm pt-2">
                 You agree to authorize the use of your card for this deposit and
                 future payments, and agree to be bound to the{" "}

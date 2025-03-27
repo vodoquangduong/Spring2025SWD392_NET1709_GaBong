@@ -10,13 +10,16 @@ import {
   Input,
   Pagination,
   Rate,
+  Result,
   Spin,
   Tag,
   Timeline,
   Typography,
 } from "antd";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
+import utc from "dayjs/plugin/utc";
 import { useEffect, useState } from "react";
 import {
   FaCertificate,
@@ -39,9 +42,16 @@ import SkillLegend from "./partials/SkillLegend";
 import { freelancerService } from "./services/freelancerService";
 
 dayjs.extend(relativeTime);
+dayjs.extend(customParseFormat);
+dayjs.extend(utc);
 
 const { Text, Paragraph } = Typography;
 const { TextArea } = Input;
+
+// Update date parsing function to format date only
+const parseFeedbackDate = (dateStr: string) => {
+  return dayjs.utc(dateStr, "DD/MM/YYYY hh:mm:ss A").format("DD/MM/YYYY");
+};
 
 export default function Freelancer() {
   const { id: freelancerId } = useParams<{ id: string }>();
@@ -106,8 +116,12 @@ export default function Freelancer() {
     );
   }
 
-  if (!portfolio) {
-    return <div className="p-6">Portfolio not found</div>;
+  if (portfolio?.code) {
+    return (
+      <div className="justify-center items-center text-3xl mt-44">
+        <Result status="404" title="Portfolio not found" />
+      </div>
+    );
   }
 
   // Parse JSON data
@@ -151,6 +165,10 @@ export default function Freelancer() {
     { title: <Link to="/search/freelancers">Freelancers</Link> },
     { title: portfolio.name },
   ];
+
+  if (portfolio?.code) {
+    return <div className="p-6">Portfolio not found</div>;
+  }
 
   return (
     <div className="mx-container">
@@ -371,7 +389,7 @@ export default function Freelancer() {
             </div>
           )}
           {/* Feedback Section */}
-          <div className="mt-12">
+          <div>
             <div className="text-2xl font-bold mb-8">Client Feedback</div>
 
             {feedbacks.length === 0 ? (
@@ -383,38 +401,60 @@ export default function Freelancer() {
             ) : (
               <div className="space-y-6">
                 {paginatedFeedbacks.map((feedback) => (
-                  <Card
-                    key={feedback.feedbackId}
-                    className="bg-gray-50 dark:bg-zinc-800 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex justify-between">
-                      <div className="flex gap-3 items-start">
-                        <Avatar src={feedback.clientAvatar} size={42}>
-                          {feedback.clientName?.charAt(0).toUpperCase()}
-                        </Avatar>
-                        <div>
-                          <Text strong className="text-lg">
-                            {feedback.clientName}
-                          </Text>
-                          {feedback.projectName && (
-                            <div className="text-sm text-gray-500">
-                              Project: {feedback.projectName}
-                            </div>
-                          )}
-                          <Rate
-                            value={feedback.rating}
-                            disabled
-                            character={<FaStar size={16} />}
-                            className="mt-1"
-                          />
-                        </div>
-                      </div>
-                      <Text type="secondary" className="text-xs">
-                        {dayjs(feedback.createdDate).fromNow()}
-                      </Text>
-                    </div>
-                    <Paragraph className="mt-4">{feedback.comment}</Paragraph>
-                  </Card>
+                   <Card
+                   key={feedback.feedbackId}
+                   className="bg-white dark:bg-zinc-800 hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-600"
+                   bodyStyle={{ padding: "20px" }}
+                 >
+                   {/* Header */}
+                   <div className="flex justify-between items-start">
+                     {/* Left side: Avatar + client info */}
+                     <div className="flex gap-4">
+                       <Avatar size={48} src={feedback.clientAvatarUrl}>
+                         {feedback.clientName?.charAt(0).toUpperCase()}
+                       </Avatar>
+                       <div>
+                         <div className="font-semibold text-lg">{feedback.clientName}</div>
+                         <div className="text-sm text-gray-500">
+                           Project:{" "}
+                           <span className="text-base text-zinc-800 dark:text-white font-medium">
+                             {feedback.projectName}
+                           </span>
+                         </div>
+                         <div className="text-sm text-gray-500">
+                           Earning:{" "}
+                           <span className="text-emerald-600 font-semibold">
+                             {feedback.projectEarning.toLocaleString()} USD
+                           </span>
+                         </div>
+                       </div>
+                     </div>
+               
+                     {/* Right side: Rating + time */}
+                     <div className="text-right">
+                       <Rate
+                         value={feedback.rating}
+                         disabled
+                         character={<FaStar size={14} />}
+                         className="mb-1"
+                       />
+                       <div className="text-xs text-gray-400">
+                         {parseFeedbackDate(feedback.createdAt)}
+                       </div>
+                     </div>
+                   </div>
+               
+                   {/* Comment */}
+                   <div className="mt-4 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                     {feedback.comment ? (
+                       <Paragraph className="!mb-0">{feedback.comment}</Paragraph>
+                     ) : (
+                       <Paragraph className="italic text-gray-400 !mb-0">
+                         No comment provided.
+                       </Paragraph>
+                     )}
+                   </div>
+                 </Card>
                 ))}
 
                 {feedbacks.length > pageSize && (

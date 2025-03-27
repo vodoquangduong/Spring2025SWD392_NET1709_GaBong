@@ -20,18 +20,18 @@ export const tableColumns = (budget: number) => {
       title: "Percentage",
       dataIndex: "payAmount",
       key: "3",
-      render: (text: string) => Number(text).toLocaleString() + " %",
+      render: (text: string) => Number(text).toFixed(2) + " %",
     },
     {
       title: "Budget Amount",
       dataIndex: "description",
       key: "2",
       render: (text: string, record: any) =>
-        ((record?.payAmount / 100) * budget).toLocaleString() + " USD",
+        ((record?.payAmount / 100) * budget).toFixed(2) + " USD",
     },
     {
       title: "Deadline",
-      dataIndex: "deadline",
+      dataIndex: "deadlineDate",
       key: "4",
       render: (text: string) => dayjs(text).format("DD-MM-YYYY HH:mm"),
     },

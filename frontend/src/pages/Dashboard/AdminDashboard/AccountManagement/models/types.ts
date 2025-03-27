@@ -20,6 +20,9 @@ export interface Account {
 export interface PaginationParams {
   pageNumber: number;
   pageSize: number;
+  searchText?: string;
+  roleFilter?: number;
+  statusFilter?: number;
 }
 
 export interface AccountsResponse {
@@ -57,6 +60,14 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
+export interface CreateAccountRequest {
+  name: string;
+  email: string;
+  password: string;
+  status: number; // Always 0 for Active
+  role: number; // 1 for Staff
+}
+
 // Helper types for UI
 export interface Transaction {
   id: number;
@@ -72,4 +83,20 @@ export interface Activity {
   timestamp: string;
   ip: string;
   device: string;
+}
+export interface FilteredAccountsResponse {
+  items: Account[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export interface FilteredAccountsParams {
+  pageSize: number;
+  pageNumber: number;
+  accountName?: string;
+  accountRole?: string;
+  accountStatus?: string;
+  sortBy?: string;
 }

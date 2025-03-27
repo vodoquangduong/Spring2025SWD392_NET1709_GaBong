@@ -27,19 +27,20 @@ export interface PublicPortfolio {
   avatarURL: string;
   reputationPoint: number;
   skillPerform?: SkillPerform[];
+  code: string;
 }
 
 export interface Feedback {
   feedbackId: number;
-  freelancerId: number;
-  clientId: number;
+  projectId: number;
+  clientId : string;
+  clientAvatarUrl: string;
+  clientName : string;
+  projectName: string;
+  projectEarning: number;
   rating: number;
   comment: string;
-  createdDate: string;
-  clientName: string;
-  clientAvatar?: string;
-  projectName?: string;
-  projectId?: number;
+  createdAt: string;
 }
 
 export interface FeedbackRequest {

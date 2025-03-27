@@ -15,12 +15,29 @@ namespace API.Controllers
             _transactionService = transactionService;
         }
 
-        [HttpGet]
+        [HttpGet("All Transation")]
         public async Task<IActionResult> GetAllTransactions([FromQuery] Query query)
         {
             var result = await _transactionService.GetAllTransactionAsync(
                 query.PageNumber,
                 query.PageSize
+            );
+            if (result.IsFailure)
+            {
+                return Ok(result.Error);
+            }
+            return Ok(result.Value);
+        }
+
+        [HttpGet("All transation by type")]
+        public async Task<IActionResult> GetTransactionsByType(
+            [FromQuery] Query query,
+            [FromQuery] TransactionFilter filter)
+        {
+            var result = await _transactionService.GetTransactionByTypeAsync(
+                query.PageNumber,
+                query.PageSize,
+                filter
             );
             if (result.IsFailure)
             {
@@ -51,6 +68,16 @@ namespace API.Controllers
         public async Task<IActionResult> GetTransactionByAccountId([FromRoute] long accountId)
         {
             var result = await _transactionService.GetTransactionByAccountIdAsync(accountId);
+            if (result.IsFailure)
+            {
+                return Ok(result.Error);
+            }
+            return Ok(result.Value);
+        }
+        [HttpPut]
+        public async Task<IActionResult> UpdateTransaction([FromBody] UpdateTransactionDTO updateTransactionDTO)
+        {
+            var result = await _transactionService.UpdateTransactionAsync(updateTransactionDTO);
             if (result.IsFailure)
             {
                 return Ok(result.Error);

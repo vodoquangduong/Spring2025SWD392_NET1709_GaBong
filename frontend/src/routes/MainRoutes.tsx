@@ -2,20 +2,12 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import PageNotFound from "../components/PageNotFound";
 import { DashboardLayout, GlobalLayout, NormalLayout } from "../layouts";
 import { FreelancerManagement } from "../pages/Dashboard/EmployeeDashboard/FreelancerManagement";
-import {
-  ProjectDetail as DashboardProjectDetail,
-  ProjectList,
-} from "../pages/Dashboard/EmployeeDashboard/ProjectManagement";
-import PendingServiceList from "../pages/Dashboard/EmployeeDashboard/ProjectManagement/partials/PendingServiceList";
 import { ReportManagement } from "../pages/Dashboard/EmployeeDashboard/ReportManagement";
 import { ServiceManagement } from "../pages/Dashboard/EmployeeDashboard/ServiceManagement";
 // import { UserDetail, UserList } from "../pages/Dashboard/UserManager";
 import PrivateRoute from "@/components/PrivateRoute";
 import { CategoryManagement } from "@/pages/Dashboard/EmployeeDashboard/CategoryManagement";
-import {
-  WithdrawDetail,
-  WithdrawList,
-} from "@/pages/Dashboard/EmployeeDashboard/WithdrawManagement";
+import { WithdrawList } from "@/pages/Dashboard/EmployeeDashboard/WithdrawManagement";
 import { MakeContract } from "@/pages/MakeContract";
 import Transaction from "@/pages/Manage/partials/TransactionHistory";
 import { Payment, PaymentSuccess } from "@/pages/Payment";
@@ -53,11 +45,16 @@ import AdminDashboard, {
   ReportManagement as AdminReportManagement,
   SystemConfiguration,
 } from "@/pages/Dashboard/AdminDashboard";
+import { TransactionList } from "@/pages/Dashboard/EmployeeDashboard/TransactionManagement";
+import ResetStep from "@/pages/ForgotPassword/partials/ResetStep";
+import ProjectList from "@/pages/Dashboard/EmployeeDashboard/ProjectManagement/partials/ProjectList";
 
 export default function MainRoutes() {
   return (
     <Routes>
       <Route path="/" element={<GlobalLayout />}>
+        <Route path="make-contract" element={<MakeContract />} />
+        <Route path="post-project" element={<PostProject />} />
         <Route path="/" element={<NormalLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="portfolio" element={<Portfolio />} />
@@ -75,30 +72,31 @@ export default function MainRoutes() {
               <Route path="contract" element={<ProjectContract />} />
             </Route>
           </Route>
-          <Route path="post-project" element={<PostProject />} />
-          <Route path="make-contract" element={<MakeContract />} />
+
           <Route path="freelancers">
             <Route path="" element={<Navigate to="/search/freelancers" />} />
             <Route path=":id" element={<Freelancer />} />
-          </Route>
-          <Route path="manage" element={<Manage />}>
-            <Route path="" element={<Navigate to="/manage/projects" />} />
-            <Route path="dashboard" element={<UserDashboard />} />
-            <Route path="projects" element={<MyProject />} />
-            {/* <Route path="bookmarks" element={<Bookmark />} /> */}
-            <Route path="notifications" element={<Notification />} />
-            <Route path="transaction-history" element={<Transaction />} />
           </Route>
           <Route path="profile">
             <Route index element={<UserProfile />} />
             <Route path="edit" element={<EditProfile />} />
           </Route>
           <Route path="policy" element={<Policy />} />
+          <Route path="manage" element={<Manage />}>
+            <Route path="" element={<Navigate to="/manage/projects" />} />
+            <Route path="dashboard" element={<UserDashboard />} />
+            <Route path="projects" element={<MyProject />} />
+            <Route path="notifications" element={<Notification />} />
+            <Route path="proposals" element={<Proposal />} />
+            <Route path="feedbacks" element={<Feedback />} />
+            <Route path="transaction-history" element={<Transaction />} />
+          </Route>
         </Route>
         {/* <Route path="search" element={<Search />}></Route> */}
         <Route path="projects">
           <Route path="" element={<Navigate to="/search/projects" />} />
           <Route path=":id" element={<Project />}>
+            <Route path="" element={<Navigate to="details" />} />
             <Route path="details" element={<ProjectDetail />} />
             <Route path="proposals" element={<ProjectProposal />} />
             <Route path="milestones" element={<ProjectPayment />} />
@@ -109,14 +107,7 @@ export default function MainRoutes() {
           <Route path="" element={<Navigate to="/search/freelancers" />} />
           <Route path=":id" element={<Freelancer />} />
         </Route>
-        <Route path="manage" element={<Manage />}>
-          <Route path="" element={<Navigate to="/manage/projects" />} />
-          <Route path="dashboard" element={<UserDashboard />} />
-          <Route path="projects" element={<MyProject />} />
-          <Route path="notifications" element={<Notification />} />
-          <Route path="proposals" element={<Proposal />} />
-          <Route path="feedbacks" element={<Feedback />} />
-        </Route>
+
         <Route path="profile">
           <Route index element={<UserProfile />} />
           <Route path="edit" element={<EditProfile />} />
@@ -133,6 +124,7 @@ export default function MainRoutes() {
         <Route path="register" element={<Register />} />
         <Route path="login" element={<Login />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="reset-password" element={<ResetStep />} />
         <Route path="authentication">
           <Route path="" element={<NotifyGmailChecking />} />
           <Route path="verify-gmail" element={<VerifyGmail />} />
@@ -153,15 +145,9 @@ export default function MainRoutes() {
           <Route path="reports/*" element={<ReportManagement />} />
           <Route path="freelancers/*" element={<FreelancerManagement />} />
           <Route path="categories" element={<CategoryManagement />} />
-          <Route path="projects">
-            <Route index element={<ProjectList />} />
-            <Route path=":id" element={<DashboardProjectDetail />} />
-          </Route>
-          <Route path="withdraws">
-            <Route index element={<WithdrawList />} />
-            <Route path=":id" element={<WithdrawDetail />} />
-          </Route>
-          <Route path="pending-services" element={<PendingServiceList />} />
+          <Route path="withdraws" element={<WithdrawList />} />
+          <Route path="transactions" element={<TransactionList />} />
+          <Route path="projects" element={<ProjectList />} />
         </Route>
         <Route path="admin">
           <Route path="" element={<AdminDashboard />} />

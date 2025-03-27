@@ -1,7 +1,6 @@
 import { Dropdown, Select, Table } from "antd";
 import { FaPlus } from "react-icons/fa6";
 import { GoQuestion } from "react-icons/go";
-import CreateModal from "../../../../../components/CreateModal";
 import { BiChevronDown } from "react-icons/bi";
 import { useQueries } from "@tanstack/react-query";
 import { GET } from "@/modules/request";
@@ -25,7 +24,7 @@ export default function MilestonePayment() {
 
   return (
     <>
-      <PaymentSummary project={projectDetail.data?.value} />
+      <PaymentSummary project={projectDetail.data} />
       <div className="dark:bg-white/5 p-6 w-full mb-8 rounded-md shadow-md">
         <div className="text-2xl font-semibold flex justify-between items-center gap-4">
           Milestone Payments
@@ -47,12 +46,12 @@ export default function MilestonePayment() {
           <Table
             loading={projectDetail.isLoading || projectDetail.isRefetching}
             className="pt-10"
-            dataSource={projectDetail?.data?.value?.milestones.sort(
+            dataSource={projectDetail?.data?.milestones.sort(
               (a: any, b: any) => {
                 return a.deadlineDate.localeCompare(b.deadlineDate);
               }
             )}
-            columns={tableColumns(projectDetail?.data?.value)}
+            columns={tableColumns(projectDetail?.data)}
             rowKey={(record: any) => record.milestoneId}
           />
         </div>

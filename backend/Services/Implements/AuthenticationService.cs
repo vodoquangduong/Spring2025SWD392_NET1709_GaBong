@@ -1,4 +1,5 @@
-﻿using Helpers.DTOs.Authentication;
+﻿using BusinessObjects.Enums;
+using Helpers.DTOs.Authentication;
 using Helpers.HelperClasses;
 using Services.Interfaces;
 
@@ -36,7 +37,8 @@ namespace Services.Implements
 
             if (!isPasswordValid)
                 return null;
-
+            if(account.Status == AccountStatus.Banned)
+                return null;
             return new AuthenticationResponse { Token = _tokenService.CreateToken(account) };
         }
 

@@ -16,7 +16,7 @@ export default function ProjectFilter({ query, setQuery }: any) {
     queries: [
       {
         queryKey: ["skills"],
-        queryFn: async () => await GET(`/api/SkillCategory`),
+        queryFn: async () => await GET(`/api/SkillCategory`, false),
       },
     ],
   });
@@ -59,7 +59,7 @@ export default function ProjectFilter({ query, setQuery }: any) {
               min
             </label>
             <div className="input-style flex gap-2 py-2 mt-2">
-              <div className="px-1">$</div>
+              <div className="px-1">USD</div>
               <input
                 className="no-ring grow"
                 type="number"
@@ -71,7 +71,6 @@ export default function ProjectFilter({ query, setQuery }: any) {
                   }));
                 }}
               />
-              <div className="px-2">USD</div>
             </div>
           </div>
           <div className="mt-2">
@@ -79,7 +78,7 @@ export default function ProjectFilter({ query, setQuery }: any) {
               max
             </label>
             <div className="input-style flex gap-2 py-2 mt-2">
-              <div className="px-1">$</div>
+              <div className="px-1">USD</div>
               <input
                 className="no-ring grow"
                 type="number"
@@ -91,7 +90,6 @@ export default function ProjectFilter({ query, setQuery }: any) {
                   }));
                 }}
               />
-              <div className="px-2">USD</div>
             </div>
           </div>
         </div>

@@ -11,11 +11,11 @@ namespace Helpers.DTOs.Portfolio
         public string Title { get; set; } = string.Empty;
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "Works")]
-        [StringLength(50, ErrorMessage = ValidationMessage.MaxLength)]
+        //[StringLength(50, ErrorMessage = ValidationMessage.MaxLength)]
         public string Works { get; set; } = string.Empty;
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "Certificate")]
-        [StringLength(50, ErrorMessage = ValidationMessage.MaxLength)]
+        //[StringLength(50, ErrorMessage = ValidationMessage.MaxLength)]
         public string Certificate { get; set; } = string.Empty;
         [Required(ErrorMessage = ValidationMessage.RequiredField)]
         [Display(Name = "About")]

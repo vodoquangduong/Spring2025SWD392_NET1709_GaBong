@@ -37,6 +37,8 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
         status:
           currentStatus === PortfolioStatus.Modifying
             ? "process"
+            : currentStatus === PortfolioStatus.Verified
+            ? "finish"
             : ("finish" as "process" | "finish" | "wait" | "error"),
         icon:
           currentStatus === PortfolioStatus.Modifying ? (
@@ -85,7 +87,6 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
         ),
       });
     } else if (currentStatus === PortfolioStatus.Pending) {
-      // When in Pending state, show both potential branches but in wait state
       items.push({
         title: "Verification Result",
         status: "wait" as "process" | "finish" | "wait" | "error",

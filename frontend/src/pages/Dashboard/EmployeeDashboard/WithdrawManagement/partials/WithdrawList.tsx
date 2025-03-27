@@ -1,33 +1,27 @@
-import React, { useEffect, useState } from "react";
-import {
-  FaEdit,
-  FaEye,
-  FaFilter,
-  FaPlus,
-  FaSearch,
-  FaTrash,
-} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { Project } from "../models/types";
 import { motion } from "motion/react";
-import { PAGE_ANIMATION } from "../../../../../modules/constants";
-import SearchBox from "../../../../../components/SearchBox";
+import { PAGE_ANIMATION } from "@/modules/constants";
+import SearchBox from "@/components/SearchBox";
 import { Pagination, Table } from "antd";
-import { projectColumns } from "../schemas";
-import { GET } from "../../../../../modules/request";
-import { ProjectDetail } from "@/types/project";
+import { withdrawColumns } from "../schemas";
+import { GET } from "@/modules/request";
 import { useQuery } from "@tanstack/react-query";
 import useQueryParams from "@/hooks/useQueryParams";
 import useUiStore from "@/stores/uiStore";
+import { Transaction } from "@/types/transaction";
 
-export default function ProjectList() {
+export default function WithdrawList() {
   const { page } = useQueryParams();
   const navigate = useNavigate();
   const { revalidate } = useUiStore();
   const { data, isLoading, isRefetching } = useQuery({
-    queryKey: ["pendingProjects", revalidate],
+    queryKey: ["transactions", revalidate, page],
     queryFn: async () =>
-      await GET(`/api/Project/pending?pageNumber=${page || 1}&pageSize=10`),
+      await GET(
+        `/api/Transaction/All transation by type?TransactionType=1&pageNumber=${
+          page || 1
+        }`
+      ),
   });
 
   return (
@@ -46,16 +40,17 @@ export default function ProjectList() {
       <Table
         pagination={false}
         loading={isLoading || isRefetching}
-        columns={projectColumns()}
-        dataSource={data?.value?.items as ProjectDetail[]}
-        rowKey={(record: ProjectDetail) => record?.projectId}
+        columns={withdrawColumns()}
+        dataSource={data?.items as Transaction[]}
+        rowKey={(record: Transaction) => record?.transactionId}
       />
       <div className="flex justify-end">
         <Pagination
+          showSizeChanger={false}
           className="py-8"
           showTotal={(total) => `Total ${total} items`}
-          defaultCurrent={data?.value?.pageNumber}
-          total={data?.value?.totalCount}
+          defaultCurrent={page || data?.pageNumber}
+          total={data?.totalCount}
           onChange={(page) => {
             navigate(`/employee/withdraws?page=${page}`);
           }}

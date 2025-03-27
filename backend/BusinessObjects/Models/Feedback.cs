@@ -16,7 +16,7 @@ namespace BusinessObjects.Models
         [Column("feedback_comment")]
         public string FeedbackComment { get; set; } = string.Empty;
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.Now.ToUniversalTime();
 
         // Navigation properties
         [ForeignKey("ProjectId")]

@@ -16,7 +16,6 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import { ProjectDetail as IProjectDetail } from "../models/types";
 
 const mockProjectDetail: IProjectDetail = {
   id: "PRJ001",

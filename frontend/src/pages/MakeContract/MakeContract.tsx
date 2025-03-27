@@ -82,29 +82,25 @@ export default function MakeContract() {
                     <div className="font-semibold">
                       Project:
                       <span className="ml-2 font-bold">
-                        {project.data?.value?.projectName || (
-                          <Skeleton.Input active />
-                        )}
+                        {project.data?.projectName || <Skeleton.Input active />}
                       </span>
                     </div>
                     <div className="font-semibold">
                       Location:{" "}
-                      {project.data?.value?.location || (
-                        <Skeleton.Input active />
-                      )}
+                      {project.data?.location || <Skeleton.Input active />}
                     </div>
                     <div className="font-semibold">
                       Start date: {dayjs().format("MMMM DD, YYYY")}
                     </div>
                   </div>
                   <div className="col-span-12">
-                    {project?.data?.value?.projectDescription}
+                    {project?.data?.projectDescription}
                   </div>
                   <div className="font-semibold col-span-12">
                     Required Skills
                   </div>
                   <div className="col-span-12">
-                    <Skills items={project?.data?.value?.skills} />
+                    <Skills items={project?.data?.skills} />
                     {/* {project?.data} */}
                     {/* {project?.data} */}
                   </div>
@@ -115,8 +111,8 @@ export default function MakeContract() {
                 <Table
                   className="pt-4"
                   pagination={false}
-                  dataSource={project?.data?.value?.milestones}
-                  columns={tableColumns(project?.data?.value?.estimateBudget)}
+                  dataSource={project?.data?.milestones}
+                  columns={tableColumns(project?.data?.estimateBudget)}
                 />
                 <div className="font-bold justify-between p-4 pl-0 border-b chivo">
                   <div>Contract policy</div>
@@ -152,7 +148,7 @@ export default function MakeContract() {
                     {project.isLoading ? (
                       <Skeleton.Input active />
                     ) : (
-                      project?.data?.value?.estimateBudget.toLocaleString()
+                      project?.data?.estimateBudget.toLocaleString()
                     )}
                   </div>
                   <span className="text-zinc-500 text-sm">USD</span>
@@ -230,6 +226,11 @@ export default function MakeContract() {
                         "#contractPolicy"
                       ) as HTMLInputElement
                     )?.value;
+                    if (!contractPolicy.trim()) {
+                      message.destroy();
+                      message.error("Please fill in the contract policy");
+                      return;
+                    }
                     let data = { freelancerId, projectId, contractPolicy };
                     mutation.mutate(data);
                   }}
@@ -255,7 +256,7 @@ const UserItem = ({ data }: any) => {
     <div className="space-y-4 py-4">
       <div className="flex gap-4">
         <img
-          className="h-20 rounded-lg border"
+          className="aspect-square h-20 rounded-lg border"
           src={data?.avatarURL || defaultAvatar}
         />
         <div className="flex flex-col gap-2 w-full">

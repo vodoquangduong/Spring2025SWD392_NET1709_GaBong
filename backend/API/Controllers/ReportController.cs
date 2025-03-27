@@ -36,7 +36,7 @@ namespace API.Controllers
             }
             return Ok(result.Value);
         }
-        
+
         [HttpGet("{reportId}")]
         public async Task<IActionResult> GetReportByIdAsync([FromRoute] long reportId)
         {

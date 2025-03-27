@@ -17,6 +17,7 @@ namespace Repositories.Implements
         {
             var queryOptions = new QueryBuilder<Milestone>()
                 .WithTracking(true)
+                .WithInclude(m => m.Project)
                 .WithPredicate(m => m.MilestoneId == milestoneId)
                 .Build();
 

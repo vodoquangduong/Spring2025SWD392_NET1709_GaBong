@@ -64,7 +64,13 @@ export default function PlaceBid({ project }: { project: any }) {
   });
 
   const mutation = useMutation({
-    mutationFn: async (formData: any) => await POST("/api/Bid", formData),
+    mutationFn: async (formData: any) => {
+      const res = await POST("/api/Bid", formData);
+      if (res.code) {
+        throw new Error();
+      }
+      return res;
+    },
     onError: () => {
       message.destroy();
       message.error(

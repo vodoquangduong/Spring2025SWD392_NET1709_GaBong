@@ -148,15 +148,15 @@ const UserProfile = () => {
               <div className="relative mb-4">
                 <Avatar
                   size={160}
-                  src={profile.avatarURL || defaultAvatar}
+                  src={avatar || defaultAvatar}
                   className="border-4 border-white shadow-lg"
                 />
-                <Button
+                {/* <Button
                   type="text"
                   icon={<FaEdit className="text-zinc-600" />}
                   className="absolute bottom-2 right-2 bg-white/80 backdrop-blur-sm rounded-full shadow-md p-2 hover:bg-white"
                   onClick={() => message.info("Feature coming soon")}
-                />
+                /> */}
               </div>
 
               <Title level={3} className="!mb-1 text-center font-semibold">

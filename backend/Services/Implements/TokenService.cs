@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using Helpers.DTOs.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -101,12 +102,17 @@ namespace Services.Implements
             string name = jwt.Claims.FirstOrDefault(c => c.Type == "name")?.Value ?? "";
             string password = jwt.Claims.FirstOrDefault(c => c.Type == "password")?.Value ?? "";
             string email = jwt.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "";
-            string role = jwt.Claims.FirstOrDefault(c => c.Type == "role")?.Value ?? "";
+            string roleString = jwt.Claims.FirstOrDefault(c => c.Type == "role")?.Value ?? "";
+          
             string status = jwt.Claims.FirstOrDefault(c => c.Type == "status")?.Value ?? "";
+
+            AccountRole role = Enum.TryParse(roleString, out AccountRole parsedRole) ? parsedRole : AccountRole.Client;
+
             var registerDto = new RegisterDTO()
             {
                 Name = name,
                 Password = password,
+                Role =  role,
                 Email = email,
             };
             return registerDto;

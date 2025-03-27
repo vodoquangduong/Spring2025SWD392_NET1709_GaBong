@@ -12,3 +12,14 @@ export type CreateMilestoneDTO = {
   amount: number;
   deadline: string;
 };
+
+export interface Milestone {
+  milestoneId: string;
+  milestoneName: string;
+  milestoneDescription: string;
+  amount: number;
+  deadlineDate: string;
+  payAmount: number;
+  projectId: string;
+  status: MilestoneStatus;
+}

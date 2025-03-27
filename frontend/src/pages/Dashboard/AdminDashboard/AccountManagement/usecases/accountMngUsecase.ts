@@ -1,6 +1,10 @@
 import {
   Account,
+  CreateAccountRequest,
+  FilteredAccountsParams,
+  FilteredAccountsResponse,
   PaginationParams,
+  Transaction,
   UpdateAccountRequest,
 } from "../models/types";
 import { accountMngService } from "../services/accountMngService";
@@ -68,6 +72,35 @@ export const accountMngUsecase = {
     }
   },
 
+  updateAccountStatus: async (
+    accountId: number,
+    status: number
+  ): Promise<boolean> => {
+    try {
+      await accountMngService.updateAccountStatus(accountId, status);
+      return true;
+    } catch (error) {
+      console.error("Error in updateAccountStatus usecase:", error);
+      return false;
+    }
+  },
+
+  createStaffAccount: async (accountData: {
+    name: string;
+    email: string;
+    password: string;
+  }): Promise<any> => {
+    const createRequest: CreateAccountRequest = {
+      name: accountData.name,
+      email: accountData.email,
+      password: accountData.password,
+      status: 0, // Active status
+      role: 1, // Staff role
+    };
+
+    return await accountMngService.createAccount(createRequest);
+  },
+
   // Helper functions for UI display
   getRoleName: (role: number): string => {
     switch (role) {
@@ -108,5 +141,15 @@ export const accountMngUsecase = {
       default:
         return "Not specified";
     }
+  },
+
+  getFilteredAccounts: async (
+    params: FilteredAccountsParams
+  ): Promise<FilteredAccountsResponse> => {
+    return await accountMngService.getFilteredAccounts(params);
+  },
+
+  getAccountTransactions: async (accountId: number): Promise<Transaction[]> => {
+    return await accountMngService.getAccountTransactions(accountId);
   },
 };

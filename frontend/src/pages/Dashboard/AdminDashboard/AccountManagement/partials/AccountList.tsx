@@ -16,9 +16,10 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
-import { FaEye, FaLock, FaSearch, FaUnlock, FaUserPlus } from "react-icons/fa";
+import { FaEye, FaSearch, FaUserPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Account } from "../models/types";
+import { accountMngService } from "../services/accountMngService";
 import { accountMngUsecase } from "../usecases/accountMngUsecase";
 
 const { Title, Text } = Typography;
@@ -27,36 +28,49 @@ const { Option } = Select;
 const AccountList: React.FC = () => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
-  const [roleFilter, setRoleFilter] = useState<number | null>(null);
-  const [statusFilter, setStatusFilter] = useState<number | null>(null);
+  const [roleFilter, setRoleFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("createdAt");
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
-  // Pagination state
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
     total: 0,
+    totalPages: 1,
   });
 
   useEffect(() => {
     fetchAccounts();
-  }, [pagination.current, pagination.pageSize]);
+  }, [
+    pagination.current,
+    pagination.pageSize,
+    searchText,
+    roleFilter,
+    statusFilter,
+    sortBy,
+  ]);
 
   const fetchAccounts = async () => {
     setLoading(true);
     try {
-      const result = await accountMngUsecase.getAccounts({
-        pageNumber: pagination.current,
+      const result = await accountMngService.getFilteredAccounts({
         pageSize: pagination.pageSize,
+        pageNumber: pagination.current,
+        accountName: searchText || undefined,
+        accountRole: roleFilter || undefined,
+        accountStatus: statusFilter || undefined,
+        sortBy: sortBy,
       });
 
-      setAccounts(result.accounts);
+      setAccounts(result.items);
       setPagination((prev) => ({
         ...prev,
         total: result.totalCount,
+        totalPages: result.totalPages,
       }));
     } catch (error) {
       console.error("Error fetching accounts:", error);
@@ -66,21 +80,26 @@ const AccountList: React.FC = () => {
     }
   };
 
-  // Handle table pagination change
-  const handleTableChange = (pagination: any) => {
-    setPagination({
-      current: pagination.current,
-      pageSize: pagination.pageSize,
-      total: pagination.total,
-    });
+  // Handle search input change
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
   };
 
-  // Displays a message since API is not available
-  const handleStatusAction = (account: Account) => {
-    const action = account.status === 0 ? "suspend" : "activate";
-    message.info(
-      `Status change API not implemented yet. Would ${action} ${account.name}`
-    );
+  // Handle search submit (on press Enter)
+  const handleSearchSubmit = () => {
+    setPagination((prev) => ({
+      ...prev,
+      current: 1,
+    }));
+  };
+
+  // Handle table pagination change
+  const handleTableChange = (paginationTable: any) => {
+    setPagination((prev) => ({
+      ...prev,
+      current: paginationTable.current,
+      pageSize: paginationTable.pageSize,
+    }));
   };
 
   const columns = [
@@ -167,40 +186,10 @@ const AccountList: React.FC = () => {
             size="small"
             onClick={() => message.info(`Edit user ${record.name}`)}
           /> */}
-          {record.status === 0 ? (
-            <Button
-              icon={<FaLock />}
-              danger
-              size="small"
-              onClick={() => handleStatusAction(record)}
-            />
-          ) : (
-            <Button
-              icon={<FaUnlock />}
-              type="default"
-              size="small"
-              onClick={() => handleStatusAction(record)}
-            />
-          )}
         </Space>
       ),
     },
   ];
-
-  // Filter the data client-side for search and filters
-  // (You might want to move this to server-side filtering later)
-  const filteredData = accounts.filter((account) => {
-    const matchesSearch =
-      searchText === "" ||
-      account.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      account.email.toLowerCase().includes(searchText.toLowerCase());
-
-    const matchesRole = roleFilter === null || account.role === roleFilter;
-    const matchesStatus =
-      statusFilter === null || account.status === statusFilter;
-
-    return matchesSearch && matchesRole && matchesStatus;
-  });
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -211,11 +200,30 @@ const AccountList: React.FC = () => {
     form.resetFields();
   };
 
-  const handleAddAccount = (values: any) => {
-    console.log("Form values:", values);
-    message.success("Account added successfully!");
-    setIsModalVisible(false);
-    form.resetFields();
+  const handleAddAccount = async (values: any) => {
+    try {
+      setLoading(true);
+      await accountMngUsecase.createStaffAccount({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
+
+      message.success("Staff account added successfully!");
+      setIsModalVisible(false);
+      form.resetFields();
+
+      // Refresh the account list after adding a new account
+      fetchAccounts();
+    } catch (error) {
+      console.error("Error creating staff account:", error);
+      message.error(
+        "Failed to create staff account: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -224,12 +232,13 @@ const AccountList: React.FC = () => {
 
       <Card style={{ marginBottom: 16 }}>
         <Row gutter={16}>
-          <Col span={8}>
+          <Col span={6}>
             <Input
-              placeholder="Search by name or email"
+              placeholder="Search by name"
               prefix={<FaSearch />}
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={handleSearch}
+              onPressEnter={handleSearchSubmit}
               allowClear
             />
           </Col>
@@ -238,12 +247,13 @@ const AccountList: React.FC = () => {
               placeholder="Filter by role"
               style={{ width: "100%" }}
               allowClear
+              value={roleFilter}
               onChange={(value) => setRoleFilter(value)}
             >
-              <Option value={0}>Admin</Option>
-              <Option value={1}>Staff</Option>
-              <Option value={3}>Client</Option>
-              <Option value={2}>Freelancer</Option>
+              <Option value="">All</Option>
+              <Option value="1">Staff</Option>
+              <Option value="2">Freelancer</Option>
+              <Option value="3">Client</Option>
             </Select>
           </Col>
           <Col span={4}>
@@ -251,16 +261,29 @@ const AccountList: React.FC = () => {
               placeholder="Filter by status"
               style={{ width: "100%" }}
               allowClear
+              value={statusFilter}
               onChange={(value) => setStatusFilter(value)}
             >
-              <Option value={0}>Active</Option>
-              <Option value={1}>Suspended</Option>
-              <Option value={2}>Banned</Option>
+              <Option value="">All</Option>
+              <Option value="0">Active</Option>
+              <Option value="1">Inactive</Option>
             </Select>
           </Col>
-          <Col span={8} style={{ textAlign: "right" }}>
+          <Col span={4}>
+            <Select
+              placeholder="Sort by"
+              style={{ width: "100%" }}
+              value={sortBy}
+              onChange={(value) => setSortBy(value)}
+            >
+              <Option value="reputationPoint">Reputation</Option>
+              <Option value="totalCredit">Total Credit</Option>
+              <Option value="createdAt">Created Date</Option>
+            </Select>
+          </Col>
+          <Col span={6} style={{ textAlign: "right" }}>
             <Button type="primary" icon={<FaUserPlus />} onClick={showModal}>
-              Add Staff - Chua lam
+              Create Staff Account
             </Button>
           </Col>
         </Row>
@@ -269,7 +292,7 @@ const AccountList: React.FC = () => {
       <Card>
         <Table
           columns={columns}
-          dataSource={filteredData}
+          dataSource={accounts}
           rowKey="accountId"
           loading={loading}
           pagination={{
@@ -279,23 +302,17 @@ const AccountList: React.FC = () => {
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50"],
             showTotal: (total) => `Total ${total} accounts`,
-            onChange: (page, pageSize) => {
-              setPagination({
-                current: page,
-                pageSize: pageSize || 10,
-                total: pagination.total,
-              });
-            },
           }}
           onChange={handleTableChange}
         />
       </Card>
 
       <Modal
-        title="Add New Account"
+        title="Add Staff Account"
         open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
+        maskClosable={false}
       >
         <Form form={form} layout="vertical" onFinish={handleAddAccount}>
           <Form.Item
@@ -316,28 +333,12 @@ const AccountList: React.FC = () => {
             <Input />
           </Form.Item>
           <Form.Item
-            name="phone"
-            label="Phone Number"
-            rules={[{ required: true, message: "Please enter phone number" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="role"
-            label="Role"
-            rules={[{ required: true, message: "Please select role" }]}
-          >
-            <Select>
-              <Option value={0}>Admin</Option>
-              <Option value={1}>Staff</Option>
-              <Option value={2}>Client</Option>
-              <Option value={3}>Freelancer</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
             name="password"
             label="Password"
-            rules={[{ required: true, message: "Please enter password" }]}
+            rules={[
+              { required: true, message: "Please enter password" },
+              { min: 6, message: "Password must be at least 6 characters" },
+            ]}
           >
             <Input.Password />
           </Form.Item>
@@ -362,13 +363,13 @@ const AccountList: React.FC = () => {
 
           <Row gutter={16}>
             <Col span={12}>
-              <Button block onClick={handleCancel}>
+              <Button block onClick={handleCancel} disabled={loading}>
                 Cancel
               </Button>
             </Col>
             <Col span={12}>
-              <Button type="primary" htmlType="submit" block>
-                Add Account
+              <Button type="primary" htmlType="submit" block loading={loading}>
+                Add Staff Account
               </Button>
             </Col>
           </Row>

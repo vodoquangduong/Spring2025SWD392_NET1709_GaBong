@@ -2,7 +2,7 @@
 {
     public class Amount
     {
-        public string currency_code { get; set; }
-        public string value { get; set; }
+        public string currency_code { get; set; } = string.Empty;
+        public string value { get; set; } = string.Empty;
     }
 }

@@ -46,19 +46,23 @@ const FreelancerItem = ({ portfolio }: { portfolio: VerifiedPortfolio }) => {
     <div className="py-6 px-4 border-b dark:border-gray-700 hover:bg-black/10 dark:hover:bg-neutral-950">
       <div className="flex justify-between">
         <Space size="large">
-          <Avatar size={80} src={portfolio.avatarURL} alt={portfolio.name}>
+          <Avatar
+            shape="circle"
+            size={150}
+            src={portfolio.avatarURL}
+            alt={portfolio.name}
+          >
             {portfolio.name?.charAt(0).toUpperCase()}
           </Avatar>
           <div>
-            <div className="mb-3">
-              <div className="text-lg font-medium mb-1">{portfolio.title}</div>
+            <div className="mb-1">
               <Space>
-                <span className="text-base">{portfolio.name}</span>
+                <span className="text-lg font-semibold">{portfolio.name}</span>
                 <FaCheckCircle className="text-green-500" />
+                <div className="text-white-500">{portfolio.email}</div>
               </Space>
             </div>
-
-            <div className="text-white-500 mb-3">{portfolio.email}</div>
+            <div className="text-base font-medium mb-1">{portfolio.title}</div>
 
             <Space size="large" className="text-white-600">
               <Space>

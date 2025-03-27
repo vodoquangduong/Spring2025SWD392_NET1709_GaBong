@@ -14,8 +14,8 @@ import {
 import { FaFlag, FaStar } from "react-icons/fa6";
 import CreateModal from "../../../../../components/CreateModal";
 import CreateReportFreelancerForm from "../forms/CreateReportFreelancerForm";
-import { useMutation } from "@tanstack/react-query";
-import { POST, PUT } from "@/modules/request";
+import { useMutation, useQueries } from "@tanstack/react-query";
+import { GET, POST, PUT } from "@/modules/request";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import useUiStore from "@/stores/uiStore";
 import useContractStore from "@/pages/MakeContract/store/contractStore";
@@ -24,6 +24,7 @@ import { Role } from "@/types";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
 import { NotificationType } from "@/types/notification";
 import { defaultAvatar } from "@/modules/default";
+import { ProjectStatus } from "@/types/project";
 
 export default function ProposalItem({
   item,
@@ -54,6 +55,15 @@ export default function ProposalItem({
       message.destroy();
       message.success("Choose freelancer successfully");
     },
+  });
+
+  const [projectDetail] = useQueries({
+    queries: [
+      {
+        queryKey: ["projectDetail", projectId],
+        queryFn: async () => await GET(`/api/Project/${projectId}`),
+      },
+    ],
   });
 
   const items: MenuProps["items"] = [
@@ -106,7 +116,7 @@ export default function ProposalItem({
       <div className="flex justify-between">
         <div
           className="flex gap-4 cursor-pointer"
-          onClick={() => navigate("/freelancers/1")}
+          onClick={() => navigate(`/freelancers/${item.bidOwnerId}`)}
         >
           <div
             className="h-16 aspect-square rounded-full bg-center bg-no-repeat bg-cover bg-white border"
@@ -137,23 +147,25 @@ export default function ProposalItem({
             ${item?.bidOffer.toLocaleString()} USD
           </div>
           <div>
-            {role == Role.CLIENT && clientId == accountId + "" && (
-              <Dropdown menu={{ items }}>
-                <div className="p-2 rounded-full bg-slate-200 dark:bg-black/20 transition-all">
-                  <HiOutlineDotsHorizontal />
-                </div>
-              </Dropdown>
-            )}
+            {role == Role.CLIENT &&
+              clientId == accountId + "" &&
+              projectDetail.data?.status == ProjectStatus.VERIFIED && (
+                <Dropdown menu={{ items }}>
+                  <div className="p-2 rounded-full bg-slate-200 dark:bg-black/20 transition-all">
+                    <HiOutlineDotsHorizontal />
+                  </div>
+                </Dropdown>
+              )}
           </div>
         </div>
       </div>
       <div className="my-4">{item?.bidDescription}</div>
       <div className="flex items-center justify-between">
-        <Rate
+        {/* <Rate
           defaultValue={getRandomInt(1, 5)}
           disabled
           character={<FaStar size={16} />}
-        />
+        /> */}
         {/* <div className="space-x-4">
           <CreateModal
             icon={<FaFlag />}

@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  FaEdit,
-  FaEye,
-  FaFilter,
-  FaPlus,
-  FaSearch,
-  FaTrash,
-} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { Project } from "../models/types";
 import { motion } from "motion/react";
 import { PAGE_ANIMATION } from "../../../../../modules/constants";
 import SearchBox from "../../../../../components/SearchBox";
@@ -19,9 +10,6 @@ import { ProjectDetail } from "@/types/project";
 import { useQuery } from "@tanstack/react-query";
 import useQueryParams from "@/hooks/useQueryParams";
 import useUiStore from "@/stores/uiStore";
-
-// tôi xài component bảng này cho gọn, anh Tiến tham khảo thử, tôi thấy anh Tiến tự code bảng bằng tay cũng hơi đuối @@
-// cái component bảng này chỉ cần define những trường trong cái cột của bảng thôi, đỡ phải code tay lại nhé
 
 export default function ProjectList() {
   const { page } = useQueryParams();

@@ -2,7 +2,7 @@
 {
     public sealed class Name
     {
-        public string given_name { get; set; }
-        public string surname { get; set; }
+        public string given_name { get; set; } = string.Empty;
+        public string surname { get; set; } = string.Empty;
     }
 }

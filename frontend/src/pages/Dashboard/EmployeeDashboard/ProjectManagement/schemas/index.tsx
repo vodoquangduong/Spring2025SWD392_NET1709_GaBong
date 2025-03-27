@@ -12,9 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { z } from "zod";
-import { Project } from "../models/types";
 import { ProjectDetail, ProjectStatus } from "@/types/project";
-import { approveService, rejectService } from "../services/verifyService";
 import { mapProjectStatusToTag } from "@/modules/mapUiStatus";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { POST, PUT } from "@/modules/request";
@@ -117,7 +115,11 @@ export const projectColumns = () => {
       title: "Post Date",
       dataIndex: "postDate",
       key: "postDate",
-      render: (text: string) => dayjs(text).format("DD-MM-YYYY"),
+      render: (text: string) => (
+        <div className="w-[100px]">
+          {dayjs(text, "DD-MM-YYYY").format("DD-MM-YYYY")}
+        </div>
+      ),
     },
     {
       title: "Status",

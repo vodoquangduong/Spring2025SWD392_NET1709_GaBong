@@ -42,7 +42,7 @@ export default function ProjectContract() {
   // console.log(project?.data?.value?.freelancerId);
   console.log("🚀 ~ ProjectContract ~ freelancerId:", data?.project);
 
-  const [freelancer, client] = useQueries({
+  const [freelancer, client, contract] = useQueries({
     queries: [
       {
         queryKey: ["contractFreelancer", data?.project?.freelancerId],
@@ -53,6 +53,11 @@ export default function ProjectContract() {
         queryKey: ["client", data?.project?.clientId],
         queryFn: async () =>
           await GET(`/api/Account/${data?.project?.clientId}`),
+      },
+      {
+        queryKey: ["projectDetail", data?.project?.projectId],
+        queryFn: async () =>
+          await GET(`/api/Contract/project/${data?.project?.projectId}`),
       },
     ],
   });
@@ -133,11 +138,16 @@ export default function ProjectContract() {
               dataSource={data?.project?.milestones}
               columns={tableColumns(data?.project?.estimateBudget)}
             />
-            <div className="font-bold justify-between p-4 pl-0 border-b chivo">
+            <div className="font-bold flex justify-between p-4 pl-0 border-b chivo">
               <div>Contract policy</div>
+              <div className="font-semibold text-sm">
+                Start date: {contract?.data?.startDate}
+              </div>
             </div>
 
-            <div className="col-span-4 text-base flex justify-end items-center"></div>
+            <div className="col-span-4 text-base">
+              {contract?.data?.contractPolicy}
+            </div>
           </div>
         </div>
       </div>
@@ -150,7 +160,7 @@ const UserItem = ({ data }: any) => {
     <div className="space-y-4 py-4">
       <div className="flex gap-4">
         <img
-          className="h-20 rounded-lg border"
+          className="aspect-square h-20 rounded-lg border"
           src={data?.avatarURL || defaultAvatar}
         />
         <div className="flex flex-col gap-2 w-full">

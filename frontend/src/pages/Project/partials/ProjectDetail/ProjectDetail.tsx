@@ -48,7 +48,7 @@ export default function ProjectDetail() {
           <span className="font-bold mr-3 flex flex-col items-end">
             <div className="text-end">Total Estimate Budget</div>
             <span className="text-2xl chivo font-bold ml-4 w-full text-end mt-1">
-              ${projectDetails?.data?.value?.estimateBudget}
+              ${projectDetails?.data?.estimateBudget}
               <span className="text-zinc-500 text-sm ml-2">USD</span>
             </span>
           </span>
@@ -58,35 +58,33 @@ export default function ProjectDetail() {
             <FaClock />
             <span>
               {dayjs().isBefore(
-                dayjs(projectDetails?.data?.value?.postDate!).add(
-                  projectDetails?.data?.value?.availableTimeRange || 0,
+                dayjs(projectDetails?.data?.postDate!).add(
+                  projectDetails?.data?.availableTimeRange || 0,
                   "days"
                 )
               )
                 ? `Bidding ends in ${dayjs(
-                    projectDetails?.data?.value?.postDate!
+                    projectDetails?.data?.postDate!
                   ).format("MMM DD, YYYY")}`
                 : "Bidding ended"}
             </span>
           </div>
         </div>
         <p className="text-base whitespace-pre-line tracking-wide border-b pb-8 mb-8">
-          {projectDetails?.data?.value?.projectDescription}
+          {projectDetails?.data?.projectDescription}
         </p>
         <div>
           <span className="font-semibold text-lg mr-3">Skills Required</span>
           <div className="mt-4">
-            <Skills items={projectDetails?.data?.value?.skills} />
+            <Skills items={projectDetails?.data?.skills} />
           </div>
         </div>
         <div className="mt-8">
           <span className="font-semibold text-lg mr-3">Milestones</span>
           <div className="mt-4">
             <Table
-              dataSource={projectDetails?.data?.value?.milestones}
-              columns={tableColumns(
-                projectDetails?.data?.value?.estimateBudget
-              )}
+              dataSource={projectDetails?.data?.milestones}
+              columns={tableColumns(projectDetails?.data?.estimateBudget)}
               rowKey={(record: any) => record.milestoneId}
               pagination={false}
             />
@@ -107,11 +105,11 @@ export default function ProjectDetail() {
         </div>
       </div>
       {role != Role.CLIENT &&
-        !projectDetails?.data?.value?.bids?.some(
+        !projectDetails?.data?.bids?.some(
           (bid: any) => bid.bidOwnerId == accountId
         ) &&
-        projectDetails?.data?.value?.status == ProjectStatus.VERIFIED && (
-          <PlaceBid project={projectDetails?.data?.value} />
+        projectDetails?.data?.status == ProjectStatus.VERIFIED && (
+          <PlaceBid project={projectDetails?.data} />
         )}
     </>
   );

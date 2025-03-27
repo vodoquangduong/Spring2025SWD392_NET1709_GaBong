@@ -3,25 +3,43 @@ import {
   Button,
   Calendar,
   ConfigProvider,
+  Image,
   Modal,
   Popconfirm,
   Popover,
   Tag,
+  Typography,
+  UploadFile,
 } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { z } from "zod";
-import { Project } from "../models/types";
 import { ProjectDetail, ProjectStatus } from "@/types/project";
 import { approveService, rejectService } from "../services/verifyService";
-import { mapProjectStatusToTag } from "@/modules/mapUiStatus";
+import {
+  mapProjectStatusToTag,
+  mapTransactionStatusToTag,
+  mapTransactionTypeToTag,
+} from "@/modules/mapUiStatus";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { POST, PUT } from "@/modules/request";
 import useChatStore from "@/components/ChatPopup/stores/chatStore";
 import { NotificationStatus, NotificationType } from "@/types/notification";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaPen } from "react-icons/fa";
 import useUiStore from "@/stores/uiStore";
+import { ColumnType } from "antd/es/table";
+import {
+  Transaction,
+  TransactionStatus,
+  TransactionType,
+} from "@/types/transaction";
+import { TableProps } from "antd/lib";
+import { defaultAvatar } from "@/modules/default";
+import UploadImage from "@/components/UploadImage";
+import CreateModal from "@/components/CreateModal";
+import CreateProofForm from "../forms/CreateProofForm";
+import UserPopover from "../partials/UserPopover";
 
 // export const formSchema = () => {
 //   return z.object({
@@ -30,7 +48,8 @@ import useUiStore from "@/stores/uiStore";
 //   });
 // };
 
-export const projectColumns = () => {
+export const withdrawColumns = (): ColumnType<Transaction>[] => {
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
   const { message } = App.useApp();
   const navigate = useNavigate();
   const { notifyService } = useChatStore();
@@ -77,108 +96,136 @@ export const projectColumns = () => {
       requestRevalidate();
     },
   });
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
   return [
     {
-      title: "Id",
-      dataIndex: "projectId",
-      key: "id",
+      title: "Trans ID",
+      dataIndex: "transactionId",
+      key: "transactionId",
+    },
+    {
+      title: "Issuer",
+      dataIndex: "accountId",
+      key: "accountId",
       render: (text: string) => (
-        <Link
-          to={`/projects/${text}/details`}
-          className="text-xs"
-        >{`#${text}`}</Link>
+        <Popover content={<UserPopover accountId={text} />}>
+          <div className="text-xs">{`#${text}`}</div>
+        </Popover>
       ),
     },
     {
-      title: "Project Description",
-      dataIndex: "projectDescription",
-      key: "projectDescription",
-      render: (_: string, record: any) => (
-        <div>
-          <div className="font-semibold text-lg">{record?.projectName}</div>
-          <div className="line-clamp-4">{record?.projectDescription}</div>
-        </div>
-      ),
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+      render: (type: number) => mapTransactionTypeToTag(type),
+      filters: [
+        { text: "Deposit", value: TransactionType.DEPOSIT },
+        { text: "Withdrawal", value: TransactionType.WITHDRAWAL },
+        { text: "Earnings", value: TransactionType.EARNINGS },
+        { text: "Payment", value: TransactionType.PAYMENT },
+        { text: "Fee", value: TransactionType.FEE },
+      ],
+      onFilter: (value: any, record: Transaction) => record.type === value,
     },
     {
-      title: "View",
-      dataIndex: "projectId",
-      key: "id",
-      render: (text: string) => (
-        <div
-          className="cursor-pointer hover:text-emerald-500"
-          onClick={() => navigate(`/projects/${text}/details`)}
-        >
-          <FaEye size={20} />
-        </div>
-      ),
-    },
-    {
-      title: "Post Date",
-      dataIndex: "postDate",
-      key: "postDate",
-      render: (text: string) => dayjs(text).format("DD-MM-YYYY"),
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+      render: (amount: number, record: Transaction) => {
+        let type: "success" | "danger" | "warning" | undefined;
+        if (
+          record.type === TransactionType.DEPOSIT ||
+          record.type === TransactionType.EARNINGS ||
+          record.type === TransactionType.REFUND
+        ) {
+          type = "success";
+        } else if (
+          record.type === TransactionType.WITHDRAWAL ||
+          record.type === TransactionType.PAYMENT ||
+          record.type === TransactionType.FEE
+        ) {
+          type = "danger";
+        }
+
+        const prefix =
+          record.type === TransactionType.WITHDRAWAL ||
+          record.type === TransactionType.PAYMENT ||
+          record.type === TransactionType.FEE
+            ? "-"
+            : "+";
+
+        return (
+          <Typography.Text type={type} strong>
+            {prefix} {formatCurrency(amount)}
+          </Typography.Text>
+        );
+      },
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (text: ProjectStatus) => mapProjectStatusToTag(text),
+      render: (status: number) => mapTransactionStatusToTag(status),
+      filters: [
+        { text: "Pending", value: TransactionStatus.PENDING },
+        { text: "Completed", value: TransactionStatus.COMPLETED },
+        { text: "Failed", value: TransactionStatus.FAILED },
+        { text: "Refunded", value: TransactionStatus.REFUNDED },
+        { text: "Cancelled", value: TransactionStatus.CANCELLED },
+      ],
+      onFilter: (value: any, record: Transaction) => record.status === value,
     },
     {
-      title: "Verify",
-      dataIndex: "verify",
-      key: "verify",
-      render: (_text: string, record: ProjectDetail) => (
-        <div className="flex gap-2">
-          <div className="flex gap-4">
-            {record.status == ProjectStatus.PENDING && (
-              <>
-                <Popconfirm
-                  title="Approve the project"
-                  description="Are you sure to approve this project?"
-                  onConfirm={() => {
-                    message.open({
-                      type: "loading",
-                      content: "Approving project ...",
-                      duration: 0,
-                    });
-                    mutation.mutate({
-                      projectId: record.projectId,
-                      isVerified: true,
-                      clientId: record.clientId + "",
-                    });
-                  }}
-                >
-                  <Button type="primary" className="font-bold">
-                    Approve
-                  </Button>
-                </Popconfirm>
-                <Popconfirm
-                  title="Reject the project"
-                  description="Are you sure to reject this project?"
-                  onConfirm={() => {
-                    message.open({
-                      type: "loading",
-                      content: "Rejecting project ...",
-                      duration: 0,
-                    });
-                    mutation.mutate({
-                      projectId: record.projectId,
-                      isVerified: false,
-                      clientId: record.clientId + "",
-                    });
-                  }}
-                >
-                  <Button type="primary" danger className="font-bold">
-                    Reject
-                  </Button>
-                </Popconfirm>
-              </>
+      title: "Date",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => date,
+    },
+    {
+      title: "Detail",
+      dataIndex: "detail",
+      key: "detail",
+      render: (value: string) => value.split("|")[0],
+    },
+    {
+      title: "Withdraw Proof",
+      dataIndex: "detail",
+      key: "withdrawProof",
+      render: (_: any, record: Transaction) => {
+        return (
+          <div className="flex items-center gap-4">
+            {record.status == TransactionStatus.COMPLETED && (
+              <Image src={record.detail.split("|")[1]} width={50} alt="" />
             )}
+            <CreateModal
+              type="default"
+              children={
+                <span className="text-sm flex items-center gap-2">
+                  <FaPen />
+                  Upload
+                </span>
+              }
+              modalTitle={"Upload Withdraw Proof Image"}
+              form={(
+                setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+              ) => (
+                <CreateProofForm
+                  setIsModalOpen={setIsModalOpen}
+                  record={record}
+                />
+              )}
+            />
           </div>
-        </div>
-      ),
+        );
+      },
     },
   ];
 };

@@ -12,7 +12,11 @@ namespace API.Controllers
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IMailSenderService _mailSender;
-        public AuthenticationController(IAuthenticationService authenticationService,IMailSenderService emailSender)
+
+        public AuthenticationController(
+            IAuthenticationService authenticationService,
+            IMailSenderService emailSender
+        )
         {
             _authenticationService = authenticationService;
             _mailSender = emailSender;
@@ -27,7 +31,7 @@ namespace API.Controllers
             var token = await _authenticationService.Login(loginDto);
             if (token == null)
             {
-                return Unauthorized("Email not found or password incorrect");
+                return Unauthorized("Email, password incorrect or account is banned");
             }
             return Ok(token);
         }
@@ -94,7 +98,7 @@ namespace API.Controllers
                 resetPasswordDto.Email,
                 "",
                 resetToken.Token,
-                "[DATJ Diamond] – Reset password verification"
+                "[GigsHub] – Reset password verification"
             );
 
             return Ok(result);

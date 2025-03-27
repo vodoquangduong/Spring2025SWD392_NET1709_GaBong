@@ -1,3 +1,4 @@
+import { CreateMilestoneDTO } from "@/types/milestone";
 import { App, Button } from "antd";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -11,10 +12,12 @@ export const formSchema = () => {
   return z.object({
     projectName: z
       .string()
+      .trim()
       .min(3, "Name must be at least 3 characters")
       .max(50, "Name must be less than 50 characters"),
     projectDescription: z
       .string()
+      .trim()
       .min(20, "Description must be at least 20 characters")
       .max(1000, "Description must be less than 1000 characters"),
     location: z.string().min(1, "Required"),
@@ -40,7 +43,15 @@ export const tableColumns = ({
 }: any) => {
   const { message } = App.useApp();
   const [updateMilestone, setUpdateMilestone] = useState<any>({});
-
+  function normalizeDate(date: Date): Date {
+    return new Date(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      date.getUTCHours(),
+      date.getUTCMinutes()
+    );
+  }
   return [
     {
       title: "Name",
@@ -49,7 +60,7 @@ export const tableColumns = ({
       render: (text: string, _: any, index: number) =>
         index == isEditting ? (
           <input
-            className="py-1 bg-transparent no-ring"
+            className="py-0.5 input-style px-1"
             value={index != isEditting ? text : updateMilestone.milestoneName}
             onChange={(e: any) => {
               setUpdateMilestone({
@@ -69,7 +80,7 @@ export const tableColumns = ({
       render: (text: string, record: any, index: number) =>
         index == isEditting ? (
           <textarea
-            className="bg-transparent no-ring"
+            className="py-0.5 input-style px-1"
             rows={2}
             value={index != isEditting ? text : updateMilestone.description}
             onChange={(e: any) => {
@@ -91,7 +102,7 @@ export const tableColumns = ({
         index == isEditting ? (
           <input
             type="number"
-            className="bg-transparent no-ring"
+            className="py-0.5 input-style px-1 !w-[80px]"
             value={index != isEditting ? text : updateMilestone.amount}
             onChange={(e: any) => {
               setUpdateMilestone({
@@ -101,7 +112,7 @@ export const tableColumns = ({
             }}
           />
         ) : (
-          Number(text).toLocaleString() + "%"
+          Number(text).toFixed(2) + "%"
         ),
     },
     {
@@ -109,7 +120,7 @@ export const tableColumns = ({
       dataIndex: state?.project ? "payAmount" : "amount",
       key: "3",
       render: (text: number, record: any) =>
-        Number((text / 100) * budget).toLocaleString() + " USD",
+        Number((text / 100) * budget).toFixed(2) + " USD",
     },
     {
       title: "Deadline",
@@ -143,13 +154,48 @@ export const tableColumns = ({
                 <Button
                   onClick={() => {
                     if (
-                      !updateMilestone.milestoneName ||
-                      !updateMilestone.description ||
-                      updateMilestone.deadline < new Date().getTime()
+                      !updateMilestone.milestoneName.trim() ||
+                      !updateMilestone.description.trim() ||
+                      !updateMilestone.deadline.trim()
                     ) {
                       message.error("Please fill in all fields");
                       return;
                     }
+                    if (updateMilestone.amount < 5) {
+                      message.error("Each percent cant be less than 5%");
+                      return;
+                    }
+                    if (dayjs(updateMilestone.deadline).isBefore(new Date())) {
+                      message.error("Deadline cant be a past date");
+                      return;
+                    }
+
+                    const compareMilestone = milestones.filter(
+                      (milestone: CreateMilestoneDTO, i: number) => i != index
+                    );
+
+                    // console.log(
+                    //   "After filtering:",
+                    //   compareMilestone.map((m) => ({
+                    //     deadline: m.deadline,
+                    //     id: m.id, // or any unique identifier
+                    //   }))
+                    // );
+
+                    for (const milestone of compareMilestone) {
+                      const diffDay = Math.abs(
+                        dayjs(milestone.deadline).diff(
+                          dayjs(updateMilestone.deadline),
+                          "days"
+                        )
+                      );
+
+                      if (diffDay < 2) {
+                        message.error("Deadline cant be less than 2 days");
+                        return;
+                      }
+                    }
+
                     const totalPercent = milestones
                       .map((milestone: any, i: number) =>
                         i == index ? updateMilestone : milestone
