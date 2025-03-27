@@ -35,12 +35,15 @@ export function getEarningChartData(data: Transaction[]) {
   const totalEarningsMap = data
     .filter((item: Transaction) => item.type == TransactionType.EARNINGS)
     .reduce((a: DateMap, b: Transaction) => {
-      const date = dayjs(b.createdAt, "DD-MM-YYYY").format("YYYY-DD-MM");
+      const date = dayjs(b.createdAt, "DD/MM/YYYY HH:mm:ss").format(
+        "YYYY-DD-MM"
+      );
       return {
         ...a,
         [date]: (a[date] || 0) + b.amount,
       };
     }, {});
+  console.log("totalEarningsMap", totalEarningsMap);
 
   let totalEarnings = Object.keys(totalEarningsMap)
     .map((key) => ({
@@ -52,6 +55,7 @@ export function getEarningChartData(data: Transaction[]) {
       const dateB = new Date(b.x.split("-").reverse().join("-"));
       return dateA.getTime() - dateB.getTime();
     });
+  console.log("totalEarnings", totalEarnings);
 
   return totalEarnings;
 }
@@ -63,7 +67,7 @@ export function getTotalEarningData(
 ): number {
   const now = dayjs();
   const totalEarningsData = data.reduce((a: number, b: Transaction) => {
-    const date = dayjs(b.createdAt, "DD-MM-YYYY").format("YYYY-DD-MM");
+    const date = dayjs(b.createdAt, "DD/MM/YYYY HH:mm:ss").format("YYYY-DD-MM");
     if (b.type == TransactionType.EARNINGS) {
       if (!last30Days || now.diff(date, "day") <= 30) {
         return a + b.amount;

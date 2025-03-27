@@ -101,7 +101,7 @@ const TransactionHistory: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return dayjs(dateString, "M/D/YYYY h:mm:ss A").format("MM/DD/YYYY");
+    return dayjs(dateString, "MM/DD/YYYY HH:mm:ss").format("MM/DD/YYYY");
   };
 
   const columns = [
