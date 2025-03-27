@@ -5,7 +5,7 @@ import {
 } from "@microsoft/signalr";
 // import { ROUTES } from "../config/routes";
 
-const API_BASE = "http://localhost:7273";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export const ROUTES = {
   API: {
