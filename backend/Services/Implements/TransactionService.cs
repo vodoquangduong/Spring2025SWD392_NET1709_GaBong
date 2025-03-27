@@ -98,6 +98,7 @@ namespace Services.Implements
                     );
                 }
                 var transaction = _mapper.Map<Transaction>(createTransactionDTO);
+                transaction.CreatedAt = DateTime.UtcNow;
 
                 //var result = await _unitOfWork.GetRepo<Transaction>().CreateAsync(transaction);
                 //await _unitOfWork.SaveChangesAsync();
