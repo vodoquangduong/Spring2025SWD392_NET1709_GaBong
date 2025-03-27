@@ -221,6 +221,7 @@ export default function Payment() {
                           amount: amount,
                           status: 0,
                           type: 0,
+                          
                         }
                       );
                       console.log(
